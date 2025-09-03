@@ -2,7 +2,7 @@
   <div class="login-card">
     <p-card
       header="Login »"
-      [style]="{ width: '32rem', overflow: 'hidden', height: '30rem' }"
+      [style]="{ width: '50rem', overflow: 'hidden', height: '45rem' }"
     >
       <ng-template pTemplate="header">
         <div class="mac-dots">
@@ -20,6 +20,7 @@
             </p-inputgroup-addon>
             <p-iftalabel variant="on">
               <input
+              size="large"
                 pInputText
                 id="email"
                 autocomplete="off"
@@ -45,6 +46,7 @@
         </div>
         <div class="btn-form">
           <p-button
+            [style]="{ width: '15rem', padding: '1rem' }"
             label="Entrar"
             [size]="'large'"
             [raised]="true"
