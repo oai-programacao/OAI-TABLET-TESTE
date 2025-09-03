@@ -1,0 +1,21 @@
+@use "primeicons/primeicons.css";
+
+@media (min-width: 1200px) {
+  .container {
+    width: 1170px;
+    margin: 0 auto;
+  }
+}
+
+
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+
+  background-image: url('../src/app/shared/assets/background.png'); // imagem de fundo
+  background-size: cover;       // cobre toda a tela
+  background-position: center;  // centraliza
+  background-repeat: no-repeat; // não repete
+}
