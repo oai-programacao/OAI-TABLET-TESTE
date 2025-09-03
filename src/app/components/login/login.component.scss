@@ -1,0 +1,102 @@
+.login-card {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Sombra mais densa */
+.login-card ::ng-deep .p-card {
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5); /* sombra mais densa */
+  border-radius: 1rem; /* bordas suaves */
+  border: 1px solid rgb(89, 87, 87); /* contorno azul */
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 4rem;
+  gap: 1rem;
+  width: 100%;
+    height: 10rem;
+}
+
+// Botão de submit alinhado à direita
+.btn-form {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  width: 61%;
+  max-width: 18.75rem;
+}
+
+
+.mac-dots {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  gap: 0.5rem;
+}
+
+.dot {
+  width: 0.875rem;
+  height: 0.875rem;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+
+.red {
+  background-color: #ff5f56;
+}
+
+.yellow {
+  background-color: #ffbd2e;
+}
+
+.green {
+  background-color: #27c93f;
+}
+
+/* Faz o input de senha ocupar todo o espaço do grupo */
+:host ::ng-deep .p-password {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+
+:host ::ng-deep .p-password .p-password-mask-icon,
+:host ::ng-deep .p-password .p-password-unmask-icon {
+  right: 0.5rem;
+}
+
+
+:host ::ng-deep p-iftalabel input[pInputText] {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+
+:host ::ng-deep .p-button.p-button-purple {
+  background: #8a03f1; /* hover */
+  border-color: #6a0dad;
+  color: #fff;
+}
+
+:host ::ng-deep .p-button.p-button-purple:hover {
+  background: #C21DAE;
+  border-color: #C21DAE;
+}
+
+:host ::ng-deep .p-button.p-button-purple:active {
+  background: #4b0082; /* active */
+  border-color: #4b0082;
+}
+
+:host ::ng-deep .p-button.p-button-purple:focus {
+  box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.4);
+}

@@ -1,14 +1,58 @@
 <div class="container">
-    <h1>Login</h1>
-    <form>
-        <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" id="email" class="form-control" required>
+  <div class="login-card">
+    <p-card
+      header="Login »"
+      [style]="{ width: '32rem', overflow: 'hidden', height: '30rem' }"
+    >
+      <ng-template pTemplate="header">
+        <div class="mac-dots">
+          <span class="dot red"></span>
+          <span class="dot yellow"></span>
+          <span class="dot green"></span>
         </div>
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" class="form-control" required>
+      </ng-template>
+
+      <form>
+        <div class="group">
+          <p-inputgroup>
+            <p-inputgroup-addon>
+              <i class="pi pi-user"></i>
+            </p-inputgroup-addon>
+            <p-iftalabel variant="on">
+              <input
+                pInputText
+                id="email"
+                autocomplete="off"
+                maxlength="50"
+                minlength="5"
+                name="email"
+                required
+              />
+              <label for="email">E-mail</label>
+            </p-iftalabel>
+          </p-inputgroup>
+
+          <p-iftalabel variant="on" style="width: 100%">
+            <p-password
+              id="senha"
+              [feedback]="false"
+              [toggleMask]="true"
+              name="senha"
+              required
+            ></p-password>
+            <label for="senha">Senha</label>
+          </p-iftalabel>
         </div>
-        <button type="submit" class="btn btn-primary">Login</button>
-    </form>
+        <div class="btn-form">
+          <p-button
+            label="Entrar"
+            [size]="'large'"
+            [raised]="true"
+            type="submit"
+            [styleClass]="'p-button-purple'"
+          ></p-button>
+        </div>
+      </form>
+    </p-card>
+  </div>
 </div>
