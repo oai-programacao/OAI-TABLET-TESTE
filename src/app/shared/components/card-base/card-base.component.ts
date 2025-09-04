@@ -1,34 +1,33 @@
+import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { IftaLabelModule } from 'primeng/iftalabel';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { PasswordModule } from 'primeng/password';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { CheckboxModule } from 'primeng/checkbox';
 
 @Component({
-  selector: 'app-login',
+  selector: 'app-card-base',
   imports: [
     CardModule,
-    CommonModule,
-    InputTextModule,
-    ButtonModule,
-    IftaLabelModule,
-    InputGroupModule,
-    InputGroupAddonModule,
-    PasswordModule,
+    CheckboxModule,
     FloatLabelModule,
-    CheckboxModule
+    InputGroupAddonModule,
+    InputGroupModule,
+    IftaLabelModule,
+    InputTextModule,
+    CommonModule,
+    ButtonModule,
   ],
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss'],
+  templateUrl: './card-base.component.html',
+  styleUrl: './card-base.component.scss',
 })
-export class LoginComponent {
-
-  rememberMe: boolean = false;
-
+export class CardBaseComponent {
+  @Input() header: string = '';
+  @Input() width: string = '';
+  @Input() height: string = '';
+  @Input() overflow: string = '';
 }

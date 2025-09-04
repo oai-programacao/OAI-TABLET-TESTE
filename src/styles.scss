@@ -47,20 +47,20 @@ body {
 
 @keyframes rainbow-glow-horizontal {
   0% {
-    filter: drop-shadow(0 0 12px #d2fe32)
-            drop-shadow(0 0 20px #ffff00)
+    filter: drop-shadow(0 0 10px #d2fe32)
+            drop-shadow(0 0 13px #ffff00)
             drop-shadow(0 0 10px hsl(300, 100%, 25%));
     transform: rotateY(0deg);
   }
   50% {
-    filter: drop-shadow(0 0 20px #2988B1)
-            drop-shadow(0 0 40px #ffff00)
+    filter: drop-shadow(0 0 13px #2988B1)
+            drop-shadow(0 0 20px #ffff00)
             drop-shadow(0 0 10px #800080);
     transform: rotateY(180deg);
   }
   100% {
-    filter: drop-shadow(0 0 10px #04c071)
-            drop-shadow(0 0 20px #ffff00)
+    filter: drop-shadow(0 0 20px #fa48f7)
+            drop-shadow(0 0 13px #ffff00)
             drop-shadow(0 0 10px #0ba1dc);
     transform: rotateY(360deg);
   }

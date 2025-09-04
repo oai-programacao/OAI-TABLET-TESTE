@@ -1,0 +1,52 @@
+<app-card-base 
+  header="INÍCIO"
+  width="90rem"
+  height="48rem">
+
+  <div class="home-content">
+
+    <div class="top-info">
+      <h2>Seja Bem-vindo, <span class="vendedor-nome">{{ vendedorNome }}</span> 👋</h2>
+      <p>{{ dataAtual | date:'fullDate' }} - {{ horaAtual | date:'HH:mm:ss' }}</p>
+      <p-divider></p-divider>
+    </div>
+
+    <div class="cpf-section">
+      <p-iftalabel variant="on" style="width: 100%">
+        <input 
+          pInputText
+          maxlength="18"
+          minlength="14"
+          placeholder="Insira o CPF/CPJ"
+          name="cpf"
+          required
+        />
+        <label for="cpf">CPF/CNPJ (Somente Números)</label>
+      </p-iftalabel>
+    </div>
+
+    <!-- Botões -->
+    <div class="actions">
+      <p-button 
+        [style]="{ width: '15rem', padding: '2rem' }"
+        [size]="'large'"
+        label="Consultar" 
+        icon="pi pi-search"
+        [styleClass]="'p-button-purple'"
+        raised="true"
+        (onClick)="consultarCliente()">
+      </p-button>
+
+      <p-button
+        [style]="{ width: '15rem', padding: '2rem' }"
+        [size]="'large'"
+        label="Consultar Planos" 
+        icon="pi pi-list"
+        severity="secondary"
+        raised="true"
+        (onClick)="verPlanos()">
+      </p-button>
+    </div>
+
+  </div>
+</app-card-base>

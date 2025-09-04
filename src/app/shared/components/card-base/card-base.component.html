@@ -1,0 +1,18 @@
+<div class="container">
+  <div class="cardbase">
+    <p-card [style]="{ width: width, overflow: 'hidden', height: height }">
+      <ng-template pTemplate="header">
+        <div class="card-header">
+          <div class="mac-dots">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+          </div>
+          <div class="header-title">{{ header }}</div>
+        </div>
+      </ng-template>
+
+      <ng-content></ng-content>
+    </p-card>
+  </div>
+</div>

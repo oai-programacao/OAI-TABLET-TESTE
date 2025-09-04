@@ -1,8 +1,8 @@
 <div class="container">
   <div class="login-card">
     <p-card
-      header="Login »"
-      [style]="{ width: '50rem', overflow: 'hidden', height: '45rem' }"
+      header="OAI SELLER | Login »"
+      [style]="{ width: '45rem', overflow: 'hidden', height: '40rem' }"
     >
       <ng-template pTemplate="header">
         <div class="mac-dots">
@@ -20,7 +20,7 @@
             </p-inputgroup-addon>
             <p-iftalabel variant="on">
               <input
-              size="large"
+                size="large"
                 pInputText
                 id="email"
                 autocomplete="off"
@@ -44,6 +44,12 @@
             <label for="senha">Senha</label>
           </p-iftalabel>
         </div>
+
+        <div class="rememberMe">
+            <p-checkbox binary="true" inputId="rememberMe"></p-checkbox>
+            <label for="rememberMe"> Lembrar-me</label>
+        </div>
+
         <div class="btn-form">
           <p-button
             [style]="{ width: '15rem', padding: '1rem' }"
@@ -58,5 +64,3 @@
     </p-card>
   </div>
 </div>
- 
-
