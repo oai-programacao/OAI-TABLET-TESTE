@@ -44,7 +44,7 @@ app-card-base {
   width: auto;
   display: flex;
   justify-content: center;
-  margin-top: 12rem;
+  margin-top: 15rem;
   margin-bottom: 2rem; 
 
   input[pInputText] {
@@ -87,8 +87,8 @@ app-card-base {
       font-size: 1.5rem;
       font-weight: 700;
       margin-top: 0.5rem;
-      color: rgb(185, 26, 243);               
-      text-shadow: 0 0 4px rgb(206, 41, 247), 0 0 8px rgb(246, 42, 222);
+      color: orange;               
+      text-shadow: 0 0 1px rgb(233, 162, 32), 0 0 8px rgb(233, 175, 69);
     }
   }
 }
