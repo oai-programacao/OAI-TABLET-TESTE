@@ -39,8 +39,6 @@ export class SearchclientComponent implements OnInit {
     { label: 'Clientes atendidos hoje', value: 12 },
     { label: 'Novos contratos fechados', value: 5 },
     { label: 'Faturamento do dia', value: 'R$ 2.350,00' },
-    { label: 'Contratos pendentes de aprovação', value: 3 },
-    { label: 'Pagamentos atrasados a revisar', value: 2 },
     { label: 'Meta mensal', value: '24 / 50' },
   ];
 
