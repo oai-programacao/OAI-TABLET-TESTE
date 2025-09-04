@@ -1,0 +1,28 @@
+<app-card-base header="PLANOS DISPONÍVEIS" width="120rem" height="56rem">
+  
+  <!-- Planos mais utilizados -->
+  <div class="planos-populares">
+    <div class="planos-container planos-populares-container">
+      <div class="plano-card destaque" *ngFor="let plano of planosPopulares">
+        <div class="plano-mega">{{ plano.velocidade }}</div>
+        <div class="plano-preco">R$ {{ plano.preco }}</div>
+        <div class="plano-detalhes">Internet Fibra Óptica</div>
+        <div class="plano-extra">+ Wi-Fi Incluso</div>
+        <button pButton label="Assinar" class="plano-btn"></button>
+      </div>
+    </div>
+  </div>
+
+  <p-divider></p-divider>
+
+  <!-- Todos os planos -->
+  <div class="planos-container">
+    <div class="plano-card" *ngFor="let plano of planos">
+      <div class="plano-mega">{{ plano.velocidade }}</div>
+      <div class="plano-preco">R$ {{ plano.preco }}</div>
+      <div class="plano-detalhes">Internet Fibra Óptica</div>
+      <div class="plano-extra">+ Wi-Fi Incluso</div>
+      <button pButton label="Assinar" class="plano-btn"></button>
+    </div>
+  </div>
+</app-card-base>

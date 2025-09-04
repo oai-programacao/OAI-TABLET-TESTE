@@ -1,0 +1,78 @@
+app-card-base {
+  position: relative;
+  top: -4.5rem;
+}
+
+.titulo-populares {
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #3b82f6;
+}
+
+.planos-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  gap: 2rem;
+  padding: 2rem;
+}
+
+/* Planos populares centralizados e com largura menor */
+.planos-populares-container {
+  max-width: 60rem;
+  margin: 0 auto;
+  grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
+}
+
+.plano-card {
+  background: linear-gradient(135deg, #6058f5, #b94cfc);
+  color: #fff;
+  border-radius: 1rem;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.plano-card.destaque {
+  transform: scale(1.05);
+}
+
+.plano-mega {
+  font-size: 3rem;
+  font-weight: 900;
+  margin-bottom: 1rem;
+}
+
+.plano-preco {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: #f5b01b;
+}
+
+.plano-detalhes {
+  font-size: 1.2rem;
+  margin-bottom: 0.3rem;
+  opacity: 0.95;
+}
+
+.plano-extra {
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+  font-style: italic;
+  color: #e0e7ff;
+}
+
+.plano-btn {
+  background: #fff !important;
+  color: #3b82f6 !important;
+  font-weight: 700;
+  border-radius: 999px !important;
+}

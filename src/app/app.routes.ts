@@ -1,4 +1,3 @@
-import { SearchclientComponent } from './components/searchclient/searchclient.component';
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
@@ -14,6 +13,13 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./components/searchclient/searchclient.component').then(
         (m) => m.SearchclientComponent
+      ),
+  },
+  {
+    path: 'plans',
+    loadComponent: () =>
+      import('./components/viewplan/viewplan.component').then(
+        (m) => m.ViewplanComponent
       ),
   }
 ];
