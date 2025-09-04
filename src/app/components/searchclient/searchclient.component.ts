@@ -6,6 +6,7 @@ import { CardBaseComponent } from '../../shared/components/card-base/card-base.c
 import { IftaLabelModule } from 'primeng/iftalabel';
 import { InputTextModule } from 'primeng/inputtext';
 import { DividerModule } from 'primeng/divider';
+import { InputMaskModule } from 'primeng/inputmask';
 
 @Component({
   selector: 'app-searchclient',
@@ -16,7 +17,8 @@ import { DividerModule } from 'primeng/divider';
     CommonModule,
     FormsModule,
     InputTextModule,
-    DividerModule
+    DividerModule,
+    InputMaskModule,
   ],
   templateUrl: './searchclient.component.html',
   styleUrls: ['./searchclient.component.scss'],
@@ -25,7 +27,7 @@ export class SearchclientComponent implements OnInit {
   vendedorNome: string = 'Gabriel Santos'; // pode vir de authService
   dataAtual: Date = new Date();
   horaAtual: Date = new Date();
-  cpf: string = '';
+  documento: string = '';
 
   ngOnInit() {
     setInterval(() => {
@@ -33,12 +35,43 @@ export class SearchclientComponent implements OnInit {
     }, 1000);
   }
 
+  infoVendas = [
+    { label: 'Clientes atendidos hoje', value: 12 },
+    { label: 'Novos contratos fechados', value: 5 },
+    { label: 'Faturamento do dia', value: 'R$ 2.350,00' },
+    { label: 'Contratos pendentes de aprovação', value: 3 },
+    { label: 'Pagamentos atrasados a revisar', value: 2 },
+    { label: 'Meta mensal', value: '24 / 50' },
+  ];
+
+  //métodos e lógicas
+
   consultarCliente() {
-    console.log('Consultando cliente:', this.cpf);
+    console.log('Consultando cliente:', this.documento);
     // chamada para API futura
   }
 
   verPlanos() {
     console.log('Redirecionar para planos...');
+  }
+
+  onDocumentoChange(valor: string) {
+    // remove tudo que não é número
+    const digits = valor.replace(/\D/g, '');
+
+    if (digits.length <= 11) {
+      // formata CPF
+      this.documento = digits
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+    } else {
+      // formata CNPJ
+      this.documento = digits
+        .replace(/^(\d{2})(\d)/, '$1.$2')
+        .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
+        .replace(/\.(\d{3})(\d)/, '.$1/$2')
+        .replace(/(\d{4})(\d{1,2})$/, '$1-$2');
+    }
   }
 }

@@ -53,14 +53,14 @@ body {
     transform: rotateY(0deg);
   }
   50% {
-    filter: drop-shadow(0 0 13px #2988B1)
+    filter: drop-shadow(0 0 13px #2dc0ff)
             drop-shadow(0 0 20px #ffff00)
             drop-shadow(0 0 10px #800080);
     transform: rotateY(180deg);
   }
   100% {
     filter: drop-shadow(0 0 20px #fa48f7)
-            drop-shadow(0 0 13px #ffff00)
+            drop-shadow(0 0 13px #deec5a)
             drop-shadow(0 0 10px #0ba1dc);
     transform: rotateY(360deg);
   }

@@ -1,52 +1,60 @@
-<app-card-base 
-  header="INÍCIO"
-  width="90rem"
-  height="48rem">
-
+<app-card-base header="INÍCIO" width="90rem" height="55rem">
   <div class="home-content">
-
     <div class="top-info">
-      <h2>Seja Bem-vindo, <span class="vendedor-nome">{{ vendedorNome }}</span> 👋</h2>
-      <p>{{ dataAtual | date:'fullDate' }} - {{ horaAtual | date:'HH:mm:ss' }}</p>
+      <h2>
+        Seja Bem-vindo, <span class="vendedor-nome">{{ vendedorNome }}</span> 👋
+      </h2>
+      <p>
+        {{ dataAtual | date : "fullDate" }} -
+        {{ horaAtual | date : "HH:mm:ss" }}
+      </p>
       <p-divider></p-divider>
+    </div>
+
+    <div class="infotoseller">
+      <div class="info-card" *ngFor="let info of infoVendas">
+        <p>{{ info.label }}</p>
+        <p class="info-value">{{ info.value }}</p>
+      </div>
     </div>
 
     <div class="cpf-section">
       <p-iftalabel variant="on" style="width: 100%">
-        <input 
+        <input
           pInputText
+          [(ngModel)]="documento"
+          (ngModelChange)="onDocumentoChange($event)"
           maxlength="18"
-          minlength="14"
-          placeholder="Insira o CPF/CPJ"
-          name="cpf"
-          required
+          placeholder="Insira o CPF/CNPJ"
+          name="documento"
         />
-        <label for="cpf">CPF/CNPJ (Somente Números)</label>
+        <label for="documento">CPF/CNPJ (Somente Números)</label>
       </p-iftalabel>
     </div>
 
     <!-- Botões -->
     <div class="actions">
-      <p-button 
+      <p-button
         [style]="{ width: '15rem', padding: '2rem' }"
         [size]="'large'"
-        label="Consultar" 
+        label="Consultar"
         icon="pi pi-search"
-        [styleClass]="'p-button-purple'"
+        severity="info"
         raised="true"
-        (onClick)="consultarCliente()">
+        (onClick)="consultarCliente()"
+      >
       </p-button>
 
       <p-button
         [style]="{ width: '15rem', padding: '2rem' }"
         [size]="'large'"
-        label="Consultar Planos" 
+        label="Visualizar Planos"
         icon="pi pi-list"
         severity="secondary"
         raised="true"
-        (onClick)="verPlanos()">
+        (onClick)="verPlanos()"
+      >
       </p-button>
     </div>
-
   </div>
 </app-card-base>
