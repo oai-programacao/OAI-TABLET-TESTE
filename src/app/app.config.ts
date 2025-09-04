@@ -5,11 +5,12 @@ import { providePrimeNG } from 'primeng/config';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideEnvironmentNgxCurrency, NgxCurrencyInputMode } from 'ngx-currency';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { LOCALE_ID } from '@angular/core';
+import { LOCALE_ID, isDevMode } from '@angular/core';
 
 import { routes } from './app.routes';
 
 import Aura from '@primeng/themes/aura';
+import { provideServiceWorker } from '@angular/service-worker';
 export const appConfig: ApplicationConfig = {
   providers: [
      { provide: LOCALE_ID, useValue: 'pt-BR' },
@@ -52,7 +53,10 @@ export const appConfig: ApplicationConfig = {
     }),
     provideHttpClient(
       withInterceptors([]) //authInterceptor
-    ),
+    ), provideServiceWorker('ngsw-worker.js', {
+            enabled: !isDevMode(),
+            registrationStrategy: 'registerWhenStable:30000'
+          }),
 
     //AuthGuard,
   ],
