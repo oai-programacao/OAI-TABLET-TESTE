@@ -1,60 +1,62 @@
-<app-card-base header="INÍCIO 🌐" width="90rem" height="55rem">
-  <div class="home-content">
-    <div class="top-info">
-      <h2>
-        Seja Bem-vindo, <span class="vendedor-nome">{{ vendedorNome }}</span> 👋
-      </h2>
-      <p>
-        {{ dataAtual | date : "fullDate" }} -
-        {{ horaAtual | date : "HH:mm:ss" }}
-      </p>
-      <p-divider></p-divider>
-    </div>
+<div class="page-container">
+  <app-card-base header="INÍCIO 🌐" width="auto" height="110%">
+    <div class="home-content">
+      <div class="top-info">
+        <h2>
+          Seja Bem-vindo,
+          <span class="vendedor-nome">{{ vendedorNome }}</span> 👋
+        </h2>
+        <p>
+          {{ dataAtual | date : "fullDate" }} -
+          {{ horaAtual | date : "HH:mm:ss" }}
+        </p>
+        <p-divider></p-divider>
+      </div>
 
-    <div class="infotoseller">
-      <div class="info-card" *ngFor="let info of infoVendas">
-        <p>{{ info.label }}</p>
-        <p class="info-value">{{ info.value }}</p>
+      <div class="infotoseller">
+        <div class="info-card" *ngFor="let info of infoVendas">
+          <p>{{ info.label }}</p>
+          <p class="info-value">{{ info.value }}</p>
+        </div>
+      </div>
+
+      <div class="cpf-section">
+        <p-iftalabel variant="on" style="width: 100%">
+          <input
+            pInputText
+            [(ngModel)]="documento"
+            (ngModelChange)="onDocumentoChange($event)"
+            maxlength="18"
+            placeholder="Insira o CPF/CNPJ"
+            name="documento"
+          />
+          <label for="documento">CPF/CNPJ (Somente Números)</label>
+        </p-iftalabel>
+      </div>
+
+      <div class="actions">
+        <p-button
+          [style]="{ width: '15rem', padding: '2rem' }"
+          [size]="'large'"
+          label="Consultar"
+          icon="pi pi-search"
+          severity="info"
+          raised="true"
+          (onClick)="consultarCliente()"
+        >
+        </p-button>
+
+        <p-button
+          [style]="{ width: '15rem', padding: '2rem' }"
+          [size]="'large'"
+          label="Visualizar Planos"
+          icon="pi pi-list"
+          severity="secondary"
+          raised="true"
+          (onClick)="verPlanos()"
+        >
+        </p-button>
       </div>
     </div>
-
-    <div class="cpf-section">
-      <p-iftalabel variant="on" style="width: 100%">
-        <input
-          pInputText
-          [(ngModel)]="documento"
-          (ngModelChange)="onDocumentoChange($event)"
-          maxlength="18"
-          placeholder="Insira o CPF/CNPJ"
-          name="documento"
-        />
-        <label for="documento">CPF/CNPJ (Somente Números)</label>
-      </p-iftalabel>
-    </div>
-
-    <!-- Botões -->
-    <div class="actions">
-      <p-button
-        [style]="{ width: '15rem', padding: '2rem' }"
-        [size]="'large'"
-        label="Consultar"
-        icon="pi pi-search"
-        severity="info"
-        raised="true"
-        (onClick)="consultarCliente()"
-      >
-      </p-button>
-
-      <p-button
-        [style]="{ width: '15rem', padding: '2rem' }"
-        [size]="'large'"
-        label="Visualizar Planos"
-        icon="pi pi-list"
-        severity="secondary"
-        raised="true"
-        (onClick)="verPlanos()"
-      >
-      </p-button>
-    </div>
-  </div>
-</app-card-base>
+  </app-card-base>
+</div>

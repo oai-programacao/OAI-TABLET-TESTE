@@ -1,6 +1,8 @@
-app-card-base {
-  position: relative;
-  top: -4rem; // move o card 5rem para cima
+.page-container {
+  display: flex;
+  justify-content: center; // centraliza horizontal
+  align-items: center;     // centraliza vertical
+  min-height: 80vh;       // ocupa altura total da tela
 }
 
 .home-content {
@@ -42,7 +44,7 @@ app-card-base {
   width: auto;
   display: flex;
   justify-content: center;
-  margin-top: 15rem;
+  margin-top: 1rem;
   margin-bottom: 2rem; 
 
   input[pInputText] {
@@ -56,7 +58,7 @@ app-card-base {
 
 .actions {
   display: flex;
-  gap: 2rem;
+  gap: 1.5rem;
   justify-content: center;
 }
 
