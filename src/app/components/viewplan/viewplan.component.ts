@@ -4,11 +4,15 @@ import { CommonModule } from '@angular/common';
 import { DividerModule } from 'primeng/divider';
 import { ButtonModule } from 'primeng/button';
 import { Router } from '@angular/router';
-import { Tooltip } from "primeng/tooltip";
 
 @Component({
   selector: 'app-viewplan',
-  imports: [CardBaseComponent, CommonModule, DividerModule, ButtonModule, Tooltip],
+  imports: [
+    CardBaseComponent,
+    CommonModule,
+    DividerModule,
+    ButtonModule,
+  ],
   templateUrl: './viewplan.component.html',
   styleUrl: './viewplan.component.scss',
 })
@@ -30,7 +34,7 @@ export class ViewplanComponent {
     return this.planosPopulares.some((p) => p.velocidade === plano.velocidade);
   }
 
-  backToPreviousPage(){
-   this.router.navigate(['search']);
+  backToPreviousPage() {
+    this.router.navigate(['search']);
   }
 }

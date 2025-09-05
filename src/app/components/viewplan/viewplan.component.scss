@@ -120,3 +120,34 @@
   color: #666;
   text-align: center;
 }
+
+
+
+/* Animação de balanço */
+@keyframes swing {
+  0%   { transform: rotate(0deg); }
+  25%  { transform: rotate(2deg); }
+  50%  { transform: rotate(0deg); }
+  75%  { transform: rotate(-2deg); }
+  100% { transform: rotate(0deg); }
+}
+
+
+.plano-card.popular {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  animation: swing 4.5s ease-in-out infinite;
+  transform-origin: top center; 
+}
+
+ 
+.plano-card.popular:hover {
+  transform: translateY(-2px) rotate(0deg); 
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
+}
+
+
+
+
+
+
+
