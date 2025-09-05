@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CardBaseComponent } from '../../shared/components/card-base/card-base.component';
 import { CommonModule } from '@angular/common';
 import { DividerModule } from 'primeng/divider';
 import { ButtonModule } from 'primeng/button';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-viewplan',
@@ -11,6 +12,8 @@ import { ButtonModule } from 'primeng/button';
   styleUrl: './viewplan.component.scss',
 })
 export class ViewplanComponent {
+  router = inject(Router);
+
   planos = [
     { velocidade: '500 MEGA', preco: '79,90' },
     { velocidade: '600 MEGA', preco: '89,90' },
@@ -24,5 +27,9 @@ export class ViewplanComponent {
 
   isPlanoPopular(plano: any): boolean {
     return this.planosPopulares.some((p) => p.velocidade === plano.velocidade);
+  }
+
+  backToPreviousPage(){
+   this.router.navigate(['search']);
   }
 }

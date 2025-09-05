@@ -1,5 +1,5 @@
 import { ButtonModule } from 'primeng/button';
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CardBaseComponent } from '../../shared/components/card-base/card-base.component';
@@ -7,6 +7,7 @@ import { IftaLabelModule } from 'primeng/iftalabel';
 import { InputTextModule } from 'primeng/inputtext';
 import { DividerModule } from 'primeng/divider';
 import { InputMaskModule } from 'primeng/inputmask';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-searchclient',
@@ -28,7 +29,7 @@ export class SearchclientComponent implements OnInit {
   dataAtual: Date = new Date();
   horaAtual: Date = new Date();
   documento: string = '';
-
+  router = inject(Router);
   ngOnInit() {
     setInterval(() => {
       this.horaAtual = new Date();
@@ -50,7 +51,7 @@ export class SearchclientComponent implements OnInit {
   }
 
   verPlanos() {
-    console.log('Redirecionar para planos...');
+    this.router.navigate(['plans']);
   }
 
   allowOnlyNumbers(event: KeyboardEvent) {
