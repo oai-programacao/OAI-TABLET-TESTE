@@ -4,10 +4,11 @@ import { CommonModule } from '@angular/common';
 import { DividerModule } from 'primeng/divider';
 import { ButtonModule } from 'primeng/button';
 import { Router } from '@angular/router';
+import { Tooltip } from "primeng/tooltip";
 
 @Component({
   selector: 'app-viewplan',
-  imports: [CardBaseComponent, CommonModule, DividerModule, ButtonModule],
+  imports: [CardBaseComponent, CommonModule, DividerModule, ButtonModule, Tooltip],
   templateUrl: './viewplan.component.html',
   styleUrl: './viewplan.component.scss',
 })
