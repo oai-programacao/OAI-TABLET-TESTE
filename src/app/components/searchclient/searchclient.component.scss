@@ -30,9 +30,7 @@ app-card-base {
     font-size: 1.2rem;
     margin-top: 0.5rem;
     font-family: "Press Start 2P", monospace; 
-    color: #3fed5c; 
-    text-shadow: 0 0 4px #00ffea, 0 0 8px #ffffff; 
-
+    color: #fcff53; 
     background: #111111; 
     padding: 0.3rem 0.4rem; 
     border-radius: 6px; 
@@ -87,8 +85,7 @@ app-card-base {
       font-size: 1.5rem;
       font-weight: 700;
       margin-top: 0.5rem;
-      color: orange;               
-      text-shadow: 0 0 1px rgb(233, 162, 32), 0 0 8px rgb(233, 175, 69);
+      color: rgb(0, 0, 0);              
     }
   }
 }

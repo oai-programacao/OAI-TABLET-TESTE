@@ -11,10 +11,8 @@ import { DividerModule } from 'primeng/divider';
 })
 export class ViewplanComponent {
   planos = [
-    { velocidade: '250 MEGA', preco: '69,90' },
     { velocidade: '500 MEGA', preco: '79,90' },
     { velocidade: '600 MEGA', preco: '89,90' },
-    { velocidade: '750 MEGA', preco: '99,00' },
     { velocidade: '1 GIGA', preco: '199,90' },
   ];
 
@@ -22,4 +20,8 @@ export class ViewplanComponent {
     { velocidade: '250 MEGA', preco: '69,90' },
     { velocidade: '750 MEGA', preco: '99,00' },
   ];
+
+  isPlanoPopular(plano: any): boolean {
+    return this.planosPopulares.some((p) => p.velocidade === plano.velocidade);
+  }
 }

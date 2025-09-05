@@ -1,19 +1,31 @@
-<app-card-base header="PLANOS DISPONÍVEIS" width="120rem" height="56rem">
-  
+<app-card-base header="PLANOS DISPONÍVEIS" width="120rem" height="55rem">
   <!-- Planos mais utilizados -->
   <div class="planos-populares">
-    <div class="planos-container planos-populares-container">
-      <div class="plano-card destaque" *ngFor="let plano of planosPopulares">
+    <div class="planos-populares-container">
+      <div class="plano-card popular" *ngFor="let plano of planosPopulares">
+        <div class="faixa-destaque">Melhor Custo-Benefício</div>
         <div class="plano-mega">{{ plano.velocidade }}</div>
         <div class="plano-preco">R$ {{ plano.preco }}</div>
         <div class="plano-detalhes">Internet Fibra Óptica</div>
         <div class="plano-extra">+ Wi-Fi Incluso</div>
-        <button pButton label="Assinar" class="plano-btn"></button>
+      </div>
+
+      <div class="institucional-servicos">
+        <div class="servico-card">
+          <h3>OAI Email</h3>
+          <p>Oferecemos também um serviço de email próprio</p>
+        </div>
+        <div class="servico-card">
+          <h3>OAI Email</h3>
+          <p>Oferecemos também um serviço de email próprio</p>
+        </div>
+        <div class="servico-card">
+          <h3>OAI Telefonia</h3>
+          <p>Contamos com planos de telefonia</p>
+        </div>
       </div>
     </div>
   </div>
-
-  <p-divider></p-divider>
 
   <!-- Todos os planos -->
   <div class="planos-container">
@@ -22,7 +34,6 @@
       <div class="plano-preco">R$ {{ plano.preco }}</div>
       <div class="plano-detalhes">Internet Fibra Óptica</div>
       <div class="plano-extra">+ Wi-Fi Incluso</div>
-      <button pButton label="Assinar" class="plano-btn"></button>
     </div>
   </div>
 </app-card-base>
