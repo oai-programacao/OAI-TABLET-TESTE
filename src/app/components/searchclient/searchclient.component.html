@@ -24,11 +24,11 @@
         <p-iftalabel variant="on" style="width: 100%">
           <input
             pInputText
-            [(ngModel)]="documento"
-            (ngModelChange)="onDocumentoChange($event)"
+            [value]="documento"
+            (input)="onDocumentoChange($event)"
+            (keypress)="allowOnlyNumbers($event)"
             maxlength="18"
-            placeholder="Insira o CPF/CNPJ"
-            name="documento"
+            placeholder="CPF/CNPJ"
           />
           <label for="documento">CPF/CNPJ (Somente Números)</label>
         </p-iftalabel>

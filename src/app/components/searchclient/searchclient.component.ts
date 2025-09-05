@@ -53,18 +53,24 @@ export class SearchclientComponent implements OnInit {
     console.log('Redirecionar para planos...');
   }
 
-  onDocumentoChange(valor: string) {
-    // remove tudo que não é número
-    const digits = valor.replace(/\D/g, '');
+  allowOnlyNumbers(event: KeyboardEvent) {
+    const charCode = event.which ? event.which : event.keyCode;
+    // permite apenas números (0-9)
+    if (charCode < 48 || charCode > 57) {
+      event.preventDefault();
+    }
+  }
+
+  onDocumentoChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const digits = input.value.replace(/\D/g, '');
 
     if (digits.length <= 11) {
-      // formata CPF
       this.documento = digits
         .replace(/(\d{3})(\d)/, '$1.$2')
         .replace(/(\d{3})(\d)/, '$1.$2')
         .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
     } else {
-      // formata CNPJ
       this.documento = digits
         .replace(/^(\d{2})(\d)/, '$1.$2')
         .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')

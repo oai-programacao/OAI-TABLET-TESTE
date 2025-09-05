@@ -1,39 +1,26 @@
-<app-card-base header="PLANOS DISPONÍVEIS" width="120rem" height="55rem">
-  <!-- Planos mais utilizados -->
-  <div class="planos-populares">
-    <div class="planos-populares-container">
-      <div class="plano-card popular" *ngFor="let plano of planosPopulares">
-        <div class="faixa-destaque">Melhor Custo-Benefício</div>
+<div class="page-container">
+  <app-card-base header="PLANOS DISPONÍVEIS" width="auto" height="auto">
+    <!-- Planos mais utilizados -->
+    <div class="planos-populares">
+      <div class="planos-populares-container">
+        <div class="plano-card popular" *ngFor="let plano of planosPopulares">
+          <div class="faixa-destaque">Melhor Custo-Benefício</div>
+          <div class="plano-mega">{{ plano.velocidade }}</div>
+          <div class="plano-preco">R$ {{ plano.preco }}</div>
+          <div class="plano-detalhes">Internet Fibra Óptica</div>
+          <div class="plano-extra">+ Wi-Fi Incluso</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Todos os planos -->
+    <div class="planos-container">
+      <div class="plano-card" *ngFor="let plano of planos">
         <div class="plano-mega">{{ plano.velocidade }}</div>
         <div class="plano-preco">R$ {{ plano.preco }}</div>
         <div class="plano-detalhes">Internet Fibra Óptica</div>
         <div class="plano-extra">+ Wi-Fi Incluso</div>
       </div>
-
-      <div class="institucional-servicos">
-        <div class="servico-card">
-          <h3>OAI Email</h3>
-          <p>Oferecemos também um serviço de email próprio</p>
-        </div>
-        <div class="servico-card">
-          <h3>OAI Email</h3>
-          <p>Oferecemos também um serviço de email próprio</p>
-        </div>
-        <div class="servico-card">
-          <h3>OAI Telefonia</h3>
-          <p>Contamos com planos de telefonia</p>
-        </div>
-      </div>
     </div>
-  </div>
-
-  <!-- Todos os planos -->
-  <div class="planos-container">
-    <div class="plano-card" *ngFor="let plano of planos">
-      <div class="plano-mega">{{ plano.velocidade }}</div>
-      <div class="plano-preco">R$ {{ plano.preco }}</div>
-      <div class="plano-detalhes">Internet Fibra Óptica</div>
-      <div class="plano-extra">+ Wi-Fi Incluso</div>
-    </div>
-  </div>
-</app-card-base>
+  </app-card-base>
+</div>
