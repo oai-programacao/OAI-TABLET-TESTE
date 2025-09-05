@@ -2,10 +2,11 @@ import { Component } from '@angular/core';
 import { CardBaseComponent } from '../../shared/components/card-base/card-base.component';
 import { CommonModule } from '@angular/common';
 import { DividerModule } from 'primeng/divider';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'app-viewplan',
-  imports: [CardBaseComponent, CommonModule, DividerModule],
+  imports: [CardBaseComponent, CommonModule, DividerModule, ButtonModule],
   templateUrl: './viewplan.component.html',
   styleUrl: './viewplan.component.scss',
 })

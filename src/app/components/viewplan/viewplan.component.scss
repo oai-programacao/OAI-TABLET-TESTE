@@ -60,7 +60,7 @@
   background: linear-gradient(135deg, #7b1fa2, #9c27b0);
   color: #fff;
   border-radius: 1rem;
-  border: 2px solid black;
+  border: 1.5px solid black;
   padding: 1.5rem;
   text-align: center;
   height: 20rem;
@@ -105,4 +105,18 @@
   justify-content: center; // centraliza horizontal
   align-items: center;     // centraliza vertical
   min-height: 80vh;       // ocupa altura total da tela
+}
+
+.back-content {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding-left: 0;
+}
+
+.info-footer {
+  margin-top: 2rem;
+  font-size: 0.9rem;
+  color: #666;
+  text-align: center;
 }

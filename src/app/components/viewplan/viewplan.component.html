@@ -1,5 +1,9 @@
 <div class="page-container">
   <app-card-base header="PLANOS DISPONÍVEIS" width="auto" height="auto">
+    <div class="back-content">
+      <p-button label="Voltar" size="large" [style]="{ width: '15rem', overflow: 'hidden' }" raised="true"  icon="pi pi-arrow-left" severity="danger" />
+    </div>
+    <p-divider  />
     <!-- Planos mais utilizados -->
     <div class="planos-populares">
       <div class="planos-populares-container">
@@ -22,5 +26,12 @@
         <div class="plano-extra">+ Wi-Fi Incluso</div>
       </div>
     </div>
+
+    <div class="info-footer">
+      <p>Consulte disponibilidade para sua região. Valores sujeitos a alterações sem aviso prévio.</p>
+
+    </div>
+
+
   </app-card-base>
 </div>
