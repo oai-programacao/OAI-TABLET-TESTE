@@ -1,0 +1,206 @@
+.card-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+}
+
+.title {
+  font-family: "IBM Plex Mono", monospace;
+  color: #a8a8a8;
+  font-weight: 500;
+  font-size: medium;
+  width: 100%;
+  text-align: start;
+  font-weight: bold;
+  font-size: clamp(1.4rem, 4vw, 1.7rem); /* Mínimo, Preferencial, Máximo */
+  padding: 1rem;
+}
+
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: 95%; /* Usando % para que o container nunca toque as bordas */
+  max-width: 80rem;
+  max-height: 65rem;
+  min-width: 50rem;
+}
+
+.btn-to-add-images {
+  flex-direction: row;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  justify-content: space-evenly;
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
+/* Estilo do carousel */
+.images-to-watch {
+  width: 100%;
+  margin-top: 2rem;
+  padding: 1rem;
+}
+
+/* CORREÇÃO: Sintaxe correta para o ::ng-deep */
+:host ::ng-deep .images-to-watch .p-carousel {
+  width: 100%;
+}
+
+:host ::ng-deep .images-to-watch .p-carousel-item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+:host ::ng-deep .images-to-watch .p-carousel-viewport {
+  overflow: hidden;
+}
+
+.images-to-watch{
+   width: 100%;
+  max-width: 900px; /* Ex: não passará de 900px de largura */
+  margin: 0 auto;
+   
+}
+.images-to-watch .image-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  padding: 1rem;
+  background: #f9f9f9;
+  transition: transform 0.3s ease;
+  cursor: pointer;
+  width: 100%;
+}
+
+.images-to-watch .image-item:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.images-to-watch .image-item img {
+  /* Deixando a imagem fluida com tamanho mínimo e máximo */
+  width: clamp(100px, 15vw, 150px);
+  height: auto; /* Altura automática para manter a proporção */
+  aspect-ratio: 1 / 1; /* Garante que a imagem seja sempre quadrada */
+  object-fit: contain;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+}
+
+.images-to-watch .image-item p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+
+.label {
+  width: 100%;
+  text-align: start;
+  font-weight: bold;
+  font-size: 1.3rem;
+  padding: 2rem 1rem; /* Padding horizontal reduzido */
+}
+
+.btn-to-accept {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0 1rem 2rem 0; /* Adicionado padding para não colar na borda */
+  
+}
+
+/* Botões de upload grandes com tamanho fluido */
+:host ::ng-deep .btn-to-add-images .p-button {
+  /* Tamanho fluido: o botão tenta ter 25% da largura da tela, com um mínimo de 8rem e um máximo de 10rem */
+  width: clamp(8rem, 25vw, 10rem);
+  height: auto;
+  aspect-ratio: 1 / 1; /* Mantém o botão quadrado */
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+ box-shadow: 0 10px 22px rgba(0, 0, 0, 0.25);
+}
+
+:host ::ng-deep .btn-to-add-images .p-button .p-button-icon {
+  font-size: clamp(1.5rem, 5vw, 2rem); /* Ícone também fluido */
+  margin-bottom: 0.5rem;
+}
+
+:host ::ng-deep .btn-to-add-images .p-button .p-button-label {
+  font-size: 1rem;
+   font-family: "IBM Plex Mono", monospace;
+}
+
+:host ::ng-deep .btn-to-accept .p-button .p-button-label{
+    font-size: 1rem;
+}
+
+:host ::ng-deep .btn-to-accept .p-button{
+   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+
+/* Garante que o container do item dentro do carrossel seja flexível */
+:host ::ng-deep .images-to-watch .p-carousel-item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 0.5rem; /* Mantém um respiro lateral */
+}
+
+/* Garante que sua estilização do item ocupe 100% do espaço dado */
+.images-to-watch .image-item {
+  width: 100%; /* Ocupa toda a largura do .p-carousel-item */
+  /* ... resto do seu CSS ... */
+}
+
+:host ::ng-deep .p-divider.p-divider-horizontal {
+  /* border-top: [espessura] [estilo] [cor]; */
+  border-top: 0.5em #a8a8a8; /* Ex: linha de 2px, tracejada e azul */
+  margin: 0.2em 1;
+}
+
+.images-to-watch .image-item img {
+  width: 150px;
+  height: 150px;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+}
+
+:host ::ng-deep .btn-to-add-images .p-button {
+background: none !important;
+  border-color: transparent !important;
+  color: #333 !important; /* Cor do texto padrão para ambos, ajuste se precisar */
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: 70% !important; /* Tamanho da imagem de fundo comum, ajuste se precisar */
+}
+
+/* ✅ ESTILO ESPECÍFICO PARA O BOTÃO DA FRENTE */
+/* Combine a classe customizada COM a classe .p-button */
+:host ::ng-deep .btn-frente.p-button {
+  background-image: url('/usuariof2.png') !important;
+  /* Opcional: background-color: #e0f2f7 !important; */
+}
+
+/* ✅ ESTILO ESPECÍFICO PARA O BOTÃO DO VERSO */
+/* Combine a classe customizada COM a classe .p-button */
+:host ::ng-deep .btn-verso.p-button {
+  background-image: url('/usuariov2.png') !important;
+  /* Opcional: background-color: #ffebee !important; */
+}
