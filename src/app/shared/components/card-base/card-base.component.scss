@@ -40,6 +40,10 @@
   box-shadow: 0 0 0 0.2rem rgba(77, 163, 255, 0.3) !important;
 }
 
+:host ::ng-deep .p-inputtext {
+  background-color: rgb(244, 255, 255);/* transição suave para foco */
+}
+
 .cardbase ::ng-deep .p-card {
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5); /* sombra mais densa */
   border-radius: 1rem; /* bordas suaves */

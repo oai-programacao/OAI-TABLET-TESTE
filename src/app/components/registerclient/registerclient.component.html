@@ -29,6 +29,16 @@
 
         <!-- ========== Pessoa Física (PF) ========== -->
         <div *ngIf="selectedClientType === 'PF'">
+          <app-message-valid-forms
+            [control]="nome"
+            text="O nome é obrigatório"
+            error="required"
+          ></app-message-valid-forms>
+          <app-message-valid-forms
+            [control]="nome"
+            text="O nome deve ter no mínimo 15 caracteres"
+            error="minlength"
+          ></app-message-valid-forms>
           <div class="name-date">
             <p-inputgroup>
               <p-inputgroup-addon>
@@ -41,14 +51,15 @@
                   id="nome"
                   autocomplete="off"
                   maxlength="50"
-                  minlength="5"
+                  minlength="15"
                   name="nome"
                   required
+                  [(ngModel)]="clienteForm.value.nome"
+                  #nome="ngModel"
                 />
                 <label for="nome">Nome (Completo)*</label>
               </p-iftalabel>
             </p-inputgroup>
-
             <p-divider type="dashed" layout="vertical"></p-divider>
 
             <p-iftalabel>
@@ -59,11 +70,25 @@
                 showIcon
                 iconDisplay="input"
                 appendTo="body"
+                #dateofBirth="ngModel"
+                placeholder="dd/mm/aaaa"
+                required
               />
               <label for="date">Data de Nascimento*</label>
             </p-iftalabel>
+
+            <app-message-valid-forms
+              [control]="dateofBirth"
+              text="A data de nascimento é obrigatória"
+              error="required"
+            ></app-message-valid-forms>
           </div>
 
+          <app-message-valid-forms
+            [control]="cpf"
+            text="O CPF é obrigatório"
+            error="required"
+          ></app-message-valid-forms>
           <div class="documents">
             <p-inputgroup>
               <p-inputgroup-addon>
@@ -79,11 +104,19 @@
                   minlength="11"
                   name="cpf"
                   required
+                  #cpf="ngModel"
+                  [(ngModel)]="clienteForm.value.cpf"
+                  (input)="formatCpf($event, cpf)"
                 />
                 <label for="cpf">CPF*</label>
               </p-iftalabel>
             </p-inputgroup>
 
+            <app-message-valid-forms
+              [control]="rg"
+              text="O RG é obrigatório"
+              error="required"
+            ></app-message-valid-forms>
             <p-inputgroup>
               <p-inputgroup-addon>
                 <i class="pi pi-id-card"></i>
@@ -98,6 +131,9 @@
                   minlength="5"
                   name="rg"
                   required
+                  [(ngModel)]="clienteForm.value.rg"
+                  #rg="ngModel"
+                  (input)="formatRg($event, rg)"
                 />
                 <label for="rg">RG (Carteira de Identidade Nacional)*</label>
               </p-iftalabel>
@@ -154,12 +190,11 @@
                   showIcon
                   iconDisplay="input"
                   appendTo="body"
+                  placeholder="dd/mm/aaaa"
                 />
                 <label for="dataAbertura">Data de Abertura*</label>
               </p-iftalabel>
             </div>
-
-
           </div>
 
           <div class="name-date">
@@ -220,16 +255,36 @@
                 pInputText
                 id="endereco"
                 autocomplete="off"
-                maxlength="50"
-                minlength="5"
+                maxlength="9"
                 name="endereco"
                 required
+                [(ngModel)]="endereco.cep"
+                (input)="formatCep($event)"
+                (blur)="onCepChange(clienteForm)"
+                placeholder="00000-000"
               />
               <label for="endereco"
                 >Código de Endereçamento Postal (CEP)*</label
               >
             </p-iftalabel>
           </p-inputgroup>
+          <app-message-valid-forms
+            [visible]="cepNaoEncontrado"
+            text="CEP não encontrado ou inválido"
+          ></app-message-valid-forms>
+        </div>
+
+        <div class="messagesvalids">
+          <app-message-valid-forms
+            error="required"
+            text="Rua é obrigatória"
+            [control]="rua"
+          ></app-message-valid-forms>
+          <app-message-valid-forms
+            error="required"
+            text="Número é obrigatório"
+            [control]="number"
+          ></app-message-valid-forms>
         </div>
 
         <div class="address">
@@ -246,33 +301,35 @@
                 maxlength="50"
                 minlength="5"
                 name="rua"
+                [(ngModel)]="endereco.rua"
                 required
+                #rua="ngModel"
               />
               <label for="rua">Logradouro (Rua)*</label>
             </p-iftalabel>
           </p-inputgroup>
 
-          <div class="number-address">
-            <p-inputgroup>
-              <p-inputgroup-addon>
-                <i class="pi pi-sort-numeric-up"></i>
-              </p-inputgroup-addon>
-              <p-iftalabel variant="on">
-                <input
-                  size="large"
-                  pInputText
-                  id="numero"
-                  autocomplete="off"
-                  maxlength="10"
-                  minlength="1"
-                  name="numero"
-                  required
-                  type="number"
-                />
-                <label for="numero">Número da Casa*</label>
-              </p-iftalabel>
-            </p-inputgroup>
-          </div>
+          <p-inputgroup>
+            <p-inputgroup-addon>
+              <i class="pi pi-sort-numeric-up"></i>
+            </p-inputgroup-addon>
+            <p-iftalabel variant="on">
+              <input
+                size="large"
+                pInputText
+                id="numero"
+                autocomplete="off"
+                maxlength="10"
+                minlength="1"
+                name="numero"
+                required
+                type="number"
+                #number="ngModel"
+                [(ngModel)]="endereco.numero"
+              />
+              <label for="numero">Número da Casa*</label>
+            </p-iftalabel>
+          </p-inputgroup>
         </div>
 
         <div class="city-etc">
@@ -289,6 +346,7 @@
                 maxlength="50"
                 minlength="2"
                 name="cidade"
+                [(ngModel)]="endereco.cidade"
                 required
               />
               <label for="cidade">Cidade*</label>
@@ -308,6 +366,7 @@
                 maxlength="50"
                 minlength="2"
                 name="bairro"
+                [(ngModel)]="endereco.bairro"
                 required
               />
               <label for="bairro">Bairro*</label>
@@ -326,6 +385,7 @@
                 autocomplete="off"
                 maxlength="50"
                 name="complemento"
+                [(ngModel)]="endereco.complemento"
               />
               <label for="complemento">Complemento</label>
             </p-iftalabel>
