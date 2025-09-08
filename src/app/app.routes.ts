@@ -21,5 +21,12 @@ export const routes: Routes = [
       import('./components/viewplan/viewplan.component').then(
         (m) => m.ViewplanComponent
       ),
+  },
+  {
+    path: 'register',
+    loadComponent: () =>
+      import('./components/registerclient/registerclient.component').then(
+        (m) => m.RegisterclientComponent
+      ),
   }
 ];

@@ -1,0 +1,64 @@
+<div class="page-container">
+  <app-card-base width="auto" height="auto">
+    <div>
+      <form>
+        <div>
+          <p-divider
+            [ngStyle]="{
+              'border-color': '#666',
+            }"
+          >
+            <b>Dados do Cliente</b>
+          </p-divider>
+
+          <p-inputgroup>
+            <p-inputgroup-addon>
+              <i class="pi pi-user"></i>
+            </p-inputgroup-addon>
+            <p-iftalabel variant="on">
+              <input
+                size="large"
+                pInputText
+                id="nome"
+                autocomplete="off"
+                maxlength="50"
+                minlength="5"
+                name="nome"
+                required
+              />
+              <label for="nome">Nome</label>
+            </p-iftalabel>
+          </p-inputgroup>
+
+          <p-divider
+            [ngStyle]="{
+              'border-color': '#666',
+            }"
+          >
+            <b>Contatos do Cliente</b>
+          </p-divider>
+
+          <p-inputgroup>
+            <p-inputgroup-addon>
+              <i class="pi pi-envelope"></i>
+            </p-inputgroup-addon>
+            <p-iftalabel variant="on">
+              <input
+                size="large"
+                pInputText
+                id="email"
+                autocomplete="off"
+                maxlength="50"
+                minlength="5"
+                name="email"
+                required
+              />
+              <label for="email">E-mail</label>
+            </p-iftalabel>
+          </p-inputgroup>
+        </div>
+        <p-button type="submit">Cadastrar</p-button>
+      </form>
+    </div>
+  </app-card-base>
+</div>
