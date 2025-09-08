@@ -101,7 +101,7 @@ p-divider.p-divider-vertical {
 .contacts-two {
   display: flex;
   margin-bottom: 1.5rem;
-  width: 79%;
+  width: 32.5%;
 }
 
 .buttons {
@@ -110,4 +110,15 @@ p-divider.p-divider-vertical {
   gap: 1rem;
   margin-top: 1.5rem;
   width: 100%;
+}
+
+.documents-pj {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  max-width: 90%;
+}
+
+.date-opening {
+  width: 70%;
 }

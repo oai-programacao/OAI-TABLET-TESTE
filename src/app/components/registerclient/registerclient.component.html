@@ -1,32 +1,34 @@
 <div class="page-container">
   <app-card-base width="auto" height="auto">
     <div>
-      <form>
-        <div>
-          <p-divider
-            [ngStyle]="{
-              'border-color': '#666',
-            }"
-          >
-            <b>1. Dados do Cliente</b>
-          </p-divider>
+      <form #clienteForm="ngForm">
+        <!-- ========================================================= -->
+        <!-- 1. Dados do Cliente -->
+        <!-- ========================================================= -->
+        <p-divider [ngStyle]="{ 'border-color': '#666' }">
+          <b>1. Dados do Cliente</b>
+        </p-divider>
 
-          <p class="helper-text">PF/PJ*</p>
-          <div class="type-client">
-            <p-iftalabel class="w-full md:w-56">
-              <p-select
-                [options]="clientTypes"
-                optionLabel="label"
-                [(ngModel)]="selectedClientType"
-                placeholder="Selecione"
-                class="w-full md:w-56"
-                name="typeclient"
-              >
-              </p-select>
-              <label for="typeclient">Tipo de Cliente</label>
-            </p-iftalabel>
-          </div>
+        <p class="helper-text">PF/PJ*</p>
+        <div class="type-client">
+          <p-iftalabel class="w-full md:w-56">
+            <p-select
+              [options]="clientTypes"
+              optionLabel="label"
+              optionValue="value"
+              [(ngModel)]="selectedClientType"
+              placeholder="Selecione"
+              class="w-full md:w-56"
+              name="typeclient"
+              required
+            >
+            </p-select>
+            <label for="typeclient">Tipo de Cliente</label>
+          </p-iftalabel>
+        </div>
 
+        <!-- ========== Pessoa Física (PF) ========== -->
+        <div *ngIf="selectedClientType === 'PF'">
           <div class="name-date">
             <p-inputgroup>
               <p-inputgroup-addon>
@@ -43,7 +45,7 @@
                   name="nome"
                   required
                 />
-                <label for="nome">Nome (Completo)</label>
+                <label for="nome">Nome (Completo)*</label>
               </p-iftalabel>
             </p-inputgroup>
 
@@ -58,7 +60,7 @@
                 iconDisplay="input"
                 appendTo="body"
               />
-              <label for="date">Data de Nascimento</label>
+              <label for="date">Data de Nascimento*</label>
             </p-iftalabel>
           </div>
 
@@ -73,12 +75,12 @@
                   pInputText
                   id="cpf"
                   autocomplete="off"
-                  maxlength="50"
-                  minlength="5"
+                  maxlength="14"
+                  minlength="11"
                   name="cpf"
                   required
                 />
-                <label for="cpf">CPF</label>
+                <label for="cpf">CPF*</label>
               </p-iftalabel>
             </p-inputgroup>
 
@@ -92,249 +94,343 @@
                   pInputText
                   id="rg"
                   autocomplete="off"
-                  maxlength="50"
+                  maxlength="20"
                   minlength="5"
                   name="rg"
                   required
                 />
-                <label for="rg">RG (Carteira de Identidade Nacional)</label>
+                <label for="rg">RG (Carteira de Identidade Nacional)*</label>
               </p-iftalabel>
             </p-inputgroup>
           </div>
+        </div>
 
-          <p-divider
-            [ngStyle]="{
-              'border-color': '#666',
-            }"
-          >
-            <b>2. Endereço do Cliente</b>
-          </p-divider>
-
-          <div class="search-cep">
+        <!-- ========== Pessoa Jurídica (PJ) ========== -->
+        <div *ngIf="selectedClientType === 'PJ'">
+          <div class="documents-pj">
             <p-inputgroup>
               <p-inputgroup-addon>
-                <i class="pi pi-map-marker"></i>
+                <i class="pi pi-building"></i>
               </p-inputgroup-addon>
               <p-iftalabel variant="on">
                 <input
                   size="large"
                   pInputText
-                  id="endereco"
+                  id="cnpj"
                   autocomplete="off"
-                  maxlength="50"
-                  minlength="5"
-                  name="endereco"
+                  maxlength="18"
+                  minlength="14"
+                  name="cnpj"
                   required
                 />
-                <label for="endereco"
-                  >Código de Endereçamento Postal (CEP)</label
-                >
+                <label for="cnpj">CNPJ*</label>
               </p-iftalabel>
             </p-inputgroup>
-          </div>
 
-          <div class="address">
             <p-inputgroup>
               <p-inputgroup-addon>
-                <i class="pi pi-home"></i>
+                <i class="pi pi-id-card"></i>
               </p-inputgroup-addon>
               <p-iftalabel variant="on">
                 <input
                   size="large"
                   pInputText
-                  id="rua"
+                  id="inscricao"
                   autocomplete="off"
-                  maxlength="50"
+                  maxlength="20"
                   minlength="5"
-                  name="rua"
+                  name="inscricao"
                   required
                 />
-                <label for="rua">Logradouro (Rua)</label>
+                <label for="inscricao">Inscrição Estadual*</label>
               </p-iftalabel>
             </p-inputgroup>
 
-            <div class="number-address">
-              <p-inputgroup>
-                <p-inputgroup-addon>
-                  <i class="pi pi-sort-numeric-up"></i>
-                </p-inputgroup-addon>
-                <p-iftalabel variant="on">
-                  <input
-                    size="large"
-                    pInputText
-                    id="numero"
-                    autocomplete="off"
-                    maxlength="50"
-                    minlength="5"
-                    name="numero"
-                    required
-                  />
-                  <label for="numero">Número da Casa</label>
-                </p-iftalabel>
-              </p-inputgroup>
+            <div class="date-opening">
+              <p-iftalabel>
+                <p-datepicker
+                  name="dataAbertura"
+                  inputId="dataAbertura"
+                  showIcon
+                  iconDisplay="input"
+                  appendTo="body"
+                />
+                <label for="dataAbertura">Data de Abertura*</label>
+              </p-iftalabel>
             </div>
+
+
           </div>
 
-          <div class="city-etc">
+          <div class="name-date">
             <p-inputgroup>
               <p-inputgroup-addon>
-                <i class="pi pi-map"></i>
+                <i class="pi pi-briefcase"></i>
               </p-inputgroup-addon>
               <p-iftalabel variant="on">
                 <input
                   size="large"
                   pInputText
-                  id="cidade"
+                  id="razao"
                   autocomplete="off"
-                  maxlength="50"
-                  minlength="5"
-                  name="cidade"
+                  maxlength="100"
+                  minlength="3"
+                  name="razao"
                   required
                 />
-                <label for="cidade">Cidade</label>
+                <label for="razao">Razão Social*</label>
               </p-iftalabel>
             </p-inputgroup>
 
             <p-inputgroup>
               <p-inputgroup-addon>
-                <i class="pi pi-map"></i>
+                <i class="pi pi-tag"></i>
               </p-inputgroup-addon>
               <p-iftalabel variant="on">
                 <input
                   size="large"
                   pInputText
-                  id="bairro"
+                  id="fantasia"
                   autocomplete="off"
-                  maxlength="50"
-                  minlength="5"
-                  name="bairro"
-                  required
+                  maxlength="100"
+                  minlength="3"
+                  name="fantasia"
                 />
-                <label for="bairro">Bairro</label>
-              </p-iftalabel>
-            </p-inputgroup>
-
-            <p-inputgroup>
-              <p-inputgroup-addon>
-                <i class="pi pi-exclamation-circle"></i>
-              </p-inputgroup-addon>
-              <p-iftalabel variant="on">
-                <input
-                  size="large"
-                  pInputText
-                  id="complemento"
-                  autocomplete="off"
-                  maxlength="50"
-                  minlength="5"
-                  name="complemento"
-                  required
-                />
-                <label for="complemento">Complemento</label>
+                <label for="fantasia">Nome Fantasia</label>
               </p-iftalabel>
             </p-inputgroup>
           </div>
+        </div>
 
-          <p-divider
-            [ngStyle]="{
-              'border-color': '#666',
-            }"
-          >
-            <b>3. Contatos do Cliente</b>
-          </p-divider>
+        <!-- ========================================================= -->
+        <!-- 2. Endereço do Cliente -->
+        <!-- ========================================================= -->
+        <p-divider [ngStyle]="{ 'border-color': '#666' }">
+          <b>2. Endereço do Cliente</b>
+        </p-divider>
 
-          <div class="contacts">
+        <div class="search-cep">
+          <p-inputgroup>
+            <p-inputgroup-addon>
+              <i class="pi pi-map-marker"></i>
+            </p-inputgroup-addon>
+            <p-iftalabel variant="on">
+              <input
+                size="large"
+                pInputText
+                id="endereco"
+                autocomplete="off"
+                maxlength="50"
+                minlength="5"
+                name="endereco"
+                required
+              />
+              <label for="endereco"
+                >Código de Endereçamento Postal (CEP)*</label
+              >
+            </p-iftalabel>
+          </p-inputgroup>
+        </div>
+
+        <div class="address">
+          <p-inputgroup>
+            <p-inputgroup-addon>
+              <i class="pi pi-home"></i>
+            </p-inputgroup-addon>
+            <p-iftalabel variant="on">
+              <input
+                size="large"
+                pInputText
+                id="rua"
+                autocomplete="off"
+                maxlength="50"
+                minlength="5"
+                name="rua"
+                required
+              />
+              <label for="rua">Logradouro (Rua)*</label>
+            </p-iftalabel>
+          </p-inputgroup>
+
+          <div class="number-address">
             <p-inputgroup>
               <p-inputgroup-addon>
-                <i class="pi pi-mobile"></i>
+                <i class="pi pi-sort-numeric-up"></i>
               </p-inputgroup-addon>
               <p-iftalabel variant="on">
                 <input
                   size="large"
                   pInputText
-                  id="celular"
+                  id="numero"
                   autocomplete="off"
-                  maxlength="50"
-                  minlength="5"
-                  name="celular"
+                  maxlength="10"
+                  minlength="1"
+                  name="numero"
                   required
+                  type="number"
                 />
-                <label for="celular">Celular</label>
-              </p-iftalabel>
-            </p-inputgroup>
-
-            <p-inputgroup>
-              <p-inputgroup-addon>
-                <i class="pi pi-phone"></i>
-              </p-inputgroup-addon>
-              <p-iftalabel variant="on">
-                <input
-                  size="large"
-                  pInputText
-                  id="telefone"
-                  autocomplete="off"
-                  maxlength="50"
-                  minlength="5"
-                  name="telefone"
-                  required
-                />
-                <label for="telefone">Telefone</label>
-              </p-iftalabel>
-            </p-inputgroup>
-
-            <p-inputgroup>
-              <p-inputgroup-addon>
-                <i class="pi pi-envelope"></i>
-              </p-inputgroup-addon>
-              <p-iftalabel variant="on">
-                <input
-                  size="large"
-                  pInputText
-                  id="email"
-                  autocomplete="off"
-                  maxlength="50"
-                  minlength="5"
-                  name="email"
-                  required
-                />
-                <label for="email">E-mail</label>
-              </p-iftalabel>
-            </p-inputgroup>
-          </div>
-
-          <div class="contacts-two">
-            <p-inputgroup>
-              <p-inputgroup-addon>
-                <i class="pi pi-mobile"></i>
-              </p-inputgroup-addon>
-              <p-iftalabel variant="on">
-                <input
-                  size="large"
-                  pInputText
-                  id="2celular"
-                  autocomplete="off"
-                  maxlength="50"
-                  minlength="5"
-                  name="2celular"
-                  required
-                />
-                <label for="2celular">2º Celular</label>
+                <label for="numero">Número da Casa*</label>
               </p-iftalabel>
             </p-inputgroup>
           </div>
+        </div>
 
-          <div class="buttons">
-            <p-button
-              [raised]="true"
-              label="Voltar"
-              icon="pi pi-backward"
-              severity="info"
-            ></p-button>
-            <p-button
-              [raised]="true"
-              label="Confirmar"
-              icon="pi pi-check"
-            ></p-button>
-          </div>
+        <div class="city-etc">
+          <p-inputgroup>
+            <p-inputgroup-addon>
+              <i class="pi pi-map"></i>
+            </p-inputgroup-addon>
+            <p-iftalabel variant="on">
+              <input
+                size="large"
+                pInputText
+                id="cidade"
+                autocomplete="off"
+                maxlength="50"
+                minlength="2"
+                name="cidade"
+                required
+              />
+              <label for="cidade">Cidade*</label>
+            </p-iftalabel>
+          </p-inputgroup>
+
+          <p-inputgroup>
+            <p-inputgroup-addon>
+              <i class="pi pi-map"></i>
+            </p-inputgroup-addon>
+            <p-iftalabel variant="on">
+              <input
+                size="large"
+                pInputText
+                id="bairro"
+                autocomplete="off"
+                maxlength="50"
+                minlength="2"
+                name="bairro"
+                required
+              />
+              <label for="bairro">Bairro*</label>
+            </p-iftalabel>
+          </p-inputgroup>
+
+          <p-inputgroup>
+            <p-inputgroup-addon>
+              <i class="pi pi-exclamation-circle"></i>
+            </p-inputgroup-addon>
+            <p-iftalabel variant="on">
+              <input
+                size="large"
+                pInputText
+                id="complemento"
+                autocomplete="off"
+                maxlength="50"
+                name="complemento"
+              />
+              <label for="complemento">Complemento</label>
+            </p-iftalabel>
+          </p-inputgroup>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- 3. Contatos do Cliente -->
+        <!-- ========================================================= -->
+        <p-divider [ngStyle]="{ 'border-color': '#666' }">
+          <b>3. Contatos do Cliente</b>
+        </p-divider>
+
+        <div class="contacts">
+          <p-inputgroup>
+            <p-inputgroup-addon>
+              <i class="pi pi-mobile"></i>
+            </p-inputgroup-addon>
+            <p-iftalabel variant="on">
+              <input
+                size="large"
+                pInputText
+                id="celular"
+                autocomplete="off"
+                maxlength="15"
+                minlength="9"
+                name="celular"
+                required
+              />
+              <label for="celular">Celular*</label>
+            </p-iftalabel>
+          </p-inputgroup>
+
+          <p-inputgroup>
+            <p-inputgroup-addon>
+              <i class="pi pi-phone"></i>
+            </p-inputgroup-addon>
+            <p-iftalabel variant="on">
+              <input
+                size="large"
+                pInputText
+                id="telefone"
+                autocomplete="off"
+                maxlength="15"
+                minlength="9"
+                name="telefone"
+              />
+              <label for="telefone">Telefone</label>
+            </p-iftalabel>
+          </p-inputgroup>
+
+          <p-inputgroup>
+            <p-inputgroup-addon>
+              <i class="pi pi-envelope"></i>
+            </p-inputgroup-addon>
+            <p-iftalabel variant="on">
+              <input
+                size="large"
+                pInputText
+                id="email"
+                autocomplete="off"
+                maxlength="50"
+                minlength="5"
+                name="email"
+              />
+              <label for="email">E-mail</label>
+            </p-iftalabel>
+          </p-inputgroup>
+        </div>
+
+        <div class="contacts-two">
+          <p-inputgroup>
+            <p-inputgroup-addon>
+              <i class="pi pi-mobile"></i>
+            </p-inputgroup-addon>
+            <p-iftalabel variant="on">
+              <input
+                size="large"
+                pInputText
+                id="2celular"
+                autocomplete="off"
+                maxlength="15"
+                minlength="9"
+                name="2celular"
+              />
+              <label for="2celular">2º Celular</label>
+            </p-iftalabel>
+          </p-inputgroup>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- Botões -->
+        <!-- ========================================================= -->
+        <div class="buttons">
+          <p-button
+            [raised]="true"
+            label="Voltar"
+            icon="pi pi-backward"
+            severity="info"
+          ></p-button>
+          <p-button
+            [raised]="true"
+            label="Confirmar"
+            icon="pi pi-check"
+          ></p-button>
         </div>
       </form>
     </div>

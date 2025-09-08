@@ -37,11 +37,11 @@ export class RegisterclientComponent {
   clientLocation: string | null = null;
 
 
-  selectedClientType: { label: string; value: boolean } | null = null;
+  selectedClientType: 'PF' | 'PJ' | null = null;
 
   clientTypes = [
-    { label: 'Pessoa Física', value: true },
-    { label: 'Pessoa Jurídica', value: false },
+    { label: 'Pessoa Física', value: 'PF' },
+    { label: 'Pessoa Jurídica', value: 'PJ' },
   ];
 
   
