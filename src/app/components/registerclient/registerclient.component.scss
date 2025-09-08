@@ -1,12 +1,11 @@
 .page-container {
   display: flex;
-  justify-content: center; 
-  align-items: center;    
-  min-height: 80vh;       
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
 }
 
-
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Michroma&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Michroma&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
 ::ng-deep p-divider .p-divider-content,
 ::ng-deep p-divider .p-divider-content b {
   font-family: "IBM Plex Mono", monospace;
@@ -15,11 +14,92 @@
   font-size: medium;
 }
 
-
-
-
 .p-divider-horizontal:before,
 .p-divider-horizontal:after {
-  border-top: 1.5px solid #cfcdcd; 
-  
+  border-top: 1.5px solid #cfcdcd;
+}
+
+.name-date {
+  display: flex;
+  gap: 2.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.documents {
+  display: flex;
+  gap: 2.5rem;
+  margin-bottom: 1.5rem;
+}
+
+p-divider.p-divider-vertical {
+  width: 1px; 
+  margin: 0px; 
+}
+
+.type-client {
+  display: flex;
+  gap: 2.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.type-client ::ng-deep .p-select {
+  width: 100%;
+  height: 3.2rem;
+}
+
+:host ::ng-deep .p-select.p-component.p-focus {
+  border-color: #4da3ff !important;
+  box-shadow: 0 0 0 0.2rem rgba(77, 163, 255, 0.3) !important;
+}
+
+:host ::ng-deep .p-select {
+  --p-select-option-selected-background: #4da3ff;       
+  --p-select-option-selected-color: white;             
+  --p-select-option-selected-focus-background: #377ad6; 
+  --p-select-option-selected-focus-color: white;       
+}
+
+.helper-text {
+  margin: 0 0 0.25rem 0; 
+  font-size: 0.875rem;   
+  color: #666;           
+}
+
+
+.search-cep {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 40%;
+  margin-bottom: 1.5rem;
+}
+
+.address {
+  display: flex;
+  gap: 10rem;
+  margin-bottom: 1.5rem;
+  flex: 1;
+}
+
+.number-address {
+  width: 40%;
+}
+
+.city-etc {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.1rem;
+}
+
+.contacts {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.contacts-two {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  width: 32.1%;
 }
