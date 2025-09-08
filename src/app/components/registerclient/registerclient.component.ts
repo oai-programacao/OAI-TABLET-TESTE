@@ -10,7 +10,7 @@ import { DividerModule } from 'primeng/divider';
 import { DatePickerModule } from 'primeng/datepicker';
 import { FormsModule } from '@angular/forms';
 import { SelectModule } from 'primeng/select';
-import { RadioButtonModule } from 'primeng/radiobutton';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-registerclient',
@@ -26,12 +26,14 @@ import { RadioButtonModule } from 'primeng/radiobutton';
     DatePickerModule,
     FormsModule,
     SelectModule,
-
   ],
   templateUrl: './registerclient.component.html',
   styleUrl: './registerclient.component.scss',
 })
 export class RegisterclientComponent {
+
+  constructor(private router: Router) {}
+
   dateOfBirth: Date | null = null;
   selectedOption: boolean = false;
   clientLocation: string | null = null;
@@ -44,7 +46,8 @@ export class RegisterclientComponent {
     { label: 'Pessoa Jurídica', value: 'PJ' },
   ];
 
-  
-
+  goBack() {
+    this.router.navigate(['/search']);
+  }
   
 }
