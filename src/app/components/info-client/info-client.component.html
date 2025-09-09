@@ -1,0 +1,118 @@
+<div class="content">
+
+
+<app-card-base width="auto" height="auto">
+    <div class="container">
+        <p-divider class="title">
+            <h1 class="title">1. Dados do Cliente</h1>
+        </p-divider>
+
+        <div class="body-content">
+            <div class="avatar-center">
+                <img src="/info-user.png" label="DS" size="xlarge" shape="circle" />
+            </div>
+
+            <div class="input-body">
+                <label for="name">Nome:</label>
+                <input type="text" pInputText value="Diego Soares" disabled>
+            </div>
+
+            <div class="input-body">
+                <label for="cpf">CPF:</label>
+                <input type="text" pInputText value="123.456.789-10" disabled>
+            </div>
+
+            <div class="input-body">
+                <label for="rg">RG:</label>
+                <input type="text" pInputText value="56.784.123-X" disabled>
+            </div>
+
+            <div class="input-date">
+                <label for="birthdate">Data de Nascimento:</label>
+                <input type="text" pInputText value="12/08/1980" disabled>
+            </div>
+        </div>
+
+        <p-divider class="title">
+            <h1 class="title">2. Endereço do Cliente</h1>
+        </p-divider>
+
+        <div class="body-content">
+            <div class="input-body">
+                <label for="cep">CEP:</label>
+                <input type="text" pInputText value="19800-002" disabled>
+            </div>
+
+            <div class="input-body">
+                <label for="logradouro">Logradouro:</label>
+                <input type="text" pInputText value="Rua Maomé" disabled>
+            </div>
+
+            <div class="input-body">
+                <label for="number">Número:</label>
+                <input type="text" pInputText value="245" disabled>
+            </div>
+
+            <div class="input-body">
+                <label for="complement">Complemento:</label>
+                <input type="text" pInputText value="Apartamento" disabled>
+            </div>
+
+            <div class="input-body">
+                <label for="uf">UF:</label>
+                <input type="text" pInputText value="SP" disabled>
+            </div>
+
+            <div class="input-observation">
+                <label for="observation">Observação:</label>
+                <textarea rows="5" cols="30" [value]="'CTO 0/1/10 EM ASSIS'" style="width: 100%;" pTextarea
+                    [autoResize]="true" disabled></textarea>
+            </div>
+        </div>
+
+        <p-divider class="title">
+            <h1 class="title">3. Contatos do Cliente</h1>
+        </p-divider>
+
+        <div class="body-content">
+            <div class="input-body">
+                <label for="phone">Telefone:</label>
+                <input type="text" pInputText value="(18)99677-4362" disabled>
+            </div>
+            <div class="input-body">
+                <label for="phone2">Telefone 2:</label>
+                <input type="text" pInputText value="(18)99677-4362" disabled>
+            </div>
+            <div class="input-body">
+                <label for="phone3">Telefone 3:</label>
+                <input type="text" pInputText value="(18)99677-4362" disabled>
+            </div>
+
+            <div class="input-body">
+                <label for="phone-comercial">Telefone Comercial:</label>
+                <input type="text" pInputText value="4002-8922" disabled>
+            </div>
+
+            <div class="input-body">
+                <label for="email">Email:</label>
+                <input type="text" pInputText value="fulano@gmail.com" disabled>
+            </div>
+        </div>
+        <p-divider class="title">
+            <h1 class="title">4. Ações</h1>
+        </p-divider>
+        <div class="btn-actions">
+            <div>
+                <p-button label="Contratos" size="large" severity="info" icon="pi pi-file" />
+            </div>
+            <div>
+                <p-button label="Whatsapp" size="large" severity="success" icon="pi pi-whatsapp" />
+            </div>
+            <div>
+                <p-button label="Alterar" size="large" severity="warn" icon="pi pi-pencil" />
+            </div>
+        </div>
+
+    </div>
+</app-card-base>
+</div>

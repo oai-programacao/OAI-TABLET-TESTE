@@ -28,5 +28,15 @@ export const routes: Routes = [
       import('./components/registerclient/registerclient.component').then(
         (m) => m.RegisterclientComponent
       ),
+  },
+  {
+    path: 'upload-pictures',
+    loadComponent: () => import('./components/upload-pictures/upload-pictures.component').then(
+      (m) => m.UploadPicturesComponent
+    )
+  },
+  {
+    path: 'info',
+    loadComponent: () => import('./components/info-client/info-client.component').then((m) => m.InfoClientComponent)
   }
 ];
