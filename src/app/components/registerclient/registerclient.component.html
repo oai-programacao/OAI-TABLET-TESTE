@@ -142,98 +142,150 @@
         </div>
 
         <!-- ========== Pessoa Jurídica (PJ) ========== -->
+        <!-- ========== Pessoa Jurídica (PJ) ========== -->
         <div *ngIf="selectedClientType === 'PJ'">
-          <div class="documents-pj">
-            <p-inputgroup>
-              <p-inputgroup-addon>
-                <i class="pi pi-building"></i>
-              </p-inputgroup-addon>
-              <p-iftalabel variant="on">
-                <input
-                  size="large"
-                  pInputText
-                  id="cnpj"
-                  autocomplete="off"
-                  maxlength="18"
-                  minlength="14"
-                  name="cnpj"
-                  required
-                />
-                <label for="cnpj">CNPJ*</label>
-              </p-iftalabel>
-            </p-inputgroup>
+          <div class="documents-pj-wrapper" style="display: flex; gap: 1rem">
+            <!-- CNPJ -->
+            <div class="input-wrapper">
+              <div class="message-area">
+                <app-message-valid-forms
+                  [control]="cnpj"
+                  text="O CNPJ é obrigatório"
+                  error="required"
+                ></app-message-valid-forms>
+              </div>
+              <p-inputgroup>
+                <p-inputgroup-addon>
+                  <i class="pi pi-building"></i>
+                </p-inputgroup-addon>
+                <p-iftalabel variant="on">
+                  <input
+                    size="large"
+                    pInputText
+                    id="cnpj"
+                    name="cnpj"
+                    required
+                    #cnpj="ngModel"
+                    [(ngModel)]="clienteForm.value.cnpj"
+                  />
+                  <label for="cnpj">CNPJ*</label>
+                </p-iftalabel>
+              </p-inputgroup>
+            </div>
 
-            <p-inputgroup>
-              <p-inputgroup-addon>
-                <i class="pi pi-id-card"></i>
-              </p-inputgroup-addon>
-              <p-iftalabel variant="on">
-                <input
-                  size="large"
-                  pInputText
-                  id="inscricao"
-                  autocomplete="off"
-                  maxlength="20"
-                  minlength="5"
-                  name="inscricao"
-                  required
-                />
-                <label for="inscricao">Inscrição Estadual*</label>
-              </p-iftalabel>
-            </p-inputgroup>
+            <!-- Inscrição Estadual -->
+            <div class="input-wrapper">
+              <div class="message-area">
+                <app-message-valid-forms
+                  [control]="inscricao"
+                  text="Inscrição Estadual obrigatória"
+                  error="required"
+                ></app-message-valid-forms>
+              </div>
+              <p-inputgroup>
+                <p-inputgroup-addon>
+                  <i class="pi pi-id-card"></i>
+                </p-inputgroup-addon>
+                <p-iftalabel variant="on">
+                  <input
+                    size="large"
+                    pInputText
+                    id="inscricao"
+                    name="inscricao"
+                    required
+                    #inscricao="ngModel"
+                    [(ngModel)]="clienteForm.value.inscricao"
+                  />
+                  <label for="inscricao">Inscrição Estadual*</label>
+                </p-iftalabel>
+              </p-inputgroup>
+            </div>
 
-            <div class="date-opening">
+            <!-- Data de Abertura -->
+            <div class="input-wrapper">
+              <div class="message-area">
+                <app-message-valid-forms
+                  [control]="dateopen"
+                  text="Data de abertura é obrigatória"
+                  error="required"
+                ></app-message-valid-forms>
+              </div>
               <p-iftalabel>
                 <p-datepicker
-                  name="dataAbertura"
-                  inputId="dataAbertura"
+                  name="dateopen"
+                  inputId="dateopen"
                   showIcon
                   iconDisplay="input"
                   appendTo="body"
                   placeholder="dd/mm/aaaa"
-                />
-                <label for="dataAbertura">Data de Abertura*</label>
+                  #dateopen="ngModel"
+                  required="true"
+                  [(ngModel)]="clienteForm.value.dateopen"
+                ></p-datepicker>
+                <label for="dateopen">Data de Abertura*</label>
               </p-iftalabel>
             </div>
           </div>
 
-          <div class="name-date">
-            <p-inputgroup>
-              <p-inputgroup-addon>
-                <i class="pi pi-briefcase"></i>
-              </p-inputgroup-addon>
-              <p-iftalabel variant="on">
-                <input
-                  size="large"
-                  pInputText
-                  id="razao"
-                  autocomplete="off"
-                  maxlength="100"
-                  minlength="3"
-                  name="razao"
-                  required
-                />
-                <label for="razao">Razão Social*</label>
-              </p-iftalabel>
-            </p-inputgroup>
+          <!-- Razão Social e Nome Fantasia -->
+          <div
+            class="name-date-wrapper"
+            style="display: flex; gap: 1rem; margin-top: 1rem"
+          >
+            <!-- Razão Social -->
+            <div class="input-wrapper">
+              <div class="message-area">
+                <app-message-valid-forms
+                  [control]="razao"
+                  text="Razão Social é obrigatória"
+                  error="required"
+                ></app-message-valid-forms>
+              </div>
+              <p-inputgroup>
+                <p-inputgroup-addon>
+                  <i class="pi pi-briefcase"></i>
+                </p-inputgroup-addon>
+                <p-iftalabel variant="on">
+                  <input
+                    size="large"
+                    pInputText
+                    id="razao"
+                    name="razao"
+                    required
+                    #razao="ngModel"
+                    [(ngModel)]="clienteForm.value.razao"
+                  />
+                  <label for="razao">Razão Social*</label>
+                </p-iftalabel>
+              </p-inputgroup>
+            </div>
 
-            <p-inputgroup>
-              <p-inputgroup-addon>
-                <i class="pi pi-tag"></i>
-              </p-inputgroup-addon>
-              <p-iftalabel variant="on">
-                <input
-                  size="large"
-                  pInputText
-                  id="fantasia"
-                  autocomplete="off"
-                  maxlength="100"
-                  minlength="3"
-                  name="fantasia"
-                />
-                <label for="fantasia">Nome Fantasia</label>
-              </p-iftalabel>
-            </p-inputgroup>
+            <!-- Nome Fantasia -->
+            <div class="input-wrapper">
+              <div class="message-area">
+                <app-message-valid-forms
+                  [control]="fantasia"
+                  text="Nome Fantasia é obrigatório"
+                  error="required"
+                ></app-message-valid-forms>
+              </div>
+              <p-inputgroup>
+                <p-inputgroup-addon>
+                  <i class="pi pi-tag"></i>
+                </p-inputgroup-addon>
+                <p-iftalabel variant="on">
+                  <input
+                    size="large"
+                    pInputText
+                    id="fantasia"
+                    name="fantasia"
+                    #fantasia="ngModel"
+                    [(ngModel)]="clienteForm.value.fantasia"
+                  />
+                  <label for="fantasia">Nome Fantasia</label>
+                </p-iftalabel>
+              </p-inputgroup>
+            </div>
           </div>
         </div>
 
@@ -244,6 +296,19 @@
           <b>2. Endereço do Cliente</b>
         </p-divider>
 
+        <div class="messagesvalids2">
+          <app-message-valid-forms
+            [visible]="cepNaoEncontrado"
+            text="CEP não encontrado ou inválido"
+          ></app-message-valid-forms>
+
+          <app-message-valid-forms
+            [control]="uf"
+            text="UF é obrigatório"
+            error="required"
+          ></app-message-valid-forms>
+        </div>
+
         <div class="search-cep">
           <p-inputgroup>
             <p-inputgroup-addon>
@@ -253,32 +318,46 @@
               <input
                 size="large"
                 pInputText
-                id="endereco"
+                id="cep"
                 autocomplete="off"
                 maxlength="9"
-                name="endereco"
+                name="cep"
                 required
-                [(ngModel)]="endereco.cep"
+                [(ngModel)]="address.cep"
                 (input)="formatCep($event)"
                 (blur)="onCepChange(clienteForm)"
                 placeholder="00000-000"
               />
-              <label for="endereco"
-                >Código de Endereçamento Postal (CEP)*</label
-              >
+              <label for="cep">Código de Endereçamento Postal (CEP)*</label>
             </p-iftalabel>
           </p-inputgroup>
-          <app-message-valid-forms
-            [visible]="cepNaoEncontrado"
-            text="CEP não encontrado ou inválido"
-          ></app-message-valid-forms>
+
+          <p-inputgroup>
+            <p-inputgroup-addon>
+              <i class="pi pi-map-marker"></i>
+            </p-inputgroup-addon>
+            <p-iftalabel variant="on">
+              <input
+                size="large"
+                pInputText
+                id="uf"
+                autocomplete="off"
+                maxlength="9"
+                name="uf"
+                required
+                [(ngModel)]="address.uf"
+                #uf="ngModel"
+              />
+              <label for="uf">UF*</label>
+            </p-iftalabel>
+          </p-inputgroup>
         </div>
 
         <div class="messagesvalids">
           <app-message-valid-forms
             error="required"
             text="Rua é obrigatória"
-            [control]="rua"
+            [control]="street"
           ></app-message-valid-forms>
           <app-message-valid-forms
             error="required"
@@ -296,100 +375,123 @@
               <input
                 size="large"
                 pInputText
-                id="rua"
+                id="street"
                 autocomplete="off"
                 maxlength="50"
                 minlength="5"
-                name="rua"
-                [(ngModel)]="endereco.rua"
+                name="street"
+                [(ngModel)]="address.street"
                 required
-                #rua="ngModel"
+                #street="ngModel"
               />
-              <label for="rua">Logradouro (Rua)*</label>
+              <label for="street">Logradouro (Rua)*</label>
             </p-iftalabel>
           </p-inputgroup>
 
-          <p-inputgroup>
-            <p-inputgroup-addon>
-              <i class="pi pi-sort-numeric-up"></i>
-            </p-inputgroup-addon>
-            <p-iftalabel variant="on">
-              <input
-                size="large"
-                pInputText
-                id="numero"
-                autocomplete="off"
-                maxlength="10"
-                minlength="1"
-                name="numero"
-                required
-                type="number"
-                #number="ngModel"
-                [(ngModel)]="endereco.numero"
-              />
-              <label for="numero">Número da Casa*</label>
-            </p-iftalabel>
-          </p-inputgroup>
+          <div>
+            <p-inputgroup>
+              <p-inputgroup-addon>
+                <i class="pi pi-sort-numeric-up"></i>
+              </p-inputgroup-addon>
+              <p-iftalabel variant="on">
+                <input
+                  size="large"
+                  pInputText
+                  id="number"
+                  autocomplete="off"
+                  maxlength="10"
+                  minlength="1"
+                  name="number"
+                  required
+                  type="number"
+                  #number="ngModel"
+                  [(ngModel)]="address.number"
+                />
+                <label for="number">Número da Casa*</label>
+              </p-iftalabel>
+            </p-inputgroup>
+          </div>
         </div>
 
         <div class="city-etc">
-          <p-inputgroup>
-            <p-inputgroup-addon>
-              <i class="pi pi-map"></i>
-            </p-inputgroup-addon>
-            <p-iftalabel variant="on">
-              <input
-                size="large"
-                pInputText
-                id="cidade"
-                autocomplete="off"
-                maxlength="50"
-                minlength="2"
-                name="cidade"
-                [(ngModel)]="endereco.cidade"
-                required
-              />
-              <label for="cidade">Cidade*</label>
-            </p-iftalabel>
-          </p-inputgroup>
+          <!-- Mensagens -->
+          <div class="messages-row">
+            <app-message-valid-forms
+              error="required"
+              text="Cidade é obrigatória"
+              [control]="city"
+            ></app-message-valid-forms>
 
-          <p-inputgroup>
-            <p-inputgroup-addon>
-              <i class="pi pi-map"></i>
-            </p-inputgroup-addon>
-            <p-iftalabel variant="on">
-              <input
-                size="large"
-                pInputText
-                id="bairro"
-                autocomplete="off"
-                maxlength="50"
-                minlength="2"
-                name="bairro"
-                [(ngModel)]="endereco.bairro"
-                required
-              />
-              <label for="bairro">Bairro*</label>
-            </p-iftalabel>
-          </p-inputgroup>
+            <app-message-valid-forms
+              error="required"
+              text="Bairro é obrigatório"
+              [control]="neighborhood"
+            ></app-message-valid-forms>
 
-          <p-inputgroup>
-            <p-inputgroup-addon>
-              <i class="pi pi-exclamation-circle"></i>
-            </p-inputgroup-addon>
-            <p-iftalabel variant="on">
-              <input
-                size="large"
-                pInputText
-                id="complemento"
-                autocomplete="off"
-                maxlength="50"
-                name="complemento"
-                [(ngModel)]="endereco.complemento"
-              />
-              <label for="complemento">Complemento</label>
-            </p-iftalabel>
-          </p-inputgroup>
+            <div class="empty"></div>
+          </div>
+
+          <div class="inputs-row">
+            <p-inputgroup>
+              <p-inputgroup-addon>
+                <i class="pi pi-map"></i>
+              </p-inputgroup-addon>
+              <p-iftalabel variant="on">
+                <input
+                  size="large"
+                  pInputText
+                  id="city"
+                  autocomplete="off"
+                  maxlength="50"
+                  minlength="2"
+                  name="city"
+                  [(ngModel)]="address.city"
+                  required
+                  #city="ngModel"
+                />
+                <label for="city">Cidade*</label>
+              </p-iftalabel>
+            </p-inputgroup>
+
+            <p-inputgroup>
+              <p-inputgroup-addon>
+                <i class="pi pi-map"></i>
+              </p-inputgroup-addon>
+              <p-iftalabel variant="on">
+                <input
+                  size="large"
+                  pInputText
+                  id="neighborhood"
+                  autocomplete="off"
+                  maxlength="50"
+                  minlength="2"
+                  name="neighborhood"
+                  [(ngModel)]="address.neighborhood"
+                  required
+                  #neighborhood="ngModel"
+                />
+                <label for="neighborhood">Bairro*</label>
+              </p-iftalabel>
+            </p-inputgroup>
+
+            <p-inputgroup>
+              <p-inputgroup-addon>
+                <i class="pi pi-exclamation-circle"></i>
+              </p-inputgroup-addon>
+              <p-iftalabel variant="on">
+                <input
+                  size="large"
+                  pInputText
+                  id="complement"
+                  autocomplete="off"
+                  maxlength="50"
+                  name="complement"
+                  [(ngModel)]="address.complement"
+                />
+                <label for="complement">Complemento</label>
+              </p-iftalabel>
+            </p-inputgroup>
+          </div>
         </div>
 
         <!-- ========================================================= -->
@@ -399,6 +501,11 @@
           <b>3. Contatos do Cliente</b>
         </p-divider>
 
+        <app-message-valid-forms
+          error="required"
+          text="Cidade é obrigatória"
+          [control]="phone"
+        ></app-message-valid-forms>
         <div class="contacts">
           <p-inputgroup>
             <p-inputgroup-addon>
@@ -408,14 +515,16 @@
               <input
                 size="large"
                 pInputText
-                id="celular"
+                id="phone"
                 autocomplete="off"
                 maxlength="15"
                 minlength="9"
-                name="celular"
+                name="phone"
                 required
+                #phone="ngModel"
+                [(ngModel)]="clienteForm.value.phone"
               />
-              <label for="celular">Celular*</label>
+              <label for="phone">Celular*</label>
             </p-iftalabel>
           </p-inputgroup>
 
@@ -427,13 +536,15 @@
               <input
                 size="large"
                 pInputText
-                id="telefone"
+                id="telephone"
                 autocomplete="off"
                 maxlength="15"
                 minlength="9"
-                name="telefone"
+                name="telephone"
+                [(ngModel)]="clienteForm.value.telephone"
+                #telephone="ngModel"
               />
-              <label for="telefone">Telefone</label>
+              <label for="telephone">Telefone</label>
             </p-iftalabel>
           </p-inputgroup>
 
@@ -465,13 +576,15 @@
               <input
                 size="large"
                 pInputText
-                id="2celular"
+                id="phone2"
                 autocomplete="off"
                 maxlength="15"
                 minlength="9"
-                name="2celular"
+                name="phone2"
+                #phone2="ngModel"
+                [(ngModel)]="clienteForm.value.phone2"
               />
-              <label for="2celular">2º Celular</label>
+              <label for="phone2">2º Celular</label>
             </p-iftalabel>
           </p-inputgroup>
         </div>

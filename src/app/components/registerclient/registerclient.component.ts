@@ -36,6 +36,7 @@ import { NgForm } from '@angular/forms';
   styleUrl: './registerclient.component.scss',
 })
 export class RegisterclientComponent {
+dateOpen: any;
   constructor(private router: Router, private cepService: CepService) {}
 
   dateOfBirth: Date | null = null;
@@ -52,33 +53,36 @@ export class RegisterclientComponent {
     { label: 'Pessoa Jurídica', value: 'PJ' },
   ];
 
-  endereco: any = {
+  address: any = {
     cep: '',
-    rua: '',
-    bairro: '',
-    cidade: '',
+    street: '',
+    neighborhood: '',
+    city: '',
     complemento: '',
+    uf: ''
   };
 
   cepNaoEncontrado: boolean = false;
   onCepChange(form: NgForm) {
-    const cep = this.endereco.cep.replace(/\D/g, '');
+    const cep = this.address.cep.replace(/\D/g, '');
     if (cep.length === 8) {
       this.cepService.searchCEP(cep).subscribe({
         next: (data) => {
           if (!data.erro) {
             this.cepNaoEncontrado = false;
 
-            this.endereco.rua = data.logradouro;
-            this.endereco.bairro = data.bairro;
-            this.endereco.cidade = data.localidade;
-            this.endereco.complemento = data.complemento;
+            this.address.street = data.logradouro;
+            this.address.neighborhood = data.bairro;
+            this.address.city = data.localidade;
+            this.address.complement = data.complemento;
+            this.address.uf = data.uf;
 
             form.form.patchValue({
-              rua: this.endereco.rua,
-              bairro: this.endereco.bairro,
-              cidade: this.endereco.cidade,
-              complemento: this.endereco.complemento,
+              street: this.address.street,
+              neighborhood: this.address.neighborhood,
+              city: this.address.city,
+              complement: this.address.complement,
+              uf: this.address.uf
             });
           } else {
             this.cepNaoEncontrado = true;
@@ -101,7 +105,7 @@ export class RegisterclientComponent {
     }
 
     input.value = value;
-    this.endereco.cep = value;
+    this.address.cep = value;
   }
 
   formatCpf(event: any, cpfControl: NgModel) {
