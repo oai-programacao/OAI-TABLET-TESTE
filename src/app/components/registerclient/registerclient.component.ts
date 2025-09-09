@@ -36,8 +36,10 @@ import { NgForm } from '@angular/forms';
   styleUrl: './registerclient.component.scss',
 })
 export class RegisterclientComponent {
-dateOpen: any;
   constructor(private router: Router, private cepService: CepService) {}
+
+  cpfInvalido: boolean = false;
+  cnpjInvalido: boolean = false;
 
   dateOfBirth: Date | null = null;
   selectedOption: boolean = false;
@@ -59,7 +61,7 @@ dateOpen: any;
     neighborhood: '',
     city: '',
     complemento: '',
-    uf: ''
+    uf: '',
   };
 
   cepNaoEncontrado: boolean = false;
@@ -82,7 +84,7 @@ dateOpen: any;
               neighborhood: this.address.neighborhood,
               city: this.address.city,
               complement: this.address.complement,
-              uf: this.address.uf
+              uf: this.address.uf,
             });
           } else {
             this.cepNaoEncontrado = true;
@@ -140,7 +142,76 @@ dateOpen: any;
     }
 
     event.target.value = value;
-    rgControl.control.setValue(value); 
+    rgControl.control.setValue(value);
+  }
+
+  formatCnpj(event: any, control: any) {
+    let value = event.target.value;
+
+    // Remove tudo que não for número
+    value = value.replace(/\D/g, '');
+
+    // Limita a 14 dígitos (CNPJ tem 14 números)
+    if (value.length > 14) value = value.slice(0, 14);
+
+    // Aplica a máscara
+    if (value.length > 2) value = value.replace(/^(\d{2})(\d)/, '$1.$2');
+    if (value.length > 5)
+      value = value.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
+    if (value.length > 8)
+      value = value.replace(/^(\d{2})\.(\d{3})\.(\d{3})(\d)/, '$1.$2.$3/$4');
+    if (value.length > 12)
+      value = value.replace(
+        /^(\d{2})\.(\d{3})\.(\d{3})\/(\d{4})(\d)/,
+        '$1.$2.$3/$4-$5'
+      );
+
+    // Atualiza o ngModel
+    control.control.setValue(value);
+  }
+
+  validCPF(cpf: string): boolean {
+    cpf = cpf.replace(/\D/g, '');
+    if (cpf.length !== 11) return false;
+
+    let soma = 0,
+      peso = 10;
+    for (let i = 0; i < 9; i++) {
+      soma += parseInt(cpf[i]) * peso--;
+    }
+    let digito1 = soma % 11 < 2 ? 0 : 11 - (soma % 11);
+
+    (soma = 0), (peso = 11);
+    for (let i = 0; i < 10; i++) {
+      soma += parseInt(cpf[i]) * peso--;
+    }
+    let digito2 = soma % 11 < 2 ? 0 : 11 - (soma % 11);
+
+    return cpf[9] === digito1.toString() && cpf[10] === digito2.toString();
+  }
+
+  validCnpj(cnpj: string): boolean {
+    cnpj = cnpj.replace(/\D/g, '');
+    if (cnpj.length !== 14 || /^(\d)\1+$/.test(cnpj)) return false;
+
+    let peso1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+    let peso2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+
+    let soma = peso1.reduce((acc, val, i) => acc + parseInt(cnpj[i]) * val, 0);
+    let digito1 = soma % 11 < 2 ? 0 : 11 - (soma % 11);
+
+    soma = peso2.reduce((acc, val, i) => acc + parseInt(cnpj[i]) * val, 0);
+    let digito2 = soma % 11 < 2 ? 0 : 11 - (soma % 11);
+
+    return cnpj[12] === digito1.toString() && cnpj[13] === digito2.toString();
+  }
+
+  validateCpfInput(value: string) {
+    this.cpfInvalido = value ? !this.validCPF(value) : false;
+  }
+
+  validateCnpjInput(value: string) {
+    this.cnpjInvalido = value ? !this.validCnpj(value) : false;
   }
 
   goBack() {

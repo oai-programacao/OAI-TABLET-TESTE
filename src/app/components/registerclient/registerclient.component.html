@@ -89,6 +89,12 @@
             text="O CPF é obrigatório"
             error="required"
           ></app-message-valid-forms>
+
+          <app-message-valid-forms
+            [control]="cpf"
+            text="CPF inválido"
+            [visible]="cpfInvalido"
+          ></app-message-valid-forms>
           <div class="documents">
             <p-inputgroup>
               <p-inputgroup-addon>
@@ -107,6 +113,7 @@
                   #cpf="ngModel"
                   [(ngModel)]="clienteForm.value.cpf"
                   (input)="formatCpf($event, cpf)"
+                  (ngModelChange)="validateCpfInput($event)"
                 />
                 <label for="cpf">CPF*</label>
               </p-iftalabel>
@@ -142,12 +149,16 @@
         </div>
 
         <!-- ========== Pessoa Jurídica (PJ) ========== -->
-        <!-- ========== Pessoa Jurídica (PJ) ========== -->
         <div *ngIf="selectedClientType === 'PJ'">
           <div class="documents-pj-wrapper" style="display: flex; gap: 1rem">
             <!-- CNPJ -->
             <div class="input-wrapper">
               <div class="message-area">
+                <app-message-valid-forms
+                  [control]="cnpj"
+                  text="CNPJ inválido"
+                  [visible]="cnpjInvalido"
+                ></app-message-valid-forms>
                 <app-message-valid-forms
                   [control]="cnpj"
                   text="O CNPJ é obrigatório"
@@ -165,8 +176,11 @@
                     id="cnpj"
                     name="cnpj"
                     required
+                    maxlength="18"
                     #cnpj="ngModel"
                     [(ngModel)]="clienteForm.value.cnpj"
+                    (input)="formatCnpj($event, cnpj)"
+                    (ngModelChange)="validateCnpjInput($event)"
                   />
                   <label for="cnpj">CNPJ*</label>
                 </p-iftalabel>
