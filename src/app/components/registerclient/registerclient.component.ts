@@ -148,13 +148,13 @@ export class RegisterclientComponent {
   formatCnpj(event: any, control: any) {
     let value = event.target.value;
 
-    // Remove tudo que não for número
+    
     value = value.replace(/\D/g, '');
 
-    // Limita a 14 dígitos (CNPJ tem 14 números)
+    
     if (value.length > 14) value = value.slice(0, 14);
 
-    // Aplica a máscara
+    
     if (value.length > 2) value = value.replace(/^(\d{2})(\d)/, '$1.$2');
     if (value.length > 5)
       value = value.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
@@ -166,7 +166,7 @@ export class RegisterclientComponent {
         '$1.$2.$3/$4-$5'
       );
 
-    // Atualiza o ngModel
+    
     control.control.setValue(value);
   }
 
