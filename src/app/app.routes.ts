@@ -38,5 +38,9 @@ export const routes: Routes = [
   {
     path: 'info',
     loadComponent: () => import('./components/info-client/info-client.component').then((m) => m.InfoClientComponent)
+  },
+  {
+    path: 'add-contract',
+    loadComponent: () => import('./components/add-contract/add-contract.component').then((m) => m.AddContractComponent)
   }
 ];

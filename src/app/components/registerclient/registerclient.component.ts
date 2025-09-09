@@ -15,6 +15,7 @@ import { MessagesValidFormsComponent } from '../../shared/components/message-val
 import { ClienteDTO } from '../../models/cliente.dto';
 import { CepService } from '../../services/cep.service';
 import { NgForm } from '@angular/forms';
+import { NgxMaskDirective } from 'ngx-mask';
 
 @Component({
   selector: 'app-registerclient',
@@ -31,6 +32,7 @@ import { NgForm } from '@angular/forms';
     FormsModule,
     SelectModule,
     MessagesValidFormsComponent,
+    NgxMaskDirective,
   ],
   templateUrl: './registerclient.component.html',
   styleUrl: './registerclient.component.scss',
@@ -128,11 +130,8 @@ export class RegisterclientComponent {
 
   formatRg(event: any, rgControl: NgModel) {
     let value = event.target.value;
-
     value = value.replace(/\D/g, '');
-
     value = value.substring(0, 9);
-
     if (value.length > 8) {
       value = value.replace(/(\d{2})(\d{3})(\d{3})(\d{0,1})/, '$1.$2.$3-$4');
     } else if (value.length > 5) {
@@ -140,21 +139,14 @@ export class RegisterclientComponent {
     } else if (value.length > 2) {
       value = value.replace(/(\d{2})(\d{0,3})/, '$1.$2');
     }
-
     event.target.value = value;
     rgControl.control.setValue(value);
   }
 
   formatCnpj(event: any, control: any) {
     let value = event.target.value;
-
-    
     value = value.replace(/\D/g, '');
-
-    
     if (value.length > 14) value = value.slice(0, 14);
-
-    
     if (value.length > 2) value = value.replace(/^(\d{2})(\d)/, '$1.$2');
     if (value.length > 5)
       value = value.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
@@ -165,8 +157,6 @@ export class RegisterclientComponent {
         /^(\d{2})\.(\d{3})\.(\d{3})\/(\d{4})(\d)/,
         '$1.$2.$3/$4-$5'
       );
-
-    
     control.control.setValue(value);
   }
 

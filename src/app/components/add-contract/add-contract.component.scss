@@ -1,0 +1,11 @@
+.page-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 88vh;
+}
+
+
+:ng::deep .p-stepper {
+  --p-stepper-step-title-active-color: #2563eb;
+}
