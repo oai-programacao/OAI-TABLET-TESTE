@@ -7,6 +7,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { DividerModule } from 'primeng/divider';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-upload-pictures',
@@ -19,6 +20,7 @@ import { DividerModule } from 'primeng/divider';
 export class UploadPicturesComponent {
   messageService = inject(MessageService);
   confirmationService = inject(ConfirmationService);
+  // router = inject(Router)
   images = [
     { src: '/OAILogo.png', alt: 'Foto Frente' },
     { src: '/OAILogo.png', alt: 'Foto Verso' },
@@ -67,13 +69,13 @@ export class UploadPicturesComponent {
             icon: 'pi pi-exclamation-triangle',
             rejectButtonProps: {
                 label: 'Cancelar',
-                severity: 'secondary',
-                outlined: true,
+                severity: 'danger',
             },
             acceptButtonProps: {
-                label: 'Salvar',
+                label: 'Confirmar',
             },
             accept: () => {
+              // this.router.navigate(['plans'])
                 this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: 'You have accepted' });
             },
             reject: () => {

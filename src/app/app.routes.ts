@@ -34,5 +34,9 @@ export const routes: Routes = [
     loadComponent: () => import('./components/upload-pictures/upload-pictures.component').then(
       (m) => m.UploadPicturesComponent
     )
+  },
+  {
+    path: 'info',
+    loadComponent: () => import('./components/info-client/info-client.component').then((m) => m.InfoClientComponent)
   }
 ];

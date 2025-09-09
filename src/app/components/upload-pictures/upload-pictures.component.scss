@@ -8,12 +8,10 @@
 .title {
   font-family: "IBM Plex Mono", monospace;
   color: #a8a8a8;
-  font-weight: 500;
-  font-size: medium;
   width: 100%;
   text-align: start;
-  font-weight: bold;
-  font-size: clamp(1.4rem, 4vw, 1.7rem); /* Mínimo, Preferencial, Máximo */
+  font-weight: 400;
+  font-size: medium;
   padding: 1rem;
 }
 
@@ -183,6 +181,7 @@
 }
 
 :host ::ng-deep .btn-to-add-images .p-button {
+  margin-bottom: 2rem;
 background: none !important;
   border-color: transparent !important;
   color: #333 !important; /* Cor do texto padrão para ambos, ajuste se precisar */
