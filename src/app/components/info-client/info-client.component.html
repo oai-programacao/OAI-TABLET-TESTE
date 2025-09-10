@@ -1,118 +1,238 @@
 <div class="content">
-
-
-<app-card-base width="auto" height="auto">
+  <app-card-base width="auto" height="auto">
     <div class="container">
+      <!-- 1. Dados do Cliente -->
+      <p-divider class="title">
+        <h1 class="title">1. Dados do Cliente</h1>
+      </p-divider>
+
+      <div class="body-content">
+        <div class="avatar-center">
+          <p-avatar icon="pi pi-user" class="mr-2" size="xlarge" shape="circle" />
+        </div>
+
+        <!-- Nome -->
+        <div class="form-field">
+          <p-inputgroup>
+            <p-inputgroup-addon><i class="pi pi-user"></i></p-inputgroup-addon>
+            <p-iftalabel variant="on">
+              <input pInputText id="nome" name="nome" [(ngModel)]="cliente.nome"
+                required #nome="ngModel" [disabled]="!isEditing" />
+              <label for="nome">Nome</label>
+            </p-iftalabel>
+          </p-inputgroup>
+          <app-message-valid-forms [control]="nome" error="required" text="O nome é obrigatório"></app-message-valid-forms>
+        </div>
+
+        <!-- CPF -->
+        <div class="form-field">
+          <p-inputgroup>
+            <p-inputgroup-addon><i class="pi pi-id-card"></i></p-inputgroup-addon>
+            <p-iftalabel variant="on">
+              <input pInputText id="cpf" name="cpf" [(ngModel)]="cliente.cpf"
+                required minlength="11" maxlength="11" #cpf="ngModel" [disabled]="!isEditing" />
+              <label for="cpf">CPF</label>
+            </p-iftalabel>
+          </p-inputgroup>
+          <app-message-valid-forms [control]="cpf" error="required" text="O CPF é obrigatório"></app-message-valid-forms>
+        </div>
+
+        <!-- RG -->
+        <div class="form-field">
+          <p-inputgroup>
+            <p-inputgroup-addon><i class="pi pi-id-card"></i></p-inputgroup-addon>
+            <p-iftalabel variant="on">
+              <input pInputText id="rg" name="rg" [(ngModel)]="cliente.rg"
+                required #rg="ngModel" [disabled]="!isEditing" />
+              <label for="rg">RG</label>
+            </p-iftalabel>
+          </p-inputgroup>
+          <app-message-valid-forms [control]="rg" error="required" text="O RG é obrigatório"></app-message-valid-forms>
+        </div>
+
+        <!-- Data de Nascimento -->
+        <div class="form-field">
+          <p-iftalabel variant="on">
+            <input pInputText id="nascimento" name="nascimento" [(ngModel)]="cliente.nascimento"
+              required #nascimento="ngModel" [disabled]="!isEditing" />
+            <label for="nascimento">Data de Nascimento</label>
+          </p-iftalabel>
+          <app-message-valid-forms [control]="nascimento" error="required" text="A data é obrigatória"></app-message-valid-forms>
+        </div>
+      </div>
+
+      <!-- 2. Endereço do Cliente -->
+      <p-divider class="title">
+        <h1 class="title">2. Endereço do Cliente</h1>
+      </p-divider>
+
+      <form #clienteForm="ngForm">
+        <div class="body-content">
+          <!-- CEP -->
+          <div class="form-field">
+            <p-inputgroup>
+              <p-inputgroup-addon><i class="pi pi-map-marker"></i></p-inputgroup-addon>
+              <p-iftalabel variant="on">
+                <input pInputText id="cep" name="cep" [(ngModel)]="cliente.cep"
+                  required minlength="8" maxlength="9" #cep="ngModel"
+                  [disabled]="!isEditing" (blur)="searchCEP()" />
+                <label for="cep">CEP</label>
+              </p-iftalabel>
+            </p-inputgroup>
+            <app-message-valid-forms [control]="cep" error="required" text="O CEP é obrigatório"></app-message-valid-forms>
+            <app-message-valid-forms [control]="cep" error="minlength" text="O CEP deve ter 8 dígitos"></app-message-valid-forms>
+          </div>
+
+          <!-- Logradouro -->
+          <div class="form-field">
+            <p-inputgroup>
+              <p-inputgroup-addon><i class="pi pi-home"></i></p-inputgroup-addon>
+              <p-iftalabel variant="on">
+                <input pInputText id="logradouro" name="logradouro" [(ngModel)]="cliente.logradouro"
+                  required maxlength="100" #logradouro="ngModel" [disabled]="!isEditing" />
+                <label for="logradouro">Logradouro</label>
+              </p-iftalabel>
+            </p-inputgroup>
+            <app-message-valid-forms [control]="logradouro" error="required" text="O logradouro é obrigatório"></app-message-valid-forms>
+          </div>
+
+          <!-- Número -->
+          <div class="form-field">
+            <p-inputgroup>
+              <p-inputgroup-addon><i class="pi pi-sort-numeric-up"></i></p-inputgroup-addon>
+              <p-iftalabel variant="on">
+                <input pInputText id="numero" name="numero" [(ngModel)]="cliente.numero"
+                  required maxlength="10" #numero="ngModel" [disabled]="!isEditing" />
+                <label for="numero">Número</label>
+              </p-iftalabel>
+            </p-inputgroup>
+            <app-message-valid-forms [control]="numero" error="required" text="O número é obrigatório"></app-message-valid-forms>
+          </div>
+
+          <!-- Complemento -->
+          <div class="form-field">
+            <p-inputgroup>
+              <p-inputgroup-addon><i class="pi pi-exclamation-circle"></i></p-inputgroup-addon>
+              <p-iftalabel variant="on">
+                <input pInputText id="complemento" name="complemento" [(ngModel)]="cliente.complemento"
+                  #complemento="ngModel" [disabled]="!isEditing" />
+                <label for="complemento">Complemento</label>
+              </p-iftalabel>
+            </p-inputgroup>
+          </div>
+
+          <!-- UF -->
+          <div class="form-field">
+            <p-inputgroup>
+              <p-inputgroup-addon><i class="pi pi-map"></i></p-inputgroup-addon>
+              <p-iftalabel variant="on">
+                <input pInputText id="uf" name="uf" [(ngModel)]="cliente.uf"
+                  required minlength="2" maxlength="2" #uf="ngModel" [disabled]="!isEditing" />
+                <label for="uf">UF</label>
+              </p-iftalabel>
+            </p-inputgroup>
+            <app-message-valid-forms [control]="uf" error="required" text="O UF é obrigatório"></app-message-valid-forms>
+            <app-message-valid-forms [control]="uf" error="minlength" text="O UF deve ter 2 letras"></app-message-valid-forms>
+          </div>
+        </div>
+
+        <!-- Observação -->
+        <div class="input-observation">
+          <p-iftalabel>
+            <textarea rows="5" cols="30" style="width: 100%;" pTextarea [autoResize]="true"
+              id="observacao" name="observacao" [(ngModel)]="cliente.observacao"
+              #observacao="ngModel" [disabled]="!isEditing"></textarea>
+            <label for="observacao">Observação</label>
+          </p-iftalabel>
+        </div>
+
+        <!-- 3. Contato do Cliente -->
         <p-divider class="title">
-            <h1 class="title">1. Dados do Cliente</h1>
+          <h1 class="title">3. Contato do Cliente</h1>
         </p-divider>
 
         <div class="body-content">
-            <div class="avatar-center">
-                <img src="/info-user.png" label="DS" size="xlarge" shape="circle" />
-            </div>
+          <!-- Celular 1 -->
+          <div class="form-field">
+            <p-inputgroup>
+              <p-inputgroup-addon><i class="pi pi-mobile"></i></p-inputgroup-addon>
+              <p-iftalabel variant="on">
+                <input pInputText id="celular1" name="celular1" [(ngModel)]="cliente.celular1"
+                  required maxlength="15" #celular1="ngModel" [disabled]="!isEditing" />
+                <label for="celular1">Celular</label>
+              </p-iftalabel>
+            </p-inputgroup>
+            <app-message-valid-forms [control]="celular1" error="required" text="O celular é obrigatório"></app-message-valid-forms>
+          </div>
 
-            <div class="input-body">
-                <label for="name">Nome:</label>
-                <input type="text" pInputText value="Diego Soares" disabled>
-            </div>
+          <!-- Celular 2 -->
+          <div class="form-field">
+            <p-inputgroup>
+              <p-inputgroup-addon><i class="pi pi-mobile"></i></p-inputgroup-addon>
+              <p-iftalabel variant="on">
+                <input pInputText id="celular2" name="celular2" [(ngModel)]="cliente.celular2"
+                  maxlength="15" #celular2="ngModel" [disabled]="!isEditing" />
+                <label for="celular2">Celular 2</label>
+              </p-iftalabel>
+            </p-inputgroup>
+          </div>
 
-            <div class="input-body">
-                <label for="cpf">CPF:</label>
-                <input type="text" pInputText value="123.456.789-10" disabled>
-            </div>
+          <!-- Telefone -->
+          <div class="form-field">
+            <p-inputgroup>
+              <p-inputgroup-addon><i class="pi pi-phone"></i></p-inputgroup-addon>
+              <p-iftalabel variant="on">
+                <input pInputText id="telefone" name="telefone" [(ngModel)]="cliente.telefone"
+                  maxlength="15" #telefone="ngModel" [disabled]="!isEditing" />
+                <label for="telefone">Telefone</label>
+              </p-iftalabel>
+            </p-inputgroup>
+          </div>
 
-            <div class="input-body">
-                <label for="rg">RG:</label>
-                <input type="text" pInputText value="56.784.123-X" disabled>
-            </div>
-
-            <div class="input-date">
-                <label for="birthdate">Data de Nascimento:</label>
-                <input type="text" pInputText value="12/08/1980" disabled>
-            </div>
+          <!-- Email -->
+          <div class="form-field">
+            <p-inputgroup>
+              <p-inputgroup-addon><i class="pi pi-envelope"></i></p-inputgroup-addon>
+              <p-iftalabel variant="on">
+                <input type="email" pInputText id="email" name="email" [(ngModel)]="cliente.email"
+                  required maxlength="100" email #email="ngModel" [disabled]="!isEditing" />
+                <label for="email">Email</label>
+              </p-iftalabel>
+            </p-inputgroup>
+            <app-message-valid-forms [control]="email" error="required" text="O email é obrigatório"></app-message-valid-forms>
+            <app-message-valid-forms [control]="email" error="email" text="Digite um email válido"></app-message-valid-forms>
+          </div>
         </div>
 
-        <p-divider class="title">
-            <h1 class="title">2. Endereço do Cliente</h1>
-        </p-divider>
-
-        <div class="body-content">
-            <div class="input-body">
-                <label for="cep">CEP:</label>
-                <input type="text" pInputText value="19800-002" disabled>
-            </div>
-
-            <div class="input-body">
-                <label for="logradouro">Logradouro:</label>
-                <input type="text" pInputText value="Rua Maomé" disabled>
-            </div>
-
-            <div class="input-body">
-                <label for="number">Número:</label>
-                <input type="text" pInputText value="245" disabled>
-            </div>
-
-            <div class="input-body">
-                <label for="complement">Complemento:</label>
-                <input type="text" pInputText value="Apartamento" disabled>
-            </div>
-
-            <div class="input-body">
-                <label for="uf">UF:</label>
-                <input type="text" pInputText value="SP" disabled>
-            </div>
-
-            <div class="input-observation">
-                <label for="observation">Observação:</label>
-                <textarea rows="5" cols="30" [value]="'CTO 0/1/10 EM ASSIS'" style="width: 100%;" pTextarea
-                    [autoResize]="true" disabled></textarea>
-            </div>
+        @if(isEditing){
+        <div class="btn-to-save">
+          <p-button label="Salvar" [raised]="true" size="large" severity="help" icon="pi pi-check"
+            (onClick)="saveCliente()"></p-button>
         </div>
+        }
+      </form>
 
-        <p-divider class="title">
-            <h1 class="title">3. Contatos do Cliente</h1>
-        </p-divider>
+      <!-- 4. Ações -->
+      <p-divider class="title">
+        <h1 class="title">4. Ações</h1>
+      </p-divider>
 
-        <div class="body-content">
-            <div class="input-body">
-                <label for="phone">Telefone:</label>
-                <input type="text" pInputText value="(18)99677-4362" disabled>
-            </div>
-            <div class="input-body">
-                <label for="phone2">Telefone 2:</label>
-                <input type="text" pInputText value="(18)99677-4362" disabled>
-            </div>
-            <div class="input-body">
-                <label for="phone3">Telefone 3:</label>
-                <input type="text" pInputText value="(18)99677-4362" disabled>
-            </div>
-
-            <div class="input-body">
-                <label for="phone-comercial">Telefone Comercial:</label>
-                <input type="text" pInputText value="4002-8922" disabled>
-            </div>
-
-            <div class="input-body">
-                <label for="email">Email:</label>
-                <input type="text" pInputText value="fulano@gmail.com" disabled>
-            </div>
+      <div class="btn-actions">
+        <div>
+          <p-button label="Ver Fotos" [raised]="true" size="large" severity="secondary" icon="pi pi-camera" />
         </div>
-        <p-divider class="title">
-            <h1 class="title">4. Ações</h1>
-        </p-divider>
-        <div class="btn-actions">
-            <div>
-                <p-button label="Contratos" size="large" severity="info" icon="pi pi-file" />
-            </div>
-            <div>
-                <p-button label="Whatsapp" size="large" severity="success" icon="pi pi-whatsapp" />
-            </div>
-            <div>
-                <p-button label="Alterar" size="large" severity="warn" icon="pi pi-pencil" />
-            </div>
+        <div>
+          <p-button label="Contratos" [raised]="true" size="large" severity="secondary" icon="pi pi-file" />
         </div>
-
+        <div>
+          <p-button label="Whatsapp" [raised]="true" size="large" severity="success" icon="pi pi-whatsapp" />
+        </div>
+        <div>
+          <p-button [raised]="true" [label]="isEditing ? 'Cancelar' : 'Alterar'"
+            [severity]="isEditing ? 'danger' : 'secondary'" size="large" icon="pi pi-pencil"
+            (onClick)="toggleEditing()" />
+        </div>
+      </div>
     </div>
-</app-card-base>
+  </app-card-base>
 </div>
