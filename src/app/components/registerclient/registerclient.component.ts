@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+ import { Component } from '@angular/core';
 import { CardBaseComponent } from '../../shared/components/card-base/card-base.component';
 import { InputTextModule } from 'primeng/inputtext';
 import { CommonModule } from '@angular/common';
