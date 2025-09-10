@@ -5,7 +5,6 @@
                 <h1 class="title">Adicionar Fotos</h1>
             </p-divider>
             
-            <!-- Botões de upload -->
             <div class="btn-to-add-images" >
                 <div>
                     <p-button styleClass="btn-frente" iconPos="top" size="large" severity="info" />
@@ -15,7 +14,6 @@
                 </div>
             </div>
 
-            <!-- Carousel de imagens -->
             <div class="images-to-watch">
                 <p-carousel [value]="images" [numVisible]="3" [numScroll]="1" [circular]="false" [showIndicators]="true"
                     [showNavigators]="true"  [responsiveOptions]="responsiveOptions">
@@ -32,8 +30,6 @@
             <div class="btn-to-accept">
                 <p-button label="Enviar" severity="success" icon="pi pi-check" size="large" (onClick)="confirm1($event)" />
             </div>
-
-            <!-- Botão de envio -->
         </div>
     </app-card-base>
 </div>

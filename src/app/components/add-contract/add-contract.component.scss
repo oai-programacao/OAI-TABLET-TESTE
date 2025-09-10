@@ -1,0 +1,25 @@
+.page-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 88vh;
+}
+
+.p-stepper-separator {
+}
+
+.space-stepper1 {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+
+
+.p-stepper {
+  background: url('/backgroundfamily.png') no-repeat center center;
+  background-size: cover;
+  border-radius: 12px; 
+  padding: 1rem;       
+}

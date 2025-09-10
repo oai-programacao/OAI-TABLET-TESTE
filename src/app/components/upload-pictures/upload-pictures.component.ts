@@ -33,25 +33,22 @@ export class UploadPicturesComponent {
   responsiveOptions: any[];
 
   constructor() {
-    // Definimos as regras de responsividade aqui
+    
    this.responsiveOptions = [
     {
-        // Regra para TABLET HORIZONTAL (ex: iPad Air com 1180px de largura)
-        // Se a tela for menor que 1200px, mostra 4 itens.
+        
         breakpoint: '1199px', 
         numVisible: 4,
         numScroll: 1
     },
     {
-        // Regra para TABLET VERTICAL (iPad Air com 820px de largura)
-        // Se a tela for menor que 821px, mostra 2 itens.
+        
         breakpoint: '821px',
         numVisible: 2,
         numScroll: 1
     },
     {
-        // Regra para CELULARES
-        // Se a tela for menor que 600px, mostra 1 item.
+        
         breakpoint: '600px',
         numVisible: 1,
         numScroll: 1
@@ -75,7 +72,6 @@ export class UploadPicturesComponent {
                 label: 'Confirmar',
             },
             accept: () => {
-              // this.router.navigate(['plans'])
                 this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: 'You have accepted' });
             },
             reject: () => {

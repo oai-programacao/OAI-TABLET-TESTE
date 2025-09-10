@@ -1,0 +1,158 @@
+<div class="page-container">
+  <app-card-base>
+    <div class="card">
+      <p-stepper [value]="1">
+        <p-step-item [value]="1">
+          <p-step> Dados do Contrato </p-step>
+          <p-step-panel>
+            <ng-template #content let-activateCallback="activateCallback">
+              
+              <div class="space-stepper1">
+                <p-inputgroup>
+                  <p-inputgroup-addon>
+                    <i class="pi pi-building"></i>
+                  </p-inputgroup-addon>
+                  <p-iftalabel variant="on">
+                    <input
+                      size="large"
+                      pInputText
+                      id="Plano"
+                      name="plano"
+                      required
+                      maxlength="18"
+                    />
+                    <label for="plano">Plano</label>
+                  </p-iftalabel>
+                </p-inputgroup>
+
+                <p-inputgroup>
+                  <p-inputgroup-addon>
+                    <i class="pi pi-building"></i>
+                  </p-inputgroup-addon>
+                  <p-iftalabel variant="on">
+                    <input
+                      size="large"
+                      pInputText
+                      id="cnpj"
+                      name="cnpj"
+                      required
+                      maxlength="18"
+                    />
+                    <label for="cnpj"></label>
+                  </p-iftalabel>
+                </p-inputgroup>
+
+                <p-inputgroup>
+                  <p-inputgroup-addon>
+                    <i class="pi pi-building"></i>
+                  </p-inputgroup-addon>
+                  <p-iftalabel variant="on">
+                    <input
+                      size="large"
+                      pInputText
+                      id="cnpj"
+                      name="cnpj"
+                      required
+                      maxlength="18"
+                    />
+                    <label for="cnpj"></label>
+                  </p-iftalabel>
+                </p-inputgroup>
+              </div>
+
+              <div class="py-6 flex justify-end">
+                <p-button
+                  label="Próximo"
+                  icon="pi pi-arrow-right"
+                  iconPos="right"
+                  (onClick)="activateCallback(2)"
+                />
+              </div>
+            </ng-template>
+          </p-step-panel>
+        </p-step-item>
+
+        <p-step-item [value]="2">
+          <p-step> Endereço do Contrato </p-step>
+          <p-step-panel>
+            <ng-template #content let-activateCallback="activateCallback">
+              <div class="flex flex-col h-48">
+                <div
+                  class="border-2 border-dashed rounded flex-auto flex justify-center items-center"
+                >
+                  Conteúdo: Endereço do Contrato
+                </div>
+              </div>
+              <div class="flex py-6 justify-between">
+                <p-button
+                  label="Voltar"
+                  severity="secondary"
+                  icon="pi pi-arrow-left"
+                  (onClick)="activateCallback(1)"
+                />
+                <p-button
+                  label="Próximo"
+                  icon="pi pi-arrow-right"
+                  iconPos="right"
+                  (onClick)="activateCallback(3)"
+                />
+              </div>
+            </ng-template>
+          </p-step-panel>
+        </p-step-item>
+
+        <p-step-item [value]="3">
+          <p-step> Assinatura Digital </p-step>
+          <p-step-panel>
+            <ng-template #content let-activateCallback="activateCallback">
+              <div class="flex flex-col h-48">
+                <div
+                  class="border-2 border-dashed rounded flex-auto flex justify-center items-center"
+                >
+                  Conteúdo: Assinatura Digital
+                </div>
+              </div>
+              <div class="flex py-6 justify-between">
+                <p-button
+                  label="Voltar"
+                  severity="secondary"
+                  icon="pi pi-arrow-left"
+                  (onClick)="activateCallback(2)"
+                />
+                <p-button
+                  label="Próximo"
+                  icon="pi pi-arrow-right"
+                  iconPos="right"
+                  (onClick)="activateCallback(4)"
+                />
+              </div>
+            </ng-template>
+          </p-step-panel>
+        </p-step-item>
+
+        <p-step-item [value]="4">
+          <p-step> Visualização do Contrato </p-step>
+          <p-step-panel>
+            <ng-template #content let-activateCallback="activateCallback">
+              <div class="flex flex-col h-48">
+                <div
+                  class="border-2 border-dashed rounded flex-auto flex justify-center items-center"
+                >
+                  Conteúdo: Visualização do Contrato
+                </div>
+              </div>
+              <div class="py-6 flex justify-start">
+                <p-button
+                  label="Voltar"
+                  severity="secondary"
+                  icon="pi pi-arrow-left"
+                  (onClick)="activateCallback(3)"
+                />
+              </div>
+            </ng-template>
+          </p-step-panel>
+        </p-step-item>
+      </p-stepper>
+    </div>
+  </app-card-base>
+</div>

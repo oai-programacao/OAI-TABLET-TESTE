@@ -209,6 +209,7 @@
                     required
                     #inscricao="ngModel"
                     [(ngModel)]="clienteForm.value.inscricao"
+                    mask="000000000000"
                   />
                   <label for="inscricao">Inscrição Estadual*</label>
                 </p-iftalabel>
@@ -537,6 +538,7 @@
                 required
                 #phone="ngModel"
                 [(ngModel)]="clienteForm.value.phone"
+                mask="(99) 99999-9999"
               />
               <label for="phone">Celular*</label>
             </p-iftalabel>
@@ -557,6 +559,7 @@
                 name="telephone"
                 [(ngModel)]="clienteForm.value.telephone"
                 #telephone="ngModel"
+                mask="(99) 9999-9999"
               />
               <label for="telephone">Telefone</label>
             </p-iftalabel>
@@ -575,6 +578,8 @@
                 maxlength="50"
                 minlength="5"
                 name="email"
+                type="email"
+                [(ngModel)]="clienteForm.value.email"
               />
               <label for="email">E-mail</label>
             </p-iftalabel>
@@ -597,6 +602,7 @@
                 name="phone2"
                 #phone2="ngModel"
                 [(ngModel)]="clienteForm.value.phone2"
+                mask="(99) 99999-9999"
               />
               <label for="phone2">2º Celular</label>
             </p-iftalabel>

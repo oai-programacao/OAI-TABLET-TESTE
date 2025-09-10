@@ -41,12 +41,12 @@
 }
 
 :host ::ng-deep .p-inputtext {
-  background-color: rgb(244, 255, 255);/* transição suave para foco */
+  background-color: rgb(244, 255, 255);
 }
 
 .cardbase ::ng-deep .p-card {
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5); /* sombra mais densa */
-  border-radius: 1rem; /* bordas suaves */
-  border: 1px solid rgb(89, 87, 87); /* contorno azul */
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5); 
+  border-radius: 1rem; 
+  border: 1px solid rgb(89, 87, 87);
 }
 
