@@ -3,10 +3,55 @@
     <div class="card">
       <p-stepper [value]="1">
         <p-step-item [value]="1">
-          <p-step> Dados do Contrato </p-step>
+          <p-step>• Dados do Contrato </p-step>
           <p-step-panel>
             <ng-template #content let-activateCallback="activateCallback">
-              
+              <div class="space-stepper1">
+                <p-inputgroup>
+                  <p-inputgroup-addon>
+                    <i class="pi pi-ticket"></i>
+                  </p-inputgroup-addon>
+                  <p-iftalabel class="w-full md:w-56">
+                    <p-select
+                      [options]="plans"
+                      optionLabel="label"
+                      optionValue="value"
+                      placeholder="Selecione"
+                      name="planos"
+                      required
+                    >
+                    </p-select>
+                    <label for="planos">Plano de Internet</label>
+                  </p-iftalabel>
+                </p-inputgroup>
+
+                <div>
+                  <p-inputgroup>
+                    <p-inputgroup-addon>
+                      <i class="pi pi-dollar"></i>
+                    </p-inputgroup-addon>
+                    <p-iftalabel variant="on">
+                      <input
+                        size="large"
+                        pInputText
+                        id="cnpj"
+                        name="cnpj"
+                        required
+                        maxlength="18"
+                        [currencyMask]="{
+                          prefix: 'R$ ',
+                          thousands: '.',
+                          decimal: ',',
+                          align: 'left'
+                        }"
+                        placeholder="R$ 0,00"
+                      />
+                      <label for="descount">Desconto de Adesão</label>
+                    </p-iftalabel>
+                  </p-inputgroup>
+                </div>
+              </div>
+
               <div class="space-stepper1">
                 <p-inputgroup>
                   <p-inputgroup-addon>
@@ -21,7 +66,7 @@
                       required
                       maxlength="18"
                     />
-                    <label for="plano">Plano</label>
+                    <label for="plano">Data de Início</label>
                   </p-iftalabel>
                 </p-inputgroup>
 
@@ -59,13 +104,14 @@
                   </p-iftalabel>
                 </p-inputgroup>
               </div>
-
-              <div class="py-6 flex justify-end">
+              <div class="button-content">
                 <p-button
                   label="Próximo"
-                  icon="pi pi-arrow-right"
+                  icon="pi pi-arrow-down"
                   iconPos="right"
                   (onClick)="activateCallback(2)"
+                  [severity]="'secondary'"
+                  [raised]="true"
                 />
               </div>
             </ng-template>
@@ -73,7 +119,7 @@
         </p-step-item>
 
         <p-step-item [value]="2">
-          <p-step> Endereço do Contrato </p-step>
+          <p-step>• Endereço do Contrato </p-step>
           <p-step-panel>
             <ng-template #content let-activateCallback="activateCallback">
               <div class="flex flex-col h-48">
@@ -102,7 +148,7 @@
         </p-step-item>
 
         <p-step-item [value]="3">
-          <p-step> Assinatura Digital </p-step>
+          <p-step>• Assinatura Digital </p-step>
           <p-step-panel>
             <ng-template #content let-activateCallback="activateCallback">
               <div class="flex flex-col h-48">
@@ -131,7 +177,7 @@
         </p-step-item>
 
         <p-step-item [value]="4">
-          <p-step> Visualização do Contrato </p-step>
+          <p-step>• Visualização do Contrato </p-step>
           <p-step-panel>
             <ng-template #content let-activateCallback="activateCallback">
               <div class="flex flex-col h-48">

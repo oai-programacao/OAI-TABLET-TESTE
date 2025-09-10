@@ -5,25 +5,89 @@
   min-height: 88vh;
 }
 
-.p-stepper-separator {
+:host ::ng-deep .p-select {
+  --p-select-option-selected-background: #4da3ff;
+  --p-select-option-selected-color: white;
+  --p-select-option-selected-focus-background: #377ad6;
+  --p-select-option-selected-focus-color: white;
+}
+
+:host ::ng-deep .p-select.p-component.p-focus {
+  border-color: #4da3ff !important;
+  box-shadow: 0 0 0 0.2rem rgba(77, 163, 255, 0.3) !important;
 }
 
 .space-stepper1 {
   display: flex;
-  gap: 0.5rem;
-  margin-top: 2rem;
-  margin-bottom: 2rem;
+  gap: 1rem;
+  margin: 2rem;
 }
-
-
 
 .p-stepper {
-  background: url('/backgroundfamily.png') no-repeat center center;
+  position: relative;
+  background: url("/backgroundfamily.png") no-repeat center center;
   background-size: cover;
-  border-radius: 12px; 
-  padding: 1rem;       
+  border-radius: 12px;
+  overflow: hidden;
+
+  --p-stepper-separator-background: #000000;
+
+  --p-stepper-step-title-color: #4e4d4d;
+  --p-stepper-step-title-active-color: #000000;
+
+  --p-stepper-step-number-background: #ffffff;
+  --p-stepper-step-number-active-background: #004e9b;
+  --p-stepper-step-number-color: #004e9b;
+  --p-stepper-step-number-active-color: #ffffff;
+  --p-stepper-step-number-font-size: 3rem;
+
+  --p-stepper-separator-background: #375ca4;
+  --p-stepper-separator-active-background: #000000;
 }
 
-.p-stepper-header {
-  background-color: rgba(255, 7, 7, 0.05);
+.p-stepper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.3);
 }
+
+.p-stepper-panel {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+:host ::ng-deep p-step-panel {
+  background: transparent !important;
+  position: relative;
+  margin-right: 10rem;
+}
+
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap");
+:host ::ng-deep .p-stepper .p-step-title {
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 400;
+  font-size: 1.1rem !important;
+  background-color: #ffffff;
+  padding: 0.2rem;
+  border-radius: 3px;
+  border: 0.5px solid #626161;
+}
+
+:host ::ng-deep .p-stepper .p-step.p-step-active .p-step-title {
+  background-color: #5ccdf9;
+  color: #000000;
+  border: 0.5px solid #000000;
+  box-shadow: 0 0 5px rgba(0.1, 0.3, 0.2, 0.4);
+  font-weight: 700 !important;
+}
+
+.button-content {
+  margin-top: 2.5rem;
+  display: flex;
+  justify-content: flex-end;
+  margin-right: 0;
+}
+
+
