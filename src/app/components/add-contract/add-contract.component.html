@@ -21,7 +21,7 @@
                       required
                     >
                     </p-select>
-                    <label for="planos">Plano de Internet</label>
+                    <label for="planos">Plano de Internet*</label>
                   </p-iftalabel>
                 </p-inputgroup>
 
@@ -34,8 +34,9 @@
                       <input
                         size="large"
                         pInputText
-                        id="cnpj"
-                        name="cnpj"
+                        id="descount"
+                        name="descount"
+                        type="text"
                         required
                         maxlength="18"
                         [currencyMask]="{
@@ -44,66 +45,162 @@
                           decimal: ',',
                           align: 'left'
                         }"
+                        inputmode="numeric"
+                        pattern="[0-9]*"
                         placeholder="R$ 0,00"
+                        [maxLength]="7"
                       />
-                      <label for="descount">Desconto de Adesão</label>
+                      <label for="descount">Desconto de Adesão*</label>
                     </p-iftalabel>
                   </p-inputgroup>
                 </div>
               </div>
 
               <div class="space-stepper1">
-                <p-inputgroup>
-                  <p-inputgroup-addon>
-                    <i class="pi pi-building"></i>
-                  </p-inputgroup-addon>
-                  <p-iftalabel variant="on">
-                    <input
-                      size="large"
-                      pInputText
-                      id="Plano"
-                      name="plano"
-                      required
-                      maxlength="18"
-                    />
-                    <label for="plano">Data de Início</label>
-                  </p-iftalabel>
-                </p-inputgroup>
+                <p-iftalabel>
+                  <p-datepicker
+                    name="dateOfStart"
+                    [(ngModel)]="dateOfStart"
+                    inputId="date"
+                    showIcon
+                    iconDisplay="input"
+                    appendTo="body"
+                    #dateofStart="ngModel"
+                    placeholder="dd/mm/aaaa"
+                    required
+                  />
+                  <label for="date">Data de Início*</label>
+                </p-iftalabel>
 
-                <p-inputgroup>
-                  <p-inputgroup-addon>
-                    <i class="pi pi-building"></i>
-                  </p-inputgroup-addon>
-                  <p-iftalabel variant="on">
-                    <input
-                      size="large"
-                      pInputText
-                      id="cnpj"
-                      name="cnpj"
-                      required
-                      maxlength="18"
-                    />
-                    <label for="cnpj"></label>
-                  </p-iftalabel>
-                </p-inputgroup>
+                <p-iftalabel>
+                  <p-datepicker
+                    name="dateOfAssignment"
+                    [(ngModel)]="dateOfAssignment"
+                    inputId="dateOfAssignment"
+                    showIcon
+                    iconDisplay="input"
+                    appendTo="body"
+                    #dateofAssignment="ngModel"
+                    placeholder="dd/mm/aaaa"
+                    required
+                  />
+                  <label for="date">Data de Assinatura*</label>
+                </p-iftalabel>
 
-                <p-inputgroup>
-                  <p-inputgroup-addon>
-                    <i class="pi pi-building"></i>
-                  </p-inputgroup-addon>
-                  <p-iftalabel variant="on">
-                    <input
-                      size="large"
-                      pInputText
-                      id="cnpj"
-                      name="cnpj"
-                      required
-                      maxlength="18"
-                    />
-                    <label for="cnpj"></label>
-                  </p-iftalabel>
-                </p-inputgroup>
+                <div class="numbersOfInstallments">
+                  <p-inputgroup>
+                    <p-inputgroup-addon>
+                      <i class="pi pi-sort-numeric-up"></i>
+                    </p-inputgroup-addon>
+                    <p-iftalabel>
+                      <p-select
+                        [options]="numbersOfInstallments"
+                        [(ngModel)]="selectedInstallment"
+                        optionLabel="label"
+                        optionValue="value"
+                        placeholder="Selecione 1x a 24x"
+                        name="planos"
+                        required
+                      >
+                      </p-select>
+                      <label for="planos">Número de Parcelas</label>
+                    </p-iftalabel>
+                  </p-inputgroup>
+                </div>
               </div>
+
+              <div class="space-stepper2">
+                <p-iftalabel>
+                  <p-datepicker
+                    name="dateOfExpiration"
+                    [(ngModel)]="dateOfExpiration"
+                    inputId="dateOfExpiration"
+                    showIcon
+                    iconDisplay="input"
+                    appendTo="body"
+                    #dateofExpiration="ngModel"
+                    placeholder="dd/mm/aaaa"
+                    required
+                  ></p-datepicker>
+                  <label for="dateOfExpiration">Dia de Vencimento*</label>
+                </p-iftalabel>
+
+                <p-iftalabel>
+                  <p-select
+                    name="typesOfContractOptions"
+                    [(ngModel)]="selectContract"
+                    [options]="typesOfContractOptions"
+                    placeholder="Selecione o tipo de contrato"
+                    inputId="tipoContrato"
+                    required
+                  ></p-select>
+                  <label for="tipoContrato">Tipo de Contrato*</label>
+                </p-iftalabel>
+              </div>
+
+              <div class="warn-icon-container">
+                <span
+                  class="warn-icon"
+                  (click)="toggle($event)"
+                  role="button"
+                  aria-label="Informação importante"
+                >
+                  !
+                </span>
+
+                <p-popover #pop [dismissable]="true">
+                  <div class="warn-popup">
+                    Este campo indica o dia selecionado pelo cliente para o
+                    vencimento da taxa de adesão
+                  </div>
+                </p-popover>
+              </div>
+
+              <div class="space-stepper3">
+                <p-iftalabel>
+                  <p-datepicker
+                    name="dateOfMemberShipExpiration"
+                    [(ngModel)]="dateOfMemberShipExpiration"
+                    inputId="dateOfMemberShipExpiration"
+                    showIcon
+                    iconDisplay="input"
+                    appendTo="body"
+                    #dateofExpiration="ngModel"
+                    placeholder="dd/mm/aaaa"
+                    required
+                  ></p-datepicker>
+                  <label for="dateOfMemberShipExpiration"
+                    >Data de Vencimento da Adesão*</label
+                  >
+                </p-iftalabel>
+              </div>
+
+              <p-divider></p-divider>
+
+              <div class="title-image-upload">
+                <p-button
+                  size="large"
+                  [style]="{
+                    width: '50px',
+                    height: '50px'
+                  }"
+                  [raised]="true"
+                  severity="secondary"
+                  icon="pi pi-camera"
+                ></p-button>
+              </div>
+
+              <div class="image-upload-row">
+                <div class="image-slot" *ngFor="let slot of [1, 2, 3, 4, 5]">
+                  <span class="plus-icon" (click)="onAddImage(slot)">+</span>
+                  <img
+                    *ngIf="images[slot]"
+                    [src]="images[slot]"
+                    alt="Imagem {{ slot }}"
+                  />
+                </div>
+              </div>
+
               <div class="button-content">
                 <p-button
                   label="Próximo"
