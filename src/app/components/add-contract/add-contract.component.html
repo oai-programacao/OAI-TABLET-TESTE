@@ -103,7 +103,7 @@
                         required
                       >
                       </p-select>
-                      <label for="planos">Número de Parcelas</label>
+                      <label for="planos">Número de Parcelas Adesão</label>
                     </p-iftalabel>
                   </p-inputgroup>
                 </div>
@@ -176,13 +176,13 @@
               </div>
 
               <p-divider></p-divider>
+              <p class="header-title">Upload de Imagens do Contrato</p>
 
               <div class="title-image-upload">
                 <input
                   type="file"
                   #fileInput
                   accept="image/*"
-                  capture="environment"
                   (change)="onFileSelected($event)"
                   hidden
                 />
