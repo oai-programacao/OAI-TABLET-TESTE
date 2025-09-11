@@ -56,6 +56,7 @@
                   required
                   [(ngModel)]="clienteForm.value.nome"
                   #nome="ngModel"
+                  
                 />
                 <label for="nome">Nome (Completo)*</label>
               </p-iftalabel>
@@ -235,6 +236,7 @@
                   placeholder="dd/mm/aaaa"
                   #dateopen="ngModel"
                   required="true"
+
                   [(ngModel)]="clienteForm.value.dateopen"
                 ></p-datepicker>
                 <label for="dateopen">Data de Abertura*</label>

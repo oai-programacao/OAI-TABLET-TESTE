@@ -1,0 +1,200 @@
+.panel-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 88vh;
+}
+
+.content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+.title-address-form {
+    font-size: 1.5rem;
+    margin: 0 auto;
+}
+
+.form-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    justify-content: space-between;
+    flex-direction: row;
+    max-width: 31.25rem;
+    min-width: 50rem;
+    padding: 1rem;
+}
+
+
+.form-content {
+    gap: 1rem;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.input-content {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+
+    label {
+        width: 100%;
+        text-align: start;
+    }
+}
+
+.text-area-content {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    flex-direction: column;
+}
+
+.btn-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1rem;
+}
+
+
+.input-content-os {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: column;
+
+    label,
+    input {
+        width: 100%;
+        text-align: start;
+    }
+}
+
+.os-content {
+    padding: 0 0;
+    width: 100%;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.btn-actions-os {
+    display: flex;
+    gap: 5rem;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-to-navigate {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0 0;
+    margin-top: 5rem;
+}
+
+.signature-pad-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    max-width: 31.25rem;
+    min-width: 50rem;
+    width: 100%;
+}
+
+.signature-input{
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.4rem;
+    width: 100%;
+    label{
+        width: 100%;
+        text-align: start;
+    }
+}
+
+.btn-to-capture{
+    padding: 1rem 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 1rem;
+}
+
+.btn-to-signature{
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    width: 50%;
+    gap: 1rem;
+}
+
+.btn-to-generate-contract {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    width: 50%;
+    gap: 1rem;
+}
+
+.payment-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.payment-content{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-direction: row;
+    gap: 5rem;
+}
+
+.payment-input{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.btn-actions-payment{
+    gap: 1rem;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-direction: row;
+    width: 100%;
+    padding: 5rem 0 0;
+}
+
+
+
+.finish-process{
+    gap: 1rem;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    width: 50%;
+}

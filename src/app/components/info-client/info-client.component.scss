@@ -64,13 +64,15 @@
 
 .form-field app-message-valid-forms {
   font-size: 0.8rem;
-.input-body, .input-date {
-    display: flex;
-    flex-direction: column;
-    width: calc(33.33% - 0.7rem);
-    min-width: 250px;
 }
 
+.input-body,
+.input-date {
+  display: flex;
+  flex-direction: column;
+  width: calc(33.33% - 0.7rem);
+  min-width: 250px;
+}
 .input-observation {
   flex: 1 1 100%;
   margin-top: 1rem;
@@ -81,6 +83,7 @@
   justify-content: center;
   align-items: center;
   gap: 2rem;
+  flex-direction: row;
 }
 
 .btn-to-save {
@@ -90,6 +93,8 @@
   gap: 0.2rem;
   margin-top: 1rem;
 }
+
+
 
 @media (max-width: 820px) {
   .form-field {
@@ -105,11 +110,11 @@
   .title h1 {
     font-size: 1.2rem;
   }
-}
 
 :host ::ng-deep .p-inputtext, 
 :host ::ng-deep .p-inputtextarea {
     width: 100%;
+}
 }
 
 @media (max-width: 820px) {
@@ -143,4 +148,3 @@
     width: 6rem;
     height: 6rem;
   }
-}
