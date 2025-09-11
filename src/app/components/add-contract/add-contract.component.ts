@@ -14,6 +14,8 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { DividerModule } from 'primeng/divider';
 import { Popover } from 'primeng/popover';
 import { DialogModule } from 'primeng/dialog';
+import { NgxMaskDirective } from "ngx-mask";
+import { TextareaModule } from 'primeng/textarea';
 
 @Component({
   selector: 'app-add-contract',
@@ -32,8 +34,10 @@ import { DialogModule } from 'primeng/dialog';
     DatePickerModule,
     DividerModule,
     Popover,
-    DialogModule
-  ],
+    DialogModule,
+    NgxMaskDirective,
+    TextareaModule
+],
   templateUrl: './add-contract.component.html',
   styleUrl: './add-contract.component.scss',
 })
@@ -86,14 +90,19 @@ export class AddContractComponent {
     { label: '24x', value: '24' },
   ];
 
-  toggle(event: Event) {
-    event.stopPropagation();
-    if (this.pop.overlayVisible) {
-      this.pop.hide();
-    } else {
-      this.pop.show(event);
-    }
+  selectedResidence: string | null = null;
+  typeOfResidenceOptions = [
+    { label: 'Urbana', value: 'urbana' },
+    { label: 'Rural', value: 'rural' },
+  ];
+
+  toggle(popover: any, event: Event) {
+  if (popover.overlayVisible) {
+    popover.hide();
+  } else {
+    popover.show(event);
   }
+}
 
   images: (string | null)[] = [null, null, null, null, null];
 

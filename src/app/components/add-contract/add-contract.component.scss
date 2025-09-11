@@ -142,6 +142,8 @@
   display: flex;
   justify-content: flex-end;
   margin-right: 0;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .image-upload-row {
@@ -214,4 +216,32 @@
   justify-content: center;
   margin-top: 0rem;
   background-color: #ffffff;
+}
+
+.numHouse {
+  width: 60%;
+}
+
+.typeResidence {
+  flex: 0 0 300px;
+}
+
+:host ::ng-deep .typeResidence .p-select {
+  width: 100% !important;
+  min-width: 300px;
+}
+
+:host ::ng-deep {
+  .p-textarea {
+    --p-textarea-background: rgba(250, 250, 250, 0.6);
+    --p-textarea-filled-background: rgba(250, 250, 250, 0.6);
+    --p-textarea-filled-hover-background: rgba(250, 250, 250, 0.75);
+    --p-textarea-filled-focus-background: rgba(250, 250, 250, 0.9);
+
+    --p-textarea-focus-ring-color: rgba(0, 123, 255, 0.6);
+    --p-textarea-focus-ring-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+
+    --p-textarea-transition-duration: 0.3s;
+    --p-textarea-border-radius: 10px;
+  }
 }

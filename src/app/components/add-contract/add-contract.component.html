@@ -125,23 +125,28 @@
                   <label for="dateOfExpiration">Dia de Vencimento*</label>
                 </p-iftalabel>
 
-                <p-iftalabel>
-                  <p-select
-                    name="typesOfContractOptions"
-                    [(ngModel)]="selectContract"
-                    [options]="typesOfContractOptions"
-                    placeholder="Selecione o tipo de contrato"
-                    inputId="tipoContrato"
-                    required
-                  ></p-select>
-                  <label for="tipoContrato">Tipo de Contrato*</label>
-                </p-iftalabel>
+                <p-inputgroup>
+                  <p-inputgroup-addon>
+                    <i class="pi pi-file"></i>
+                  </p-inputgroup-addon>
+                  <p-iftalabel>
+                    <p-select
+                      name="typesOfContractOptions"
+                      [(ngModel)]="selectContract"
+                      [options]="typesOfContractOptions"
+                      placeholder="Selecione o tipo de contrato"
+                      inputId="tipoContrato"
+                      required
+                    ></p-select>
+                    <label for="tipoContrato">Tipo de Contrato*</label>
+                  </p-iftalabel>
+                </p-inputgroup>
               </div>
 
               <div class="warn-icon-container">
                 <span
                   class="warn-icon"
-                  (click)="toggle($event)"
+                  (click)="toggle(pop, $event)"
                   role="button"
                   aria-label="Informação importante"
                 >
@@ -176,6 +181,24 @@
               </div>
 
               <p-divider></p-divider>
+              <div class="warn-icon-container">
+                <span
+                  class="warn-icon"
+                  (click)="toggle(pop2, $event)"
+                  role="button"
+                  aria-label="Informação importante"
+                >
+                  !
+                </span>
+
+                <p-popover #pop2 [dismissable]="true">
+                  <div class="warn-popup">
+                    Escolha fotos de sua galeria, tire novas fotos e lembre-se
+                    de que as imagens devem ser nítidas, legíveis e realmente
+                    necessárias!
+                  </div>
+                </p-popover>
+              </div>
               <p class="header-title">Upload de Imagens do Contrato</p>
 
               <div class="title-image-upload">
@@ -215,7 +238,7 @@
                 </div>
               </div>
 
-              <!-- Dialog para visualização -->
+              <!-- Dialog para visualização de imagem -->
               <p-dialog
                 [(visible)]="previewVisible"
                 [modal]="true"
@@ -247,23 +270,181 @@
           <p-step>• Endereço do Contrato </p-step>
           <p-step-panel>
             <ng-template #content let-activateCallback="activateCallback">
-              <div class="flex flex-col h-48">
-                <div
-                  class="border-2 border-dashed rounded flex-auto flex justify-center items-center"
-                >
-                  Conteúdo: Endereço do Contrato
+              <div class="space-stepper1">
+                <p-inputgroup>
+                  <p-inputgroup-addon>
+                    <i class="pi pi-map-marker"></i>
+                  </p-inputgroup-addon>
+                  <p-iftalabel variant="on">
+                    <input
+                      size="large"
+                      pInputText
+                      id="cep"
+                      autocomplete="off"
+                      maxlength="9"
+                      name="cep"
+                      required
+                      placeholder="00000-000"
+                      [mask]="'00000-000'"
+                    />
+                    <label for="cep"
+                      >Código de Endereçamento Postal (CEP)*</label
+                    >
+                  </p-iftalabel>
+                </p-inputgroup>
+
+                <p-inputgroup>
+                  <p-inputgroup-addon>
+                    <i class="pi pi-map-marker"></i>
+                  </p-inputgroup-addon>
+                  <p-iftalabel variant="on">
+                    <input
+                      size="large"
+                      pInputText
+                      id="street"
+                      autocomplete="off"
+                      maxlength="60"
+                      name="street"
+                      required
+                    />
+                    <label for="cep">Logradouro (Rua)*</label>
+                  </p-iftalabel>
+                </p-inputgroup>
+
+                <div class="numHouse">
+                  <p-inputgroup>
+                    <p-inputgroup-addon>
+                      <i class="pi pi-sort-numeric-up-alt"></i>
+                    </p-inputgroup-addon>
+                    <p-iftalabel variant="on">
+                      <input
+                        size="large"
+                        pInputText
+                        type="number"
+                        id="street"
+                        autocomplete="off"
+                        maxlength="60"
+                        name="street"
+                        required
+                      />
+                      <label for="cep">Número do Prédio*</label>
+                    </p-iftalabel>
+                  </p-inputgroup>
                 </div>
               </div>
-              <div class="flex py-6 justify-between">
+
+              <div class="space-stepper1">
+                <div class="typeResidence">
+                  <p-inputgroup>
+                    <p-inputgroup-addon>
+                      <i class="pi pi-building"></i>
+                    </p-inputgroup-addon>
+                    <p-iftalabel>
+                      <p-select
+                        name="typeOfResidenceOptions"
+                        [(ngModel)]="selectedResidence"
+                        [options]="typeOfResidenceOptions"
+                        placeholder="Selecione o tipo de residência"
+                        inputId="typeResidence"
+                        required
+                      ></p-select>
+                      <label for="typeResidence">Tipo de Residência*</label>
+                    </p-iftalabel>
+                  </p-inputgroup>
+                </div>
+
+                <p-inputgroup>
+                  <p-inputgroup-addon>
+                    <i class="pi pi-map-marker"></i>
+                  </p-inputgroup-addon>
+                  <p-iftalabel variant="on">
+                    <input
+                      size="large"
+                      pInputText
+                      id="neighborhood"
+                      autocomplete="off"
+                      maxlength="60"
+                      name="neighborhood"
+                      required
+                    />
+                    <label for="neighborhood">Bairro*</label>
+                  </p-iftalabel>
+                </p-inputgroup>
+
+                <p-inputgroup>
+                  <p-inputgroup-addon>
+                    <i class="pi pi-map-marker"></i>
+                  </p-inputgroup-addon>
+                  <p-iftalabel variant="on">
+                    <input
+                      size="large"
+                      pInputText
+                      id="cityaddress"
+                      autocomplete="off"
+                      maxlength="60"
+                      name="cityaddress"
+                      required
+                    />
+                    <label for="cityaddress">Cidade*</label>
+                  </p-iftalabel>
+                </p-inputgroup>
+              </div>
+
+              <div class="space-stepper1">
+                <p-inputgroup>
+                  <p-inputgroup-addon>
+                    <i class="pi pi-map-marker"></i>
+                  </p-inputgroup-addon>
+                  <p-iftalabel variant="on">
+                    <input
+                      size="large"
+                      pInputText
+                      id="complementaddress"
+                      autocomplete="off"
+                      maxlength="60"
+                      name="complementaddress"
+                      required
+                    />
+                    <label for="complementaddress">Complemento*</label>
+                  </p-iftalabel>
+                </p-inputgroup>
+              </div>
+
+              <div class="space-stepper1">
+                <p-iftalabel>
+                  <textarea
+                    pTextarea
+                    id="description"
+                    rows="5"
+                    cols="110"
+                    style="resize: none"
+                  ></textarea>
+                  <label for="description">Observação</label>
+                </p-iftalabel>
+              </div>
+
+              <div class="button-content">
                 <p-button
-                  label="Voltar"
-                  severity="secondary"
-                  icon="pi pi-arrow-left"
+                  [size]="'large'"
+                  label="Google Maps"
+                  raised="true"
+                  severity="info"
+                  icon="pi pi-globe"
                   (onClick)="activateCallback(1)"
                 />
                 <p-button
+                  [size]="'large'"
+                  label="Voltar"
+                  raised="true"
+                  severity="secondary"
+                  icon="pi pi-arrow-up"
+                  (onClick)="activateCallback(1)"
+                />
+                <p-button
+                  [size]="'large'"
+                  raised="true"
                   label="Próximo"
-                  icon="pi pi-arrow-right"
+                  icon="pi pi-arrow-down"
                   iconPos="right"
                   (onClick)="activateCallback(3)"
                 />

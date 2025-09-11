@@ -99,19 +99,6 @@ export class RegisterclientComponent {
     }
   }
 
-  formatCep(event: Event) {
-    const input = event.target as HTMLInputElement;
-
-    let value = input.value.replace(/\D/g, '');
-
-    if (value.length > 5) {
-      value = value.substring(0, 5) + '-' + value.substring(5, 8);
-    }
-
-    input.value = value;
-    this.address.cep = value;
-  }
-
   formatCpf(event: any, cpfControl: NgModel) {
     let value = event.target.value;
     value = value.replace(/\D/g, '').substring(0, 11);

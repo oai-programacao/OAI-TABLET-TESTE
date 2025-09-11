@@ -339,7 +339,7 @@
                 name="cep"
                 required
                 [(ngModel)]="address.cep"
-                (input)="formatCep($event)"
+                [mask]="'00000-000'"
                 (blur)="onCepChange(clienteForm)"
                 placeholder="00000-000"
               />
@@ -366,6 +366,7 @@
               <label for="uf">UF*</label>
             </p-iftalabel>
           </p-inputgroup>
+          
         </div>
 
         <div class="messagesvalids">
