@@ -245,3 +245,11 @@
     --p-textarea-border-radius: 10px;
   }
 }
+
+.map-container {
+  border: 1px solid rgba(0, 123, 255, 0.6);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-left: 2rem;
+  max-width: 94%;
+}

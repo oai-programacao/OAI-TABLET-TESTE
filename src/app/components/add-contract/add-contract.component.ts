@@ -14,8 +14,9 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { DividerModule } from 'primeng/divider';
 import { Popover } from 'primeng/popover';
 import { DialogModule } from 'primeng/dialog';
-import { NgxMaskDirective } from "ngx-mask";
+import { NgxMaskDirective } from 'ngx-mask';
 import { TextareaModule } from 'primeng/textarea';
+import { GoogleMapsComponent } from '../../shared/components/google-maps/google-maps.component';
 
 @Component({
   selector: 'app-add-contract',
@@ -36,8 +37,9 @@ import { TextareaModule } from 'primeng/textarea';
     Popover,
     DialogModule,
     NgxMaskDirective,
-    TextareaModule
-],
+    TextareaModule,
+    GoogleMapsComponent
+  ],
   templateUrl: './add-contract.component.html',
   styleUrl: './add-contract.component.scss',
 })
@@ -48,6 +50,11 @@ export class AddContractComponent {
   dateOfAssignment: Date | null = null;
   dateOfStart: Date | null = null;
   dateOfMemberShipExpiration: Date | null = null;
+  
+  //google maps
+  showMapDialog = false;
+  center: google.maps.LatLngLiteral = { lat: -23.55052, lng: -46.633308 }; // exemplo SP
+  zoom = 15;
 
   selectContract: string | null = null;
   typesOfContractOptions = [
@@ -96,13 +103,20 @@ export class AddContractComponent {
     { label: 'Rural', value: 'rural' },
   ];
 
+  fullAddress = {
+    logradouro: 'Avenida Brasil',
+    numero: '1000',
+    bairro: 'Centro',
+    localidade: 'São Paulo',
+  };
+
   toggle(popover: any, event: Event) {
-  if (popover.overlayVisible) {
-    popover.hide();
-  } else {
-    popover.show(event);
+    if (popover.overlayVisible) {
+      popover.hide();
+    } else {
+      popover.show(event);
+    }
   }
-}
 
   images: (string | null)[] = [null, null, null, null, null];
 
@@ -132,5 +146,4 @@ export class AddContractComponent {
     this.previewImage = image;
     this.previewVisible = true;
   }
-
 }

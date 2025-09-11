@@ -423,14 +423,38 @@
                 </p-iftalabel>
               </div>
 
+              <p-dialog
+                [(visible)]="showMapDialog"
+                [modal]="true"
+                [style]="{ width: '90vh', height: '65vh' }"
+              >
+                <app-google-maps [address]="fullAddress"></app-google-maps>
+              </p-dialog>
+
               <div class="button-content">
+                <p-button
+                  [size]="'large'"
+                  label="Visualizar O.S"
+                  raised="true"
+                  severity="info"
+                  icon="pi pi-bell"
+                  (onClick)="showMapDialog = true"
+                />
+                <p-button
+                  [size]="'large'"
+                  label="Solicitar O.S"
+                  raised="true"
+                  severity="info"
+                  icon="pi pi-bell"
+                  (onClick)="showMapDialog = true"
+                />
                 <p-button
                   [size]="'large'"
                   label="Google Maps"
                   raised="true"
                   severity="info"
                   icon="pi pi-globe"
-                  (onClick)="activateCallback(1)"
+                  (onClick)="showMapDialog = true"
                 />
                 <p-button
                   [size]="'large'"

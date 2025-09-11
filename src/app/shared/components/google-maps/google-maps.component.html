@@ -1,7 +1,7 @@
-<div class="w-full rounded-lg shadow-lg">
-    <google-map *ngIf="mapOptions"
+<div class="google-map-container" *ngIf="mapOptions">
+  <google-map
     height="500px"
     width="100%"
-    [options]="mapOptions">
-  </google-map>
+    [options]="mapOptions"
+  ></google-map>
 </div>
