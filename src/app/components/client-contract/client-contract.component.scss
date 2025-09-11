@@ -1,0 +1,163 @@
+.page-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 88vh;
+}
+
+:host {
+  font-family: "IBM Plex Mono", monospace;
+}
+
+.btn-to-create-another-contract {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  gap: 15rem;
+}
+
+.title {
+  font-family: "IBM Plex Mono", monospace !important;
+  font-weight: 400;
+}
+
+::ng-deep p-divider .p-divider-content,
+::ng-deep p-divider .p-divider-content b {
+  font-family: "IBM Plex Mono", monospace;
+  color: #575353;
+  font-weight: 400;
+  font-size: medium;
+}
+
+.contracts-list {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+    gap: 1rem;
+    min-width: 37.5rem;
+}
+
+.contract-card {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  padding: 1rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+   width: 100%;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+
+.contract-info {
+    display: flex;
+    flex-direction: col;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;                                                           
+
+    .wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem; 
+    }
+
+    .wrapper label {
+        font-family: "IBM Plex Mono", monospace;
+        flex-direction: row;
+        font-size: 1rem;   
+        font-weight: bold;
+        color: #1c34a0;
+    }
+
+    span.contract {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 1rem;
+        font-weight: 400;
+        color: #575353;
+    }
+
+    span.plan {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 1rem;
+        font-weight: 400;
+        color: #575353;
+    }
+
+    .price {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 1rem;
+        font-weight: 400;
+        color: #575353;
+    }
+}
+
+.contract-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
+
+    ::ng-deep .p-button .p-button-icon {
+        font-size: 1rem;
+    }
+
+    ::ng-deep .p-button {
+        font-size: 1rem;
+    }
+}
+}
+
+.dialog-container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    width: 100%;
+    flex-direction: column;
+}
+
+.plan-title{
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 1rem;
+    width: 100%;
+}
+
+.father-form{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    
+}
+
+.select-dialog{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+:host ::ng-deep .p-select {
+  width: 40rem  !important;  
+  max-width: 18.75rem;
+}
+
+
+
+.btn-to-send-new-contract{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 2rem;
+
+}
+

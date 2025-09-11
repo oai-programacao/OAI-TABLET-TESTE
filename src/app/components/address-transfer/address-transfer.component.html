@@ -1,0 +1,194 @@
+<div class="panel-container">
+    <app-card-base header="TRANSFERÊNCIA DE ENDEREÇO" width="auto" height="auto">
+        <div class="content">
+            <p-stepper [value]="1">
+                <p-step-list>
+                    <p-step [value]="1">Endereço</p-step>
+                    <p-step [value]="2">Ordem de Serviço</p-step>
+                    <p-step [value]="3">Assinatura</p-step>
+                    <p-step [value]="4">Pagamento</p-step>
+                </p-step-list>
+                <p-step-panels>
+                    <p-step-panel [value]="1">
+                        <ng-template #content let-activateCallback="activateCallback">
+                            <div>
+                                <h1 class="title-address-form">Endereço Atual</h1>
+                                <p-divider />
+                            </div>
+                            <form class="form-container">
+                                <div class="form-content">
+                                    <div class="input-content">
+                                        <label for="CEP">CEP:</label>
+                                        <input type="text" pInputText value="19800-002" disabled>
+                                    </div>
+                                    <div class="input-content">
+                                        <label for="address-street">Logradouro:</label>
+                                        <input type="text" pInputText value="Rua Maomé" disabled>
+                                    </div>
+                                    <div class="input-content">
+                                        <label for="address-number">N° Casa/Apartamento:</label>
+                                        <input type="text" pInputText value="212" disabled>
+                                    </div>
+                                    <div class="input-content">
+                                        <label for="address-complement">Complemento:</label>
+                                        <input type="text" pInputText value="casa" disabled>
+                                    </div>
+                                    <div class="input-content">
+                                        <label for="UF">UF:</label>
+                                        <input type="text" pInputText value="SP" disabled>
+                                    </div>
+
+                                    <div class="text-area-content">
+                                        <label for="address-observation">Observação:</label>
+                                        <textarea style="width: 100%; height: auto;" placeholder="TAL TAL" disabled
+                                            rows="5" cols="30" pTextarea [autoResize]="true"></textarea>
+                                    </div>
+                                </div>
+                            </form>
+                            <div>
+                                <p-divider />
+                                <h1 class="title-address-form">Endereço Novo</h1>
+                            </div>
+                            <form class="form-container">
+                                <div class="form-content">
+                                    <div class="input-content">
+                                        <label for="CEP">CEP:</label>
+                                        <input type="text" pInputText>
+                                    </div>
+                                    <div class="input-content">
+                                        <label for="address-street">Logradouro:</label>
+                                        <input type="text" pInputText>
+                                    </div>
+                                    <div class="input-content">
+                                        <label for="address-number">N° Casa/Apartamento:</label>
+                                        <input type="text" pInputText>
+                                    </div>
+                                    <div class="input-content">
+                                        <label for="address-complement">Complemento:</label>
+                                        <input type="text" pInputText>
+                                    </div>
+                                    <div class="input-content">
+                                        <label for="UF">UF:</label>
+                                        <input type="text" pInputText>
+                                    </div>
+
+                                    <div class="text-area-content">
+                                        <label for="address-observation">Observação:</label>
+                                        <textarea style="width: 100%; height: auto;" rows="5" cols="30" pTextarea
+                                            [autoResize]="true"></textarea>
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="btn-actions">
+                                <div>
+                                    <p-button label="Verificar Cabeamento" severity="warn" icon="pi pi-wifi" />
+                                </div>
+                                <div>
+                                    <p-button severity="success" label="Próximo" (onClick)="activateCallback(2)" />
+                                </div>
+                            </div>
+                        </ng-template>
+                    </p-step-panel>
+
+                    <p-step-panel [value]="2">
+                        <ng-template #content let-activateCallback="activateCallback">
+                            <div class="content">
+                                <div class="form-container">
+                                    <div class="input-content">
+                                        <label for="current-address">Endereço Atual:</label>
+                                        <input pInputText>
+                                    </div>
+                                    <div class="input-content">
+                                        <label for="new-address">Endereço Atual:</label>
+                                        <input pInputText>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <form class="form-container">
+
+                                    <div class="os-content">
+                                        <div class="input-content-os">
+                                            <label for="contract">Contrato:</label>
+                                            <input type="text" pInputText>
+                                        </div>
+                                        <div class="text-area-content">
+                                            <label for="address-observation">Observação:</label>
+                                            <textarea style="width: 100%; height: auto;" placeholder="Declaro, para os devidos fins, que solicito a transferência do meu endereço cadastrado junto à empresa [NOME DA EMPRESA], passando a vigorar o novo endereço informado neste formulário, para fins de correspondência, contato e demais registros.
+
+Estou ciente de que todas as comunicações futuras serão enviadas exclusivamente para o endereço atualizado.
+
+[Local], [Data]" rows="5" cols="30" pTextarea [autoResize]="true"></textarea>
+                                        </div>
+                                    </div>
+                                </form>
+                                <div class="btn-actions-os">
+                                    <p-button label="Verificar Oferta" severity="info" icon="pi pi-check" />
+                                    <p-button label="Solicitar Oferta" severity="warn" icon="pi pi-plus" />
+                                </div>
+                                <div class="btn-to-navigate">
+                                    <p-button label="Voltar" severity="danger" (onClick)="activateCallback(1)" />
+                                    <p-button label="Próximo" severity="success"  (onClick)="activateCallback(3)" />
+                                </div>
+                            </div>
+                        </ng-template>
+                    </p-step-panel>
+
+                    <p-step-panel [value]="3">
+                        <ng-template #content let-activateCallback="activateCallback">
+
+                            <div class="signature-pad-container">
+                                <div class="signature-input">
+                                    <label for="signature">Assinatura:</label>
+                                    <textarea style="width: 100%;" [autoResize]="true"  rows="5" cols="30" pTextarea ></textarea>
+                                </div>
+                                <div class="btn-to-capture">
+                                    <div class="btn-to-signature">
+                                        <p-button label="Capturar Assinatura" severity="success" variant="outlined" />
+                                        <p-button label="Cancelar" severity="danger" variant="outlined"/>
+                                    </div>
+                                    <div class="btn-to-generate-contract">
+                                        <p-button label="Gerar Contrato" severity="info" variant="outlined"/>
+                                    </div>
+                                </div>
+
+                                <div class="btn-to-navigate">
+                                    <p-button label="Voltar" severity="danger" (onClick)="activateCallback(2)" />
+                                    <p-button label="Próximo" severity="success"  (onClick)="activateCallback(4)" />
+                                </div>
+                            </div>
+                        </ng-template>
+                    </p-step-panel>
+
+                    <p-step-panel [value]="4">
+                        <ng-template #content let-activateCallback="activateCallback">
+                            <div class="payment-container">
+                                <form class="payment-content">
+                                    <div class="payment-input">
+                                        <input pInputText value="Titulo">
+                                    </div>
+                                    <div class="payment-input">
+                                        <input pInputText value="09/10/2025">
+                                    </div>
+                                    <div class="payment-input">
+                                        <input pInputText value="R$ 89,90">
+                                    </div>
+                                </form>
+                                <div class="btn-actions-payment">
+                                            <p-button label="Gerar Boleto" severity="info" icon="pi pi-file"></p-button>
+                                            <p-button label="Enviar Por Whatsapp" severity="success" icon="pi pi-whatsapp"></p-button>
+                                </div>
+
+                               <div class="btn-to-navigate">
+                                    <p-button label="Voltar" severity="danger" (onClick)="activateCallback(2)" />
+                                    <p-button label="Concluir" icon="pi pi-check" severity="success"  (onClick)="activateCallback(4)" />
+                                </div>
+                            </div>
+                        </ng-template>
+                    </p-step-panel>
+                </p-step-panels>
+            </p-stepper>
+        </div>
+    </app-card-base>
+
+</div>

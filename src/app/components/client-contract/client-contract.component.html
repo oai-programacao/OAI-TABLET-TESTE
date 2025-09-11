@@ -1,0 +1,96 @@
+<div class="page-container">
+  <app-card-base width="auto" height="auto">
+    <p-divider>
+      <div class="title">
+        <h1 >Contratos</h1>
+      </div>
+    </p-divider>
+    <div class="btn-to-create-another-contract">
+      <p-button [rounded]="true" [raised]="true" (onClick)="navigateToInfoClient()" icon="pi pi-arrow-left"
+        severity="danger" />
+      <p-button [raised]="true" label="Criar Contrato" (onClick)="navigateToCreatContract()" icon="pi pi-plus"
+        severity="success" />
+    </div>
+
+
+    <div class="contracts-list">
+      @for (contract of contracts; track $index) {
+      <div class="contract-card">
+        <div class="contract-info">
+          <div class="wrapper">
+            <label for="contract" [style]="{ 'text-align': 'center'}">N° Contrato</label>
+            <span class="contract" [style]="{ 'text-align': 'center'}">{{ contract.plan }}</span>
+          </div>
+          <div class="wrapper">
+            <label for="plan" [style]="{ 'text-align': 'center'}">Plano</label>
+            <span class="plan" [style]="{ 'text-align': 'center'}">{{ contract.namePlan }}</span>
+          </div>
+          <div class="wrapper">
+            <label for="price" [style]="{ 'text-align': 'center'}">Preço</label>
+            <span class="price" [style]="{ 'text-align': 'center'}">{{ contract.price | currency:'BRL':'symbol':'1.2-2'
+              }}</span>
+          </div>
+        </div>
+        <div class="contract-actions">
+          <p-button icon="pi pi-arrow-up" (onClick)="openUpgradeDialog()" severity="success" [rounded]="true"
+            [text]="true" />
+          <p-button icon="pi pi-arrow-down" (onClick)="openDowngradeDialog()" severity="danger" [rounded]="true"
+            [text]="true" />
+          <p-button icon="pi pi-home" (onClick)="navigateToAddressTransfer()" severity="warn" [rounded]="true" [text]="true" />
+        </div>
+      </div>
+      }
+    </div>
+
+  </app-card-base>
+</div>
+<p-dialog header="Upgrade" [modal]="true" (onHide)="onHide()" [(visible)]="upgradeDialog" [style]="{ width: '35rem' }" [draggable]="false">
+
+  <div class="dialog-container">
+    <div class="plan-title">
+      <span> {{typePlanFromClient[0].plan}}</span>
+    </div>
+    <Form [formGroup]="form" (ngSubmit)="submitFormsUpgrade()">
+      <div class="father-form">
+        <div class="select-dialog">
+          <p-select [options]="seller" placeholder="Selecionar Vendedor" appendTo="body" optionLabel="name"
+            formControlName="seller"></p-select>
+        </div>
+        <div class="select-dialog">
+          <p-select [options]="plan" placeholder="Selecionar Plano" appendTo="body" optionLabel="plan"
+            formControlName="plan"></p-select>
+        </div>
+
+      </div>
+      <div class="btn-to-send-new-contract">
+        <p-button label="Enviar" [disabled]="!this.form.valid" type="submit"></p-button>
+      </div>
+    </Form>
+  </div>
+</p-dialog>
+<p-dialog header="Downgrade" (onHide)="onHide()" [modal]="true" [(visible)]="downgradeDialog" [style]="{ width: '35rem' }" [draggable]="false">
+
+  <div class="dialog-container">
+    <div class="plan-title">
+      <span> {{typePlanFromClient[0].plan}}</span>
+    </div>
+    <Form [formGroup]="form" (ngSubmit)="submitFormsDowngrade()">
+      <div class="father-form">
+        <div class="select-dialog">
+          <p-select [options]="seller" placeholder="Selecionar Vendedor" appendTo="body" optionLabel="name"
+            formControlName="seller"></p-select>
+        </div>
+        <div class="select-dialog">
+          <p-select [options]="plan" placeholder="Selecionar Plano" appendTo="body" optionLabel="plan"
+            formControlName="plan"></p-select>
+        </div>
+
+      </div>
+      <div class="btn-to-send-new-contract">
+        <p-button label="Enviar" [disabled]="!this.form.valid" type="submit"></p-button>
+      </div>
+    </Form>
+  </div>
+</p-dialog>
+
+<p-toast />

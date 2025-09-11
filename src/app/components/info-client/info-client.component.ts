@@ -18,6 +18,9 @@ import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { IftaLabelModule } from 'primeng/iftalabel';
 import { CepService } from '../../services/cep.service';
+import { NgxMaskDirective } from 'ngx-mask';
+import { DatePickerModule } from 'primeng/datepicker';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-info-client',
@@ -34,14 +37,16 @@ import { CepService } from '../../services/cep.service';
     FloatLabelModule,
     InputGroupModule,
     InputGroupAddonModule,
-    IftaLabelModule
+    IftaLabelModule,
+    NgxMaskDirective,
+    DatePickerModule,
   ],
   templateUrl: './info-client.component.html',
   styleUrls: ['./info-client.component.scss']
 })
 export class InfoClientComponent {
   isEditing = false;
-
+  private readonly router = inject(Router);
   private readonly cepService = inject(CepService);
 
 
@@ -73,6 +78,10 @@ export class InfoClientComponent {
     telefone: '',
     email: ''
   };
+
+  navigateToContractClient(){
+    this.router.navigate(['client-contract']);
+  }
 
   toggleEditing() {
     this.isEditing = !this.isEditing;
