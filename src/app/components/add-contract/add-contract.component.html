@@ -178,28 +178,56 @@
               <p-divider></p-divider>
 
               <div class="title-image-upload">
-                <p-button
-                  size="large"
-                  [style]="{
-                    width: '50px',
-                    height: '50px'
-                  }"
-                  [raised]="true"
-                  severity="secondary"
-                  icon="pi pi-camera"
-                ></p-button>
+                <input
+                  type="file"
+                  #fileInput
+                  accept="image/*"
+                  capture="environment"
+                  (change)="onFileSelected($event)"
+                  hidden
+                />
               </div>
 
               <div class="image-upload-row">
-                <div class="image-slot" *ngFor="let slot of [1, 2, 3, 4, 5]">
-                  <span class="plus-icon" (click)="onAddImage(slot)">+</span>
-                  <img
-                    *ngIf="images[slot]"
-                    [src]="images[slot]"
-                    alt="Imagem {{ slot }}"
-                  />
+                <div class="image-slot" *ngFor="let slot of [0, 1, 2, 3, 4]">
+                  <span
+                    *ngIf="!images[slot]"
+                    class="plus-icon"
+                    (click)="fileInput.click()"
+                    >+</span
+                  >
+
+                  <div *ngIf="images[slot]" class="image-preview">
+                    <img
+                      [src]="images[slot]"
+                      alt="Imagem {{ slot + 1 }}"
+                      (dblclick)="viewImage(images[slot]!)"
+                    />
+
+                    <button
+                      type="button"
+                      class="remove-btn"
+                      (click)="removeImage(slot)"
+                    >
+                      ✕
+                    </button>
+                  </div>
                 </div>
               </div>
+
+              <!-- Dialog para visualização -->
+              <p-dialog
+                [(visible)]="previewVisible"
+                [modal]="true"
+                [style]="{ width: '90vw' }"
+              >
+                <img
+                  *ngIf="previewImage"
+                  [src]="previewImage"
+                  alt="Preview"
+                  class="preview-dialog-img"
+                />
+              </p-dialog>
 
               <div class="button-content">
                 <p-button

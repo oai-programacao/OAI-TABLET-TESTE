@@ -13,6 +13,7 @@ import { NgxCurrencyDirective } from 'ngx-currency';
 import { DatePickerModule } from 'primeng/datepicker';
 import { DividerModule } from 'primeng/divider';
 import { Popover } from 'primeng/popover';
+import { DialogModule } from 'primeng/dialog';
 
 @Component({
   selector: 'app-add-contract',
@@ -31,6 +32,7 @@ import { Popover } from 'primeng/popover';
     DatePickerModule,
     DividerModule,
     Popover,
+    DialogModule
   ],
   templateUrl: './add-contract.component.html',
   styleUrl: './add-contract.component.scss',
@@ -84,8 +86,6 @@ export class AddContractComponent {
     { label: '24x', value: '24' },
   ];
 
-  images: { [key: number]: string } = {};
-
   toggle(event: Event) {
     event.stopPropagation();
     if (this.pop.overlayVisible) {
@@ -95,10 +95,33 @@ export class AddContractComponent {
     }
   }
 
-  onAddImage(slot: number) {
-    const url = prompt('Cole a URL da imagem:'); // exemplo simples
-    if (url) {
-      this.images[slot] = url;
+  images: (string | null)[] = [null, null, null, null, null];
+
+  previewVisible = false;
+  previewImage: string | null = null;
+
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const firstEmptyIndex = this.images.findIndex((img) => img === null);
+        if (firstEmptyIndex !== -1) {
+          this.images[firstEmptyIndex] = reader.result as string;
+        }
+      };
+      reader.readAsDataURL(input.files[0]);
     }
+    input.value = '';
   }
+
+  removeImage(index: number) {
+    this.images[index] = null;
+  }
+
+  viewImage(image: string) {
+    this.previewImage = image;
+    this.previewVisible = true;
+  }
+
 }
