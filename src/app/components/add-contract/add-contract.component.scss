@@ -23,6 +23,16 @@
   margin: 2rem;
 }
 
+.space2-stepper {
+  display: flex;
+  gap: 1rem;
+  margin-left: 2rem;
+  margin-right: 0;
+  max-width: 85%;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
 .space-stepper2 {
   display: flex;
   gap: 1rem;
@@ -80,8 +90,9 @@
   position: relative;
   background: url("/backgroundfamily.png") no-repeat center center;
   background-size: cover;
-  border-radius: 12px;
+  border-radius: 5px;
   min-width: 70rem;
+  max-width: 70rem;
   overflow: hidden;
 
   --p-stepper-separator-background: #000000;
@@ -115,7 +126,7 @@
 :host ::ng-deep p-step-panel {
   background: transparent !important;
   position: relative;
-  margin-right: 10rem;
+  margin-right: 2rem
 }
 
 @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap");
@@ -141,9 +152,9 @@
   margin-top: 2.5rem;
   display: flex;
   justify-content: flex-end;
-  margin-right: 0;
   gap: 1rem;
   margin-bottom: 0.5rem;
+  width: 85%;
 }
 
 .image-upload-row {
@@ -218,9 +229,7 @@
   background-color: #ffffff;
 }
 
-.numHouse {
-  width: 60%;
-}
+
 
 
 :host ::ng-deep {
