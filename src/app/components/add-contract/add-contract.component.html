@@ -107,6 +107,7 @@
                     </p-iftalabel>
                   </p-inputgroup>
                 </div>
+
               </div>
 
               <div class="space-stepper2">
@@ -334,24 +335,22 @@
               </div>
 
               <div class="space-stepper1">
-                <div class="typeResidence">
-                  <p-inputgroup>
-                    <p-inputgroup-addon>
-                      <i class="pi pi-building"></i>
-                    </p-inputgroup-addon>
-                    <p-iftalabel>
-                      <p-select
-                        name="typeOfResidenceOptions"
-                        [(ngModel)]="selectedResidence"
-                        [options]="typeOfResidenceOptions"
-                        placeholder="Selecione o tipo de residência"
-                        inputId="typeResidence"
-                        required
-                      ></p-select>
-                      <label for="typeResidence">Tipo de Residência*</label>
-                    </p-iftalabel>
-                  </p-inputgroup>
-                </div>
+                <p-inputgroup>
+                  <p-inputgroup-addon>
+                    <i class="pi pi-building"></i>
+                  </p-inputgroup-addon>
+                  <p-iftalabel>
+                    <p-select
+                      name="typeOfResidenceOptions"
+                      [(ngModel)]="selectedResidence"
+                      [options]="typeOfResidenceOptions"
+                      placeholder="Selecione o tipo de residência"
+                      inputId="typeResidence"
+                      required
+                    ></p-select>
+                    <label for="typeResidence">Tipo de Residência*</label>
+                  </p-iftalabel>
+                </p-inputgroup>
 
                 <p-inputgroup>
                   <p-inputgroup-addon>
@@ -411,12 +410,23 @@
               </div>
 
               <div class="space-stepper1">
+                <p-button
+                  [size]="'large'"
+                  label="Validar Cabeamento"
+                  raised="true"
+                  severity="warn"
+                  icon="pi pi-sliders-h"
+                  (onClick)="showMapDialog = true"
+                />
+              </div>
+
+              <div class="space-stepper1">
                 <p-iftalabel>
                   <textarea
                     pTextarea
                     id="description"
                     rows="5"
-                    cols="110"
+                    cols="100"
                     style="resize: none"
                   ></textarea>
                   <label for="description">Observação</label>
@@ -436,7 +446,7 @@
                   [size]="'large'"
                   label="Visualizar O.S"
                   raised="true"
-                  severity="info"
+                  severity="warn"
                   icon="pi pi-bell"
                   (onClick)="showMapDialog = true"
                 />
@@ -444,7 +454,7 @@
                   [size]="'large'"
                   label="Solicitar O.S"
                   raised="true"
-                  severity="info"
+                  severity="warn"
                   icon="pi pi-bell"
                   (onClick)="showMapDialog = true"
                 />

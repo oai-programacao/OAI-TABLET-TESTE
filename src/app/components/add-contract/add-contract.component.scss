@@ -222,14 +222,6 @@
   width: 60%;
 }
 
-.typeResidence {
-  flex: 0 0 300px;
-}
-
-:host ::ng-deep .typeResidence .p-select {
-  width: 100% !important;
-  min-width: 300px;
-}
 
 :host ::ng-deep {
   .p-textarea {
