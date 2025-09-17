@@ -21,6 +21,8 @@ import { CepService } from '../../services/cep.service';
 import { NgxMaskDirective } from 'ngx-mask';
 import { DatePickerModule } from 'primeng/datepicker';
 import { Router } from '@angular/router';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'app-info-client',
@@ -40,12 +42,15 @@ import { Router } from '@angular/router';
     IftaLabelModule,
     NgxMaskDirective,
     DatePickerModule,
+    ToastModule
   ],
   templateUrl: './info-client.component.html',
-  styleUrls: ['./info-client.component.scss']
+  styleUrls: ['./info-client.component.scss'],
+  providers: [MessageService]
 })
 export class InfoClientComponent {
   isEditing = false;
+  private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
   private readonly cepService = inject(CepService);
 
@@ -89,7 +94,17 @@ export class InfoClientComponent {
 
   saveCliente() {
     console.log('Cliente salvo:', this.cliente);
+
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Successo!',
+      detail: 'Alterações salvas com sucesso!'
+    })
     this.isEditing = false;
+  }
+
+   btnToBack(){
+    this.router.navigate(['search'])
   }
 
   searchCEP(){
