@@ -11,7 +11,7 @@
                   <p-inputgroup-addon>
                     <i class="pi pi-ticket"></i>
                   </p-inputgroup-addon>
-                  <p-iftalabel class="w-full md:w-56">
+                  <p-iftalabel>
                     <p-select
                       [options]="plans"
                       optionLabel="label"
@@ -287,9 +287,7 @@
                       placeholder="00000-000"
                       [mask]="'00000-000'"
                     />
-                    <label for="cep"
-                      >Código de Endereçamento Postal (CEP)*</label
-                    >
+                    <label for="cep">Código de Endereço Postal (CEP)*</label>
                   </p-iftalabel>
                 </p-inputgroup>
 
@@ -311,47 +309,43 @@
                   </p-iftalabel>
                 </p-inputgroup>
 
-                <div class="numHouse">
-                  <p-inputgroup>
-                    <p-inputgroup-addon>
-                      <i class="pi pi-sort-numeric-up-alt"></i>
-                    </p-inputgroup-addon>
-                    <p-iftalabel variant="on">
-                      <input
-                        size="large"
-                        pInputText
-                        type="number"
-                        id="street"
-                        autocomplete="off"
-                        maxlength="60"
-                        name="street"
-                        required
-                      />
-                      <label for="cep">Número do Prédio*</label>
-                    </p-iftalabel>
-                  </p-inputgroup>
-                </div>
+                <p-inputgroup>
+                  <p-inputgroup-addon>
+                    <i class="pi pi-sort-numeric-up-alt"></i>
+                  </p-inputgroup-addon>
+                  <p-iftalabel variant="on">
+                    <input
+                      size="large"
+                      pInputText
+                      type="number"
+                      id="street"
+                      autocomplete="off"
+                      maxlength="60"
+                      name="street"
+                      required
+                    />
+                    <label for="cep">Número do Prédio*</label>
+                  </p-iftalabel>
+                </p-inputgroup>
               </div>
 
               <div class="space-stepper1">
-                <div class="typeResidence">
-                  <p-inputgroup>
-                    <p-inputgroup-addon>
-                      <i class="pi pi-building"></i>
-                    </p-inputgroup-addon>
-                    <p-iftalabel>
-                      <p-select
-                        name="typeOfResidenceOptions"
-                        [(ngModel)]="selectedResidence"
-                        [options]="typeOfResidenceOptions"
-                        placeholder="Selecione o tipo de residência"
-                        inputId="typeResidence"
-                        required
-                      ></p-select>
-                      <label for="typeResidence">Tipo de Residência*</label>
-                    </p-iftalabel>
-                  </p-inputgroup>
-                </div>
+                <p-inputgroup>
+                  <p-inputgroup-addon>
+                    <i class="pi pi-building"></i>
+                  </p-inputgroup-addon>
+                  <p-iftalabel>
+                    <p-select
+                      name="typeOfResidenceOptions"
+                      [(ngModel)]="selectedResidence"
+                      [options]="typeOfResidenceOptions"
+                      placeholder="Selecione o tipo de residência"
+                      inputId="typeResidence"
+                      required
+                    ></p-select>
+                    <label for="typeResidence">Tipo de Residência*</label>
+                  </p-iftalabel>
+                </p-inputgroup>
 
                 <p-inputgroup>
                   <p-inputgroup-addon>
@@ -411,12 +405,23 @@
               </div>
 
               <div class="space-stepper1">
+                <p-button
+                  [size]="'large'"
+                  label="Validar Cabeamento"
+                  raised="true"
+                  severity="warn"
+                  icon="pi pi-sliders-h"
+                  (onClick)="showMapDialog = true"
+                />
+              </div>
+
+              <div class="space2-stepper">
                 <p-iftalabel>
                   <textarea
                     pTextarea
                     id="description"
                     rows="5"
-                    cols="110"
+                    cols="100"
                     style="resize: none"
                   ></textarea>
                   <label for="description">Observação</label>
@@ -436,7 +441,7 @@
                   [size]="'large'"
                   label="Visualizar O.S"
                   raised="true"
-                  severity="info"
+                  severity="warn"
                   icon="pi pi-bell"
                   (onClick)="showMapDialog = true"
                 />
@@ -444,7 +449,7 @@
                   [size]="'large'"
                   label="Solicitar O.S"
                   raised="true"
-                  severity="info"
+                  severity="warn"
                   icon="pi pi-bell"
                   (onClick)="showMapDialog = true"
                 />
