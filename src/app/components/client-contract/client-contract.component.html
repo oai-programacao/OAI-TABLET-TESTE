@@ -74,7 +74,7 @@
     <div class="plan-title">
       <span> {{typePlanFromClient[0].plan}}</span>
     </div>
-    <Form [formGroup]="form" (ngSubmit)="submitFormsDowngrade()">
+    <form [formGroup]="form" (ngSubmit)="submitFormsDowngrade()">
       <div class="father-form">
         <div class="select-dialog">
           <p-select [options]="seller" placeholder="Selecionar Vendedor" appendTo="body" optionLabel="name"
@@ -89,7 +89,7 @@
       <div class="btn-to-send-new-contract">
         <p-button label="Enviar" [disabled]="!this.form.valid" type="submit"></p-button>
       </div>
-    </Form>
+    </form>
   </div>
 </p-dialog>
 

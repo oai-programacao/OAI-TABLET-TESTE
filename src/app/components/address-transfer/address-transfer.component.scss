@@ -2,7 +2,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 88vh;
+    height: 95vh;
 }
 
 .content {
@@ -28,6 +28,7 @@
     max-width: 31.25rem;
     min-width: 50rem;
     padding: 1rem;
+    gap: 1rem;
 }
 
 
@@ -41,16 +42,16 @@
     flex-wrap: wrap;
 }
 
+.material-symbols-outlined {
+    font-size: 1.2rem;
+}
+
 .input-content {
     display: flex;
     align-items: center;
     flex-direction: column;
-    justify-content: center;
-
-    label {
-        width: 100%;
-        text-align: start;
-    }
+    justify-content: space-between;
+    flex: 1 1 calc(33.33% - 1rem)
 }
 
 .text-area-content {
@@ -83,7 +84,6 @@
 }
 
 .os-content {
-    padding: 0 0;
     width: 100%;
     display: flex;
     gap: 1rem;
@@ -119,20 +119,21 @@
     width: 100%;
 }
 
-.signature-input{
+.signature-input {
     display: flex;
     align-items: center;
     flex-direction: column;
     justify-content: center;
     gap: 0.4rem;
     width: 100%;
-    label{
+
+    label {
         width: 100%;
         text-align: start;
     }
 }
 
-.btn-to-capture{
+.btn-to-capture {
     padding: 1rem 0;
     width: 100%;
     display: flex;
@@ -141,7 +142,7 @@
     gap: 1rem;
 }
 
-.btn-to-signature{
+.btn-to-signature {
     display: flex;
     justify-content: flex-start;
     align-items: center;
@@ -157,14 +158,14 @@
     gap: 1rem;
 }
 
-.payment-container{
+.payment-container {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
 }
 
-.payment-content{
+.payment-content {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -172,14 +173,14 @@
     gap: 5rem;
 }
 
-.payment-input{
+.payment-input {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 1rem;
 }
 
-.btn-actions-payment{
+.btn-actions-payment {
     gap: 1rem;
     display: flex;
     justify-content: space-around;
@@ -191,10 +192,82 @@
 
 
 
-.finish-process{
+.finish-process {
     gap: 1rem;
     display: flex;
     justify-content: flex-end;
     align-items: center;
     width: 50%;
+}
+
+
+.btn-to-back-to-contract {
+    display: flex;
+    justify-content: flex-start;
+    width: 100%;
+    padding: 0.5rem 0 0 0;
+    padding-top: 0;
+    padding-left: 0;
+    padding-right: 0;
+    align-items: center;
+}
+
+.p-stepper {
+    position: relative;
+    background-size: cover;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    height: auto;
+    --p-stepper-separator-background: #000000;
+
+    --p-stepper-step-title-color: #4e4d4d;
+    --p-stepper-step-title-active-color: #000000;
+
+    --p-stepper-step-number-background: #ffffff;
+    --p-stepper-step-number-active-background: #004e9b;
+    --p-stepper-step-number-color: #004e9b;
+    --p-stepper-step-number-active-color: #ffffff;
+    --p-stepper-step-number-font-size: 2rem;
+
+    --p-stepper-separator-background: #375ca4;
+    --p-stepper-separator-active-background: #000000;
+}
+
+
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap");
+
+:host ::ng-deep .p-stepper .p-step-title {
+    font-family: "IBM Plex Mono", monospace;
+    font-weight: 400;
+    font-size: 1.1rem !important;
+    background-color: #ffffff;
+    padding: 0.2rem;
+    border-radius: 3px;
+}
+
+:host ::ng-deep .p-stepper .p-step.p-step-active .p-step-title {
+    background-color: #5ccdf9;
+    color: #000000;
+    border: 0.5px solid #000000;
+    box-shadow: 0 0 5px rgba(0.1, 0.3, 0.2, 0.4);
+    font-weight: 700 !important;
+}
+
+
+:host ::ng-deep p-iftalabel label {
+    padding: 0;
+    padding-top: 0;
+}
+
+.msg-error {
+    text-align: start;
+    width: 100%;
+    padding: 0.2rem;
+}
+
+.btn-to-back{
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0 0 0.5rem 0;
 }

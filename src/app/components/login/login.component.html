@@ -34,13 +34,15 @@
           </p-inputgroup>
 
           <p-iftalabel variant="on" style="width: 100%">
-            <p-password
+            @if(this.form.value.password <= 6 ){
+              <p-password
               id="senha"
               [feedback]="false"
               [toggleMask]="true"
               name="senha"
               required
-            ></p-password>
+              ></p-password>
+            }
             <label for="senha">Senha</label>
           </p-iftalabel>
         </div>
@@ -57,7 +59,7 @@
             [size]="'large'"
             [raised]="true"
             type="submit"
-            (onClick)="goToNextPage()"
+            (onClick)="login()"
             [styleClass]="'p-button-purple'"
           />
         </div>

@@ -1,5 +1,8 @@
 <div class="content">
   <app-card-base width="auto" height="auto">
+            <div class="btn-to-back">
+            <p-button icon="pi pi-arrow-left" [rounded]="true" severity="danger" (onClick)="btnToBack()" />
+        </div>
     <div class="container">
       <!-- 1. Dados do Cliente -->
       <p-divider class="title">
@@ -246,3 +249,5 @@
     </div>
   </app-card-base>
 </div>
+
+<p-toast />

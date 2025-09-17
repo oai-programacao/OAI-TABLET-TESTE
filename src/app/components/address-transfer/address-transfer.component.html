@@ -1,5 +1,8 @@
 <div class="panel-container">
     <app-card-base header="TRANSFERÊNCIA DE ENDEREÇO" width="auto" height="auto">
+        <div class="btn-to-back">
+            <p-button icon="pi pi-arrow-left" [rounded]="true" severity="danger" (onClick)="btnToBack()" />
+        </div>
         <div class="content">
             <p-stepper [value]="1">
                 <p-step-list>
@@ -15,70 +18,183 @@
                                 <h1 class="title-address-form">Endereço Atual</h1>
                                 <p-divider />
                             </div>
-                            <form class="form-container">
+                            <div class="form-container">
                                 <div class="form-content">
                                     <div class="input-content">
-                                        <label for="CEP">CEP:</label>
-                                        <input type="text" pInputText value="19800-002" disabled>
+                                        <p-inputgroup>
+                                            <p-inputgroup-addon>
+                                                <i class="pi pi-map-marker"></i>
+                                            </p-inputgroup-addon>
+                                            <p-iftalabel>
+                                                <input type="text" [mask]="'00000-000'" pInputText value="19800-002"
+                                                    disabled>
+                                                <label for="CEP">CEP:</label>
+                                            </p-iftalabel>
+                                        </p-inputgroup>
                                     </div>
                                     <div class="input-content">
-                                        <label for="address-street">Logradouro:</label>
-                                        <input type="text" pInputText value="Rua Maomé" disabled>
+                                        <p-inputgroup>
+                                            <p-inputgroup-addon>
+                                                <i class="pi pi-home"></i>
+                                            </p-inputgroup-addon>
+                                            <p-iftalabel>
+                                                <input type="text" pInputText value="Rua Maomé" disabled>
+                                                <label for="address-street">Logradouro:</label>
+                                            </p-iftalabel>
+                                        </p-inputgroup>
                                     </div>
                                     <div class="input-content">
-                                        <label for="address-number">N° Casa/Apartamento:</label>
-                                        <input type="text" pInputText value="212" disabled>
+                                        <p-inputgroup>
+                                            <p-inputgroup-addon>
+                                                <i class="pi pi-bell"></i>
+                                            </p-inputgroup-addon>
+                                            <p-iftalabel>
+                                                <input type="text" pInputText value="212" disabled>
+                                                <label for="address-number">N° Casa/Apartamento:</label>
+                                            </p-iftalabel>
+                                        </p-inputgroup>
                                     </div>
                                     <div class="input-content">
-                                        <label for="address-complement">Complemento:</label>
-                                        <input type="text" pInputText value="casa" disabled>
+                                        <p-inputgroup>
+                                            <p-inputgroup-addon>
+                                                <i class="pi pi-building"></i>
+                                            </p-inputgroup-addon>
+                                            <p-iftalabel>
+                                                <input type="text" id="address-complement" pInputText value="casa"
+                                                    disabled>
+                                                <label for="address-complement">Complemento:</label>
+                                            </p-iftalabel>
+                                        </p-inputgroup>
                                     </div>
                                     <div class="input-content">
-                                        <label for="UF">UF:</label>
-                                        <input type="text" pInputText value="SP" disabled>
+                                        <p-inputgroup>
+                                            <p-inputgroup-addon>
+                                                <i class="pi pi-map-marker"></i>
+                                            </p-inputgroup-addon>
+                                            <p-iftalabel>
+                                                <input type="text" [mask]="'AA'" pInputText value="SP" disabled>
+                                                <label for="UF">UF:</label>
+                                            </p-iftalabel>
+                                        </p-inputgroup>
                                     </div>
 
                                     <div class="text-area-content">
-                                        <label for="address-observation">Observação:</label>
-                                        <textarea style="width: 100%; height: auto;" placeholder="TAL TAL" disabled
-                                            rows="5" cols="30" pTextarea [autoResize]="true"></textarea>
+                                        <p-iftalabel>
+                                            <textarea style="width: 100%; height: auto;" placeholder="TAL TAL" disabled
+                                                rows="5" cols="20" pTextarea [autoResize]="true"></textarea>
+                                            <label for="observation">Observação:</label>
+                                        </p-iftalabel>
                                     </div>
                                 </div>
-                            </form>
+                            </div>
                             <div>
                                 <p-divider />
                                 <h1 class="title-address-form">Endereço Novo</h1>
                             </div>
-                            <form class="form-container">
+                            <form #addressNewNgForm="ngForm" class="form-container">
                                 <div class="form-content">
+                                    <!-- CEP -->
                                     <div class="input-content">
-                                        <label for="CEP">CEP:</label>
-                                        <input type="text" pInputText>
-                                    </div>
-                                    <div class="input-content">
-                                        <label for="address-street">Logradouro:</label>
-                                        <input type="text" pInputText>
-                                    </div>
-                                    <div class="input-content">
-                                        <label for="address-number">N° Casa/Apartamento:</label>
-                                        <input type="text" pInputText>
-                                    </div>
-                                    <div class="input-content">
-                                        <label for="address-complement">Complemento:</label>
-                                        <input type="text" pInputText>
-                                    </div>
-                                    <div class="input-content">
-                                        <label for="UF">UF:</label>
-                                        <input type="text" pInputText>
+                                        <div class="msg-error">
+                                            <app-message-valid-forms [control]="cep" error="required"
+                                                text="O CEP é obrigatório"></app-message-valid-forms>
+
+                                        </div>
+                                        <p-inputgroup>
+                                            <p-inputgroup-addon>
+                                                <i class="pi pi-map-marker"></i>
+                                            </p-inputgroup-addon>
+                                            <p-iftalabel>
+                                                <input id="CEP" name="cep" type="text" pInputText [mask]="'00000-000'"
+                                                    [(ngModel)]="addressNewForm.cep" #cep="ngModel" required />
+                                                <label for="CEP">CEP:</label>
+                                            </p-iftalabel>
+                                        </p-inputgroup>
                                     </div>
 
+                                    <!-- Logradouro -->
+                                    <div class="input-content">
+                                        <div class="msg-error">
+                                            <app-message-valid-forms [control]="street" error="required"
+                                                text="Campo obrigatório"></app-message-valid-forms>
+
+                                        </div>
+                                        <p-inputgroup>
+                                            <p-inputgroup-addon>
+                                                <i class="pi pi-home"></i>
+                                            </p-inputgroup-addon>
+                                            <p-iftalabel>
+                                                <input id="address-street" name="street" type="text" pInputText
+                                                    [(ngModel)]="addressNewForm.street" #street="ngModel" required />
+                                                <label for="address-street">Logradouro:</label>
+                                            </p-iftalabel>
+                                        </p-inputgroup>
+                                    </div>
+
+                                    <!-- Número -->
+                                    <div class="input-content">
+                                        <div class="msg-error">
+
+                                            <app-message-valid-forms [control]="numberFromHome" error="required"
+                                            text="Campo obrigatório"></app-message-valid-forms>
+                                        </div>
+                                        <p-inputgroup>
+                                            <p-inputgroup-addon>
+                                                <i class="pi pi-bell"></i>
+                                            </p-inputgroup-addon>
+                                            <p-iftalabel>
+                                                <input id="address-number" name="numberFromHome" type="text" pInputText
+                                                    [mask]="'000000'" [(ngModel)]="addressNewForm.numberFromHome"
+                                                    #numberFromHome="ngModel" required />
+                                                <label for="address-number">N° Casa/Apartamento:</label>
+                                            </p-iftalabel>
+                                        </p-inputgroup>
+                                    </div>
+
+                                    <!-- Complemento -->
+                                    <div class="input-content">
+                                        <p-inputgroup>
+                                            <p-inputgroup-addon>
+                                                <i class="pi pi-building"></i>
+                                            </p-inputgroup-addon>
+                                            <p-iftalabel>
+                                                <input id="address-complement" name="complement" type="text" pInputText
+                                                    [(ngModel)]="addressNewForm.complement" #complement="ngModel" />
+                                                <label for="address-complement">Complemento:</label>
+                                            </p-iftalabel>
+                                        </p-inputgroup>
+                                    </div>
+
+                                    <!-- UF -->
+                                    <div class="input-content">
+                                        <div class="msg-error">
+                                            <app-message-valid-forms [control]="uf" error="required"
+                                                text="UF é obrigatório"></app-message-valid-forms>
+                                        </div>
+                                        <p-inputgroup>
+                                            <p-inputgroup-addon>
+                                                <i class="pi pi-map-marker"></i>
+                                            </p-inputgroup-addon>
+                                            <p-iftalabel>
+                                                <input id="UF" name="uf" type="text" pInputText [mask]="'AA'"
+                                                    [(ngModel)]="addressNewForm.uf" #uf="ngModel" required />
+                                                <label for="UF">UF:</label>
+                                            </p-iftalabel>
+                                        </p-inputgroup>
+                                    </div>
+
+                                    <!-- Observação -->
                                     <div class="text-area-content">
-                                        <label for="address-observation">Observação:</label>
-                                        <textarea style="width: 100%; height: auto;" rows="5" cols="30" pTextarea
-                                            [autoResize]="true"></textarea>
+                                        <p-iftalabel>
+                                            <textarea id="observation" name="observation" pTextarea [autoResize]="true"
+                                                rows="5" cols="30" [(ngModel)]="addressNewForm.observation"
+                                                #observation="ngModel" style="width: 100%;"></textarea>
+                                            <label for="observation">Observação:</label>
+                                        </p-iftalabel>
                                     </div>
                                 </div>
                             </form>
+
                             <div class="btn-actions">
                                 <div>
                                     <p-button label="Verificar Cabeamento" severity="warn" icon="pi pi-wifi" />
@@ -94,31 +210,61 @@
                         <ng-template #content let-activateCallback="activateCallback">
                             <div class="content">
                                 <div class="form-container">
+
                                     <div class="input-content">
-                                        <label for="current-address">Endereço Atual:</label>
-                                        <input pInputText>
+                                        <p-inputgroup>
+
+                                            <p-inputgroup-addon>
+                                                <i class="pi pi-home"></i>
+                                            </p-inputgroup-addon>
+                                            <p-iftalabel>
+                                                <input pInputText disabled>
+                                                <label for="current-address">Endereço Atual:</label>
+                                            </p-iftalabel>
+                                        </p-inputgroup>
                                     </div>
                                     <div class="input-content">
-                                        <label for="new-address">Endereço Atual:</label>
-                                        <input pInputText>
+                                        <p-inputgroup>
+                                            <p-inputgroup-addon>
+                                                <i class="pi pi-home"></i>
+                                            </p-inputgroup-addon>
+                                            <p-iftalabel>
+                                                <input pInputText disabled>
+                                                <label for="current-address">Endereço Novo:</label>
+                                            </p-iftalabel>
+                                        </p-inputgroup>
                                     </div>
                                 </div>
                             </div>
                             <div>
-                                <form class="form-container">
-
+                                <form #contractNgForm="ngForm" class="form-container">
                                     <div class="os-content">
                                         <div class="input-content-os">
-                                            <label for="contract">Contrato:</label>
-                                            <input type="text" pInputText>
+                                            <div class="msg-error">
+                                                <app-message-valid-forms [control]="contract" error="required"
+                                                    text="Campo obrigatório"></app-message-valid-forms>
+                                            </div>
+                                            <p-inputgroup>
+                                                <p-inputgroup-addon>
+                                                    <span class="material-symbols-outlined">contract</span>
+                                                </p-inputgroup-addon>
+                                                <p-iftalabel>
+                                                    <input type="text" [(ngModel)]="contractForm.contract"
+                                                        #contract="ngModel" name="contract" pInputText required>
+                                                    <label for="contract">Contrato:</label>
+                                                </p-iftalabel>
+                                            </p-inputgroup>
                                         </div>
+
                                         <div class="text-area-content">
-                                            <label for="address-observation">Observação:</label>
-                                            <textarea style="width: 100%; height: auto;" placeholder="Declaro, para os devidos fins, que solicito a transferência do meu endereço cadastrado junto à empresa [NOME DA EMPRESA], passando a vigorar o novo endereço informado neste formulário, para fins de correspondência, contato e demais registros.
-
-Estou ciente de que todas as comunicações futuras serão enviadas exclusivamente para o endereço atualizado.
-
-[Local], [Data]" rows="5" cols="30" pTextarea [autoResize]="true"></textarea>
+                                            <p-iftalabel>
+                                                <textarea [(ngModel)]="contractForm.observation" #observation="ngModel"
+                                                    name="observation" pTextarea rows="5" cols="30" [autoResize]="true"
+                                                    required style="width: 100%;"></textarea>
+                                                <label for="observation">Observação:</label>
+                                                <app-message-valid-forms [control]="observation" error="required"
+                                                    text="Campo obrigatório"></app-message-valid-forms>
+                                            </p-iftalabel>
                                         </div>
                                     </div>
                                 </form>
@@ -128,7 +274,7 @@ Estou ciente de que todas as comunicações futuras serão enviadas exclusivamen
                                 </div>
                                 <div class="btn-to-navigate">
                                     <p-button label="Voltar" severity="danger" (onClick)="activateCallback(1)" />
-                                    <p-button label="Próximo" severity="success"  (onClick)="activateCallback(3)" />
+                                    <p-button label="Próximo" severity="success" (onClick)="activateCallback(3)" />
                                 </div>
                             </div>
                         </ng-template>
@@ -139,22 +285,26 @@ Estou ciente de que todas as comunicações futuras serão enviadas exclusivamen
 
                             <div class="signature-pad-container">
                                 <div class="signature-input">
-                                    <label for="signature">Assinatura:</label>
-                                    <textarea style="width: 100%;" [autoResize]="true"  rows="5" cols="30" pTextarea ></textarea>
+                                    <p-iftalabel style="width: 100%;">
+
+                                        <label for="signature">Assinatura:</label>
+                                        <textarea style="width: 100%; height: 100%;" [autoResize]="true" rows="5"
+                                            cols="30" pTextarea></textarea>
+                                    </p-iftalabel>
                                 </div>
                                 <div class="btn-to-capture">
                                     <div class="btn-to-signature">
                                         <p-button label="Capturar Assinatura" severity="success" variant="outlined" />
-                                        <p-button label="Cancelar" severity="danger" variant="outlined"/>
+                                        <p-button label="Cancelar" severity="danger" variant="outlined" />
                                     </div>
                                     <div class="btn-to-generate-contract">
-                                        <p-button label="Gerar Contrato" severity="info" variant="outlined"/>
+                                        <p-button label="Gerar Contrato" severity="info" variant="outlined" />
                                     </div>
                                 </div>
 
                                 <div class="btn-to-navigate">
                                     <p-button label="Voltar" severity="danger" (onClick)="activateCallback(2)" />
-                                    <p-button label="Próximo" severity="success"  (onClick)="activateCallback(4)" />
+                                    <p-button label="Próximo" severity="success" (onClick)="activateCallback(4)" />
                                 </div>
                             </div>
                         </ng-template>
@@ -163,25 +313,69 @@ Estou ciente de que todas as comunicações futuras serão enviadas exclusivamen
                     <p-step-panel [value]="4">
                         <ng-template #content let-activateCallback="activateCallback">
                             <div class="payment-container">
-                                <form class="payment-content">
-                                    <div class="payment-input">
-                                        <input pInputText value="Titulo">
+                                <form #paymentNgForm="ngForm" class="payment-content">
+                                    <div class="input-content">
+                                        <div class="msg-error">
+                                            <app-message-valid-forms [control]="title" error="required"
+                                                text="Campo Obrigatório"></app-message-valid-forms>
+                                        </div>
+                                        <p-inputgroup>
+                                            <p-inputgroup-addon>
+                                                <span class="material-symbols-outlined">attach_money</span>
+                                            </p-inputgroup-addon>
+                                            <p-iftalabel>
+                                                <input [(ngModel)]="paymentForm.title" #title="ngModel" name="title"
+                                                    id="title" pInputText required>
+                                                <label for="title">Título:</label>
+                                                <div>
+                                                </div>
+                                            </p-iftalabel>
+                                        </p-inputgroup>
                                     </div>
-                                    <div class="payment-input">
-                                        <input pInputText value="09/10/2025">
+
+                                    <div class="input-content">
+                                        <div class="msg-error">
+                                            <app-message-valid-forms [control]="dueDate" error="required"
+                                                text="Campo Obrigatório"></app-message-valid-forms>
+                                        </div>
+                                        <p-inputgroup>
+                                            <p-inputgroup-addon>
+                                                <span class="material-symbols-outlined">calendar_clock</span>
+                                            </p-inputgroup-addon>
+                                            <p-iftalabel>
+                                                <input [(ngModel)]="paymentForm.dueDate" #dueDate="ngModel"
+                                                    name="dueDate" id="due-date" pInputText required>
+                                                <label for="due-date">Data de Vencimento:</label>
+                                            </p-iftalabel>
+                                        </p-inputgroup>
                                     </div>
-                                    <div class="payment-input">
-                                        <input pInputText value="R$ 89,90">
+
+                                    <div class="input-content">
+                                        <div class="msg-error">
+                                            <app-message-valid-forms [control]="price" error="required"
+                                                text="Campo Obrigatório"></app-message-valid-forms>
+                                        </div>
+                                        <p-inputgroup>
+                                            <p-inputgroup-addon>
+                                                <span class="material-symbols-outlined">attach_money</span>
+                                            </p-inputgroup-addon>
+                                            <p-iftalabel>
+                                                <input [(ngModel)]="paymentForm.price" #price="ngModel" name="price"
+                                                    id="price" pInputText prefix="R$" thousandSeparator="."
+                                                    decimalMarker="," [mask]="'separator.2'" required>
+                                                <label for="price">Valor:</label>
+                                            </p-iftalabel>
+                                        </p-inputgroup>
                                     </div>
                                 </form>
                                 <div class="btn-actions-payment">
-                                            <p-button label="Gerar Boleto" severity="info" icon="pi pi-file"></p-button>
-                                            <p-button label="Enviar Por Whatsapp" severity="success" icon="pi pi-whatsapp"></p-button>
+                                    <p-button label="Gerar Boleto" severity="info" icon="pi pi-file"></p-button>
+                                    <p-button label="Enviar Por Whatsapp" severity="success"
+                                        icon="pi pi-whatsapp"></p-button>
                                 </div>
-
-                               <div class="btn-to-navigate">
-                                    <p-button label="Voltar" severity="danger" (onClick)="activateCallback(2)" />
-                                    <p-button label="Concluir" icon="pi pi-check" severity="success"  (onClick)="activateCallback(4)" />
+                                <div class="btn-to-navigate">
+                                    <p-button label="Voltar" severity="danger" (onClick)="activateCallback(3)" />
+                                    <p-button label="Concluir" icon="pi pi-check" severity="success" />
                                 </div>
                             </div>
                         </ng-template>
