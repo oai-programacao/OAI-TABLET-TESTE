@@ -488,9 +488,8 @@
             <ng-template #content let-activateCallback="activateCallback">
               <div class="space-stepper1">
                 <div
-                  class="border-2 border-dashed rounded flex-auto flex justify-center items-center"
+                  class="signature-container"
                 >
-                  Conteúdo: Assinatura Digital
                   <app-signature-pad
                     (signatureData)="onSignatureData($event)"
                   ></app-signature-pad>
