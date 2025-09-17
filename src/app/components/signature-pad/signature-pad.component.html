@@ -1,0 +1,8 @@
+<div class="w-full max-w-full overflow-auto">
+    <canvas
+      class="block w-full aspect-[3/1] border-2 border-gray-300 rounded-lg mb-4"
+      #canvas     
+    ></canvas>
+    <button pButton label="Limpar" icon="pi pi-times" rounded severity="danger" text (click)="clearPad()"></button>
+    <button pButton label="Capturar" rounded text  (click)="savePad()"></button>
+</div>

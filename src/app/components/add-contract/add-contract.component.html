@@ -486,11 +486,14 @@
           <p-step>• Assinatura Digital </p-step>
           <p-step-panel>
             <ng-template #content let-activateCallback="activateCallback">
-              <div class="flex flex-col h-48">
+              <div class="space-stepper1">
                 <div
                   class="border-2 border-dashed rounded flex-auto flex justify-center items-center"
                 >
                   Conteúdo: Assinatura Digital
+                  <app-signature-pad
+                    (signatureData)="onSignatureData($event)"
+                  ></app-signature-pad>
                 </div>
               </div>
               <div class="flex py-6 justify-between">

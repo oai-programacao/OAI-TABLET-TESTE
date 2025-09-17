@@ -17,9 +17,12 @@ import { DialogModule } from 'primeng/dialog';
 import { NgxMaskDirective } from 'ngx-mask';
 import { TextareaModule } from 'primeng/textarea';
 import { GoogleMapsComponent } from '../../shared/components/google-maps/google-maps.component';
+import { SignaturePadComponent } from '../signature-pad/signature-pad.component';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-add-contract',
+  standalone: true,
   imports: [
     CardBaseComponent,
     StepperModule,
@@ -38,19 +41,27 @@ import { GoogleMapsComponent } from '../../shared/components/google-maps/google-
     DialogModule,
     NgxMaskDirective,
     TextareaModule,
-    GoogleMapsComponent
+    GoogleMapsComponent,
+    SignaturePadComponent,
   ],
   templateUrl: './add-contract.component.html',
   styleUrl: './add-contract.component.scss',
+  providers: [MessageService],
 })
 export class AddContractComponent {
   @ViewChild('pop') pop!: Popover;
+
+  constructor(public messageService: MessageService) {}
 
   dateOfExpiration: Date | null = null;
   dateOfAssignment: Date | null = null;
   dateOfStart: Date | null = null;
   dateOfMemberShipExpiration: Date | null = null;
-  
+
+  formData = {
+    signaturePad: '',
+  };
+
   //google maps
   showMapDialog = false;
   center: google.maps.LatLngLiteral = { lat: -23.55052, lng: -46.633308 }; // exemplo SP
@@ -146,4 +157,17 @@ export class AddContractComponent {
     this.previewImage = image;
     this.previewVisible = true;
   }
+
+  onSignatureData(signatureData: string): void {
+    this.formData.signaturePad = signatureData;
+
+    // se quiser mostrar mensagem
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Assinatura Capturada',
+      detail: 'A assinatura foi capturada com sucesso.',
+    });
+  }
+
+
 }
