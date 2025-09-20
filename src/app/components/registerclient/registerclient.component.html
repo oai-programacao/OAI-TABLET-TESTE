@@ -25,7 +25,24 @@
             </p-select>
             <label for="typeclient">Tipo de Cliente</label>
           </p-iftalabel>
+
+          <p-iftalabel class="w-full md:w-56">
+            <p-select
+              [options]="zonatypes"
+              optionLabel="label"
+              optionValue="value"
+              [(ngModel)]="selectedZoneType"
+              placeholder="Selecione"
+              class="w-full md:w-56"
+              name="typezone"
+              required
+            >
+            </p-select>
+            <label for="typezone">Tipo de Zona *</label>
+          </p-iftalabel>
         </div>
+
+        
 
         <!-- ========== Pessoa Física (PF) ========== -->
         <div *ngIf="selectedClientType === 'PF'">
