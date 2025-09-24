@@ -1,0 +1,39 @@
+<div class="card-container">
+  <div class="header">
+    <div class="info">
+      <h3>{{ data.email }}</h3>
+      <span>Interessado em: {{ data.planCode }}</span>
+    </div>
+    <div class="status">{{ data.status }}</div>
+  </div>
+
+  <div class="contact-info">
+    <div class="item"><i class="pi pi-phone"></i> {{ data.phone }}</div>
+    <div class="item"><i class="pi pi-envelope"></i> {{ data.email }}</div>
+    <div class="item">
+      <i class="pi pi-map-marker"></i>
+      {{ data.address?.street }}, {{ data.address?.number }} -
+      {{ data.address?.neighborhood }}, {{ data.address?.UF }}
+    </div>
+    <div class="item"><i class="pi pi-calendar"></i> Lead desde {{ data.leadSince }}</div>
+  </div>
+
+  <div class="last-contact">
+    Último contato: {{ '2025-01-12' }} - Ligação realizada
+  </div>
+
+  <div class="observations" *ngIf="data.observation">
+    <strong>Observações:</strong>
+    {{ data.observation }}
+  </div>
+
+  <div class="actions">
+    <p-button label="Ligar" severity="secondary" /> 
+    <p-button severity="secondary" label="Email" />
+</div>
+<div class="convert">
+    <p-button  label="Converter Venda" size="large" severity="info" />
+</div>
+
+  <div class="footer">Fonte: {{ data.font }}</div>
+</div>

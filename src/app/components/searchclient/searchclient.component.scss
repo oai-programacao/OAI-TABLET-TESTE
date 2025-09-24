@@ -1,8 +1,8 @@
 .page-container {
   display: flex;
-  justify-content: center; // centraliza horizontal
-  align-items: center;     // centraliza vertical
-  min-height: 80vh;       // ocupa altura total da tela
+  justify-content: center; 
+  align-items: center;     
+  min-height: 80vh;       
 }
 
 .home-content {
@@ -88,3 +88,11 @@
     }
   }
 }
+
+.btn-to-back-leads-content{
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  align-items: center;
+}
+

@@ -1,5 +1,13 @@
 <div class="page-container">
-  <app-card-base header="INÍCIO 🌐" width="auto" height="110%">
+  <app-card-base header="Buscar Cliente" width="auto" height="110%">
+    <div class="btn-to-back-leads-content">
+      <div class="btn-to-leads">
+        <p-button label="Sair" (onClick)="logout()" severity="danger" icon="pi pi-sign-out" />
+      </div>
+      <div class="btn-to-logout">
+        <p-button label="Em Espera" (onClick)="navigateToLeads()" icon="pi pi-clock" severity="warn" badge="2"  />
+      </div>
+    </div>
     <div class="home-content">
       <div class="top-info">
         <h2>
@@ -60,3 +68,6 @@
     </div>
   </app-card-base>
 </div>
+
+
+<p-toast />

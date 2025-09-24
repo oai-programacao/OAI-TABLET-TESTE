@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, inject, ViewChild } from '@angular/core';
 import { CardBaseComponent } from '../../shared/components/card-base/card-base.component';
 import { StepperModule } from 'primeng/stepper';
 import { ButtonModule } from 'primeng/button';
@@ -19,6 +19,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { GoogleMapsComponent } from '../../shared/components/google-maps/google-maps.component';
 import { SignaturePadComponent } from '../signature-pad/signature-pad.component';
 import { MessageService } from 'primeng/api';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-add-contract',
@@ -50,6 +51,10 @@ import { MessageService } from 'primeng/api';
 })
 export class AddContractComponent {
   @ViewChild('pop') pop!: Popover;
+
+  private readonly router = inject(Router);
+
+
 
   constructor(public messageService: MessageService) {}
 
@@ -169,5 +174,8 @@ export class AddContractComponent {
     });
   }
 
+  backToViewContracts(){
+    this.router.navigate(['client-contract'])
+  }
 
 }

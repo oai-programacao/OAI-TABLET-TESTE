@@ -1,0 +1,174 @@
+.card-container {
+    width: 350px;
+    background: #fff;
+    border-radius: 12px;
+    border-left: 4px solid #ff7b2e; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    font-family: "Segoe UI", Arial, sans-serif;
+    color: #333;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+
+    .info {
+        display: flex;
+        flex-direction: column;
+
+        h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1976d2;
+        }
+
+        span {
+            font-size: 0.9rem;
+            color: #555;
+        }
+    }
+
+    .status {
+        background: #e3f2fd;
+        color: #1976d2;
+        font-size: 0.8rem;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 16px;
+        align-self: start;
+    }
+}
+
+.contact-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.9rem;
+
+    i {
+        margin-right: 8px;
+        color: #666;
+    }
+
+    .item {
+        display: flex;
+        align-items: center;
+    }
+}
+
+.lead-info {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.last-contact {
+    background: #f5f5f5;
+    border-radius: 6px;
+    padding: 6px 8px;
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.observations {
+    background: #e3f2fd;
+    border-radius: 6px;
+    padding: 8px;
+    font-size: 0.85rem;
+    color: #333;
+
+    strong {
+        display: block;
+        margin-bottom: 4px;
+        color: #1976d2;
+    }
+}
+
+.actions {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    gap: 0.5rem;
+
+    button {
+        flex: 1;
+        padding: 8px;
+        font-size: 0.85rem;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+
+        &.phone {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        &.email {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+
+    }
+}
+
+.footer {
+    text-align: center;
+    font-size: 0.75rem;
+    color: #777;
+    margin-top: 6px;
+}
+
+.footer {
+    :host ::ng-deep .p-button {
+        width: 100%;
+    }
+}
+
+
+.convert {
+    display: flex;
+    justify-content: center;
+
+}
+
+
+
+/* 📲 Tablet (iPad) */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .card-container {
+        flex: 1 1 calc(50% - 1rem);
+        margin: 8px;
+        max-width: none;
+    }
+
+    .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: center;
+    }
+
+    .convert {
+        justify-content: center;
+        display: flex;
+    }
+
+    .footer {
+        text-align: center;
+    }
+}
+
+/* 💻 Desktop */
+@media (min-width: 1024px) {
+    .card-container {
+        flex: 1 1 350px;
+        max-width: 350px;
+    }
+}

@@ -54,5 +54,9 @@ export const routes: Routes = [
   {
     path: 'address-transfer',
     loadComponent: () => import ('./components/address-transfer/address-transfer.component').then((m) => m.AddressTransferComponent)
+  },
+  {
+    path: "waiting-leads",
+    loadComponent: () => import('./components/waiting-leads/waiting-leads.component').then((m) => m.WaitingLeadsComponent)
   }
 ];

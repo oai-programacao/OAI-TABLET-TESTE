@@ -13,7 +13,7 @@
 
 .plano-card.popular {
   width: 15rem;
-  height: 20rem;
+  height: auto;
   background: linear-gradient(135deg, #7b1fa2, #9c27b0);
   color: #fff;
   border-radius: 1rem;
@@ -63,7 +63,9 @@
   border: 1.5px solid black;
   padding: 1.5rem;
   text-align: center;
-  height: 20rem;
+  height: auto;
+  max-height: 300px;
+  min-height: 300px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   width: 15rem;
   &:hover {
@@ -143,6 +145,13 @@
 .plano-card.popular:hover {
   transform: translateY(-2px) rotate(0deg); 
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
+}
+
+.btn-to-select-plan{
+  height: 4rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 
