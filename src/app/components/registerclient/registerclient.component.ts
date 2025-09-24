@@ -52,6 +52,12 @@ export class RegisterclientComponent {
     tipoCliente: 'PF',
   };
 
+  selectedZoneType: 'Urbana' | 'Rural' = 'Urbana';
+  zonatypes = [
+    { label: 'Urbana', value: 'Urbana' },
+    { label: 'Rural', value: 'Rural' },
+  ];
+
   clientTypes = [
     { label: 'Pessoa Física', value: 'PF' },
     { label: 'Pessoa Jurídica', value: 'PJ' },
