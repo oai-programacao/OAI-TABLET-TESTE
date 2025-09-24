@@ -1,13 +1,15 @@
 import { ButtonModule } from 'primeng/button';
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CardBaseComponent } from '../../shared/components/card-base/card-base.component';
 import { IftaLabelModule } from 'primeng/iftalabel';
 import { InputTextModule } from 'primeng/inputtext';
 import { DividerModule } from 'primeng/divider';
 import { InputMaskModule } from 'primeng/inputmask';
 import { Router } from '@angular/router';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'app-searchclient',
@@ -20,17 +22,36 @@ import { Router } from '@angular/router';
     InputTextModule,
     DividerModule,
     InputMaskModule,
+    ReactiveFormsModule,
+    ToastModule
   ],
   templateUrl: './searchclient.component.html',
   styleUrls: ['./searchclient.component.scss'],
+  providers: [MessageService]
 })
 export class SearchclientComponent implements OnInit {
-  vendedorNome: string = 'Gabriel Santos'; // pode vir de authService
+  private readonly messageService = inject(MessageService);
+  private readonly fb = inject(FormBuilder);
+  private readonly router = inject(Router);
+  // private readonly authService = inject(AuthService);
+
+
+  form!: FormGroup;
+
+  badgeValue: number = 1;
+
+
+  vendedorNome: string = 'Fulano De Tal';
   dataAtual: Date = new Date();
   horaAtual: Date = new Date();
   documento: string = '';
-  router = inject(Router);
+
+
   ngOnInit() {
+    this.form = this.fb.group({
+      cpfCnpj: [null, Validators.required],
+    });
+
     setInterval(() => {
       this.horaAtual = new Date();
     }, 1000);
@@ -44,10 +65,23 @@ export class SearchclientComponent implements OnInit {
   ];
 
   //métodos e lógicas
-
   consultarCliente() {
+    if (!this.form.valid) {
+      this.messageService.add({
+        summary: 'Inválido',
+        detail: 'Documento Inválido!',
+        severity: 'warn'
+      });
+      return;
+    }
+
+    this.messageService.add({
+      summary: 'Sucesso',
+      detail: 'Cliente Encontrado com Sucesso!',
+      severity: 'success'
+    });
+
     console.log('Consultando cliente:', this.documento);
-    // chamada para API futura
   }
 
   verPlanos() {
@@ -78,5 +112,34 @@ export class SearchclientComponent implements OnInit {
         .replace(/\.(\d{3})(\d)/, '.$1/$2')
         .replace(/(\d{4})(\d{1,2})$/, '$1-$2');
     }
+  }
+
+  navigateToLeads() {
+    this.router.navigate(['waiting-leads']);
+  }
+
+
+  logout() {
+    this.router.navigate([''])
+
+    /**
+     * METODO PARA DESLOGAR
+     * 
+     * 
+     * this.authService.logout().subscribe({
+     *   next: () => {
+     *    this.router.navigate(['']);
+     *    this.messageService.add({
+     *    summary: 'Sucesso',
+     *    detail: 'Usuário Desconectado com Sucesso!',
+     *    severiry: 'success'
+     *  });
+     * }
+     *  error: (err) => { 
+     *    console.log(err);
+     *   }
+     * })
+     * 
+     */
   }
 }

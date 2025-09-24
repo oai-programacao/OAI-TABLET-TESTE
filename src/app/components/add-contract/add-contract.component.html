@@ -1,7 +1,13 @@
 <div class="page-container">
+        <div class="btn-to-back">
+        <p-button [rounded]="true"  icon="pi pi-arrow-left" severity="contrast" (onClick)="backToViewContracts()" />
+      </div>
   <app-card-base>
+    
     <div class="card">
+
       <p-stepper [value]="1">
+        
         <p-step-item [value]="1">
           <p-step>• Dados do Contrato </p-step>
           <p-step-panel>
@@ -495,7 +501,7 @@
                   ></app-signature-pad>
                 </div>
               </div>
-              <div class="flex py-6 justify-between">
+              <div class="btn-to-actions">
                 <p-button
                   label="Voltar"
                   severity="secondary"
@@ -535,6 +541,8 @@
             </ng-template>
           </p-step-panel>
         </p-step-item>
+
+
       </p-stepper>
     </div>
   </app-card-base>

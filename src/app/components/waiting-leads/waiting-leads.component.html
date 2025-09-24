@@ -1,0 +1,19 @@
+<div class="leads-container">
+    <app-card-base header="Clientes Em Espera" width="auto" height="auto">
+        <div class="btn-to-back">
+            <p-button icon="pi pi-arrow-left" [rounded]="true" severity="danger" (onClick)="backToSearch()" />
+        </div>
+        <div class="container">
+            <div class="title">
+                <h1>Gestão de Vendas</h1>
+            </div>
+            <div class="card-container">
+                    <div class="card-content">
+                        <app-card-leads [data]="cardStatusInterested"></app-card-leads>
+                        <app-card-leads [data]="cardStatusNogociation"></app-card-leads>
+                        <app-card-leads [data]="cardStatusNewClient"></app-card-leads>
+                    </div>
+            </div>
+        </div>
+    </app-card-base>
+</div>
