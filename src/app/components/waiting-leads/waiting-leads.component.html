@@ -8,11 +8,11 @@
                 <h1>Gestão de Vendas</h1>
             </div>
             <div class="card-container">
-                    <div class="card-content">
-                        <app-card-leads [data]="cardStatusInterested"></app-card-leads>
-                        <app-card-leads [data]="cardStatusNogociation"></app-card-leads>
-                        <app-card-leads [data]="cardStatusNewClient"></app-card-leads>
-                    </div>
+
+
+
+                <app-card-leads *ngFor="let sell of sells" [data]="sell"></app-card-leads>
+
             </div>
         </div>
     </app-card-base>

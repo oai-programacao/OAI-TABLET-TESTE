@@ -1,12 +1,12 @@
 <div class="page-container">
-        <div class="btn-to-back">
-        <p-button [rounded]="true"  icon="pi pi-arrow-left" severity="contrast" (onClick)="backToViewContracts()" />
-      </div>
+
   <app-card-base>
     
     <div class="card">
-
       <p-stepper [value]="1">
+        <div class="btn-to-back">
+      <p-button label="Voltar" severity="danger" icon="pi pi-arrow-left" (onClick)="backToViewContracts()" />
+    </div>
         
         <p-step-item [value]="1">
           <p-step>• Dados do Contrato </p-step>
@@ -505,12 +505,12 @@
                 <p-button
                   label="Voltar"
                   severity="secondary"
-                  icon="pi pi-arrow-left"
+                  icon="pi pi-arrow-up"
                   (onClick)="activateCallback(2)"
                 />
                 <p-button
                   label="Próximo"
-                  icon="pi pi-arrow-right"
+                  icon="pi pi-arrow-down"
                   iconPos="right"
                   (onClick)="activateCallback(4)"
                 />
