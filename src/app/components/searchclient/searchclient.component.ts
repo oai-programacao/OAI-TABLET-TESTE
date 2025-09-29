@@ -52,9 +52,7 @@ export class SearchclientComponent implements OnInit {
   documento: string = '';
 
   ngOnInit() {
-    this.form = this.fb.group({
-      cpfCnpj: [null, Validators.required],
-    });
+    this.vendedorNome = localStorage.getItem('nome') || 'Visitante';
 
     setInterval(() => {
       this.horaAtual = new Date();
@@ -136,5 +134,5 @@ export class SearchclientComponent implements OnInit {
       this.router.navigate(['/login']);
     }, 500);
   }
-  
+
 }

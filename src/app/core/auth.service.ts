@@ -24,7 +24,7 @@ export class AuthService {
         tap((response) => {
           localStorage.setItem('accessToken', response.accessToken);
           localStorage.setItem('refreshToken', response.refreshToken);
-          localStorage.setItem('nome', response.name);
+          localStorage.setItem('name', response.name);
           this.router.navigate(['/search']);
         })
       );
