@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
@@ -11,12 +11,17 @@ import { FloatLabelModule } from 'primeng/floatlabel';
 import { CheckboxModule } from 'primeng/checkbox';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
+import { NgForm } from '@angular/forms';
+import { LoginSeller } from '../../models/login/login-seller.dto';
+import { MessagesValidFormsComponent } from '../../shared/components/message-valid-forms/message-valid-forms.component';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'app-login',
   imports: [
+    ToastModule,
     CardModule,
     CommonModule,
     InputTextModule,
@@ -26,53 +31,64 @@ import { MessageService } from 'primeng/api';
     InputGroupAddonModule,
     PasswordModule,
     FloatLabelModule,
-    CheckboxModule
+    CheckboxModule,
+    FormsModule,
+    MessagesValidFormsComponent,
   ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
-  providers: [MessageService]
+  providers: [MessageService],
 })
 export class LoginComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
-  private readonly fb = inject(FormBuilder);
   private readonly messageService = inject(MessageService);
-  form!: FormGroup;
 
-  constructor(){
+  @ViewChild('loginForm') form!: NgForm;
 
-  }
+  loginFailed: boolean = false;
 
+  loginData: LoginSeller = {
+    email: '',
+    password: '',
+  };
 
-  ngOnInit() {
-    this.form = this.fb.group({
-      email: ['', Validators.required],
-      password: ['', Validators.minLength(6)]
-    })
-  }
+  ngOnInit() {}
 
-  login(){
-    const email = this.form.value.email;
-    const password = this.form.value.password;
-    if(this.form.invalid){
-     this.messageService.add({
-      detail: 'Email ou senha inválidos',
-      summary: 'Error',
-      severity: 'error'
-     })
+  login(form: NgForm) {
+    if (form.invalid) {
+      this.messageService.add({
+        detail: 'E-mail ou senha inválidos',
+        summary: 'ERRO',
+        severity: 'error',
+        icon: 'pi-thumbs-down-fill',
+      });
+      return;
     }
-    this.authService.login(email, password).subscribe({
-      next: (response) => {
+
+    const credentials: LoginSeller = { ...this.loginData };
+
+    this.authService.login(credentials).subscribe({
+      next: (response: any) => {
         this.router.navigate(['search']);
-        console.log('Foi', response);
+        this.loginFailed = false;
+        this.form.resetForm();
       },
-      error: (err) => {
-        console.log(err)
-      }
-    })
+      error: (error: any) => {
+        this.loginFailed = true;
+        const errorMsg = error?.error?.message || 'Falha ao efetuar login';
+        this.messageService.add({
+          detail: errorMsg,
+          summary: 'ERRO',
+          severity: 'error',
+          icon: 'pi-thumbs-down-fill',
+        });
+        console.error(error);
+      },
+    });
   }
 
-
-
-
+  get camposObrigatoriosInvalidos(): boolean {
+    return !!((this.form?.submitted && this.form?.invalid) || this.loginFailed);
+  }
 }

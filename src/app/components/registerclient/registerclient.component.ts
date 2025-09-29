@@ -12,8 +12,8 @@ import { FormsModule, NgModel } from '@angular/forms';
 import { SelectModule } from 'primeng/select';
 import { Router } from '@angular/router';
 import { MessagesValidFormsComponent } from '../../shared/components/message-valid-forms/message-valid-forms.component';
-import { ClienteDTO } from '../../models/cliente.dto';
-import { CepService } from '../../services/cep.service';
+import { ClienteDTO } from '../../models/cliente/cliente.dto';
+import { CepService } from '../../services/cep/cep.service';
 import { NgForm } from '@angular/forms';
 import { NgxMaskDirective } from 'ngx-mask';
 

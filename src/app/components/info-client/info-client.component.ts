@@ -17,7 +17,7 @@ import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { IftaLabelModule } from 'primeng/iftalabel';
-import { CepService } from '../../services/cep.service';
+import { CepService } from '../../services/cep/cep.service';
 import { NgxMaskDirective } from 'ngx-mask';
 import { DatePickerModule } from 'primeng/datepicker';
 import { Router } from '@angular/router';

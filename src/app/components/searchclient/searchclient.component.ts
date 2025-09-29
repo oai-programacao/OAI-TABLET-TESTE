@@ -1,7 +1,13 @@
 import { ButtonModule } from 'primeng/button';
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { CardBaseComponent } from '../../shared/components/card-base/card-base.component';
 import { IftaLabelModule } from 'primeng/iftalabel';
 import { InputTextModule } from 'primeng/inputtext';
@@ -10,6 +16,7 @@ import { InputMaskModule } from 'primeng/inputmask';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
+import { AuthService } from '../../core/auth.service';
 
 @Component({
   selector: 'app-searchclient',
@@ -23,29 +30,26 @@ import { ToastModule } from 'primeng/toast';
     DividerModule,
     InputMaskModule,
     ReactiveFormsModule,
-    ToastModule
+    ToastModule,
   ],
   templateUrl: './searchclient.component.html',
   styleUrls: ['./searchclient.component.scss'],
-  providers: [MessageService]
+  providers: [MessageService],
 })
 export class SearchclientComponent implements OnInit {
   private readonly messageService = inject(MessageService);
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
-  // private readonly authService = inject(AuthService);
-
+  private readonly authService = inject(AuthService);
 
   form!: FormGroup;
 
   badgeValue: number = 1;
 
-
   vendedorNome: string = 'Fulano De Tal';
   dataAtual: Date = new Date();
   horaAtual: Date = new Date();
   documento: string = '';
-
 
   ngOnInit() {
     this.form = this.fb.group({
@@ -70,7 +74,7 @@ export class SearchclientComponent implements OnInit {
       this.messageService.add({
         summary: 'Inválido',
         detail: 'Documento Inválido!',
-        severity: 'warn'
+        severity: 'warn',
       });
       return;
     }
@@ -78,7 +82,7 @@ export class SearchclientComponent implements OnInit {
     this.messageService.add({
       summary: 'Sucesso',
       detail: 'Cliente Encontrado com Sucesso!',
-      severity: 'success'
+      severity: 'success',
     });
 
     console.log('Consultando cliente:', this.documento);
@@ -118,28 +122,19 @@ export class SearchclientComponent implements OnInit {
     this.router.navigate(['waiting-leads']);
   }
 
-
   logout() {
-    this.router.navigate([''])
+    this.authService.logout();
 
-    /**
-     * METODO PARA DESLOGAR
-     * 
-     * 
-     * this.authService.logout().subscribe({
-     *   next: () => {
-     *    this.router.navigate(['']);
-     *    this.messageService.add({
-     *    summary: 'Sucesso',
-     *    detail: 'Usuário Desconectado com Sucesso!',
-     *    severiry: 'success'
-     *  });
-     * }
-     *  error: (err) => { 
-     *    console.log(err);
-     *   }
-     * })
-     * 
-     */
+    this.messageService.add({
+      summary: 'Sucesso',
+      detail: 'Usuário Desconectado com Sucesso!',
+      severity: 'success',
+      icon: 'pi-thumbs-up-fill',
+    });
+
+    setTimeout(() => {
+      this.router.navigate(['/login']);
+    }, 500);
   }
+  
 }
