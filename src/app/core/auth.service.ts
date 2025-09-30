@@ -33,6 +33,35 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
-    localStorage.removeItem('nome');
+    localStorage.removeItem('name');
+  }
+
+  isAuthenticated(): boolean {
+    const token = localStorage.getItem('accessToken');
+    if (!token) return false;
+
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1])); // decodifica o payload do JWT
+      const expiry = payload.exp; // tempo de expiração em segundos
+      const now = Math.floor(new Date().getTime() / 1000);
+
+      return now < expiry; // true se ainda não expirou
+    } catch (error) {
+      console.error('Erro ao verificar token JWT', error);
+      return false;
+    }
+  }
+
+  getUserRoles(): string[] {
+    const token = localStorage.getItem('accessToken');
+    if (!token) return [];
+
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.roles || []; // assuming your JWT has a "roles" array
+    } catch (error) {
+      console.error('Erro ao decodificar roles do token', error);
+      return [];
+    }
   }
 }

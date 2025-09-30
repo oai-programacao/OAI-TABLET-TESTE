@@ -1,25 +1,29 @@
-export interface ClienteDTO {
-  tipoCliente: 'PF' | 'PJ';
+export interface Cliente {
+  // PF
   nome?: string;
   cpf?: string;
   rg?: string;
-  cnpj?: string;
-  inscricaoEstadual?: string;
+  nascimento?: string | Date;
+
+  // PJ
   razaoSocial?: string;
   nomeFantasia?: string;
-  dataAbertura?: Date;
-  endereco?: {
-    cep?: string;
-    rua?: string;
-    numero?: string;
-    cidade?: string;
-    bairro?: string;
-    complemento?: string;
-  };
-  contatos?: {
-    celular?: string;
-    telefone?: string;
-    email?: string;
-    segundoCelular?: string;
-  };
+  cnpj?: string;
+  ie?: string;
+
+  // Endereço e contato
+  cep?: string;
+  logradouro?: string;
+  numero?: string;
+  complemento?: string;
+  uf?: string;
+  observacao?: string;
+  celular1?: string;
+  celular2?: string;
+  telefone?: string;
+  email?: string;
+  tipoCliente?: string;
+
+  // Ranking (para cores)
+  ranking?: 'A' | 'B' | 'C' | 'D' | 'E';
 }

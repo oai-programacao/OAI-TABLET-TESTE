@@ -66,6 +66,8 @@ export class LoginComponent implements OnInit {
       return;
     }
 
+    localStorage.clear();
+
     const credentials: LoginSeller = { ...this.loginData };
 
     this.authService.login(credentials).subscribe({

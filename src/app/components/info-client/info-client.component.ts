@@ -1,13 +1,12 @@
-// ANGULAR
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-//COMPONENTS
-import { CardBaseComponent } from "../../shared/components/card-base/card-base.component";
+// Components
+import { CardBaseComponent } from '../../shared/components/card-base/card-base.component';
 import { MessagesValidFormsComponent } from '../../shared/components/message-valid-forms/message-valid-forms.component';
 
-// PRIMENG
+// PrimeNG
 import { DividerModule } from 'primeng/divider';
 import { AvatarModule } from 'primeng/avatar';
 import { InputTextModule } from 'primeng/inputtext';
@@ -17,18 +16,20 @@ import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { IftaLabelModule } from 'primeng/iftalabel';
-import { CepService } from '../../services/cep/cep.service';
-import { NgxMaskDirective } from 'ngx-mask';
 import { DatePickerModule } from 'primeng/datepicker';
+import { ToastModule } from 'primeng/toast';
+
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
+import { CepService } from '../../services/cep/cep.service';
+import { NgxMaskDirective } from 'ngx-mask';
+import { Cliente } from '../../models/cliente/cliente.dto';
 
 @Component({
   selector: 'app-info-client',
   imports: [
     CommonModule,
-    FormsModule,           
+    FormsModule,
     CardBaseComponent,
     DividerModule,
     InputTextModule,
@@ -42,49 +43,58 @@ import { ToastModule } from 'primeng/toast';
     IftaLabelModule,
     NgxMaskDirective,
     DatePickerModule,
-    ToastModule
+    ToastModule,
   ],
   templateUrl: './info-client.component.html',
   styleUrls: ['./info-client.component.scss'],
-  providers: [MessageService]
+  providers: [MessageService],
 })
-export class InfoClientComponent {
+export class InfoClientComponent implements OnInit {
   isEditing = false;
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
   private readonly cepService = inject(CepService);
 
-
-  // PF ou PJ
   tipoCliente: 'PF' | 'PJ' = 'PF';
 
-  cliente = {
-    // PF
-    nome: '',
-    cpf: '',
-    rg: '',
-    nascimento: '',
+  cliente: Cliente = {}; // Inicializa vazio
 
-    // PJ
-    razaoSocial: '',
-    nomeFantasia: '',
-    cnpj: '',
-    ie: '',
+  ngOnInit(): void {
+  const navigation = this.router.getCurrentNavigation();
+  const clientResponse = navigation?.extras.state?.['cliente'];
+  
 
-    // Endereço e contato
-    cep: '',
-    logradouro: '',
-    numero: '',
-    complemento: '',
-    uf: '',
-    observacao: '',
-    celular1: '',
-    celular2: '',
-    telefone: '',
-    email: ''
-  };
+  console.log('Objeto vindo do router:', clientResponse);
+  
+  if (clientResponse) {
+    // Atualiza propriedades existentes do cliente DTO
+    this.cliente.nome = clientResponse.name ?? '';
+    this.cliente.cpf = clientResponse.cpf ?? '';
+    this.cliente.rg = clientResponse.rg ?? '';
+    this.cliente.nascimento = clientResponse.birthDate ?? '';
+    this.cliente.tipoCliente = clientResponse.typeClient ?? 'PF';
+    this.cliente.razaoSocial = clientResponse.socialName ?? '';
+    this.cliente.nomeFantasia = clientResponse.fantasyName ?? '';
+    this.cliente.cnpj = clientResponse.cnpj ?? '';
+    this.cliente.ie = clientResponse.ie ?? '';
+    this.cliente.cep = clientResponse.address?.zipCode ?? '';
+    this.cliente.logradouro = clientResponse.address?.street ?? '';
+    this.cliente.numero = clientResponse.address?.number ?? '';
+    this.cliente.complemento = clientResponse.address?.complement ?? '';
+    this.cliente.uf = clientResponse.address?.state ?? '';
+    this.cliente.observacao = clientResponse.observation ?? '';
+    this.cliente.celular1 = clientResponse.phone ?? '';
+    this.cliente.celular2 = clientResponse.phone2 ?? '';
+    this.cliente.telefone = clientResponse.telephone ?? '';
+    this.cliente.email = clientResponse.email ?? '';
+    this.cliente.ranking = clientResponse.ranking ?? '';
 
-  navigateToContractClient(){
+    // Define tipo PF/PJ
+    this.tipoCliente = clientResponse.typeClient === 'PJ' ? 'PJ' : 'PF';
+  }
+}
+
+  navigateToContractClient() {
     this.router.navigate(['client-contract']);
   }
 
@@ -98,31 +108,31 @@ export class InfoClientComponent {
     this.messageService.add({
       severity: 'success',
       summary: 'Successo!',
-      detail: 'Alterações salvas com sucesso!'
-    })
+      detail: 'Alterações salvas com sucesso!',
+    });
+
     this.isEditing = false;
   }
 
-   btnToBack(){
-    this.router.navigate(['search'])
+  btnToBack() {
+    this.router.navigate(['search']);
   }
 
-  searchCEP(){
+  searchCEP() {
     const cep = this.cliente.cep?.replace(/\D/g, '');
-    if(cep?.length === 8){
+    if (cep?.length === 8) {
       this.cepService.searchCEP(cep).subscribe({
         next: (dados) => {
-          if(!dados.erro){
+          if (!dados.erro) {
             this.cliente.logradouro = dados.logradouro || '';
             this.cliente.uf = dados.uf || '';
             this.cliente.complemento = dados.complemento || '';
-          } else{
+          } else {
             console.log('CEP não encontrado');
           }
-          
         },
-        error: (err) => console.log('Erro ao buscar CEP',err)
-      })
+        error: (err) => console.log('Erro ao buscar CEP', err),
+      });
     }
   }
 }

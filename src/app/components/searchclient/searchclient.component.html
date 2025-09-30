@@ -3,10 +3,21 @@
   <app-card-base header="Buscar Cliente" width="auto" height="110%">
     <div class="btn-to-back-leads-content">
       <div class="btn-to-leads">
-        <p-button label="Sair" (onClick)="logout()" severity="danger" icon="pi pi-sign-out" />
+        <p-button
+          label="Sair"
+          (onClick)="logout()"
+          severity="danger"
+          icon="pi pi-sign-out"
+        />
       </div>
       <div class="btn-to-logout">
-        <p-button label="Em Espera" (onClick)="navigateToLeads()" icon="pi pi-clock" severity="warn" badge="2"  />
+        <p-button
+          label="Em Espera"
+          (onClick)="navigateToLeads()"
+          icon="pi pi-clock"
+          severity="warn"
+          badge="2"
+        />
       </div>
     </div>
     <div class="home-content">
@@ -29,46 +40,62 @@
         </div>
       </div>
 
-      <div class="cpf-section">
-        <p-iftalabel variant="on" style="width: 100%">
-          <input
-            pInputText
-            [value]="documento"
-            (input)="onDocumentoChange($event)"
-            (keypress)="allowOnlyNumbers($event)"
-            maxlength="18"
-            placeholder="CPF/CNPJ"
-          />
-          <label for="documento">CPF/CNPJ (Somente Números)</label>
-        </p-iftalabel>
-      </div>
+      <form #searchClientForm="ngForm">
+        <div class="cpf-section">
+          <p-iftalabel variant="on" style="width: 100%">
+            <input
+              pInputText
+              [(ngModel)]="documento"
+              name="documento"
+              required
+              minlength="11"
+              maxlength="18"
+              placeholder="CPF/CNPJ"
+              (ngModelChange)="formatarDocumento($event)"
+              (keypress)="allowOnlyNumbers($event)"
+              (paste)="onPaste($event)"
+              inputmode="numeric"
+              autocomplete="off"
+              #docModel="ngModel"
+            />
+            <label for="documento">CPF/CNPJ (Somente Números)</label>
+          </p-iftalabel>
+        </div>
 
-      <div class="actions">
-        <p-button
-          [style]="{ width: '15rem', padding: '2rem' }"
-          [size]="'large'"
-          label="Consultar"
-          icon="pi pi-search"
-          severity="info"
-          raised="true"
-          (onClick)="consultarCliente()"
-        >
-        </p-button>
+        <app-message-valid-forms
+          [control]="docModel"
+          error="required"
+          text="Para pesquisar um cliente é necessário colocar um documento | CPF/CNPJ |"
+        ></app-message-valid-forms>
 
-        <p-button
-          [style]="{ width: '15rem', padding: '2rem' }"
-          [size]="'large'"
-          label="Visualizar Planos"
-          icon="pi pi-list"
-          severity="secondary"
-          raised="true"
-          (onClick)="verPlanos()"
-        >
-        </p-button>
-      </div>
+        <div class="actions">
+          <p-button
+            type="button"
+            [style]="{ width: '15rem', padding: '2rem' }"
+            [size]="'large'"
+            label="Consultar"
+            icon="pi pi-search"
+            severity="info"
+            raised="true"
+            [loading]="isLoading"
+            [disabled]="waitApiInsert"
+            (onClick)="consultarCliente()"
+          ></p-button>
+
+          <p-button
+            [style]="{ width: '15rem', padding: '2rem' }"
+            [size]="'large'"
+            label="Visualizar Planos"
+            icon="pi pi-list"
+            severity="secondary"
+            raised="true"
+            (onClick)="verPlanos()"
+          >
+          </p-button>
+        </div>
+      </form>
     </div>
   </app-card-base>
 </div>
-
 
 <p-toast />

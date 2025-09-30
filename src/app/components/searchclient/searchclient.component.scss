@@ -48,7 +48,7 @@
   margin-bottom: 2rem; 
 
   input[pInputText] {
-    width: 350px;   
+    width: 410px;   
     height: 5rem;   
     font-size: 2.0rem;
     text-align: center;
@@ -70,8 +70,8 @@
   margin-bottom: 3rem;
 
   .info-card {
-    background: #fafafb;               
-    color: #9a9797;                 
+    background: #fff9d8;               
+    color: #000000;                 
     font-family: "Press Start 2P", monospace;
     text-align: center;
     padding: 1rem 1.5rem;
@@ -96,3 +96,6 @@
   align-items: center;
 }
 
+.messageerrors {
+  margin-bottom: 1px;
+}
