@@ -1,3 +1,4 @@
+import { ClientService } from './../../services/clients/client.service';
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -19,7 +20,7 @@ import { IftaLabelModule } from 'primeng/iftalabel';
 import { DatePickerModule } from 'primeng/datepicker';
 import { ToastModule } from 'primeng/toast';
 
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { CepService } from '../../services/cep/cep.service';
 import { NgxMaskDirective } from 'ngx-mask';
@@ -50,49 +51,45 @@ import { Cliente } from '../../models/cliente/cliente.dto';
   providers: [MessageService],
 })
 export class InfoClientComponent implements OnInit {
-  isEditing = false;
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
   private readonly cepService = inject(CepService);
+  private readonly clientService = inject(ClientService);
+  private readonly route = inject(ActivatedRoute);
+
+  isEditing = false;
 
   tipoCliente: 'PF' | 'PJ' = 'PF';
 
-  cliente: Cliente = {}; // Inicializa vazio
+  cliente: Cliente = {};
 
   ngOnInit(): void {
-  const navigation = this.router.getCurrentNavigation();
-  const clientResponse = navigation?.extras.state?.['cliente'];
-  
-
-  console.log('Objeto vindo do router:', clientResponse);
-  
-  if (clientResponse) {
-    // Atualiza propriedades existentes do cliente DTO
-    this.cliente.nome = clientResponse.name ?? '';
-    this.cliente.cpf = clientResponse.cpf ?? '';
-    this.cliente.rg = clientResponse.rg ?? '';
-    this.cliente.nascimento = clientResponse.birthDate ?? '';
-    this.cliente.tipoCliente = clientResponse.typeClient ?? 'PF';
-    this.cliente.razaoSocial = clientResponse.socialName ?? '';
-    this.cliente.nomeFantasia = clientResponse.fantasyName ?? '';
-    this.cliente.cnpj = clientResponse.cnpj ?? '';
-    this.cliente.ie = clientResponse.ie ?? '';
-    this.cliente.cep = clientResponse.address?.zipCode ?? '';
-    this.cliente.logradouro = clientResponse.address?.street ?? '';
-    this.cliente.numero = clientResponse.address?.number ?? '';
-    this.cliente.complemento = clientResponse.address?.complement ?? '';
-    this.cliente.uf = clientResponse.address?.state ?? '';
-    this.cliente.observacao = clientResponse.observation ?? '';
-    this.cliente.celular1 = clientResponse.phone ?? '';
-    this.cliente.celular2 = clientResponse.phone2 ?? '';
-    this.cliente.telefone = clientResponse.telephone ?? '';
-    this.cliente.email = clientResponse.email ?? '';
-    this.cliente.ranking = clientResponse.ranking ?? '';
-
-    // Define tipo PF/PJ
-    this.tipoCliente = clientResponse.typeClient === 'PJ' ? 'PJ' : 'PF';
+    this.route.paramMap.subscribe((params) => {
+      const clientId = params.get('clienteId');
+      if (clientId) {
+        this.carregarCliente(clientId);
+      }
+    });
   }
-}
+
+  carregarCliente(clientId: string) {
+    this.clientService.getClientById(clientId).subscribe({
+      next: (cliente) => {
+        if (cliente.birthDate) {
+          cliente.birthDate = new Date(cliente.birthDate); // o datepicker espera um objeto e não string
+        }
+
+        if (cliente.openingDate) {
+          cliente.openingDate = new Date(cliente.openingDate);
+        }
+
+        this.cliente = cliente;
+      },
+      error: () => {
+        console.error('Cliente não encontrado');
+      },
+    });
+  }
 
   navigateToContractClient() {
     this.router.navigate(['client-contract']);
@@ -124,7 +121,7 @@ export class InfoClientComponent implements OnInit {
       this.cepService.searchCEP(cep).subscribe({
         next: (dados) => {
           if (!dados.erro) {
-            this.cliente.logradouro = dados.logradouro || '';
+            this.cliente.rua = dados.rua || '';
             this.cliente.uf = dados.uf || '';
             this.cliente.complemento = dados.complemento || '';
           } else {

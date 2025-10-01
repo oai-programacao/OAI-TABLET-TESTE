@@ -4,7 +4,10 @@ import { AuthGuard } from './core/auth.guard';
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () => import('./components/login/login.component').then((m) => m.LoginComponent)
+    loadComponent: () =>
+      import('./components/login/login.component').then(
+        (m) => m.LoginComponent
+      ),
   },
   {
     path: 'login',
@@ -19,7 +22,7 @@ export const routes: Routes = [
       import('./components/searchclient/searchclient.component').then(
         (m) => m.SearchclientComponent
       ),
-      canActivate: [AuthGuard]
+    canActivate: [AuthGuard],
   },
   {
     path: 'plans',
@@ -27,7 +30,7 @@ export const routes: Routes = [
       import('./components/viewplan/viewplan.component').then(
         (m) => m.ViewplanComponent
       ),
-      canActivate: [AuthGuard]
+    canActivate: [AuthGuard],
   },
   {
     path: 'register',
@@ -38,34 +41,50 @@ export const routes: Routes = [
   },
   {
     path: 'upload-pictures',
-    loadComponent: () => import('./components/upload-pictures/upload-pictures.component').then(
-      (m) => m.UploadPicturesComponent
-    ),
-    canActivate: [AuthGuard]
+    loadComponent: () =>
+      import('./components/upload-pictures/upload-pictures.component').then(
+        (m) => m.UploadPicturesComponent
+      ),
+    canActivate: [AuthGuard],
   },
   {
-    path: 'info',
-    loadComponent: () => import('./components/info-client/info-client.component').then((m) => m.InfoClientComponent),
-    canActivate: [AuthGuard]
+    path: 'info/:clienteId',
+    loadComponent: () =>
+      import('./components/info-client/info-client.component').then(
+        (m) => m.InfoClientComponent
+      ),
+    canActivate: [AuthGuard],
   },
   {
     path: 'add-contract',
-    loadComponent: () => import('./components/add-contract/add-contract.component').then((m) => m.AddContractComponent),
-    canActivate: [AuthGuard]
+    loadComponent: () =>
+      import('./components/add-contract/add-contract.component').then(
+        (m) => m.AddContractComponent
+      ),
+    canActivate: [AuthGuard],
   },
   {
     path: 'client-contract',
-    loadComponent: () => import('./components/client-contract/client-contract.component').then((m) => m.ClientContractComponent),
-    canActivate: [AuthGuard]
+    loadComponent: () =>
+      import('./components/client-contract/client-contract.component').then(
+        (m) => m.ClientContractComponent
+      ),
+    canActivate: [AuthGuard],
   },
   {
     path: 'address-transfer',
-    loadComponent: () => import ('./components/address-transfer/address-transfer.component').then((m) => m.AddressTransferComponent),
-    canActivate: [AuthGuard]
+    loadComponent: () =>
+      import('./components/address-transfer/address-transfer.component').then(
+        (m) => m.AddressTransferComponent
+      ),
+    canActivate: [AuthGuard],
   },
   {
-    path: "waiting-leads",
-    loadComponent: () => import('./components/waiting-leads/waiting-leads.component').then((m) => m.WaitingLeadsComponent),
-    canActivate: [AuthGuard]
-  }
+    path: 'waiting-leads',
+    loadComponent: () =>
+      import('./components/waiting-leads/waiting-leads.component').then(
+        (m) => m.WaitingLeadsComponent
+      ),
+    canActivate: [AuthGuard],
+  },
 ];

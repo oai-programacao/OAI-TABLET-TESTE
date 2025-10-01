@@ -16,6 +16,29 @@
         <h1 class="title">1. Dados do Cliente</h1>
       </p-divider>
 
+      <div class="infosclient">
+        <div class="info-item">
+          <span class="label">Código RBX</span>
+          <span class="value">{{ cliente.codigoRbx }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Zona:</span>
+          <span class="value">{{ cliente.typeZone }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Tipo de Cliente</span>
+          <span class="value">
+            {{
+              cliente.typeClient === "PF"
+                ? "Pessoa Física"
+                : cliente.typeClient === "PJ"
+                ? "Pessoa Jurídica"
+                : ""
+            }}
+          </span>
+        </div>
+      </div>
+
       <div class="body-content">
         <div class="avatar-row">
           <div class="spacer"></div>
@@ -37,7 +60,8 @@
                 'ranking-green':
                   cliente.ranking === 'A' || cliente.ranking === 'B',
                 'ranking-yellow': cliente.ranking === 'C',
-                'ranking-red': cliente.ranking === 'D' || cliente.ranking === 'E'
+                'ranking-red':
+                  cliente.ranking === 'D' || cliente.ranking === 'E'
               }"
             >
               {{ cliente.ranking }}
@@ -45,108 +69,220 @@
           </div>
         </div>
 
-        <!-- Nome -->
-        <div class="form-field">
-          <p-inputgroup>
-            <p-inputgroup-addon><i class="pi pi-user"></i></p-inputgroup-addon>
-            <p-iftalabel variant="on">
-              <input
-                pInputText
-                id="nome"
-                name="nome"
-                [(ngModel)]="cliente.nome"
-                required
-                #nome="ngModel"
-                disabled
-              />
-              <label for="nome">Nome</label>
-            </p-iftalabel>
-          </p-inputgroup>
-          <app-message-valid-forms
-            [control]="nome"
-            error="required"
-            text="O nome é obrigatório"
-          ></app-message-valid-forms>
-        </div>
+        <!-- Campos PF -->
+        <ng-container *ngIf="cliente.typeClient === 'PF'">
+          <!-- Nome -->
+          <div class="form-field">
+            <p-inputgroup>
+              <p-inputgroup-addon
+                ><i class="pi pi-user"></i
+              ></p-inputgroup-addon>
+              <p-iftalabel variant="on">
+                <input
+                  pInputText
+                  id="nome"
+                  name="nome"
+                  [(ngModel)]="cliente.name"
+                  required
+                  #nome="ngModel"
+                  disabled
+                />
+                <label for="nome">Nome</label>
+              </p-iftalabel>
+            </p-inputgroup>
+            <app-message-valid-forms
+              [control]="nome"
+              error="required"
+              text="O nome é obrigatório"
+            ></app-message-valid-forms>
+          </div>
 
-        <!-- CPF -->
-        <div class="form-field">
-          <p-inputgroup>
-            <p-inputgroup-addon
-              ><i class="pi pi-id-card"></i
-            ></p-inputgroup-addon>
-            <p-iftalabel variant="on">
-              <input
-                pInputText
-                id="cpf"
-                name="cpf"
-                [(ngModel)]="cliente.cpf"
-                required
-                mask="000.000.000-00"
-                #cpf="ngModel"
-                disabled
-              />
-              <label for="cpf">CPF</label>
-            </p-iftalabel>
-          </p-inputgroup>
-          <app-message-valid-forms
-            [control]="cpf"
-            error="required"
-            text="O CPF é obrigatório"
-          ></app-message-valid-forms>
-        </div>
+          <!-- CPF -->
+          <div class="form-field">
+            <p-inputgroup>
+              <p-inputgroup-addon
+                ><i class="pi pi-id-card"></i
+              ></p-inputgroup-addon>
+              <p-iftalabel variant="on">
+                <input
+                  pInputText
+                  id="cpf"
+                  name="cpf"
+                  [(ngModel)]="cliente.cpf"
+                  required
+                  mask="000.000.000-00"
+                  #cpf="ngModel"
+                  disabled
+                />
+                <label for="cpf">CPF</label>
+              </p-iftalabel>
+            </p-inputgroup>
+            <app-message-valid-forms
+              [control]="cpf"
+              error="required"
+              text="O CPF é obrigatório"
+            ></app-message-valid-forms>
+          </div>
 
-        <!-- RG -->
-        <div class="form-field">
-          <p-inputgroup>
-            <p-inputgroup-addon
-              ><i class="pi pi-id-card"></i
-            ></p-inputgroup-addon>
-            <p-iftalabel variant="on">
-              <input
-                pInputText
-                id="rg"
-                name="rg"
-                [(ngModel)]="cliente.rg"
-                required
-                mask="00.000.000-0"
-                #rg="ngModel"
-                disabled
-              />
-              <label for="rg">RG</label>
-            </p-iftalabel>
-          </p-inputgroup>
-          <app-message-valid-forms
-            [control]="rg"
-            error="required"
-            text="O RG é obrigatório"
-          ></app-message-valid-forms>
-        </div>
+          <!-- RG -->
+          <div class="form-field">
+            <p-inputgroup>
+              <p-inputgroup-addon
+                ><i class="pi pi-id-card"></i
+              ></p-inputgroup-addon>
+              <p-iftalabel variant="on">
+                <input
+                  pInputText
+                  id="rg"
+                  name="rg"
+                  [(ngModel)]="cliente.rg"
+                  required
+                  mask="00.000.000-0"
+                  #rg="ngModel"
+                  disabled
+                />
+                <label for="rg">RG</label>
+              </p-iftalabel>
+            </p-inputgroup>
+            <app-message-valid-forms
+              [control]="rg"
+              error="required"
+              text="O RG é obrigatório"
+            ></app-message-valid-forms>
+          </div>
 
-        <!-- Data de Nascimento -->
-        <div class="form-field">
-          <p-iftalabel variant="on">
-            <p-datepicker
-              id="nascimento"
-              name="nascimento"
-              [(ngModel)]="cliente.nascimento"
-              required
-              appendTo="body"
-              #nascimento="ngModel"
-              [iconDisplay]="'input'"
-              [showIcon]="true"
-              disabled
-              dateFormat="dd/mm/yy"
-            >
-            </p-datepicker>
-            <label for="nascimento">Data de Nascimento</label>
-          </p-iftalabel>
-          <app-message-valid-forms
-            [control]="nascimento"
-            error="required"
-            text="A data é obrigatória"
-          ></app-message-valid-forms>
-        </div>
+          <!-- Data de Nascimento -->
+          <div class="form-field">
+            <p-iftalabel variant="on">
+              <p-datepicker
+                id="nascimento"
+                name="nascimento"
+                [(ngModel)]="cliente.birthDate"
+                required
+                appendTo="body"
+                #nascimento="ngModel"
+                [iconDisplay]="'input'"
+                [showIcon]="true"
+                disabled
+                dateFormat="dd/mm/yy"
+              >
+              </p-datepicker>
+              <label for="nascimento">Data de Nascimento</label>
+            </p-iftalabel>
+            <app-message-valid-forms
+              [control]="nascimento"
+              error="required"
+              text="A data é obrigatória"
+            ></app-message-valid-forms>
+          </div>
+        </ng-container>
+
+        <!-- Campos PJ -->
+        <ng-container *ngIf="cliente.typeClient === 'PJ'">
+          <!-- Razão Social -->
+          <div class="form-field">
+            <p-inputgroup>
+              <p-inputgroup-addon
+                ><i class="pi pi-building"></i
+              ></p-inputgroup-addon>
+              <p-iftalabel variant="on">
+                <input
+                  pInputText
+                  id="socialName"
+                  name="socialName"
+                  [(ngModel)]="cliente.socialName"
+                  disabled
+                />
+                <label for="socialName">Razão Social</label>
+              </p-iftalabel>
+            </p-inputgroup>
+          </div>
+
+          <!-- Nome Fantasia -->
+          <div class="form-field">
+            <p-inputgroup>
+              <p-inputgroup-addon
+                ><i class="pi pi-building"></i
+              ></p-inputgroup-addon>
+              <p-iftalabel variant="on">
+                <input
+                  pInputText
+                  id="fantasyName"
+                  name="fantasyName"
+                  [(ngModel)]="cliente.fantasyName"
+                  disabled
+                />
+                <label for="fantasyName">Nome Fantasia</label>
+              </p-iftalabel>
+            </p-inputgroup>
+          </div>
+
+          <!-- CNPJ -->
+          <div class="form-field">
+            <p-inputgroup>
+              <p-inputgroup-addon
+                ><i class="pi pi-id-card"></i
+              ></p-inputgroup-addon>
+              <p-iftalabel variant="on">
+                <input
+                  pInputText
+                  id="cnpj"
+                  name="cnpj"
+                  [(ngModel)]="cliente.cnpj"
+                  required
+                  mask="00.000.000/0000-00"
+                  #cnpj="ngModel"
+                  disabled
+                />
+                <label for="cnpj">CNPJ</label>
+              </p-iftalabel>
+            </p-inputgroup>
+          </div>
+
+          <!-- IE -->
+          <div class="form-field">
+            <p-inputgroup>
+              <p-inputgroup-addon
+                ><i class="pi pi-briefcase"></i
+              ></p-inputgroup-addon>
+              <p-iftalabel variant="on">
+                <input
+                  pInputText
+                  id="ie"
+                  name="ie"
+                  [(ngModel)]="cliente.ie"
+                  disabled
+                />
+                <label for="ie">Inscrição Estadual</label>
+              </p-iftalabel>
+            </p-inputgroup>
+          </div>
+
+          <!-- Data de Abertura -->
+          <div class="form-field">
+            <p-iftalabel variant="on">
+              <p-datepicker
+                id="openingDate"
+                name="openingDate"
+                [(ngModel)]="cliente.openingDate"
+                required
+                appendTo="body"
+                #openingDate="ngModel"
+                [iconDisplay]="'input'"
+                [showIcon]="true"
+                disabled
+                dateFormat="dd/mm/yy"
+              >
+              </p-datepicker>
+              <label for="openingDate">Data de Abertura</label>
+            </p-iftalabel>
+            <app-message-valid-forms
+              [control]="openingDate"
+              error="required"
+              text="A data é obrigatória"
+            ></app-message-valid-forms>
+          </div>
+        </ng-container>
       </div>
 
       <!-- 2. Endereço do Cliente -->
@@ -201,7 +337,7 @@
                   pInputText
                   id="logradouro"
                   name="logradouro"
-                  [(ngModel)]="cliente.logradouro"
+                  [(ngModel)]="cliente.rua"
                   required
                   maxlength="100"
                   #logradouro="ngModel"
@@ -298,21 +434,19 @@
 
         <!-- Observação -->
         <div class="input-observation">
-          <p-iftalabel>
-            <textarea
-              rows="5"
-              cols="30"
-              style="width: 100%"
-              pTextarea
-              [autoResize]="true"
-              id="observacao"
-              name="observacao"
-              [(ngModel)]="cliente.observacao"
-              #observacao="ngModel"
-              [disabled]="!isEditing"
-            ></textarea>
-            <label for="observacao">Observação</label>
-          </p-iftalabel>
+          <label for="observacao">Observação</label>
+          <textarea
+            rows="5"
+            cols="30"
+            style="width: 100%"
+            pTextarea
+            id="observacao"
+            name="observacao"
+            [(ngModel)]="cliente.observation"
+            #observacao="ngModel"
+            [disabled]="!isEditing"
+          ></textarea>
+          
         </div>
 
         <!-- 3. Contato do Cliente -->

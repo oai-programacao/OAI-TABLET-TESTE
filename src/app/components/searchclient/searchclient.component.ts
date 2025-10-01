@@ -108,9 +108,7 @@ export class SearchclientComponent implements OnInit {
         });
         this.clienteEncontrado = response.client;
         await this.sleep(1500);
-        this.router.navigate(['/info'], {
-          queryParams: { clienteId: this.clienteEncontrado.id },
-        });
+        this.router.navigate(['/info', this.clienteEncontrado.id]);
       } else if (response.foundInRBX && !response.foundInPGDO) {
         this.messageService.add({
           summary: 'Cadastro',
@@ -120,9 +118,7 @@ export class SearchclientComponent implements OnInit {
         });
         this.clienteEncontrado = response.client ?? null;
         await this.sleep(1500);
-        this.router.navigate(['/info'], {
-          queryParams: { clienteId: this.clienteEncontrado.id },
-        });
+        this.router.navigate(['/info', this.clienteEncontrado.id]);
       } else {
         this.messageService.add({
           summary: 'AVISO',
@@ -143,7 +139,7 @@ export class SearchclientComponent implements OnInit {
       console.error(err);
     } finally {
       this.waitApiInsert = false;
-      this.isLoading = false; 
+      this.isLoading = false;
     }
   }
 

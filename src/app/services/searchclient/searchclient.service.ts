@@ -15,7 +15,7 @@ export class SearchclientService {
   
 
     return this.http.post(
-      this.apiUrl + 'client/rbx/searchAndRegister',
+      this.apiUrl + '/client/rbx/searchAndRegister',
       { documento }
     );
   }
