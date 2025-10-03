@@ -73,7 +73,6 @@
   textarea {
     font-size: 0.9rem; // define o tamanho da letra dentro do textarea
   }
-  
 }
 
 .btn-actions {
@@ -176,11 +175,11 @@
 .ranking-container {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
   justify-content: center;
   text-align: right;
   margin-left: auto;
   padding-right: 1rem;
+  align-items: center;
 }
 
 .ranking-container p {
@@ -239,7 +238,7 @@
   }
 
   &::-webkit-scrollbar-thumb {
-    background-color: #ff69b4; /* rosa vivo */
+    background-color: #f8a8d0; /* rosa vivo */
     border-radius: 8px;
     border: 2px solid #ffe6f0; /* mantém contraste */
   }
@@ -280,4 +279,23 @@
       color: #330014; // contraste maior com o fundo rosa claro
     }
   }
+}
+
+.legend {
+  margin: 0;
+  color: #555;
+  font-family: "IBM Plex Mono", monospace;
+  border: solid 1px black;
+  border-radius: 5px;
+  background-color: #f8f6f6;
+}
+
+.status-blocked {
+  color: #ff0000 !important; /* vermelho */ //SOBRE SAI SOBRE A CLASSE INFO-ITEM
+  font-weight: bold;
+}
+
+.status-active {
+  color: #009236 !important; /* verde */ //SOBRE SAI SOBRE A CLASSE INFO-ITEM
+  font-weight: bold;
 }

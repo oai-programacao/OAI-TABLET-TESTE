@@ -1,4 +1,5 @@
 export interface Cliente {
+  id?: string;
   // PF
   name?: string;
   cpf?: string;
@@ -27,6 +28,7 @@ export interface Cliente {
   codigoRbx?: string;
   typeZone?: string;
   typeClient?: string;
+  active?: boolean;
 
   // Ranking (para cores)
   ranking?: 'A' | 'B' | 'C' | 'D' | 'E';

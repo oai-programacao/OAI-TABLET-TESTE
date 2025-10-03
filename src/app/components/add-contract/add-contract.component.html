@@ -1,13 +1,16 @@
 <div class="page-container">
-
   <app-card-base>
-    
     <div class="card">
       <p-stepper [value]="1">
         <div class="btn-to-back">
-      <p-button label="Voltar" severity="danger" icon="pi pi-arrow-left" (onClick)="backToViewContracts()" />
-    </div>
-        
+          <p-button
+            label="Voltar"
+            severity="danger"
+            icon="pi pi-arrow-left"
+            (onClick)="backToSearch()"
+          />
+        </div>
+
         <p-step-item [value]="1">
           <p-step>• Dados do Contrato </p-step>
           <p-step-panel>
@@ -115,20 +118,39 @@
                 </div>
               </div>
 
+              <div class="warn-icon-container">
+                <span
+                  class="warn-icon"
+                  (click)="toggle(pop3, $event)"
+                  role="button"
+                  aria-label="Informação importante"
+                >
+                  !
+                </span>
+
+                <p-popover #pop3 [dismissable]="true">
+                  <div class="warn-popup">
+                    Selecione a data optada pelo cliente para vencimento do boleto
+                  </div>
+                </p-popover>
+              </div>
+
               <div class="space-stepper2">
                 <p-iftalabel>
-                  <p-datepicker
-                    name="dateOfExpiration"
-                    [(ngModel)]="dateOfExpiration"
-                    inputId="dateOfExpiration"
-                    showIcon
-                    iconDisplay="input"
-                    appendTo="body"
-                    #dateofExpiration="ngModel"
-                    placeholder="dd/mm/aaaa"
-                    required
-                  ></p-datepicker>
-                  <label for="dateOfExpiration">Dia de Vencimento*</label>
+                  <p-iftalabel>
+                    <p-select
+                      name="dateOfExpirationCicle"
+                      [(ngModel)]="selectDateOfExpirationCicle"
+                      [options]="typesOfDateExpirationCicle"
+                      optionLabel="descricao"
+                      placeholder="Selecione Vencimento"
+                      inputId="dateOfExpirationCicle"
+                      required
+                    ></p-select>
+                    <label for="dateofExpirationCicle"
+                      >Dia de Vencimento*</label
+                    >
+                  </p-iftalabel>
                 </p-iftalabel>
 
                 <p-inputgroup>
@@ -493,9 +515,7 @@
           <p-step-panel>
             <ng-template #content let-activateCallback="activateCallback">
               <div class="space-stepper1">
-                <div
-                  class="signature-container"
-                >
+                <div class="signature-container">
                   <app-signature-pad
                     (signatureData)="onSignatureData($event)"
                   ></app-signature-pad>
@@ -541,8 +561,6 @@
             </ng-template>
           </p-step-panel>
         </p-step-item>
-
-
       </p-stepper>
     </div>
   </app-card-base>

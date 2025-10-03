@@ -15,7 +15,6 @@
       <p-divider class="title">
         <h1 class="title">1. Dados do Cliente</h1>
       </p-divider>
-
       <div class="infosclient">
         <div class="info-item">
           <span class="label">Código RBX</span>
@@ -33,6 +32,25 @@
                 ? "Pessoa Física"
                 : cliente.typeClient === "PJ"
                 ? "Pessoa Jurídica"
+                : ""
+            }}
+          </span>
+        </div>
+
+        <div class="info-item">
+          <span class="label">Situação</span>
+          <span
+            class="value"
+            [ngClass]="{
+              'status-blocked': cliente.active === false,
+              'status-active': cliente.active === true
+            }"
+          >
+            {{
+              cliente.active === false
+                ? "BLOQUEADO"
+                : cliente.active === true
+                ? "ATIVADO"
                 : ""
             }}
           </span>
@@ -66,6 +84,13 @@
             >
               {{ cliente.ranking }}
             </span>
+
+            <!-- legenda agora faz parte do ranking-container -->
+            <p class="legend">
+              <span class="green">| A</span> | <span class="green">B</span> |
+              <span class="yellow">C</span> | <span class="red">D</span> |
+              <span class="red">E |</span>
+            </p>
           </div>
         </div>
 
@@ -446,7 +471,6 @@
             #observacao="ngModel"
             [disabled]="!isEditing"
           ></textarea>
-          
         </div>
 
         <!-- 3. Contato do Cliente -->

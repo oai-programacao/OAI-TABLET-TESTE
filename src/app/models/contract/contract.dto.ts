@@ -1,0 +1,37 @@
+export interface Contract {
+    id: string;
+    situationDescription: string;
+    zipCode: string;
+    state: string;
+    city: string;
+    street: string;
+    number: string;
+    complement: string | null;
+    neighborhood: string | null;
+    codMunicipio: string | null;
+    adesion: number | null;
+    brutePrice: number | null;
+    liquidPrice: number | null;
+    cancelReason: string | null;
+    codeContractRbx: string;
+    dateExpired: string | null;
+    dateSignature: string | null;
+    dateStart: string | null;
+    descountFixe: number | null;
+    discount: number | null;
+    imagesOne: string | null;
+    numberParcels: number | null;
+    observation: string | null;
+    signature: string | null;
+    transferToCodeRbx: string | null;
+    clientId: string;
+    clientName: string;
+    planId: number;
+    planName: string;
+    codePlanRbx: number; 
+    sellerId: string | null;
+    saleId: string | null;
+    cicleBillingDayBase: number | null;
+    cicleBillingExpired: number | null;
+    vigencia: number | null;
+}

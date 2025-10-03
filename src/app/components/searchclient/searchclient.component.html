@@ -60,13 +60,13 @@
             />
             <label for="documento">CPF/CNPJ (Somente Números)</label>
           </p-iftalabel>
-        </div>
 
-        <app-message-valid-forms
-          [control]="docModel"
-          error="required"
-          text="Para pesquisar um cliente é necessário colocar um documento | CPF/CNPJ |"
-        ></app-message-valid-forms>
+          <app-message-valid-forms
+            [control]="docModel"
+            error="required"
+            text="Para pesquisar um cliente é necessário colocar um documento | CPF/CNPJ |"
+          ></app-message-valid-forms>
+        </div>
 
         <div class="actions">
           <p-button

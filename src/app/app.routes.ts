@@ -64,7 +64,7 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
   },
   {
-    path: 'client-contract',
+    path: 'client-contracts/:clientId',
     loadComponent: () =>
       import('./components/client-contract/client-contract.component').then(
         (m) => m.ClientContractComponent

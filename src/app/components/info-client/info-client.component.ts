@@ -25,6 +25,8 @@ import { MessageService } from 'primeng/api';
 import { CepService } from '../../services/cep/cep.service';
 import { NgxMaskDirective } from 'ngx-mask';
 import { Cliente } from '../../models/cliente/cliente.dto';
+import { OverlayModule } from 'primeng/overlay';
+
 
 @Component({
   selector: 'app-info-client',
@@ -45,6 +47,7 @@ import { Cliente } from '../../models/cliente/cliente.dto';
     NgxMaskDirective,
     DatePickerModule,
     ToastModule,
+    OverlayModule
   ],
   templateUrl: './info-client.component.html',
   styleUrls: ['./info-client.component.scss'],
@@ -58,6 +61,7 @@ export class InfoClientComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
 
   isEditing = false;
+  rankingOverlayVisible = false;
 
   tipoCliente: 'PF' | 'PJ' = 'PF';
 
@@ -92,7 +96,7 @@ export class InfoClientComponent implements OnInit {
   }
 
   navigateToContractClient() {
-    this.router.navigate(['client-contract']);
+    this.router.navigate(['client-contracts', this.cliente.id]);
   }
 
   toggleEditing() {
