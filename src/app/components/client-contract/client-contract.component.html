@@ -78,13 +78,14 @@
                   active: contract.situationDescription == 'ATIVO',
                   waiting:
                     contract.situationDescription == 'AGUARDANDO_INSTALACAO',
-                  blocked:
-                    contract.situationDescription == 'BLOQUEADO',
-                  transfer:
-                    contract.situationDescription == 'TRANSFERIDO'
+                  blocked: contract.situationDescription == 'BLOQUEADO',
+                  transfer: contract.situationDescription == 'TRANSFERIDO'
                 }"
               ></span>
-              <label>N° Contrato 📜 (RBX) →</label>
+              <label
+                >[{{ contract.situationDescription }}] N° Contrato 📜 (RBX)
+                →</label
+              >
               <span>{{ contract.codeContractRbx }}</span>
             </div>
           </div>
@@ -110,10 +111,31 @@
               <span>{{ contract.zipCode }}</span>
             </div>
 
-            <!-- Cidade e Estado -->
-            <div class="section">
-              <label>🌆 Cidade:</label>
-              <span>{{ contract.city }}, {{ contract.state }}</span>
+        
+            <!-- Endereço + Vigência + Vencimento + Dia Base -->
+            <div class="section section-inline">
+              <div class="group">
+                <label>🌆 Cidade:</label>
+                <span>{{ contract.city }}, {{ contract.state }}</span>
+              </div>
+
+              <div class="group">
+                <label>Vigência:</label>
+                <span
+                  >{{ contract.vigencia }} </span
+                >
+              </div>
+
+              <div class="group">
+                <label>Dia Base:</label>
+                <span>{{ contract.cicleBillingDayBase }}</span>
+              </div>
+
+              <div class="group">
+                <label>Dia Vencimento:</label>
+                <span>{{ contract.cicleBillingExpired}}</span>
+              </div>
+
             </div>
 
             <!-- Valores -->

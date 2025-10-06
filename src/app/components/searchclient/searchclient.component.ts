@@ -103,7 +103,7 @@ export class SearchclientComponent implements OnInit {
       if (response.foundInPGDO && response.foundInRBX) {
         this.messageService.add({
           summary: 'Sucesso',
-          detail: 'Cliente Encontrado!',
+          detail: 'Cliente encontrado e sincronizado!',
           severity: 'success',
         });
         this.clienteEncontrado = response.client;

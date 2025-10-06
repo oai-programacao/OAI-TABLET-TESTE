@@ -217,7 +217,7 @@
 }
 
 .headerlist {
-  background-color: #e2e2e2;
+  background-color: #f7f4f4;
   margin-bottom: 1rem;
   border-radius: 5px;
   border: solid 1px rgb(201, 199, 199);
@@ -250,12 +250,12 @@
   display: flex;
   align-items: center;
   margin: 0.3rem 0;
-  gap: 0.5rem;
+  gap: 0.2rem;
 }
 
 .status-dot {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   display: inline-block;
 }
@@ -281,3 +281,28 @@
 }
 
 
+
+.addresscontract .section-inline {
+  display: flex;
+  flex-wrap: wrap; /* quebra linha se ficar muito longo */
+  align-items: center;
+  justify-content: space-between; /* distribui bem os blocos */
+  gap: 1rem; /* espaço entre cada grupo */
+  padding: 0.25rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.addresscontract .section-inline .group {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem; /* entre label e valor */
+  flex-shrink: 0; /* evita que quebre desnecessariamente */
+}
+
+.addresscontract .section-inline label {
+  font-weight: bold;
+}
+
+.addresscontract .section-inline span {
+  color: #555;
+}
