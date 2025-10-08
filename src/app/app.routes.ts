@@ -1,3 +1,4 @@
+import { UploadPicturesComponent } from './components/upload-pictures/upload-pictures.component';
 import { Routes } from '@angular/router';
 import { AuthGuard } from './core/auth.guard';
 
@@ -45,6 +46,14 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./components/upload-pictures/upload-pictures.component').then(
         (m) => m.UploadPicturesComponent
+      ),
+    // canActivate: [AuthGuard],
+  },
+  {
+    path: 'pictures-client/:clientId',
+    loadComponent: () =>
+      import('./components/pictures-client/pictures-client.component').then(
+        (m) => m.PicturesClientComponent
       ),
     // canActivate: [AuthGuard],
   },
