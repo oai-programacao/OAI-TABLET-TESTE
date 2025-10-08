@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { CardBaseComponent } from '../../shared/components/card-base/card-base.component';
 import { InputTextModule } from 'primeng/inputtext';
 import { CommonModule } from '@angular/common';
@@ -16,6 +16,10 @@ import { Cliente } from '../../models/cliente/cliente.dto';
 import { CepService } from '../../services/cep/cep.service';
 import { NgForm } from '@angular/forms';
 import { NgxMaskDirective } from 'ngx-mask';
+import { MessageService, ConfirmationService } from 'primeng/api';
+import { ClientService } from '../../services/clients/client.service';
+import { ToastModule } from 'primeng/toast';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 @Component({
   selector: 'app-registerclient',
@@ -33,28 +37,60 @@ import { NgxMaskDirective } from 'ngx-mask';
     SelectModule,
     MessagesValidFormsComponent,
     NgxMaskDirective,
+    ToastModule,
+    ConfirmDialogModule,
   ],
   templateUrl: './registerclient.component.html',
   styleUrl: './registerclient.component.scss',
+  providers: [MessageService, ConfirmationService],
 })
 export class RegisterclientComponent {
-  constructor(private router: Router, private cepService: CepService) {}
+  constructor(
+    private router: Router,
+    private cepService: CepService,
+    private messageService: MessageService,
+    private clientService: ClientService,
+    private confirmationService: ConfirmationService
+  ) {}
+
+  @ViewChild('clienteForm') clienteForm!: NgForm;
 
   cpfInvalido: boolean = false;
   cnpjInvalido: boolean = false;
 
-  dateOfBirth: Date | null = null;
   selectedOption: boolean = false;
   clientLocation: string | null = null;
 
   selectedClientType: 'PF' | 'PJ' = 'PF';
-  clienteDTO: Cliente = {
-    tipoCliente: 'PF',
+
+  cliente: Cliente = {
+    name: '',
+    cpf: '',
+    rg: '',
+    birthDate: undefined,
+    socialName: '',
+    fantasyName: '',
+    cnpj: '',
+    ie: '',
+    openingDate: undefined,
+    cep: '',
+    rua: '',
+    numero: '',
+    complemento: '',
+    uf: '',
+    cidade: '',
+    bairro: '',
+    celular1: '',
+    celular2: '',
+    telefone: '',
+    email: '',
+    typeClient: '',
+    typeZone: '',
   };
 
-  selectedZoneType: 'Urbana' | 'Rural' = 'Urbana';
+  selectedZoneType: 'Urbano' | 'Rural' = 'Urbano';
   zonatypes = [
-    { label: 'Urbana', value: 'Urbana' },
+    { label: 'Urbano', value: 'Urbano' },
     { label: 'Rural', value: 'Rural' },
   ];
 
@@ -63,36 +99,27 @@ export class RegisterclientComponent {
     { label: 'Pessoa Jurídica', value: 'PJ' },
   ];
 
-  address: any = {
-    cep: '',
-    street: '',
-    neighborhood: '',
-    city: '',
-    complemento: '',
-    uf: '',
-  };
-
   cepNaoEncontrado: boolean = false;
   onCepChange(form: NgForm) {
-    const cep = this.address.cep.replace(/\D/g, '');
+    const cep = this.cliente.cep!.replace(/\D/g, '');
     if (cep.length === 8) {
       this.cepService.searchCEP(cep).subscribe({
         next: (data) => {
           if (!data.erro) {
             this.cepNaoEncontrado = false;
 
-            this.address.street = data.logradouro;
-            this.address.neighborhood = data.bairro;
-            this.address.city = data.localidade;
-            this.address.complement = data.complemento;
-            this.address.uf = data.uf;
+            this.cliente.rua = data.logradouro;
+            this.cliente.bairro = data.bairro;
+            this.cliente.cidade = data.localidade;
+            this.cliente.complemento = data.complemento;
+            this.cliente.uf = data.uf;
 
             form.form.patchValue({
-              street: this.address.street,
-              neighborhood: this.address.neighborhood,
-              city: this.address.city,
-              complement: this.address.complement,
-              uf: this.address.uf,
+              street: this.cliente.rua,
+              neighborhood: this.cliente.bairro,
+              city: this.cliente.cidade,
+              complement: this.cliente.complemento,
+              uf: this.cliente.uf,
             });
           } else {
             this.cepNaoEncontrado = true;
@@ -199,5 +226,88 @@ export class RegisterclientComponent {
 
   goBack() {
     this.router.navigate(['/search']);
+  }
+
+  limparFormulario(form: NgForm) {
+    form.resetForm();
+  }
+
+  confirmarCadastro(form: NgForm) {
+    if (!this.clienteForm.valid) {
+      this.messageService.add({
+        summary: 'Inválido',
+        detail: 'Preencha todos os campos obrigatórios!',
+        severity: 'warn',
+      });
+      return;
+    }
+
+    this.confirmationService.confirm({
+      header: 'Tem certeza?',
+      message: 'Confirme para cadastrar o cliente.',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sim, cadastrar',
+      rejectLabel: 'Cancelar',
+      rejectButtonStyleClass: 'p-button-danger', 
+      acceptButtonStyleClass: 'p-button-success', 
+      accept: () => {
+        this.executarCadastro(form);
+      },
+      reject: () => {
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Cancelado',
+          detail: 'Cadastro cancelado pelo usuário.',
+        });
+      },
+    });
+  }
+
+  private executarCadastro(form: NgForm) {
+    const clientePayload: Cliente = {
+      typeClient: this.clienteForm.value.typeclient,
+      name: this.clienteForm.value.nome,
+      cpf: this.clienteForm.value.cpf,
+      rg: this.clienteForm.value.rg,
+      birthDate: this.clienteForm.value.dateOfBirth,
+      socialName: this.clienteForm.value.razao,
+      fantasyName: this.clienteForm.value.fantasia,
+      cnpj: this.clienteForm.value.cnpj,
+      ie: this.clienteForm.value.inscricao,
+      openingDate: this.clienteForm.value.dateopen,
+      cep: this.clienteForm.value.cep,
+      rua: this.clienteForm.value.street,
+      numero: this.clienteForm.value.number,
+      complemento: this.clienteForm.value.complement,
+      uf: this.clienteForm.value.uf,
+      cidade: this.clienteForm.value.city,
+      bairro: this.clienteForm.value.neighborhood,
+      celular1: this.clienteForm.value.phone,
+      celular2: this.clienteForm.value.phone2,
+      telefone: this.clienteForm.value.telephone,
+      email: this.clienteForm.value.email,
+      typeZone: this.clienteForm.value.typezone,
+    };
+
+    this.clientService.createClient(clientePayload).subscribe({
+      next: (response) => {
+        this.messageService.add({
+          summary: 'Sucesso',
+          detail: 'Cliente cadastrado com sucesso!',
+          severity: 'success',
+        });
+        if (response?.id)
+          this.router.navigate(['/upload-pictures', response.id]);
+        this.limparFormulario(form);
+      },
+      error: (err) => {
+        console.error(err);
+        this.messageService.add({
+          summary: 'Erro',
+          detail: 'Falha ao cadastrar cliente.',
+          severity: 'error',
+        });
+      },
+    });
   }
 }

@@ -1,3 +1,5 @@
+import { MidiaDTO } from './midia.dto';
+
 export interface Cliente {
   id?: string;
   // PF
@@ -18,6 +20,8 @@ export interface Cliente {
   rua?: string;
   numero?: string;
   complemento?: string;
+  cidade?: string;
+  bairro?: string;
   uf?: string;
   observation?: string;
   celular1?: string;
@@ -32,4 +36,6 @@ export interface Cliente {
 
   // Ranking (para cores)
   ranking?: 'A' | 'B' | 'C' | 'D' | 'E';
+
+  midias?: MidiaDTO[]; 
 }

@@ -27,7 +27,6 @@ import { NgxMaskDirective } from 'ngx-mask';
 import { Cliente } from '../../models/cliente/cliente.dto';
 import { OverlayModule } from 'primeng/overlay';
 
-
 @Component({
   selector: 'app-info-client',
   imports: [
@@ -47,7 +46,7 @@ import { OverlayModule } from 'primeng/overlay';
     NgxMaskDirective,
     DatePickerModule,
     ToastModule,
-    OverlayModule
+    OverlayModule,
   ],
   templateUrl: './info-client.component.html',
   styleUrls: ['./info-client.component.scss'],
@@ -69,7 +68,7 @@ export class InfoClientComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
-      const clientId = params.get('clienteId');
+      const clientId = params.get('clientId');
       if (clientId) {
         this.carregarCliente(clientId);
       }
@@ -135,5 +134,32 @@ export class InfoClientComponent implements OnInit {
         error: (err) => console.log('Erro ao buscar CEP', err),
       });
     }
+  }
+
+  navigateToPhotosClient() {
+    if (this.cliente?.id) {
+      this.router.navigate(['/upload-pictures', this.cliente.id]);
+    } else {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Aviso',
+        detail: 'ID do cliente não encontrado!',
+      });
+    }
+  }
+
+  sendWhatsapp() {
+    if (!this.cliente?.celular1) {
+      alert('Número do cliente não encontrado!');
+      return;
+    }
+
+    const numero = this.cliente.celular1.replace(/\D/g, '');
+
+    const mensagem = encodeURIComponent(`Olá ${this.cliente.name}, tudo bem?`);
+
+    const url = `https://wa.me/${numero}?text=${mensagem}`;
+    
+    window.open(url, '_blank');
   }
 }

@@ -111,7 +111,6 @@
               <span>{{ contract.zipCode }}</span>
             </div>
 
-        
             <!-- Endereço + Vigência + Vencimento + Dia Base -->
             <div class="section section-inline">
               <div class="group">
@@ -121,9 +120,7 @@
 
               <div class="group">
                 <label>Vigência:</label>
-                <span
-                  >{{ contract.vigencia }} </span
-                >
+                <span>{{ contract.vigencia }} </span>
               </div>
 
               <div class="group">
@@ -133,9 +130,8 @@
 
               <div class="group">
                 <label>Dia Vencimento:</label>
-                <span>{{ contract.cicleBillingExpired}}</span>
+                <span>{{ contract.cicleBillingExpired }}</span>
               </div>
-
             </div>
 
             <!-- Valores -->
@@ -146,6 +142,14 @@
               <span>{{ contract.descountFixe | currency : "BRL" }}</span>
               <label>💵 Valor Líquido:</label>
               <span>{{ contract.liquidPrice | currency : "BRL" }}</span>
+            </div>
+
+            <div class="section">
+              <label>Início:</label>
+              <span>{{ contract.dateStart | date : "dd/MM/yyyy" }}</span>
+
+              <label>Assinatura:</label>
+              <span>{{ contract.dateSignature | date : "dd/MM/yyyy" }}</span>
             </div>
           </div>
         </div>

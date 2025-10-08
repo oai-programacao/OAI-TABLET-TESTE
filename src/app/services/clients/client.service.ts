@@ -15,4 +15,13 @@ export class ClientService {
     return this.http.get<Cliente>(`${this.apiUrl}/client/id/${clientId}`);
   }
 
+  createClient(cliente: Cliente): Observable<Cliente> {
+    return this.http.post<Cliente>(`${this.apiUrl}/client/create`, cliente);
+  }
+
+
+
+
+
+
 }

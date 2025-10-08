@@ -1,5 +1,6 @@
 <div class="page-container">
   <app-card-base width="auto" height="auto">
+    <p-toast></p-toast>
     <div>
       <form #clienteForm="ngForm">
         <!-- ========================================================= -->
@@ -42,8 +43,6 @@
           </p-iftalabel>
         </div>
 
-        
-
         <!-- ========== Pessoa Física (PF) ========== -->
         <div *ngIf="selectedClientType === 'PF'">
           <app-message-valid-forms
@@ -71,9 +70,8 @@
                   minlength="15"
                   name="nome"
                   required
-                  [(ngModel)]="clienteForm.value.nome"
+                  [(ngModel)]="cliente.name"
                   #nome="ngModel"
-                  
                 />
                 <label for="nome">Nome (Completo)*</label>
               </p-iftalabel>
@@ -83,7 +81,7 @@
             <p-iftalabel>
               <p-datepicker
                 name="dateOfBirth"
-                [(ngModel)]="dateOfBirth"
+                [(ngModel)]="cliente.birthDate"
                 inputId="date"
                 showIcon
                 iconDisplay="input"
@@ -129,7 +127,7 @@
                   name="cpf"
                   required
                   #cpf="ngModel"
-                  [(ngModel)]="clienteForm.value.cpf"
+                  [(ngModel)]="cliente.cpf"
                   (input)="formatCpf($event, cpf)"
                   (ngModelChange)="validateCpfInput($event)"
                 />
@@ -156,7 +154,7 @@
                   minlength="5"
                   name="rg"
                   required
-                  [(ngModel)]="clienteForm.value.rg"
+                  [(ngModel)]="cliente.rg"
                   #rg="ngModel"
                   (input)="formatRg($event, rg)"
                 />
@@ -196,7 +194,7 @@
                     required
                     maxlength="18"
                     #cnpj="ngModel"
-                    [(ngModel)]="clienteForm.value.cnpj"
+                    [(ngModel)]="cliente.cnpj"
                     (input)="formatCnpj($event, cnpj)"
                     (ngModelChange)="validateCnpjInput($event)"
                   />
@@ -226,7 +224,7 @@
                     name="inscricao"
                     required
                     #inscricao="ngModel"
-                    [(ngModel)]="clienteForm.value.inscricao"
+                    [(ngModel)]="cliente.ie"
                     mask="000000000000"
                   />
                   <label for="inscricao">Inscrição Estadual*</label>
@@ -253,8 +251,7 @@
                   placeholder="dd/mm/aaaa"
                   #dateopen="ngModel"
                   required="true"
-
-                  [(ngModel)]="clienteForm.value.dateopen"
+                  [(ngModel)]="cliente.openingDate"
                 ></p-datepicker>
                 <label for="dateopen">Data de Abertura*</label>
               </p-iftalabel>
@@ -287,7 +284,7 @@
                     name="razao"
                     required
                     #razao="ngModel"
-                    [(ngModel)]="clienteForm.value.razao"
+                    [(ngModel)]="cliente.socialName"
                   />
                   <label for="razao">Razão Social*</label>
                 </p-iftalabel>
@@ -314,7 +311,7 @@
                     id="fantasia"
                     name="fantasia"
                     #fantasia="ngModel"
-                    [(ngModel)]="clienteForm.value.fantasia"
+                    [(ngModel)]="cliente.fantasyName"
                   />
                   <label for="fantasia">Nome Fantasia</label>
                 </p-iftalabel>
@@ -357,7 +354,7 @@
                 maxlength="9"
                 name="cep"
                 required
-                [(ngModel)]="address.cep"
+                [(ngModel)]="cliente.cep"
                 [mask]="'00000-000'"
                 (blur)="onCepChange(clienteForm)"
                 placeholder="00000-000"
@@ -379,13 +376,12 @@
                 maxlength="9"
                 name="uf"
                 required
-                [(ngModel)]="address.uf"
+                [(ngModel)]="cliente.uf"
                 #uf="ngModel"
               />
               <label for="uf">UF*</label>
             </p-iftalabel>
           </p-inputgroup>
-          
         </div>
 
         <div class="messagesvalids">
@@ -415,7 +411,7 @@
                 maxlength="50"
                 minlength="5"
                 name="street"
-                [(ngModel)]="address.street"
+                [(ngModel)]="cliente.rua"
                 required
                 #street="ngModel"
               />
@@ -440,7 +436,7 @@
                   required
                   type="number"
                   #number="ngModel"
-                  [(ngModel)]="address.number"
+                  [(ngModel)]="cliente.numero"
                 />
                 <label for="number">Número da Casa*</label>
               </p-iftalabel>
@@ -480,7 +476,7 @@
                   maxlength="50"
                   minlength="2"
                   name="city"
-                  [(ngModel)]="address.city"
+                  [(ngModel)]="cliente.cidade"
                   required
                   #city="ngModel"
                 />
@@ -501,7 +497,7 @@
                   maxlength="50"
                   minlength="2"
                   name="neighborhood"
-                  [(ngModel)]="address.neighborhood"
+                  [(ngModel)]="cliente.bairro"
                   required
                   #neighborhood="ngModel"
                 />
@@ -521,7 +517,7 @@
                   autocomplete="off"
                   maxlength="50"
                   name="complement"
-                  [(ngModel)]="address.complement"
+                  [(ngModel)]="cliente.complemento"
                 />
                 <label for="complement">Complemento</label>
               </p-iftalabel>
@@ -536,11 +532,20 @@
           <b>3. Contatos do Cliente</b>
         </p-divider>
 
-        <app-message-valid-forms
-          error="required"
-          text="Cidade é obrigatória"
-          [control]="phone"
-        ></app-message-valid-forms>
+        <div class="messages-row">
+          <app-message-valid-forms
+            error="required"
+            text="Celular é obrigatório"
+            [control]="phone"
+          ></app-message-valid-forms>
+
+          <app-message-valid-forms
+            error="required"
+            text="Telefone é obrigatório"
+            [control]="telephone"
+          ></app-message-valid-forms>
+        </div>
+
         <div class="contacts">
           <p-inputgroup>
             <p-inputgroup-addon>
@@ -557,7 +562,7 @@
                 name="phone"
                 required
                 #phone="ngModel"
-                [(ngModel)]="clienteForm.value.phone"
+                [(ngModel)]="cliente.celular1"
                 mask="(99) 99999-9999"
               />
               <label for="phone">Celular*</label>
@@ -577,11 +582,12 @@
                 maxlength="15"
                 minlength="9"
                 name="telephone"
-                [(ngModel)]="clienteForm.value.telephone"
+                [(ngModel)]="cliente.telefone"
                 #telephone="ngModel"
                 mask="(99) 9999-9999"
+                required
               />
-              <label for="telephone">Telefone</label>
+              <label for="telephone">Telefone*</label>
             </p-iftalabel>
           </p-inputgroup>
 
@@ -599,7 +605,7 @@
                 minlength="5"
                 name="email"
                 type="email"
-                [(ngModel)]="clienteForm.value.email"
+                [(ngModel)]="cliente.email"
               />
               <label for="email">E-mail</label>
             </p-iftalabel>
@@ -621,7 +627,7 @@
                 minlength="9"
                 name="phone2"
                 #phone2="ngModel"
-                [(ngModel)]="clienteForm.value.phone2"
+                [(ngModel)]="cliente.celular2"
                 mask="(99) 99999-9999"
               />
               <label for="phone2">2º Celular</label>
@@ -632,6 +638,7 @@
         <!-- ========================================================= -->
         <!-- Botões -->
         <!-- ========================================================= -->
+        <p-confirmDialog></p-confirmDialog>
         <div class="buttons">
           <p-button
             [raised]="true"
@@ -640,10 +647,20 @@
             severity="info"
             (onClick)="goBack()"
           ></p-button>
+
+          <p-button
+            [raised]="true"
+            label="Limpar"
+            icon="pi pi-trash"
+            severity="warn"
+            (onClick)="limparFormulario(clienteForm)"
+          ></p-button>
+
           <p-button
             [raised]="true"
             label="Confirmar"
             icon="pi pi-check"
+            (onClick)="confirmarCadastro(clienteForm)"
           ></p-button>
         </div>
       </form>

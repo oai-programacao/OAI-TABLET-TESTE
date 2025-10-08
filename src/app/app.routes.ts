@@ -38,17 +38,18 @@ export const routes: Routes = [
       import('./components/registerclient/registerclient.component').then(
         (m) => m.RegisterclientComponent
       ),
+    canActivate: [AuthGuard],
   },
   {
-    path: 'upload-pictures',
+    path: 'upload-pictures/:clientId',
     loadComponent: () =>
       import('./components/upload-pictures/upload-pictures.component').then(
         (m) => m.UploadPicturesComponent
       ),
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
   },
   {
-    path: 'info/:clienteId',
+    path: 'info/:clientId',
     loadComponent: () =>
       import('./components/info-client/info-client.component').then(
         (m) => m.InfoClientComponent

@@ -39,7 +39,8 @@
 
   max-height: 600px;
   overflow-y: auto;  
-  padding-right: 0.5rem;
+  padding: 0.5rem;
+  background-color: #fcfafa;
 
   /* Scroll personalizado */
   &::-webkit-scrollbar {
@@ -48,7 +49,7 @@
 
   &::-webkit-scrollbar-track {
     background: #ffe6f0;
-    border-radius: 8px;
+  
   }
 
   &::-webkit-scrollbar-thumb {
