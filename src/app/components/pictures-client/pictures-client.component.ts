@@ -10,6 +10,7 @@ import { DividerModule } from 'primeng/divider';
 import { Router, ActivatedRoute } from '@angular/router';
 import { DialogModule } from 'primeng/dialog';
 import { Cliente } from '../../models/cliente/cliente.dto';
+import { MidiaService } from '../../services/midia/midia.service';
 
 @Component({
   selector: 'app-upload-pictures',
@@ -33,23 +34,30 @@ export class PicturesClientComponent {
   defaultImage = { src: '/OAILogo.png', alt: 'Imagem padrão' };
 
   //Injeções
-  messageService = inject(MessageService);
-  confirmationService = inject(ConfirmationService);
-  router = inject(Router);
+  private readonly messageService = inject(MessageService);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly midiaService = inject(MidiaService);
 
-  clientId: string | null = null;
+  clientId: string | undefined;
   cliente: Cliente | undefined;
 
-  images: { src: string; alt: string; type?: 'frente' | 'verso' }[] = [
-    { ...this.defaultImage }, // 1º quadrado -> Frente
-    { ...this.defaultImage }, // 2º quadrado -> Verso
-    { ...this.defaultImage }, // 3º quadrado -> Extra
-    { ...this.defaultImage }, // 4º quadrado -> Extra
+  images: {
+    src: string;
+    alt: string;
+    type?: 'frente' | 'verso';
+    midiaId?: string;
+  }[] = [
+    { ...this.defaultImage },
+    { ...this.defaultImage },
+    { ...this.defaultImage },
+    { ...this.defaultImage },
   ];
 
   selectedType?: 'frente' | 'verso';
   selectedIndex: number | null = null;
+  selectedFiles: File[] = []; // arquivos ainda não enviados
 
   previewVisible = false;
   previewImage: string | null = null;
@@ -62,8 +70,12 @@ export class PicturesClientComponent {
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
-      this.clientId = params.get('clientId');
+      this.clientId = params.get('clientId') ?? undefined;
     });
+
+    if (this.clientId) {
+      this.loadImages();
+    }
   }
 
   // Slots extras (index > 1)
@@ -89,41 +101,6 @@ export class PicturesClientComponent {
     this.fileInput.nativeElement.click();
   }
 
-  onFileSelected(event: Event) {
-    const input = event.target as HTMLInputElement;
-    if (!input.files || !input.files[0]) return;
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      const newImage = {
-        src: reader.result as string,
-        alt: this.selectedType
-          ? this.selectedType === 'frente'
-            ? 'Frente'
-            : 'Verso'
-          : 'Extra',
-        type: this.selectedType,
-      };
-
-      if (this.selectedIndex !== null) {
-        this.images[this.selectedIndex] = newImage;
-      }
-
-      // força update da view
-      this.images = [...this.images];
-
-      // reset
-      this.selectedType = undefined;
-      this.selectedIndex = null;
-    };
-    reader.readAsDataURL(input.files[0]);
-
-    input.value = '';
-  }
-  removeImage(index: number) {
-    this.images[index] = { ...this.defaultImage };
-  }
-
   viewImage(image: { src: string; alt: string }) {
     if (image.src !== this.defaultImage.src) {
       this.previewImage = image.src;
@@ -139,29 +116,96 @@ export class PicturesClientComponent {
     this.router.navigate(['/search']);
   }
 
-  confirm1(event: Event) {
-    this.confirmationService.confirm({
-      target: event.target as EventTarget,
-      message: 'Deseja ir para a parte de contrato deste novo cliente?',
-      header: 'Confirmação',
-      closable: true,
-      closeOnEscape: true,
-      icon: 'pi pi-exclamation-triangle',
-      rejectButtonProps: { label: 'Cancelar', severity: 'danger' },
-      acceptButtonProps: { label: 'Confirmar' },
-      accept: () => {
-        this.messageService.add({
-          severity: 'info',
-          summary: 'Confirmado',
-          detail: 'Você aceitou',
+  allSlotsOccupied(): boolean {
+    return this.images
+      .slice(0, 2) // pega apenas os índices 0 e 1
+      .every((img) => img.src !== this.defaultImage.src);
+  }
+
+  loadImages() {
+    this.midiaService.listMidias(this.clientId).subscribe({
+      next: (midias) => {
+        midias.forEach((m, i) => {
+          if (i < this.images.length) {
+            this.images[i] = { src: m.urlFile, alt: m.nameFile, midiaId: m.id };
+          }
         });
       },
-      reject: () => {
+      error: (err) => console.error(err),
+    });
+  }
+
+  removeImage(index: number) {
+    const midiaId = this.images[index].midiaId;
+
+    // Sempre reseta o preview
+    this.images[index].src = '/OAILogo.png';
+    this.images[index].midiaId = undefined;
+
+    if (!midiaId) {
+      // Imagem só estava local, nada a excluir no backend
+      return;
+    }
+
+    // Se existe no backend, chama o serviço para remover
+    this.midiaService.removeMidias(midiaId).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Imagem removida do servidor',
+        });
+      },
+      error: () =>
         this.messageService.add({
           severity: 'error',
-          summary: 'Cancelar',
-          detail: 'Você rejeitou',
-          life: 3000,
+          summary: 'Erro ao excluir imagem do servidor',
+        }),
+    });
+  }
+
+  onFileSelected(event: Event, index: number) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) return;
+
+    const file = input.files[0];
+
+    // salvar preview local
+    const reader = new FileReader();
+    reader.onload = () => (this.images[index].src = reader.result as string);
+    reader.readAsDataURL(file);
+
+    // guardar arquivo localmente
+    this.selectedFiles[index] = file;
+  }
+
+  saveImages() {
+    if (!this.clientId) return;
+
+    // filtra apenas os arquivos selecionados
+    const filesToUpload = this.selectedFiles.filter((f) => !!f);
+
+    if (!filesToUpload.length) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Nenhum arquivo',
+        detail: 'Selecione pelo menos uma imagem antes de salvar',
+      });
+      return;
+    }
+
+    this.midiaService.saveMidias(filesToUpload, this.clientId).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Upload concluído',
+        });
+        this.selectedFiles = [];
+        this.loadImages();
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro ao enviar',
         });
       },
     });
