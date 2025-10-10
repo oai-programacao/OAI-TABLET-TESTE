@@ -32,4 +32,7 @@ export class ContractsService {
      return this.http.get<Contract[]>(`${this.urlApi}/contract/${clientId}/transfers`)
   }
 
+  upgradeContract(contractId: string, payload: any): Observable<any> {
+    return this.http.patch(`${this.urlApi}/contract/${contractId}/upgrade`, payload);
+  }
 }

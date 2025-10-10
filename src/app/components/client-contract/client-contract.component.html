@@ -7,20 +7,10 @@
     </p-divider>
 
     <div class="btn-to-create-another-contract">
-      <p-button
-        [rounded]="true"
-        [raised]="true"
-        (onClick)="navigateToInfoClient()"
-        icon="pi pi-arrow-left"
-        severity="danger"
-      />
-      <p-button
-        [raised]="true"
-        label="Criar Contrato"
-        (onClick)="navigateToCreatContract()"
-        icon="pi pi-plus"
-        severity="success"
-      />
+      <p-button [rounded]="true" [raised]="true" (onClick)="navigateToInfoClient()" icon="pi pi-arrow-left"
+        severity="danger" />
+      <p-button [raised]="true" label="Criar Contrato" (onClick)="navigateToCreatContract()" icon="pi pi-plus"
+        severity="success" />
     </div>
 
     <div class="infolegends">
@@ -32,34 +22,14 @@
     </div>
 
     <div class="headerlist">
-      <p-button
-        [raised]="true"
-        label="Somente Ativos"
-        (onClick)="listActivesContracts()"
-        icon="pi pi-list"
-        severity="info"
-      />
-      <p-button
-        [raised]="true"
-        label="Visualizar todos"
-        (onClick)="listToAllContracts()"
-        icon="pi pi-list"
-        severity="secondary"
-      />
-      <p-button
-        [raised]="true"
-        label="Bloqueados"
-        (onClick)="listBlockedsContracts()"
-        icon="pi pi-list"
-        severity="secondary"
-      />
-      <p-button
-        [raised]="true"
-        label="Transferidos"
-        (onClick)="listTransferContracts()"
-        icon="pi pi-list"
-        severity="secondary"
-      />
+      <p-button [raised]="true" label="Somente Ativos" (onClick)="listActivesContracts()" icon="pi pi-list"
+        severity="info" />
+      <p-button [raised]="true" label="Visualizar todos" (onClick)="listToAllContracts()" icon="pi pi-list"
+        severity="secondary" />
+      <p-button [raised]="true" label="Bloqueados" (onClick)="listBlockedsContracts()" icon="pi pi-list"
+        severity="secondary" />
+      <p-button [raised]="true" label="Transferidos" (onClick)="listTransferContracts()" icon="pi pi-list"
+        severity="secondary" />
     </div>
 
     <div class="contracts-list">
@@ -72,20 +42,15 @@
         <div class="contract-info">
           <div class="wrapper status-wrapper">
             <div class="status">
-              <span
-                class="status-dot"
-                [ngClass]="{
+              <span class="status-dot" [ngClass]="{
                   active: contract.situationDescription == 'ATIVO',
                   waiting:
                     contract.situationDescription == 'AGUARDANDO_INSTALACAO',
                   blocked: contract.situationDescription == 'BLOQUEADO',
                   transfer: contract.situationDescription == 'TRANSFERIDO'
-                }"
-              ></span>
-              <label
-                >[{{ contract.situationDescription }}] N° Contrato 📜 (RBX)
-                →</label
-              >
+                }"></span>
+              <label>[{{ contract.situationDescription }}] N° Contrato 📜 (RBX)
+                →</label>
               <span>{{ contract.codeContractRbx }}</span>
             </div>
           </div>
@@ -155,27 +120,12 @@
         </div>
 
         <div class="contract-actions">
-          <p-button
-            icon="pi pi-arrow-up"
-            (onClick)="openUpgradeDialog()"
-            severity="success"
-            [rounded]="true"
-            [text]="true"
-          />
-          <p-button
-            icon="pi pi-arrow-down"
-            (onClick)="openDowngradeDialog()"
-            severity="danger"
-            [rounded]="true"
-            [text]="true"
-          />
-          <p-button
-            icon="pi pi-home"
-            (onClick)="navigateToAddressTransfer()"
-            severity="warn"
-            [rounded]="true"
-            [text]="true"
-          />
+          <p-button icon="pi pi-arrow-up" (onClick)="openUpgradeDialog(contract)" severity="success" [rounded]="true"
+            [text]="true" />
+          <p-button icon="pi pi-arrow-down" (onClick)="openDowngradeDialog()" severity="danger" [rounded]="true"
+            [text]="true" />
+          <p-button icon="pi pi-home" (onClick)="navigateToAddressTransfer()" severity="warn" [rounded]="true"
+            [text]="true" />
         </div>
       </div>
       } }
@@ -183,14 +133,8 @@
   </app-card-base>
 </div>
 
-<p-dialog
-  header="Upgrade"
-  [modal]="true"
-  (onHide)="onHide()"
-  [(visible)]="upgradeDialog"
-  [style]="{ width: '35rem' }"
-  [draggable]="false"
->
+<p-dialog header="Upgrade" [modal]="true" (onHide)="onHide()" [(visible)]="upgradeDialog" [style]="{ width: '35rem' }"
+  [draggable]="false">
   <div class="dialog-container">
     <div class="plan-title">
       <span></span>
@@ -198,22 +142,11 @@
     <form>
       <div class="father-form">
         <div class="select-dialog">
-          <p-select
-            placeholder="Selecionar Vendedor"
-            appendTo="body"
-            optionLabel="name"
-            name="seller"
-            required
-          ></p-select>
+          <p-select placeholder="Selecionar Vendedor" appendTo="body" optionLabel="name" name="seller"
+            required></p-select>
         </div>
         <div class="select-dialog">
-          <p-select
-            placeholder="Selecionar Plano"
-            appendTo="body"
-            optionLabel="plan"
-            name="plan"
-            required
-          ></p-select>
+          <p-select placeholder="Selecionar Plano" appendTo="body" optionLabel="plan" name="plan" required></p-select>
         </div>
       </div>
       <div class="btn-to-send-new-contract">
@@ -222,59 +155,63 @@
     </form>
   </div>
 </p-dialog>
+
+
 <!-- UPGRADE -->
-<p-dialog
-  header="Upgrade"
-  [modal]="true"
-  (onHide)="onHide()"
-  [(visible)]="upgradeDialog"
-  [style]="{ width: '35rem' }"
-  [draggable]="false"
->
-  <div class="dialog-container">
-    <div>
-      <span></span>
+<p-dialog header="Alteração de Contrato" [(visible)]="upgradeDialog" [modal]="true" (onHide)="onHide()"
+  [style]="{ width: '38rem' }" [draggable]="false">
+  <form [formGroup]="upgradeForm" (ngSubmit)="submitUpgrade()">
+    <div class="dialog-container">
+      <div class="p-fluid form-grid">
+        <div class="grid">
+          <div class="col-6">
+            <div class="form-group-contract">
+              <label for="contract">Nº do Contrato: </label>
+              <span class="contract-code">{{ selectedContractForUpgrade?.codeContractRbx }}</span>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="form-group">
+              <label for="codePlan">Código do Plano:</label>
+              <p-inputNumber inputId="codePlan" formControlName="codePlan"></p-inputNumber>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="descountFixe">Desconto Fixo (R$)</label>
+          <p-inputNumber inputId="descountFixe" formControlName="descountFixe" mode="currency" currency="BRL"
+            locale="pt-BR"></p-inputNumber>
+        </div>
+
+        <div class="grid">
+          <div class="col-6">
+            <div class="form-group">
+              <label for="cicleFatId">Ciclo de Faturamento:</label>
+              <p-select id="expirationCycle" formControlName="expirationCycle"
+                placeholder="Selecionar ciclo de vencimento" [options]="typesOfDateExpirationCicle"
+                optionLabel="descricao" appendTo="body">
+              </p-select>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+  </form>
+  <ng-template pTemplate="footer">
+    <p-button label="Cancelar" icon="pi pi-times" (click)="onHide()" severity="danger">
+    </p-button>
 
-    <form>
-      <div class="father-form">
-        <div class="select-dialog">
-          <p-select
-            placeholder="Selecionar Vendedor"
-            appendTo="body"
-            optionLabel="name"
-            name="seller"
-            required
-          ></p-select>
-        </div>
-
-        <div class="select-dialog">
-          <p-select
-            placeholder="Selecionar Plano"
-            appendTo="body"
-            optionLabel="plan"
-            name="plan"
-            required
-          ></p-select>
-        </div>
-      </div>
-
-      <div class="btn-to-send-new-contract">
-        <p-button label="Enviar" type="submit"></p-button>
-      </div>
-    </form>
-  </div>
+    <p-button label="Confirmar Alteração" icon="pi pi-check" type="submit" [disabled]="upgradeForm.invalid" (click)="submitUpgrade()" severity="success">
+    </p-button>
+  </ng-template>
 </p-dialog>
+
+<p-toast />
 
 <!-- DOWNGRADE -->
-<p-dialog
-  header="Downgrade"
-  [modal]="true"
-  (onHide)="onHide()"
-  [(visible)]="downgradeDialog"
-  [style]="{ width: '35rem' }"
-  [draggable]="false"
->
+<p-dialog header="Downgrade" [modal]="true" (onHide)="onHide()" [(visible)]="downgradeDialog"
+  [style]="{ width: '35rem' }" [draggable]="false">
   <div class="dialog-container">
     <div class="plan-title">
       <span></span>
@@ -283,23 +220,12 @@
     <form>
       <div class="father-form">
         <div class="select-dialog">
-          <p-select
-            placeholder="Selecionar Vendedor"
-            appendTo="body"
-            optionLabel="name"
-            name="seller"
-            required
-          ></p-select>
+          <p-select placeholder="Selecionar Vendedor" appendTo="body" optionLabel="name" name="seller"
+            required></p-select>
         </div>
 
         <div class="select-dialog">
-          <p-select
-            placeholder="Selecionar Plano"
-            appendTo="body"
-            optionLabel="plan"
-            name="plan"
-            required
-          ></p-select>
+          <p-select placeholder="Selecionar Plano" appendTo="body" optionLabel="plan" name="plan" required></p-select>
         </div>
       </div>
 

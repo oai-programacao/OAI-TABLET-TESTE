@@ -281,8 +281,6 @@
   background-color: #008cff; 
 }
 
-
-
 .addresscontract .section-inline {
   display: flex;
   flex-wrap: wrap; /* quebra linha se ficar muito longo */
@@ -306,4 +304,58 @@
 
 .addresscontract .section-inline span {
   color: #555;
+}
+
+.dialog-container {
+  padding: 0.5rem 1rem; // Espaçamento interno para não colar nas bordas
+}
+
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;  
+  margin-bottom: 1.25rem; 
+}
+
+.form-group-contract {
+  display: flex;
+  flex-direction: line;
+  gap: 0.5rem;  
+  margin-bottom: 1.25rem; 
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: bold;
+  color: #1c34a0;
+  font-size: 1rem;
+}
+
+.form-group label {
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: bold;
+  color: #1c34a0; // Mantendo o azul padrão dos seus labels
+  font-size: 0.9rem;
+}
+
+/* ::ng-deep é usado para estilizar os componentes internos do PrimeNG 
+  que não são facilmente acessíveis pelo CSS normal do componente.
+*/
+
+// Força a fonte padrão no título do dialog
+::ng-deep .p-dialog .p-dialog-header .p-dialog-title {
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 600;
+}
+
+// Garante que o texto dentro dos inputs também use a fonte padrão
+::ng-deep .p-inputtext, 
+::ng-deep .p-inputnumber-input,
+::ng-deep .p-dropdown-label {
+  font-family: "IBM Plex Mono", monospace !important;
+}
+
+// Estiliza o rodapé do dialog para separá-lo visualmente do formulário
+::ng-deep .p-dialog .p-dialog-footer {
+  border-top: 1px solid #dee2e6; // Linha separadora sutil
+  padding-top: 1rem;
+  margin-top: 1rem;
 }
