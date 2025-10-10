@@ -150,3 +150,44 @@
     font-size: 1.3rem;
   }
 }
+
+:host ::ng-deep .p-select {
+  --p-select-option-selected-background: #4da3ff;
+  --p-select-option-selected-color: white;
+  --p-select-option-selected-focus-background: #377ad6;
+  --p-select-option-selected-focus-color: white;
+}
+
+:host ::ng-deep .p-select.p-component.p-focus {
+  border-color: #4da3ff !important;
+  box-shadow: 0 0 0 0.2rem rgba(77, 163, 255, 0.3) !important;
+}
+
+.proportional-info {
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  background-color: #f0f9ff;
+  color: #0369a1;
+  font-weight: 600;
+  font-size: 1.1rem;
+  border: 1px solid #bae6fd;
+
+  i {
+    font-size: 1.3rem;
+    color: #0ea5e9;
+  }
+}
+
+.proportional-explanation {
+  margin: 0;
+  padding: 0;
+  font-size: 0.95rem;
+  color: #513b37;
+  line-height: 1.5;
+  text-align: center;
+}

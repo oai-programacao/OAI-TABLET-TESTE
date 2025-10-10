@@ -37,30 +37,21 @@
                 <div class="info-item">
                   <span class="label">Valores Atuais</span>
                   <div class="value">
-
                     <div class="value-row">
                       <i class="pi pi-dollar"></i>
-                      <span>Líquido: {{ contract.liquidPrice }}</span>
+                      <span>Líquido: {{ contract.liquidPrice | number:'1.2-2' }}</span>
                     </div>
 
                     <div class="value-row">
                       <i class="pi pi-dollar"></i>
-                      <span>Bruto: {{ contract.brutePrice }}</span>
+                      <span>Bruto: {{ contract.brutePrice | number:'1.2-2' }}</span>
                     </div>
-                    
+
                     <div class="value-row">
                       <i class="pi pi-dollar"></i>
-                      <span>Desconto: {{ contract.descountFixe }}</span>
+                      <span>Desconto: {{ contract.descountFixe | number:'1.2-2' }}</span>
                     </div>
-                    
                   </div>
-                </div>
-
-                <div class="info-item">
-                  <span class="label">Dia de Vencimento</span>
-                  <span class="value highlight">
-                    {{ contract.cicleBillingExpired }}
-                  </span>
                 </div>
 
                 <div class="info-item">
@@ -78,13 +69,12 @@
 
                 <div class="info-item">
                   <span class="label">Ciclo de Faturamento</span>
-                  <span class="value">
-                    {{ contract.cicleBillingDayBase }} /
-                    {{ contract.cicleBillingExpired }}
+                  <span class="value highlight">
+                    Dia base: {{ contract.cicleBillingDayBase }} / Dia de
+                    Vencimento: {{ contract.cicleBillingExpired }}
                   </span>
                 </div>
 
-                <!-- Select -->
                 <div class="select-wrapper">
                   <p-select
                     [options]="typesOfDateExpirationCicle"
@@ -92,17 +82,41 @@
                     optionValue="value"
                     appendTo="body"
                     placeholder="Selecione nova data de vencimento"
-                    [(ngModel)]="selectedBillingCycle"
                     styleClass="custom-select"
+                    [(ngModel)]="selectedBillingCycle"
+                    (onChange)="onBillingCycleChange()"
                   ></p-select>
                 </div>
 
-                
                 <div class="selected-info" *ngIf="selectedBillingCycle">
                   <i class="pi pi-calendar"></i>
-                  <span
-                    >Nova data de vencimento selecionada: {{ selectedBillingCycle }}</span
-                  >
+                  <span>
+                    Novo dia base selecionado:
+                    {{ selectedBillingCycle }}
+                  </span>
+                </div>
+
+                <div class="proportional-explanation">
+                  <p>
+                    O valor abaixo é calculado proporcionalmente ao período
+                    restante do mês atual. Considera-se o valor líquido do
+                    contrato dividido pela quantidade de dias do mês,
+                    multiplicado pelo número de dias até o novo dia base
+                    escolhido.
+                  </p>
+                </div>
+
+                <div
+                  class="proportional-info"
+                  *ngIf="proportionalBoleto !== null"
+                >
+                  <i class="pi pi-dollar"></i>
+                  <span>
+                    Valor proporcional:
+                    {{
+                      proportionalBoleto | currency : "BRL" : "symbol" : "1.2-2"
+                    }}
+                  </span>
                 </div>
               </div>
             </div>
