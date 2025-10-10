@@ -65,4 +65,18 @@ export class AuthService {
       return [];
     }
   }
+
+  getSellerId(): number | null {
+    const token = localStorage.getItem('accessToken');
+    if (!token) return null;
+
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.id || null;
+    } catch (error) {
+      console.error('Erro ao decodificar sellerId do token', error);
+      return null;
+    }
+  }
+
 }
