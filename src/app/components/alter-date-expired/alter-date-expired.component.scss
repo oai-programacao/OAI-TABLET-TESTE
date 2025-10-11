@@ -187,7 +187,15 @@
   margin: 0;
   padding: 0;
   font-size: 0.95rem;
-  color: #513b37;
+  color: #000000;
   line-height: 1.5;
   text-align: center;
+  background-color: rgb(255, 255, 229);
+  border: dashed gray 0.5px;
+  border-radius: 0.5rem;
+}
+
+
+.menu-wrapper {
+  position: relative;
 }

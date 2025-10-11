@@ -37,10 +37,6 @@
                 <div class="info-item">
                   <span class="label">Valores Atuais</span>
                   <div class="value">
-                    <div class="value-row">
-                      <i class="pi pi-dollar"></i>
-                      <span>Líquido: {{ contract.liquidPrice | number:'1.2-2' }}</span>
-                    </div>
 
                     <div class="value-row">
                       <i class="pi pi-dollar"></i>
@@ -49,8 +45,14 @@
 
                     <div class="value-row">
                       <i class="pi pi-dollar"></i>
-                      <span>Desconto: {{ contract.descountFixe | number:'1.2-2' }}</span>
+                      <span>Desconto: -{{ contract.descountFixe | number:'1.2-2' }}</span>
                     </div>
+
+                    <div class="value-row">
+                      <i class="pi pi-dollar"></i>
+                      <span>Líquido: {{ contract.liquidPrice | number:'1.2-2' }}</span>
+                    </div>
+    
                   </div>
                 </div>
 
@@ -80,7 +82,6 @@
                     [options]="typesOfDateExpirationCicle"
                     optionLabel="descricao"
                     optionValue="value"
-                    appendTo="body"
                     placeholder="Selecione nova data de vencimento"
                     styleClass="custom-select"
                     [(ngModel)]="selectedBillingCycle"
@@ -100,7 +101,7 @@
                   <p>
                     O valor abaixo é calculado proporcionalmente ao período
                     restante do mês atual. Considera-se o valor líquido do
-                    contrato dividido pela quantidade de dias do mês,
+                    contrato dividido pela quantidade de dias [30],
                     multiplicado pelo número de dias até o novo dia base
                     escolhido.
                   </p>
@@ -112,7 +113,7 @@
                 >
                   <i class="pi pi-dollar"></i>
                   <span>
-                    Valor proporcional:
+                    Valor Proporcional:
                     {{
                       proportionalBoleto | currency : "BRL" : "symbol" : "1.2-2"
                     }}

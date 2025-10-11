@@ -19,6 +19,8 @@ import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { IftaLabelModule } from 'primeng/iftalabel';
 import { DatePickerModule } from 'primeng/datepicker';
 import { ToastModule } from 'primeng/toast';
+import { MenuItem } from 'primeng/api';
+import { Menu } from 'primeng/menu';
 
 import { Router, ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
@@ -47,6 +49,7 @@ import { OverlayModule } from 'primeng/overlay';
     DatePickerModule,
     ToastModule,
     OverlayModule,
+    Menu,
   ],
   templateUrl: './info-client.component.html',
   styleUrls: ['./info-client.component.scss'],
@@ -64,6 +67,8 @@ export class InfoClientComponent implements OnInit {
 
   tipoCliente: 'PF' | 'PJ' = 'PF';
 
+  items: MenuItem[] | undefined;
+
   cliente: Cliente = {};
 
   ngOnInit(): void {
@@ -73,6 +78,35 @@ export class InfoClientComponent implements OnInit {
         this.carregarCliente(clientId);
       }
     });
+
+    this.items = [
+      {
+        label: 'Documents',
+        items: [
+          {
+            label: 'New',
+            icon: 'pi pi-plus',
+          },
+          {
+            label: 'Search',
+            icon: 'pi pi-search',
+          },
+        ],
+      },
+      {
+        label: 'Profile',
+        items: [
+          {
+            label: 'Settings',
+            icon: 'pi pi-cog',
+          },
+          {
+            label: 'Logout',
+            icon: 'pi pi-sign-out',
+          },
+        ],
+      },
+    ];
   }
 
   carregarCliente(clientId: string) {
@@ -159,7 +193,7 @@ export class InfoClientComponent implements OnInit {
     const mensagem = encodeURIComponent(`Olá ${this.cliente.name}, tudo bem?`);
 
     const url = `https://wa.me/${numero}?text=${mensagem}`;
-    
+
     window.open(url, '_blank');
   }
 }
