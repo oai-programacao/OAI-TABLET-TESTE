@@ -97,10 +97,22 @@
 .btn-to-back-leads-content{
   display: flex;
   justify-content: space-between;
-  width: 100%;
   align-items: center;
+  flex-wrap: wrap;      /* permite quebrar linha */
+  gap: 12px;  
+}
+
+.btn-to-conclude{
+  flex-basis: 100%;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-to-back-leads-content, .btn-to-conclude{
+  flex: 1 0 auto;
 }
 
 .messageerrors {
   margin-bottom: 1px;
 }
+

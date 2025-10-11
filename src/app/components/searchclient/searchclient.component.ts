@@ -153,6 +153,10 @@ export class SearchclientComponent implements OnInit {
     this.router.navigate(['waiting-leads']);
   }
 
+  navigateToConcludeSale(){
+    this.router.navigate(['conclude']);
+  }
+
   formatarDocumento(valor: string) {
     if (!valor) {
       this.documento = '';

@@ -97,4 +97,12 @@ export const routes: Routes = [
       ),
     // canActivate: [AuthGuard],
   },
+  {
+  path: 'conclude',
+    loadComponent: () =>
+      import('./components/conclude-sale/conclude-sale.component').then(
+        (m) => m.ConcludeSaleComponent
+      ),
+    // canActivate: [AuthGuard],
+  },
 ];
