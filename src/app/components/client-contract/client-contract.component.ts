@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { CardBaseComponent } from '../../shared/components/card-base/card-base.component';
 import { ButtonModule } from 'primeng/button';
 import { Divider } from 'primeng/divider';
@@ -13,13 +13,17 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { MessageService } from 'primeng/api';
+import { MessageService, ConfirmationService} from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { Contract } from '../../models/contract/contract.dto';
 import { ContractsService } from '../../services/contracts/contracts.service';
 import { CalendarModule } from 'primeng/calendar';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { AuthService } from '../../core/auth.service';
+import { ConfirmDialog } from 'primeng/confirmdialog';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { Popover } from 'primeng/popover';
+
 
 export interface Seller {
   name: string;
@@ -28,8 +32,10 @@ export interface Seller {
 export interface Plan {
   plan: string;
 }
+
 @Component({
   selector: 'app-client-contract',
+  standalone: true,
   imports: [
     CommonModule,
     CardBaseComponent,
@@ -41,13 +47,17 @@ export interface Plan {
     ReactiveFormsModule,
     ToastModule,
     CalendarModule,
-    InputNumberModule
+    InputNumberModule,
+    ConfirmDialog,
+    ProgressSpinnerModule,
+    Popover,
   ],
   templateUrl: './client-contract.component.html',
   styleUrl: './client-contract.component.scss',
-  providers: [MessageService],
+  providers: [ConfirmationService, MessageService],
 })
 export class ClientContractComponent implements OnInit {
+  private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -55,12 +65,21 @@ export class ClientContractComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
 
-  isLoading = false;
-  upgradeDialog: boolean = false;
-  clientId!: string;
-  contracts: Contract[] = [];
+  @ViewChild('pop') pop!: Popover;
 
+  contracts: Contract[] = [];
+  loadingBillingDialog: boolean = false;
+  isLoading = false;
+
+  dialogTitle: string = '';
   downgradeDialog: boolean = false;
+  upgradeDialog: boolean = false;
+  dialogBilling: boolean = false;
+  selectedBillingCycle: string | null = null;
+
+  selectedContract!: Contract;
+
+  clientId!: string;
 
   upgradeForm!: FormGroup;
   selectedContractForUpgrade: Contract | null = null;
@@ -125,18 +144,21 @@ export class ClientContractComponent implements OnInit {
       }
     });
   }
+  
 
   loadContracts(clientId: string) {
-    this.contractService.getContractsActivesAndWaitByClient(clientId).subscribe({
-      next: (data) => (this.contracts = data),
-      error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro',
-          detail: 'Não foi possível carregar os contratos',
-        });
-      },
-    });
+    this.contractService
+      .getContractsActivesAndWaitByClient(clientId)
+      .subscribe({
+        next: (data) => (this.contracts = data),
+        error: () => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erro',
+            detail: 'Não foi possível carregar os contratos',
+          });
+        },
+      });
   }
 
   loadAllContracts(clientId: string) {
@@ -191,6 +213,72 @@ export class ClientContractComponent implements OnInit {
     });
   }
 
+  goToAlterDateExpired(contract: Contract) {
+    this.router.navigate(['/alter-dateexpired'], {
+      queryParams: { clientId: this.clientId, contractId: contract.id },
+    });
+  }
+
+  confirmTransferDate(contract: Contract) {
+    this.confirmationService.confirm({
+      message: 'Deseja realmente alterar a data de vencimento deste contrato?',
+      header: 'Confirmação',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => this.transferDateExpired(contract),
+      reject: () =>
+        this.messageService.add({
+          severity: 'info',
+          summary: 'Cancelado',
+          detail: 'Ação cancelada.',
+        }),
+    });
+  }
+
+  transferDateExpired(contract: Contract) {
+    this.loadingBillingDialog = true; // ativa o blockUI
+
+    const sellerId = this.authService.getSellerId();
+    if (!sellerId) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erro',
+        detail: 'SellerId não encontrado no token!',
+      });
+      this.loadingBillingDialog = false; // desativa ao encontrar erro
+      return;
+    }
+
+    const payload = {
+      clientId: contract.clientId,
+      contractNumber: contract.codeContractRbx,
+      billingCycleLabel: this.selectedBillingCycle!,
+      sellerId: sellerId.toString(),
+    };
+
+    this.contractService['changeBillingDate'](payload).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Sucesso',
+          detail: 'Data de vencimento alterada com sucesso!',
+        });
+        this.dialogBilling = false;
+        this.loadingBillingDialog = false;
+      },
+      error: (err: { error: { errorMessage: string; }; }) => {
+        const backendMessage =
+          err?.error?.errorMessage ||
+          'Não foi possível alterar a data de vencimento.';
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: backendMessage,
+        });
+        this.loadingBillingDialog = false;
+      },
+    });
+  }
+
   navigateToCreatContract() {
     this.router.navigate(['add-contract']);
   }
@@ -199,13 +287,19 @@ export class ClientContractComponent implements OnInit {
     this.router.navigate(['info', this.clientId]);
   }
 
-  openUpgradeDialog(contract: Contract) {
+  openUpgradeDialog(contract: Contract, isUpgrade: boolean) {
+    this.dialogTitle = isUpgrade ? 'Upgrade de Contrato' : 'Downgrade de Contrato';
     this.selectedContractForUpgrade = contract;
     this.upgradeDialog = true;
   }
 
   openDowngradeDialog() {
     this.downgradeDialog = true;
+  }
+
+  openBillingDialog(contract: Contract) {
+    this.selectedContract = contract;
+    this.dialogBilling = true;
   }
 
   submitUpgrade() {
@@ -217,15 +311,19 @@ export class ClientContractComponent implements OnInit {
 
     if (!this.selectedContractForUpgrade) return;
 
-    // const sellerId = this.authService.getUserId(); 
-    const sellerId = "a1b2c3d4-e5f6-7890-1234-567890abcdef"; 
+    const sellerId = this.authService.getSellerId();
+    if (!sellerId) {
+      this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Sessão inválida.' });
+      return;
+    }
+    // const sellerId = "a1b2c3d4-e5f6-7890-1234-567890abcdef"; 
     const formData = this.upgradeForm.getRawValue();
 
     const payload = {
       seller: sellerId,
       codePlan: formData.codePlan,
       descountFixe: formData.descountFixe,
-       cicleFatId: formData.cicleFatId,
+      cicleFatId: formData.cicleFatId,
       cicleBillingDayBase: formData.cicleBillingDayBase,
       cicleBillingExpired: formData.cicleBillingExpired,
     };
@@ -236,7 +334,7 @@ export class ClientContractComponent implements OnInit {
       next: () => {
         this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Contrato atualizado com sucesso!' });
         this.onHide();
-        this.loadContracts(this.clientId); // Recarrega a lista de contratos
+        this.loadContracts(this.clientId);
       },
       error: (err) => {
         this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Não foi possível atualizar o contrato.' });
@@ -269,5 +367,13 @@ export class ClientContractComponent implements OnInit {
 
   navigateToAddressTransfer() {
     this.router.navigate(['address-transfer']);
+  }
+
+  toggle(popover: any, event: Event) {
+    if (popover.overlayVisible) {
+      popover.hide();
+    } else {
+      popover.show(event);
+    }
   }
 }

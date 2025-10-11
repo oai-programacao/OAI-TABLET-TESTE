@@ -138,7 +138,7 @@ export class InfoClientComponent implements OnInit {
 
   navigateToPhotosClient() {
     if (this.cliente?.id) {
-      this.router.navigate(['/upload-pictures', this.cliente.id]);
+      this.router.navigate(['/pictures-client', this.cliente.id]);
     } else {
       this.messageService.add({
         severity: 'warn',

@@ -1,3 +1,4 @@
+import { UploadPicturesComponent } from './components/upload-pictures/upload-pictures.component';
 import { Routes } from '@angular/router';
 import { AuthGuard } from './core/auth.guard';
 
@@ -22,7 +23,7 @@ export const routes: Routes = [
       import('./components/searchclient/searchclient.component').then(
         (m) => m.SearchclientComponent
       ),
-    // canActivate: [AuthGuard],
+    canActivate: [AuthGuard],
   },
   {
     path: 'plans',
@@ -30,7 +31,7 @@ export const routes: Routes = [
       import('./components/viewplan/viewplan.component').then(
         (m) => m.ViewplanComponent
       ),
-    // canActivate: [AuthGuard],
+    canActivate: [AuthGuard],
   },
   {
     path: 'register',
@@ -38,7 +39,7 @@ export const routes: Routes = [
       import('./components/registerclient/registerclient.component').then(
         (m) => m.RegisterclientComponent
       ),
-    // canActivate: [AuthGuard],
+    canActivate: [AuthGuard],
   },
   {
     path: 'upload-pictures/:clientId',
@@ -46,7 +47,15 @@ export const routes: Routes = [
       import('./components/upload-pictures/upload-pictures.component').then(
         (m) => m.UploadPicturesComponent
       ),
-    // canActivate: [AuthGuard],
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'pictures-client/:clientId',
+    loadComponent: () =>
+      import('./components/pictures-client/pictures-client.component').then(
+        (m) => m.PicturesClientComponent
+      ),
+    canActivate: [AuthGuard],
   },
   {
     path: 'info/:clientId',
@@ -54,7 +63,7 @@ export const routes: Routes = [
       import('./components/info-client/info-client.component').then(
         (m) => m.InfoClientComponent
       ),
-    // canActivate: [AuthGuard],
+    canActivate: [AuthGuard],
   },
   {
     path: 'add-contract',
@@ -62,7 +71,7 @@ export const routes: Routes = [
       import('./components/add-contract/add-contract.component').then(
         (m) => m.AddContractComponent
       ),
-    // canActivate: [AuthGuard],
+    canActivate: [AuthGuard],
   },
   {
     path: 'client-contracts/:clientId',
@@ -70,7 +79,7 @@ export const routes: Routes = [
       import('./components/client-contract/client-contract.component').then(
         (m) => m.ClientContractComponent
       ),
-    // canActivate: [AuthGuard],
+    canActivate: [AuthGuard],
   },
   {
     path: 'address-transfer',
@@ -78,7 +87,7 @@ export const routes: Routes = [
       import('./components/address-transfer/address-transfer.component').then(
         (m) => m.AddressTransferComponent
       ),
-    // canActivate: [AuthGuard],
+    canActivate: [AuthGuard],
   },
   {
     path: 'waiting-leads',
@@ -86,6 +95,13 @@ export const routes: Routes = [
       import('./components/waiting-leads/waiting-leads.component').then(
         (m) => m.WaitingLeadsComponent
       ),
-    // canActivate: [AuthGuard],
+   canActivate: [AuthGuard],
   },
+  {
+    path: 'alter-dateexpired',
+    loadComponent: () =>
+      import('./components/alter-date-expired/alter-date-expired.component').then(
+        (m) => m.AlterDateExpiredComponent
+      )
+  }
 ];

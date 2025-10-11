@@ -30,6 +30,7 @@
             iconPos="top"
             size="large"
             severity="info"
+            [disabled]="allSlotsOccupied()"
             (onClick)="openFileInput('frente')"
           />
           <div
@@ -48,6 +49,7 @@
             iconPos="top"
             size="large"
             severity="info"
+            [disabled]="allSlotsOccupied()"
             (onClick)="openFileInput('verso')"
           />
           <div
@@ -105,7 +107,7 @@
         type="file"
         #fileInput
         style="display: none"
-        (change)="onFileSelected($event)"
+        (change)="onFileSelected($event, selectedIndex!)"
         accept="image/*"
       />
 
@@ -128,10 +130,10 @@
       <p-button
         label="Salvar Fotos"
         severity="success"
-        icon="pi pi-dollar"
+        icon="pi pi-check"
         [raised]="true"
         size="large"
-        (onClick)="confirm1($event)"
+        (onClick)="saveImages()"
       />
     </div>
   </app-card-base>

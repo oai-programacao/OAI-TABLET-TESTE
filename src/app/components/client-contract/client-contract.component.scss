@@ -38,7 +38,7 @@
   min-width: 37.5rem;
 
   max-height: 600px;
-  overflow-y: auto;  
+  overflow-y: auto;
   padding: 0.5rem;
   background-color: #fcfafa;
 
@@ -49,20 +49,18 @@
 
   &::-webkit-scrollbar-track {
     background: #ffe6f0;
-  
   }
 
   &::-webkit-scrollbar-thumb {
-    background-color: #ff69b4; 
+    background-color: #ff69b4;
     border-radius: 8px;
-    border: 2px solid #ffe6f0; 
+    border: 2px solid #ffe6f0;
   }
 
   &::-webkit-scrollbar-thumb:hover {
-    background-color: #ff3399; 
+    background-color: #ff3399;
   }
 }
-
 
 .contract-card {
   background-color: #ffffff;
@@ -74,7 +72,6 @@
   border: 1px solid rgb(226, 226, 226);
   justify-content: space-between;
   width: 100%;
-
 }
 
 .contract-info {
@@ -237,7 +234,6 @@
   font-size: 1rem;
 }
 
-
 .infolegends {
   border-radius: 5px;
   padding: 0;
@@ -262,23 +258,23 @@
 }
 
 .status-dot.active {
-  background-color: #4caf50; 
+  background-color: #4caf50;
 }
 
 .status-dot.waiting {
-  background-color: #ff9800; 
+  background-color: #ff9800;
 }
 
 .status-dot.canceled {
-  background-color: #858585; 
+  background-color: #858585;
 }
 
 .status-dot.blocked {
-  background-color: #ff2828; 
+  background-color: #ff2828;
 }
 
 .status-dot.transfer {
-  background-color: #008cff; 
+  background-color: #008cff;
 }
 
 .addresscontract .section-inline {
@@ -305,6 +301,105 @@
 .addresscontract .section-inline span {
   color: #555;
 }
+
+// DIALOG DATE EXPIRED
+
+:host ::ng-deep .p-select {
+  --p-select-option-selected-background: #4da3ff;
+  --p-select-option-selected-color: white;
+  --p-select-option-selected-focus-background: #377ad6;
+  --p-select-option-selected-focus-color: white;
+}
+
+:host ::ng-deep .p-select.p-component.p-focus {
+  border-color: #4da3ff !important;
+  box-shadow: 0 0 0 0.2rem rgba(77, 163, 255, 0.3) !important;
+}
+
+.global-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 999999;
+}
+
+.global-overlay-message {
+  margin-top: 1.5rem;
+  font-size: 1.5rem; /* pode aumentar para combinar com o spinner */
+  font-weight: 800;
+  color: #f8f2f8;
+  text-transform: uppercase;
+  text-shadow:
+    2px 2px 0 #000000,
+    4px 4px 0 #2c2c2c,
+    6px 6px 10px rgba(0, 0, 0, 0.6);
+  letter-spacing: 1px;
+  text-align: center;
+}
+
+::ng-deep .p-progress-spinner {
+  width: 200px !important;   /* largura maior */
+  height: 200px !important;  /* altura maior */
+}
+
+
+
+.dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 2rem;
+}
+
+/* Ícone acima do select */
+.select-with-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* alinha à esquerda do select */
+  gap: 0.4rem;
+}
+
+.warn-icon-container {
+  display: flex;
+  justify-content: flex-start;
+  margin: 0;
+  padding: 0;
+}
+
+.warn-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #000;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.warn-popup {
+  background: #000;
+  color: #fff;
+  padding: 0.8rem;
+  border-radius: 6px;
+  max-width: 250px;
+  font-size: 0.85rem;
+  line-height: 1.3;
+}
+
+
+
+///
+
 
 .dialog-container {
   padding: 0.5rem 1rem; // Espaçamento interno para não colar nas bordas
