@@ -23,6 +23,7 @@ import { AuthService } from '../../core/auth.service';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { Popover } from 'primeng/popover';
+import { TooltipModule } from 'primeng/tooltip';
 
 
 export interface Seller {
@@ -51,6 +52,7 @@ export interface Plan {
     ConfirmDialog,
     ProgressSpinnerModule,
     Popover,
+    TooltipModule
   ],
   templateUrl: './client-contract.component.html',
   styleUrl: './client-contract.component.scss',

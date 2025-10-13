@@ -133,17 +133,19 @@
 
         <div class="contract-actions">
           <p-button icon="pi pi-arrow-up" (onClick)="openUpgradeDialog(contract, true)" severity="success" [rounded]="true"
-            [text]="true" />
+            [text]="true" pTooltip="Fazer Upgrade" tooltipPosition="top"/>
           <p-button icon="pi pi-arrow-down" (onClick)="openUpgradeDialog(contract, false)" severity="danger" [rounded]="true"
-            [text]="true" />
+            [text]="true" pTooltip="Fazer Downgrade" tooltipPosition="top" />
           <p-button icon="pi pi-home" (onClick)="navigateToAddressTransfer()" severity="warn" [rounded]="true"
-            [text]="true" />
+            [text]="true"  pTooltip="Transferir Endereço" tooltipPosition="top"/>
           <p-button
             icon="pi pi-calendar"
             (onClick)="goToAlterDateExpired(contract)"
             severity="success"
             [rounded]="true"
             [text]="true"
+            pTooltip="Alterar Vencimento"
+            tooltipPosition="top"
           >
           </p-button>
         </div>
