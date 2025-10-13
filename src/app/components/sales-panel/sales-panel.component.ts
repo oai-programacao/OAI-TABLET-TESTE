@@ -10,7 +10,6 @@ import { AccordionModule } from 'primeng/accordion';
 import { TagModule } from 'primeng/tag';
 import { CommonModule } from '@angular/common';
 import { Toast } from "primeng/toast";
-import { IftaLabel } from "primeng/iftalabel";
 import { TableModule } from "primeng/table";
 import { Textarea } from "primeng/textarea";
 import { Tooltip } from 'primeng/tooltip';
@@ -37,7 +36,6 @@ type FilterOption = {
     TagModule, 
     CommonModule, 
     Toast, 
-    IftaLabel, 
     TableModule, 
     Textarea, 
     Tooltip, 
