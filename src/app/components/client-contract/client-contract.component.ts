@@ -164,6 +164,8 @@ export class ClientContractComponent implements OnInit {
   }
 
   navigateToAddressTransfer() {
-    this.router.navigate(['address-transfer']);
+    this.router.navigate(['address-transfer'], {
+      queryParams: {fromClient: this.clientId}
+    });
   }
 }

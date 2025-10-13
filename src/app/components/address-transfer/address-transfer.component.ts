@@ -7,7 +7,7 @@ import { ButtonModule } from 'primeng/button';
 import { TextareaModule } from 'primeng/textarea';
 import { DividerModule } from 'primeng/divider';
 import { SelectModule } from 'primeng/select';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { IftaLabelModule } from 'primeng/iftalabel';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
@@ -47,7 +47,15 @@ export interface AddressNew {
   styleUrls: ['./address-transfer.component.scss']
 })
 export class AddressTransferComponent {
+  private originClientId: string | null = null;
+
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+
+
+  ngOnInit(): void {
+    this.originClientId = this.route.snapshot.queryParamMap.get('fromClient');
+  }
 
   // formulário de endereço
   addressNewForm: AddressNew = {
@@ -90,7 +98,12 @@ export class AddressTransferComponent {
     console.log('💰 Dados do pagamento:', this.paymentForm);
   }
 
-  btnToBack(){
-    this.router.navigate(['client-contract'])
+  btnToBack(): void{
+    if(this.originClientId){
+      this.router.navigate(['client-contracts', this.originClientId]);
+    }else{
+      console.error('ID do cliente de origem não encontrado.');
+      this.router.navigate(['client-contracts']);
+    }
   }
 }
