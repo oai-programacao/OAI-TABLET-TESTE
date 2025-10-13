@@ -13,7 +13,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { MessageService, ConfirmationService} from 'primeng/api';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { Contract } from '../../models/contract/contract.dto';
 import { ContractsService } from '../../services/contracts/contracts.service';
@@ -129,7 +129,7 @@ export class ClientContractComponent implements OnInit {
     this.upgradeForm = this.fb.group({
       codePlan: [null, Validators.required],
       descountFixe: [0, Validators.required],
-      expirationCycle: [null, Validators.required], 
+      expirationCycle: [null, Validators.required],
       cicleFatId: [null],
       cicleBillingDayBase: [null],
       cicleBillingExpired: [null],
@@ -144,7 +144,7 @@ export class ClientContractComponent implements OnInit {
       }
     });
   }
-  
+
 
   loadContracts(clientId: string) {
     this.contractService
@@ -337,8 +337,19 @@ export class ClientContractComponent implements OnInit {
         this.loadContracts(this.clientId);
       },
       error: (err) => {
-        this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Não foi possível atualizar o contrato.' });
-        console.error(err);
+        let detailMessage = 'Não foi possível atualizar o contrato. Tente novamente mais tarde.';
+
+        if (err.error && typeof err.error.message === 'string') {
+          detailMessage = err.error.message;
+        }
+
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro de Regra de Negócio', 
+          detail: detailMessage
+        });
+
+        console.error('Erro detalhado:', err); 
       }
     });
   }
