@@ -100,7 +100,7 @@ export const routes: Routes = [
   {
   path: 'conclude',
     loadComponent: () =>
-      import('./components/conclude-sale/conclude-sale.component').then(
+      import('./components/sales-panel/sales-panel.component').then(
         (m) => m.ConcludeSaleComponent
       ),
     // canActivate: [AuthGuard],

@@ -11,47 +11,72 @@
     </div>
     <p-divider class="my-divider">
       <div class="title">
-        <h1>Vendas </h1>
+        <h1>Vendas</h1>
       </div>
     </p-divider>
 
-    <div class="filter-section">
-      <p-floatlabel class="w-full md:w-56" variant="on">
-        <p-select
-          size="large"
-          inputId="filtrar_por"
-          [style]="{ width: '10rem' }"
-          [panelStyle]="{ width: '24rem' }"
-        />
-        <label for="filtrar_por">Filtrar por</label>
-      </p-floatlabel>
+ <div class="filter-section">
+  <p-floatlabel class="w-full md:w-56" variant="on">
+    <p-select
+      size="large"
+      inputId="filtrar_por"
+      [style]="{ width: '12rem' }"
+      [panelStyle]="{ width: '14rem' }"
+      [options]="filterOptions"
+      [(ngModel)]="selectedFilter"
+      (onChange)="onFilterChange()"  
+      optionLabel="label" >
+       <ng-template let-option pTemplate="item">
+    <div class="flex items-center">
+      <span class="status-dot mr-3" [ngClass]="option.color"></span>
+      <span>{{ option.label }}</span>
     </div>
+  </ng-template>
+
+  <ng-template let-value pTemplate="value">
+    <div class="flex items-center">
+      <span class="status-dot" [ngClass]="value.color" style="margin-right: 5px;"></span>
+      <span>{{ value.label }}</span>
+    </div>
+  </ng-template>
+
+</p-select>
+
+    <label for="filtrar_por">Filtrar por</label>
+  </p-floatlabel>
+</div>
+
+    
 
     <div class="contracts-list">
+      <!--@if (sales.length === 0) {
+      <div class="no-contracts">
+        🚫 NÃO HÁ VENDAS COM ESTE STATUS 🚫
+      </div>
+      } @else { @for (sale of sales; track $index) {-->
       <div class="contract-card">
+        
         <div class="contract-info">
-          <!-- ADICIONE O ACCORDION AQUI (substitui o .addresscontract) -->
           <p-accordion>
             <p-accordion-panel value="0">
               <p-tag
                 class="acc-status"
                 [severity]="
                   {
-                    ATIVO: 'success',
-                    AGUARDANDO_INSTALACAO: 'warning',
-                    BLOQUEADO: 'danger',
-                    TRANSFERIDO: 'info',
-                    CANCELADO: 'secondary'
+                    COMPLETADA: 'success',
+                    INSTALACAO: 'secondary',
+                    ARQUIVADA: 'info',
+                    APROVADA: 'warn'
                   }[contract.situationDescription] || 'secondary'
                 "
               ></p-tag>
               <p-accordion-header class="title-accordion"
-                >[STATUS] N° Contrato 📜 (RBX) →</p-accordion-header
+                >[STATUS] N° Venda 📜 →</p-accordion-header
               >
               <p-accordion-content>
                 <div class="addresscontract">
                   <div class="section">
-                    <label>👤 Nome:</label>
+                    <label>👤 Cliente:</label>
                   </div>
 
                   <div class="section">
@@ -89,9 +114,9 @@
                       id="observacao"
                       style="resize: none"
                       name="observacao"
-                       [(ngModel)]="observation"
-                       [readonly]="!isEditing"
-          [disabled]="!isEditing || saving"
+                      [(ngModel)]="observation"
+                      [readonly]="!isEditing"
+                      [disabled]="!isEditing || saving"
                     ></textarea>
                   </div>
                 </div>
@@ -101,12 +126,30 @@
                     type="button"
                     icon="pi pi-check"
                     class="fab p-button-rounded p-button-icon-only"
-                   [icon]="saving ? 'pi pi-spinner pi-spin' : (isEditing ? 'pi pi-check' : 'pi pi-pencil')"
-          [disabled]="saving"
-          [pTooltip]="saving ? 'Salvando...' : (isEditing ? 'Salvar observação' : 'Editar observação')"
-          tooltipPosition="top"
-          [attr.aria-label]="saving ? 'Salvando' : (isEditing ? 'Salvar observação' : 'Editar observação')"
-          (click)="onEditButtonClick($event)"
+                    [icon]="
+                      saving
+                        ? 'pi pi-spinner pi-spin'
+                        : isEditing
+                        ? 'pi pi-check'
+                        : 'pi pi-pencil'
+                    "
+                    [disabled]="saving"
+                    [pTooltip]="
+                      saving
+                        ? 'Salvando...'
+                        : isEditing
+                        ? 'Salvar observação'
+                        : 'Editar observação'
+                    "
+                    tooltipPosition="top"
+                    [attr.aria-label]="
+                      saving
+                        ? 'Salvando'
+                        : isEditing
+                        ? 'Salvar observação'
+                        : 'Editar observação'
+                    "
+                    (click)="onEditButtonClick($event)"
                   ></button>
                 </div>
               </p-accordion-content>
@@ -118,3 +161,4 @@
     </div>
   </app-card-base>
 </div>
+<p-toast />

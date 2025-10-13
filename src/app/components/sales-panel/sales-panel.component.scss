@@ -1,4 +1,4 @@
-
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&display=swap");
 .page-container {
   display: flex;
   justify-content: center;
@@ -9,7 +9,7 @@
 :host ::ng-deep p-divider.my-divider .p-divider-content .title h1 {
   margin: 0;                    /* remove margens padrão do h1 */
   font-family: "IBM Plex Mono", monospace;
-  font-weight: 400;
+  font-weight: 500;
   font-size: 1.1rem;
   color: #7a7676;
   letter-spacing: .01em;
@@ -17,7 +17,7 @@
 }
 
 
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&display=swap");
+
 .title-accordion {
   font-family: "IBM Plex Mono", monospace !important;
   font-size: 1rem;
@@ -51,6 +51,13 @@
   .p-dropdown {
     width: 12rem;
     size: 100%;
+  }
+  ::ng-deep .p-select .p-select-label,
+  ::ng-deep .p-select-item {
+    font-family: "IBM Plex Mono", monospace !important;
+    font-size: 0.9rem;
+    color: #575353;
+    font-weight: 400;
   }
 }
 
@@ -235,3 +242,44 @@
 }
 :host ::ng-deep .fab .p-button-icon { 
     font-size: 1.1rem; }
+
+:host ::ng-deep .p-tag-warn {
+  background-color: rgba(247, 221, 73, 0.8) !important;
+  color: #fff !important;
+}
+
+:host ::ng-deep .p-tag-info {
+  background-color: rgba(52, 128, 243, 0.8) !important;
+  color: #fff !important;
+}
+
+:host ::ng-deep .p-tag-success {
+  background-color: rgba(52, 243, 77, 0.8) !important;
+  color: #fff !important;
+}
+
+:host ::ng-deep .p-tag-secondary {
+  background-color: rgba(245, 158, 11, 0.8) !important;
+  color: #fff !important;
+}
+
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-dot.success { /* Para COMPLETADA */
+  background-color: rgba(52, 243, 77, 0.8);
+}
+.status-dot.secondary { /* Para INSTALACAO */
+  background-color: rgba(245, 158, 11, 0.8);
+}
+.status-dot.info { /* Para ARQUIVADA */
+  background-color: rgba(52, 128, 243, 0.8);
+}
+.status-dot.warn { /* Para APROVADA */
+  background-color: rgba(247, 219, 60, 0.8);
+}
