@@ -58,9 +58,22 @@ export class AddressTransferComponent {
 
   displayDialog: boolean = false;
 
+    constructor() {
+    const navigation = this.router.getCurrentNavigation();
+    
+    if (navigation?.extras.state && navigation.extras.state['contractData']) {
+      this.currentContract = navigation.extras.state['contractData'] as Contract;
+      console.log('Dados do contrato SELECIONADO recebidos:', this.currentContract);
+    }
+  }
+
   ngOnInit(): void {
     this.originClientId = this.route.snapshot.queryParamMap.get('fromClient');
+    if(this.currentContract){
+  }else{
+    console.error("Não foram recebidos dados do contrato.");
   }
+}
 
   // formulário de endereço
   addressNewForm: AddressNew = {
