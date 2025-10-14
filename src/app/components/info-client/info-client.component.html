@@ -60,7 +60,25 @@
 
       <div class="body-content">
         <div class="avatar-row">
-          <div class="spacer"></div>
+          <div class="spacer">
+            <div class="menu-wrapper">
+              <!-- Menu escondido -->
+              <p-menu #menu [model]="items" [popup]="true"></p-menu>
+
+              <!-- Botão que abre/fecha o menu -->
+              <button
+                pButton
+                type="button"
+                icon="pi pi-cog"
+                class="menu-button"
+                severity="secondary"
+                label="Menu do Cliente"
+                raised="true"
+                style="background-color: #4b5563; color: #fff; border: none; border-radius: 8px;"
+                (click)="menu.toggle($event)"
+              ></button>
+            </div>
+          </div>
 
           <div class="avatar-center">
             <p-avatar

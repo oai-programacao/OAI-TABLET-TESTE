@@ -1,0 +1,221 @@
+/* === Layout Principal === */
+.page-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 88vh;
+}
+
+/* === Stepper (PrimeNG) === */
+.p-stepper {
+  --p-stepper-step-number-font-size: 2rem;
+  --p-stepper-step-number-background: #fff;
+  --p-stepper-step-number-color: #004e9b;
+  --p-stepper-step-number-active-background: #004e9b;
+  --p-stepper-step-number-active-color: #fff;
+  --p-stepper-separator-background: #375ca4;
+  --p-stepper-separator-active-background: #000;
+
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: transparent;
+}
+
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap");
+
+:host ::ng-deep .p-stepper .p-step-title {
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 400;
+  font-size: 1.05rem !important;
+  padding: 0.25rem 0.5rem;
+  border-radius: 3px;
+  transition: all 0.2s ease-in-out;
+}
+
+:host ::ng-deep .p-stepper .p-step.p-step-active .p-step-title {
+  background-color: #5ccdf9;
+  color: #000;
+  border: 1px solid #000;
+  box-shadow: 0 0 5px rgba(0.1, 0.3, 0.2, 0.4);
+  font-weight: 600 !important;
+}
+
+/* === Botões Superiores === */
+.btn-to-back {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+/* === Botões Inferiores (Navegação de Step) === */
+.btn-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+/* === Step Container === */
+.step {
+  width: 100%;
+  max-width: 650px;
+  margin: 2rem auto;
+  padding: 2rem;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease-in-out;
+
+  &.active {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  }
+
+  .step-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+}
+
+/* === Info Item === */
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px dashed #d4d4d4;
+  padding-bottom: 0.75rem;
+
+  .label {
+    color: #1a3b73;
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+
+  .value {
+    color: #111827;
+    font-size: 1.05rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.4rem;
+
+    .value-row {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+
+      i.pi-dollar {
+        color: #16a34a;
+        font-size: 1rem;
+      }
+    }
+  }
+
+  .highlight {
+    background: #fef3c7;
+    color: #92400e;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-weight: 600;
+  }
+}
+
+/* === Select === */
+.select-wrapper {
+  display: flex;
+  justify-content: center;
+
+  .custom-select {
+    width: 80%;
+    font-size: 1.1rem;
+  }
+}
+
+/* === Nova Data Selecionada === */
+.selected-info {
+  margin-top: 1.25rem;
+  text-align: center;
+  color: #1a3b73;
+  font-weight: 600;
+  font-size: 1.1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.4rem;
+
+  i {
+    color: #3b82f6;
+    font-size: 1.3rem;
+  }
+}
+
+:host ::ng-deep .p-select {
+  --p-select-option-selected-background: #4da3ff;
+  --p-select-option-selected-color: white;
+  --p-select-option-selected-focus-background: #377ad6;
+  --p-select-option-selected-focus-color: white;
+}
+
+:host ::ng-deep .p-select.p-component.p-focus {
+  border-color: #4da3ff !important;
+  box-shadow: 0 0 0 0.2rem rgba(77, 163, 255, 0.3) !important;
+}
+
+.proportional-info {
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  background-color: #f0f9ff;
+  color: #0369a1;
+  
+  font-weight: 1000;
+  border: 1px solid #bae6fd;
+
+  i {
+    font-size: 2rem;
+    color: #2f9102;
+  }
+  span {
+    font-size: 2rem;
+  }
+}
+
+.proportional-explanation {
+  margin: 0;
+  padding: 0;
+  font-size: 0.95rem;
+  color: #000000;
+  line-height: 1.5;
+  text-align: center;
+  background-color: rgb(255, 255, 229);
+  border: dashed gray 0.5px;
+  border-radius: 0.5rem;
+}
+
+
+.menu-wrapper {
+  position: relative;
+}
+
+
+.alert-warning {
+  padding: 1rem;              /* Espaçamento interno */
+  background-color: #fff3cd;  /* Amarelo claro */
+  color: #856404;             /* Texto marrom escuro */
+  border: 1px solid #ffeeba;  /* Borda amarela */
+  border-radius: 0.5rem;      /* Cantos arredondados */
+  font-weight: 500;           /* Texto um pouco mais destacado */
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;                /* Espaço entre ícone e texto */
+}
+
+.alert-warning i {
+  font-size: 1.2rem;          /* Tamanho do ícone */
+}
