@@ -14,6 +14,7 @@ import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { Contract } from '../../models/contract/contract.dto';
 import { ContractsService } from '../../services/contracts/contracts.service';
+import{ AuthService } from '../../core/auth.service';
 
 export interface Seller {
   name: string;
@@ -44,6 +45,7 @@ export class ClientContractComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly contractService = inject(ContractsService);
+  private readonly authService = inject(AuthService);
 
   isLoading = false;
 
@@ -163,9 +165,26 @@ export class ClientContractComponent implements OnInit {
     this.loadContractsTransfer(this.clientId);
   }
 
-  navigateToAddressTransfer() {
+  navigateToAddressTransfer(contract: Contract) {
+    const sellerId = this.authService.getSellerId();
+    if(!sellerId){
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erro',
+        detail: 'ID do vendedor não encontrado. Faça login novamente.',
+      });
+      return;
+    }
+
     this.router.navigate(['address-transfer'], {
-      queryParams: {fromClient: this.clientId}
-    });
-  }
+      queryParams: {
+        fromClient: this.clientId,
+        contractId: contract.id,}
+    },
+    state:{
+      contractData: contract,
+    }
+  });
 }
+}
+

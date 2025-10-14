@@ -14,6 +14,8 @@ import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { FormsModule } from '@angular/forms';
 import { NgxMaskDirective } from 'ngx-mask';
 import { MessagesValidFormsComponent } from "../../shared/components/message-valid-forms/message-valid-forms.component";
+import { DialogModule } from 'primeng/dialog';
+import { Contract } from '../../models/contract/contract.dto';
 
 export interface AddressNew {
   cep: number | null;
@@ -41,17 +43,20 @@ export interface AddressNew {
     InputGroupAddonModule,
     FormsModule,
     NgxMaskDirective,
-    MessagesValidFormsComponent
+    MessagesValidFormsComponent,
+    DialogModule
   ],
   templateUrl: './address-transfer.component.html',
   styleUrls: ['./address-transfer.component.scss']
 })
 export class AddressTransferComponent {
   private originClientId: string | null = null;
-
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
+  currentContract: Contract | null = null;
+
+  displayDialog: boolean = false;
 
   ngOnInit(): void {
     this.originClientId = this.route.snapshot.queryParamMap.get('fromClient');
@@ -105,5 +110,13 @@ export class AddressTransferComponent {
       console.error('ID do cliente de origem não encontrado.');
       this.router.navigate(['client-contracts']);
     }
+  }
+
+  openDialog(){
+    this.displayDialog = true;
+  }
+
+  closeDialog(){
+    this.displayDialog = false;
   }
 }

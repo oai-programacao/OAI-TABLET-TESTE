@@ -54,7 +54,10 @@
     align-items: center;
     flex-direction: column;
     justify-content: space-between;
-    flex: 1 1 calc(33.33% - 1rem)
+    flex: 1 1 calc(33.33% - 1rem);
+    position: relative; 
+    padding-top: 20px;
+    margin-bottom: 1rem;
 }
 
 .text-area-content {
@@ -65,10 +68,11 @@
 }
 
 .btn-actions {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 1rem;
+  margin-bottom: 1rem;
+  padding: 0.2rem;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-start;
 }
 
 
@@ -95,21 +99,13 @@
     flex-direction: column;
 }
 
-.btn-actions-os {
-    display: flex;
-    gap: 5rem;
-    width: 100%;
-    align-items: center;
-    justify-content: center;
-}
 
 .btn-to-navigate {
     display: flex;
     width: 100%;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 0 0;
-    margin-top: 5rem;
+    margin-top: 1rem;
 }
 
 .signature-pad-container {
@@ -263,9 +259,14 @@
 }
 
 .msg-error {
+    position: absolute;  
     text-align: start;
     width: 100%;
     padding: 0.2rem;
+    top: 0;
+    left: 5px; 
+    width: 100%;
+    z-index: 2; 
 }
 
 .btn-to-back{
@@ -273,4 +274,33 @@
     align-items: center;
     justify-content: flex-start;
     padding: 0 0 0.5rem 0;
+}
+
+// CSS para o seu componente
+
+.dialog-form-container {
+  display: flex;         // Ativa o layout flexível
+  flex-wrap: wrap;       // Permite que os itens quebrem para a próxima linha
+  gap: 1.5rem 1rem;      // Mágica! Espaço de 1.5rem vertical e 1rem horizontal entre os campos
+}
+
+// Estilo para campos que ocupam "metade" da largura
+.form-field {
+  // A fórmula para 2 colunas com um gap de 1rem:
+  flex: 1 1 calc(50% - 0.5rem); 
+  box-sizing: border-box;
+}
+
+// Estilo para campos que ocupam a largura TOTAL
+.form-field-full {
+  flex: 1 1 100%;
+  box-sizing: border-box;
+
+}
+
+// Garante que o input dentro do PrimeNG ocupe todo o espaço do seu container
+:host ::ng-deep .form-field .p-inputtext,
+:host ::ng-deep .form-field-full .p-inputtext,
+:host ::ng-deep .form-field-full .p-inputtextarea {
+  width: 100%;
 }
