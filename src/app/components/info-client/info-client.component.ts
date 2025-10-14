@@ -81,31 +81,23 @@ export class InfoClientComponent implements OnInit {
 
     this.items = [
       {
-        label: 'Documents',
+        label: 'Relacionados',
         items: [
           {
-            label: 'New',
-            icon: 'pi pi-plus',
-          },
-          {
-            label: 'Search',
-            icon: 'pi pi-search',
+            label: 'Atendimentos',
+            icon: 'pi pi-paperclip',
           },
         ],
       },
-      {
-        label: 'Profile',
-        items: [
-          {
-            label: 'Settings',
-            icon: 'pi pi-cog',
-          },
-          {
-            label: 'Logout',
-            icon: 'pi pi-sign-out',
-          },
-        ],
-      },
+      // {
+      //   label: 'Extras',
+      //   items: [
+      //     {
+      //       label: 'Settings',
+      //       icon: 'pi pi-cog',
+      //     },
+      //   ],
+      // },
     ];
   }
 

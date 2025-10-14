@@ -37,43 +37,51 @@
                 <div class="info-item">
                   <span class="label">Valores Atuais</span>
                   <div class="value">
-
                     <div class="value-row">
                       <i class="pi pi-dollar"></i>
-                      <span>Bruto: {{ contract.brutePrice | number:'1.2-2' }}</span>
+                      <span
+                        >Bruto:
+                        {{ contract!.brutePrice | number : "1.2-2" }}</span
+                      >
                     </div>
 
                     <div class="value-row">
                       <i class="pi pi-dollar"></i>
-                      <span>Desconto: -{{ contract.descountFixe | number:'1.2-2' }}</span>
+                      <span
+                        >Desconto: -{{
+                          contract!.descountFixe | number : "1.2-2"
+                        }}</span
+                      >
                     </div>
 
                     <div class="value-row">
                       <i class="pi pi-dollar"></i>
-                      <span>Líquido: {{ contract.liquidPrice | number:'1.2-2' }}</span>
+                      <span
+                        >Líquido:
+                        {{ contract!.liquidPrice | number : "1.2-2" }}</span
+                      >
                     </div>
-    
                   </div>
                 </div>
 
                 <div class="info-item">
                   <span class="label">Data de Assinatura / Início</span>
                   <span class="value">
-                    {{ contract.dateSignature | date : "dd/MM/yyyy" }} -
-                    {{ contract.dateStart | date : "dd/MM/yyyy" }}
+                    {{ contract!.dateSignature | date : "dd/MM/yyyy" }} -
+                    {{ contract!.dateStart | date : "dd/MM/yyyy" }}
                   </span>
                 </div>
 
                 <div class="info-item">
                   <span class="label">Vigência</span>
-                  <span class="value">{{ contract.vigencia }} meses</span>
+                  <span class="value">{{ contract!.vigencia }} meses</span>
                 </div>
 
                 <div class="info-item">
                   <span class="label">Ciclo de Faturamento</span>
                   <span class="value highlight">
-                    Dia base: {{ contract.cicleBillingDayBase }} / Dia de
-                    Vencimento: {{ contract.cicleBillingExpired }}
+                    Dia base: {{ contract!.cicleBillingDayBase }} / Dia de
+                    Vencimento: {{ contract!.cicleBillingExpired }}
                   </span>
                 </div>
 
@@ -101,9 +109,8 @@
                   <p>
                     O valor abaixo é calculado proporcionalmente ao período
                     restante do mês atual. Considera-se o valor líquido do
-                    contrato dividido pela quantidade de dias [30],
-                    multiplicado pelo número de dias até o novo dia base
-                    escolhido.
+                    contrato dividido pela quantidade de dias [30], multiplicado
+                    pelo número de dias até o novo dia base escolhido.
                   </p>
                 </div>
 
@@ -133,13 +140,58 @@
                 iconPos="right"
                 label="Próximo"
                 (onClick)="activateCallback(2)"
+                [disabled]="!selectedBillingCycle"
               ></p-button>
             </div>
           </ng-template>
         </p-step-panel>
 
         <p-step-panel [value]="2">
-          <!-- Conteúdo da etapa 2 -->
+          <ng-template #content>
+            <div *ngIf="selectedBillingCycle; else noDateSelected">
+              <!-- Conteúdo real do passo 2 -->
+              <p>Termo de Consentimento: Verificar questões de assinatura, abertura de atendimento no rbx , inclusão da imagem lá, salvar a imagem aqui e boa..</p>
+
+              <div class="btn-actions">
+                <!-- Visualizar / Baixar PDF -->
+                <p-button
+                  label="Visualizar PDF"
+                  icon="pi pi-file-pdf"
+                  severity="success"
+                  [raised]="true"
+                  rounded="true"
+                  (onClick)="getConsentTermPdf()"
+                ></p-button>
+
+                <!-- Enviar via WhatsApp -->
+                <p-button
+                  label="Enviar WhatsApp"
+                  icon="pi pi-whatsapp"
+                  severity="info"
+                  rounded="true"
+                  [raised]="true"
+                  (onClick)="enviarWhatsapp()"
+                ></p-button>
+
+                <!-- Enviar para API autenticada -->
+                <p-button
+                  label="Autentique"
+                  icon="pi pi-send"
+                  severity="warn"
+                  rounded="true"
+                  [raised]="true"
+                  (onClick)="enviarApi()"
+                ></p-button>
+              </div>
+            </div>
+
+            <ng-template #noDateSelected>
+              <div class="alert-warning">
+                ⚠️ Para acessar este passo, volte ao passo anterior e selecione
+                a nova data de vencimento.
+              </div>
+            </ng-template>
+          </ng-template>
         </p-step-panel>
 
         <p-step-panel [value]="3">

@@ -173,13 +173,16 @@
   border-radius: 8px;
   background-color: #f0f9ff;
   color: #0369a1;
-  font-weight: 600;
-  font-size: 1.1rem;
+  
+  font-weight: 1000;
   border: 1px solid #bae6fd;
 
   i {
-    font-size: 1.3rem;
-    color: #0ea5e9;
+    font-size: 2rem;
+    color: #2f9102;
+  }
+  span {
+    font-size: 2rem;
   }
 }
 
@@ -198,4 +201,21 @@
 
 .menu-wrapper {
   position: relative;
+}
+
+
+.alert-warning {
+  padding: 1rem;              /* Espaçamento interno */
+  background-color: #fff3cd;  /* Amarelo claro */
+  color: #856404;             /* Texto marrom escuro */
+  border: 1px solid #ffeeba;  /* Borda amarela */
+  border-radius: 0.5rem;      /* Cantos arredondados */
+  font-weight: 500;           /* Texto um pouco mais destacado */
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;                /* Espaço entre ícone e texto */
+}
+
+.alert-warning i {
+  font-size: 1.2rem;          /* Tamanho do ícone */
 }

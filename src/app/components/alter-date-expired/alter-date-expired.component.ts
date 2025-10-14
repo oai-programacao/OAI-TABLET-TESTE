@@ -12,6 +12,12 @@ import { SelectModule } from 'primeng/select';
 import { forkJoin } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { CommonModule, DatePipe } from '@angular/common';
+import { ReportsService } from '../../services/reports/reports.service';
+
+export interface ConsentTermRequest {
+  proportionalValue: number;
+  newDateExpired: string;
+}
 
 @Component({
   selector: 'app-alterdateexpired',
@@ -39,6 +45,7 @@ export class AlterDateExpiredComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly contractService = inject(ContractsService);
   private readonly clientService = inject(ClientService);
+  private readonly reportsService = inject(ReportsService);
 
   ngOnInit() {
     this.route.queryParams.subscribe((params) => {
@@ -64,6 +71,34 @@ export class AlterDateExpiredComponent {
         console.error('Erro ao carregar contrato ou cliente', err);
       },
     });
+  }
+
+  getConsentTermPdf() {
+    if (!this.selectedBillingCycle) return;
+
+    // Encontrar o objeto selecionado
+    const selected = this.typesOfDateExpirationCicle.find(
+      (t) => t.value === this.selectedBillingCycle
+    );
+
+    if (!selected) return;
+
+    const requestBody: ConsentTermRequest = {
+      proportionalValue: this.proportionalBoleto || 0,
+      newDateExpired: selected.descricao,
+    };
+
+    this.reportsService
+      .getConsentTermPdf(this.clientId, this.contractId, requestBody)
+      .subscribe({
+        next: (blob) => {
+          const fileURL = URL.createObjectURL(blob);
+          window.open(fileURL); // abre o PDF em nova aba
+        },
+        error: (err) => {
+          console.error('Erro ao gerar PDF', err);
+        },
+      });
   }
 
   voltarParaCliente() {
@@ -92,6 +127,7 @@ export class AlterDateExpiredComponent {
   proportionalBoleto: number | null = null;
 
   typesOfDateExpirationCicle = [
+    { descricao: 'Nenhum' },
     { descricao: '01 a 31 / 01', value: 1 },
     { descricao: '02 a 01 / 02', value: 2 },
     { descricao: '03 a 02 / 03', value: 3 },
@@ -152,4 +188,9 @@ export class AlterDateExpiredComponent {
       this.proportionalBoleto = null;
     }
   }
+
+
+  enviarWhatsapp() {}
+
+  enviarApi() {}
 }
