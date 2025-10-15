@@ -8,7 +8,7 @@ import { environment } from '../../../environments/environment';
   providedIn: 'root',
 })
 export class ActionsContractsService {
-  apiUrl = environment.apiUrl + 'autentique';
+  apiUrl = environment.apiUrl + '/autentique';
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
