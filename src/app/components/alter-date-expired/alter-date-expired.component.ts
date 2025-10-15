@@ -27,11 +27,6 @@ export interface ConsentTermRequest {
   newDateExpired: string;
 }
 
-export interface Signer {
-  name: string;
-  phone: string;
-}
-
 @Component({
   selector: 'app-alterdateexpired',
   imports: [
@@ -60,7 +55,6 @@ export class AlterDateExpiredComponent {
   contract!: Contract;
   client!: Cliente;
 
-  signers: Signer[] = [];
 
   modalVisible: boolean = false;
   phone: string = '';
@@ -224,33 +218,29 @@ export class AlterDateExpiredComponent {
   }
 
   sendToAutentiqueSubmit() {
-    const term = {
-      proportionalValue: this.proportionalBoleto,
-      newDateExpired:
-        this.typesOfDateExpirationCicle.find(
-          (t) => t.value === this.selectedBillingCycle
-        )?.descricao || '',
-    };
+  const term = {
+    proportionalValue: this.proportionalBoleto,
+    newDateExpired: this.typesOfDateExpirationCicle.find(
+      (t) => t.value === this.selectedBillingCycle
+    )?.descricao || '',
+  };
 
-    const mappedSigners = this.signers.map((signer) => ({
-      name: signer.name,
-      phone: signer.phone,
-      action: null,
-      delivery: null,
-    }));
+  const mappedSigners = [{
+    name: this.client.name,
+    phone: this.phone,
+  }];
 
-    const payload = {
-      term,
-      signers: mappedSigners,
-    };
+  const payload = {
+    term,
+    signers: mappedSigners,
+  };
 
-    this.actionsContractsService
-      .sendAlterDateAutentique(payload, this.clientId, this.contractId)
-      .subscribe({
-        next: (res) => 
-          console.log('Contrato enviado com sucesso', res),
-        error: (err) => 
-          console.error('Erro ao enviar contrato', err),
-      });
-  }
+  this.actionsContractsService
+    .sendAlterDateAutentique(payload, this.clientId, this.contractId)
+    .subscribe({
+      next: (res) => console.log('Contrato enviado com sucesso', res),
+      error: (err) => console.error('Erro ao enviar contrato', err),
+    });
+}
+
 }
