@@ -56,4 +56,23 @@ export class ContractsService {
       payload
     );
   }
+
+  changeAddressContract(payload: {
+  clientId: string;
+  contractNumber: string;
+  sellerId: string;
+  newZip: string | null;
+  newNumber: string | null;
+  newComplement: string | null;
+  newState: string;
+  newCity: string;
+  newStreet: string;
+  newNeighborhood: string;
+  // observation?: string | null; // Só inclua se o backend realmente espera!
+}): Observable<any> {
+  return this.http.post<any>(
+    `${this.urlApi}/automation/address-update`,
+    payload
+  );
+}
 }

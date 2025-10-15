@@ -176,7 +176,8 @@ export class InfoClientComponent implements OnInit {
       this.cepService.searchCEP(cep).subscribe({
         next: (dados) => {
           if (!dados.erro) {
-            this.cliente.rua = dados.rua || '';
+            this.cliente.rua = dados.logradouro|| '';
+            this.cliente.cidade = dados.localidade || '';
             this.cliente.uf = dados.uf || '';
             this.cliente.complemento = dados.complemento || '';
           } else {
@@ -194,7 +195,7 @@ export class InfoClientComponent implements OnInit {
     } else {
       this.messageService.add({
         severity: 'warn',
-        summary: 'Aviso',
+        summary: 'Aviso', 
         detail: 'ID do cliente não encontrado!',
       });
     }

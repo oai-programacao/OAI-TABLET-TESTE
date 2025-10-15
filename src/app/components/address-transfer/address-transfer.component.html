@@ -20,9 +20,11 @@
           <p-step-panel [value]="1">
             <ng-template #content let-activateCallback="activateCallback">
               <div>
+                <p-divider>
                 <h1 class="title-address-form">Endereço Atual</h1>
-                <p-divider />
+                </p-divider>
               </div>
+
               <div class="form-container">
                 <div class="form-content">
                   <div class="input-content">
@@ -35,14 +37,14 @@
                           type="text"
                           [mask]="'00000-000'"
                           pInputText
-                          value="19800-002"
+                          [ngModel]="currentContract?.zipCode"
                           disabled
-    
                         />
                         <label for="CEP">CEP:</label>
                       </p-iftalabel>
                     </p-inputgroup>
                   </div>
+
                   <div class="input-content">
                     <p-inputgroup>
                       <p-inputgroup-addon>
@@ -52,24 +54,29 @@
                         <input
                           type="text"
                           pInputText
-                          value="Rua Maomé"
+                          [ngModel]="currentContract?.street"
                           disabled
                         />
                         <label for="address-street">Logradouro:</label>
                       </p-iftalabel>
                     </p-inputgroup>
                   </div>
+
                   <div class="input-content">
                     <p-inputgroup>
                       <p-inputgroup-addon>
                         <i class="pi pi-bell"></i>
                       </p-inputgroup-addon>
                       <p-iftalabel>
-                        <input type="text" pInputText value="212" disabled />
+                        <input type="text" 
+                        pInputText 
+                        [ngModel]="currentContract?.number" 
+                        disabled />
                         <label for="address-number">N° Casa/Apartamento:</label>
                       </p-iftalabel>
                     </p-inputgroup>
                   </div>
+
                   <div class="input-content">
                     <p-inputgroup>
                       <p-inputgroup-addon>
@@ -80,13 +87,34 @@
                           type="text"
                           id="address-complement"
                           pInputText
-                          value="casa"
+                          [ngModel]="currentContract?.complement"
                           disabled
                         />
                         <label for="address-complement">Complemento:</label>
                       </p-iftalabel>
                     </p-inputgroup>
                   </div>
+
+                  <!-- Cidade -->
+                   <div class="input-content">
+            <p-inputgroup>
+              <p-inputgroup-addon
+                ><i class="pi pi-paperclip"></i
+              ></p-inputgroup-addon>
+              <p-iftalabel variant="on">
+                <input
+                  pInputText
+                  id="cidade"
+                  name="cidade"
+                  [ngModel]="currentContract?.city"
+                  #cidade="ngModel"
+                  disabled
+                />
+                <label for="cidade">Cidade:</label>
+              </p-iftalabel>
+            </p-inputgroup>
+          </div>
+
                   <div class="input-content">
                     <p-inputgroup>
                       <p-inputgroup-addon>
@@ -97,7 +125,7 @@
                           type="text"
                           [mask]="'AA'"
                           pInputText
-                          value="SP"
+                          [ngModel]="currentContract?.state" 
                           disabled
                         />
                         <label for="UF">UF:</label>
@@ -109,22 +137,27 @@
                     <p-iftalabel>
                       <textarea
                         style="width: 100%; height: auto"
-                        placeholder="TAL TAL"
+                        placeholder="Observações"
                         disabled
                         rows="5"
                         cols="20"
                         pTextarea
                         [autoResize]="true"
+                        [value]="currentContract?.observation"
                       ></textarea>
                       <label for="observation">Observação:</label>
                     </p-iftalabel>
                   </div>
                 </div>
               </div>
+
+
               <div>
-                <p-divider />
+                <p-divider>
                 <h1 class="title-address-form">Endereço Novo</h1>
+                </p-divider>
               </div>
+
               <form #addressNewNgForm="ngForm" class="form-container">
                 <div class="form-content">
                   <!-- CEP -->
@@ -149,6 +182,7 @@
                           [mask]="'00000-000'"
                           [(ngModel)]="addressNewForm.cep"
                           #cep="ngModel"
+                          (blur)="searchCEP()"
                           required
                         />
                         <label for="CEP">CEP:</label>
@@ -203,7 +237,6 @@
                           name="numberFromHome"
                           type="text"
                           pInputText
-                          [mask]="'000000'"
                           [(ngModel)]="addressNewForm.numberFromHome"
                           #numberFromHome="ngModel"
                           required
@@ -232,6 +265,24 @@
                       </p-iftalabel>
                     </p-inputgroup>
                   </div>
+                  <!-- Cidade -->
+                   <div class="input-content">
+            <p-inputgroup>
+              <p-inputgroup-addon
+                ><i class="pi pi-paperclip"></i
+              ></p-inputgroup-addon>
+              <p-iftalabel variant="on">
+                <input
+                  pInputText
+                  id="cidade"
+                  name="cidade"
+                  [(ngModel)]="addressNewForm.city"
+                  #cidade="ngModel"
+                />
+                <label for="cidade">Cidade</label>
+              </p-iftalabel>
+            </p-inputgroup>
+          </div>
 
                   <!-- UF -->
                   <div class="input-content">
@@ -300,6 +351,7 @@
                   label="Próximo"
                   size="large"
                   (onClick)="activateCallback(2)"
+                  [disabled]="!addressNewNgForm.valid"
                 />
               </div>
             </ng-template>
@@ -487,6 +539,7 @@
                     size="large"
                     icon="pi pi-check"
                     severity="success"
+                    (onClick)="sendToAutomation()"
                   />
                 </div>
               </div>
@@ -498,17 +551,22 @@
   </app-card-base>
 </div>
 
-<p-dialog header="Verificar Oferta" [(visible)]="displayDialog"
-  [modal]="true" [style]="{ width: '35rem' }" [draggable]="false"
-  [resizable]="false">
-
+<p-dialog
+  header="Verificar Oferta"
+  [(visible)]="displayDialog"
+  [modal]="true"
+  [style]="{ width: '35rem' }"
+  [draggable]="false"
+  [resizable]="false"
+>
   <div class="dialog-form-container">
-
     <div class="form-field">
       <p-inputgroup>
         <p-inputgroup-addon><i class="pi pi-home"></i></p-inputgroup-addon>
         <p-iftalabel>
-          <input pInputText disabled value="Endereço Fixo Exemplo" />
+          <input 
+          [ngModel]="currentContract?.street"
+          pInputText disabled />
           <label for="current-address">Endereço Atual:</label>
         </p-iftalabel>
       </p-inputgroup>
@@ -518,18 +576,26 @@
       <p-inputgroup>
         <p-inputgroup-addon><i class="pi pi-home"></i></p-inputgroup-addon>
         <p-iftalabel>
-          <input pInputText disabled value="Endereço Novo Exemplo" />
+          <input 
+          [(ngModel)]="addressNewForm.street"
+          pInputText disabled 
+           />
           <label for="current-address">Endereço Novo:</label>
         </p-iftalabel>
       </p-inputgroup>
     </div>
 
     <div class="form-field-full">
-        <label>Observações</label>
-      <textarea style="width: 100%" rows="8" cols="54" style="resize: none" pTextarea ></textarea>
+      <label>Observações</label>
+      <textarea
+        style="width: 100%"
+        rows="8"
+        cols="54"
+        style="resize: none"
+        pTextarea
+      ></textarea>
     </div>
-
-  </div> 
+  </div>
   <ng-template pTemplate="footer">
     <div class="btn-to-navigate">
       <p-button
@@ -537,8 +603,8 @@
         icon="pi pi-arrow-left"
         severity="danger"
         size="large"
-        (click)="closeDialog()" />
-      </div>
+        (click)="closeDialog()"
+      />
+    </div>
   </ng-template>
-
 </p-dialog>

@@ -23,21 +23,19 @@
 
 .form-container {
     display: flex;
-    align-items: center;
     width: 100%;
-    justify-content: space-between;
     flex-direction: row;
-    max-width: 31.25rem;
+    max-width: 30rem;
     min-width: 50rem;
     padding: 1rem;
     gap: 1rem;
-    padding: 0.125rem;
+    padding: 0.1rem;
+    margin: 1rem;
 }
 
 
 .form-content {
-    gap: 1rem;
-    width: 100%;
+    gap: 0.8rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -56,7 +54,7 @@
     justify-content: space-between;
     flex: 1 1 calc(33.33% - 1rem);
     position: relative; 
-    padding-top: 20px;
+    padding-top: 0.9rem;
     margin-bottom: 1rem;
 }
 
@@ -73,6 +71,8 @@
   display: flex;
   gap: 0.5rem;
   justify-content: flex-start;
+  padding-bottom: 0rem;
+  margin: 0.9rem;
 }
 
 
@@ -260,13 +260,12 @@
 
 .msg-error {
     position: absolute;  
-    text-align: start;
-    width: 100%;
-    padding: 0.2rem;
+    bottom: 100%;  
     top: 0;
     left: 5px; 
     width: 100%;
     z-index: 2; 
+    white-space: nowrap;
 }
 
 .btn-to-back{

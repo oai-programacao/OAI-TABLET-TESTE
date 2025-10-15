@@ -16,6 +16,8 @@ import { ConfirmDialog } from 'primeng/confirmdialog';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { Popover } from 'primeng/popover';
 
+
+
 @Component({
   selector: 'app-client-contract',
   imports: [

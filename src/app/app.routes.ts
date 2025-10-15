@@ -103,7 +103,7 @@ export const routes: Routes = [
       import('./components/alter-date-expired/alter-date-expired.component').then(
         (m) => m.AlterDateExpiredComponent
       )
-  }
+  },
   {
   path: 'conclude',
     loadComponent: () =>
