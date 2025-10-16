@@ -9,20 +9,10 @@
     </p-divider>
 
     <div class="btn-to-create-another-contract">
-      <p-button
-        [rounded]="true"
-        [raised]="true"
-        (onClick)="navigateToInfoClient()"
-        icon="pi pi-arrow-left"
-        severity="danger"
-      />
-      <p-button
-        [raised]="true"
-        label="Criar Contrato"
-        (onClick)="navigateToCreatContract()"
-        icon="pi pi-plus"
-        severity="success"
-      />
+      <p-button [rounded]="true" [raised]="true" (onClick)="navigateToInfoClient()" icon="pi pi-arrow-left"
+        severity="danger" />
+      <p-button [raised]="true" label="Criar Contrato" (onClick)="navigateToCreatContract()" icon="pi pi-plus"
+        severity="success" />
     </div>
 
     <div class="infolegends">
@@ -132,21 +122,17 @@
         </div>
 
         <div class="contract-actions">
-          <p-button icon="pi pi-arrow-up" (onClick)="openUpgradeDialog(contract, true)" severity="success" [rounded]="true"
-            [text]="true" pTooltip="Fazer Upgrade" tooltipPosition="top"/>
-          <p-button icon="pi pi-arrow-down" (onClick)="openUpgradeDialog(contract, false)" severity="danger" [rounded]="true"
-            [text]="true" pTooltip="Fazer Downgrade" tooltipPosition="top" />
+          <p-button icon="pi pi-arrow-up" (onClick)="openUpgradeDialog(contract, true)" severity="success"
+            [rounded]="true" [text]="true" pTooltip="Fazer Upgrade" tooltipPosition="top" />
+          <p-button icon="pi pi-arrow-down" (onClick)="openUpgradeDialog(contract, false)" severity="danger"
+            [rounded]="true" [text]="true" pTooltip="Fazer Downgrade" tooltipPosition="top" />
           <p-button icon="pi pi-home" (onClick)="navigateToAddressTransfer()" severity="warn" [rounded]="true"
-            [text]="true"  pTooltip="Transferir Endereço" tooltipPosition="top"/>
-          <p-button
-            icon="pi pi-calendar"
-            (onClick)="goToAlterDateExpired(contract)"
-            severity="success"
-            [rounded]="true"
-            [text]="true"
-            pTooltip="Alterar Vencimento"
-            tooltipPosition="top"
-          >
+            [text]="true" pTooltip="Transferir Endereço" tooltipPosition="top" />
+          <p-button icon="pi pi-calendar" (onClick)="goToAlterDateExpired(contract)" severity="success" [rounded]="true"
+            [text]="true" pTooltip="Alterar Vencimento" tooltipPosition="top">
+          </p-button>
+          <p-button icon="pi pi-users" (onClick)="openTransferDialog(contract)" severity="info" [rounded]="true"
+            [text]="true" pTooltip="Transferir Titularidade" tooltipPosition="top">
           </p-button>
         </div>
       </div>
@@ -154,6 +140,81 @@
     </div>
   </app-card-base>
 </div>
+
+<!-- Transferir titluatriade DIALOGO  -->
+<p-dialog
+  header="Transferir Titularidade"
+  [(visible)]="transferDialogVisible"
+  [modal]="true"
+  [style]="{ width: '30rem' }"
+  [draggable]="false"
+  (onHide)="closeTransferDialog()"
+  styleClass="transfer-dialog-wrapper"
+>
+  <div class="transfer-dialog">
+    <div class="transfer-dialog__header">
+      <label>Contrato a ser transferido:</label>
+      <span>#{{ selectedContractForTransfer?.codeContractRbx }}</span>
+    </div>
+
+    <div class="transfer-dialog__content">
+      <div *ngIf="isLoadingTransfer" class="transfer-dialog__loading-overlay">
+        <p-progressSpinner strokeWidth="4"></p-progressSpinner>
+        <span class="loading-message">{{ loadingMessage }}</span>
+      </div>
+
+      <ng-container [ngSwitch]="transferStep">
+        <div *ngSwitchCase="'search'" class="transfer-dialog__step">
+          <div class="form-group-input" style="width: 100%;">
+            <p-iftalabel variant="on" style="width: 100%">
+              <input
+                pInputText
+                id="documento"
+                [(ngModel)]="documento"
+                name="documento"
+                required
+                minlength="14"
+                maxlength="18"
+                placeholder="CPF/CNPJ"
+                (ngModelChange)="formatarDocumento($event)"
+                (keypress)="allowOnlyNumbers($event)"
+                (paste)="onPaste($event)"
+                autocomplete="off"
+              />
+              <label for="documento"></label>
+            </p-iftalabel>
+          </div>
+        </div>
+
+        <!-- Outras etapas (confirm, notFound, success) -->
+        <div *ngSwitchCase="'confirm'" class="transfer-dialog__step">
+            <p class="transfer-dialog__label">Transferir para o cliente:</p>
+            <p class="transfer-dialog__name">{{ foundClient?.name }}</p>
+        </div>
+        <div *ngSwitchCase="'notFound'" class="transfer-dialog__step">
+            <i class="pi pi-exclamation-triangle transfer-dialog__icon--error"></i>
+            <p class="transfer-dialog__message--error">Cliente não encontrado.</p>
+            <p class="transfer-dialog__subtext">Deseja cadastrá-lo agora?</p>
+        </div>
+        <div *ngSwitchCase="'success'" class="transfer-dialog__step">
+            <i class="pi pi-check-circle transfer-dialog__icon--success"></i>
+            <p class="transfer-dialog__message--success">Transferência Concluída!</p>
+        </div>
+
+      </ng-container>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Cancelar" icon="pi pi-times" (click)="closeTransferDialog()" severity="danger"></p-button>
+    <p-button *ngIf="transferStep === 'search'" label="Buscar Cliente" icon="pi pi-search"
+      (click)="onSearchClientByCpf()" severity="success"></p-button>
+    <p-button *ngIf="transferStep === 'confirm'" label="Confirmar Transferência" icon="pi pi-check"
+      (click)="onConfirmTransfer()" severity="success"></p-button>
+    <p-button *ngIf="transferStep === 'notFound'" label="Cadastrar Cliente" icon="pi pi-user-plus"
+      (click)="navigateToCreateClient()" severity="help"></p-button>
+  </ng-template>
+</p-dialog>
 
 <!-- UPGRADE/DOWNGRADE -->
 <p-dialog [header]="dialogTitle" [(visible)]="upgradeDialog" [modal]="true" (onHide)="onHide()"
@@ -200,29 +261,20 @@
     <p-button label="Cancelar" icon="pi pi-times" (click)="onHide()" severity="danger">
     </p-button>
 
-    <p-button label="Confirmar Alteração" icon="pi pi-check" type="submit" [disabled]="upgradeForm.invalid" (click)="submitUpgrade()" severity="success">
+    <p-button label="Confirmar Alteração" icon="pi pi-check" type="submit" [disabled]="upgradeForm.invalid"
+      (click)="submitUpgrade()" severity="success">
     </p-button>
   </ng-template>
 </p-dialog>
 <p-toast />
 
-<p-dialog
-  header="Alterar Data de Vencimento"
-  [(visible)]="dialogBilling"
-  [modal]="true"
-  [resizable]="false"
-  [draggable]="false"
->
+<p-dialog header="Alterar Data de Vencimento" [(visible)]="dialogBilling" [modal]="true" [resizable]="false"
+  [draggable]="false">
   <div class="dialog-content">
     <!-- Container para ícone acima do select -->
     <div class="select-with-icon">
       <div class="warn-icon-container">
-        <span
-          class="warn-icon"
-          (click)="toggle(pop3, $event)"
-          role="button"
-          aria-label="Informação importante"
-        >
+        <span class="warn-icon" (click)="toggle(pop3, $event)" role="button" aria-label="Informação importante">
           !
         </span>
         <p-popover #pop3 [dismissable]="true">
@@ -236,34 +288,20 @@
         </p-popover>
       </div>
 
-      <p-select
-        [options]="typesOfDateExpirationCicle"
-        [appendTo]="'body'"
-        optionLabel="descricao"
-        optionValue="value"
-        placeholder="Selecione um Ciclo"
-        [(ngModel)]="selectedBillingCycle"
-      ></p-select>
+      <p-select [options]="typesOfDateExpirationCicle" [appendTo]="'body'" optionLabel="descricao" optionValue="value"
+        placeholder="Selecione um Ciclo" [(ngModel)]="selectedBillingCycle"></p-select>
     </div>
 
     <div>
-      <button
-        pButton
-        label="Trocar"
-        class="p-button-warning"
-        (click)="confirmTransferDate(selectedContract)"
-      ></button>
+      <button pButton label="Trocar" class="p-button-warning" (click)="confirmTransferDate(selectedContract)"></button>
     </div>
   </div>
 </p-dialog>
 
 <!-- Overlay Global -->
 <div class="global-overlay" *ngIf="loadingBillingDialog">
-  <p-progressSpinner
-    strokeWidth="4"
-    animationDuration=".5s"
-    [style]="{ width: '200px', height: '200px' }"
-  ></p-progressSpinner>
+  <p-progressSpinner strokeWidth="4" animationDuration=".5s"
+    [style]="{ width: '200px', height: '200px' }"></p-progressSpinner>
   <span class="global-overlay-message">
     [⚙️] Aguarde enquanto a automação altera os dados.
   </span>

@@ -103,11 +103,13 @@
         box-shadow: 0 0 5px #f1610e, 0 0 10px #e4f128;
         animation: pulse 1.5s infinite;
       }
+
       &.blocked {
         background-color: rgb(255, 0, 0);
         box-shadow: 0 0 5px #f70101, 0 0 10px #ff0000;
         animation: pulse 1.5s infinite;
       }
+
       &.transfer {
         background-color: rgb(19, 160, 253);
         box-shadow: 0 0 5px #09b4f8, 0 0 10px #008cff;
@@ -121,10 +123,12 @@
       transform: scale(1);
       box-shadow: 0 0 5px #28a745, 0 0 10px #28a745;
     }
+
     50% {
       transform: scale(1.2);
       box-shadow: 0 0 15px #28a745, 0 0 25px #28a745;
     }
+
     100% {
       transform: scale(1);
       box-shadow: 0 0 5px #28a745, 0 0 10px #28a745;
@@ -191,23 +195,29 @@
   margin-top: 0.25rem;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem; /* mais espaço entre seções */
+  gap: 0.5rem;
+  /* mais espaço entre seções */
 }
 
 .addresscontract .section {
   display: flex;
-  flex-wrap: wrap; /* permite quebrar linha se precisar */
+  flex-wrap: wrap;
+  /* permite quebrar linha se precisar */
   align-items: center;
-  gap: 0.5rem; /* espaço entre label e span */
-  padding: 0.25rem 0; /* separação visual entre seções */
-  border-bottom: 1px solid #eee; /* linha sutil para separar seções */
+  gap: 0.5rem;
+  /* espaço entre label e span */
+  padding: 0.25rem 0;
+  /* separação visual entre seções */
+  border-bottom: 1px solid #eee;
+  /* linha sutil para separar seções */
 }
 
 .addresscontract label {
   font-weight: bold;
   display: flex;
   align-items: center;
-  gap: 0.25rem; /* espaço entre ícone e texto */
+  gap: 0.25rem;
+  /* espaço entre ícone e texto */
 }
 
 .addresscontract span {
@@ -279,10 +289,13 @@
 
 .addresscontract .section-inline {
   display: flex;
-  flex-wrap: wrap; /* quebra linha se ficar muito longo */
+  flex-wrap: wrap;
+  /* quebra linha se ficar muito longo */
   align-items: center;
-  justify-content: space-between; /* distribui bem os blocos */
-  gap: 1rem; /* espaço entre cada grupo */
+  justify-content: space-between;
+  /* distribui bem os blocos */
+  gap: 1rem;
+  /* espaço entre cada grupo */
   padding: 0.25rem 0;
   border-bottom: 1px solid #eee;
 }
@@ -290,8 +303,10 @@
 .addresscontract .section-inline .group {
   display: flex;
   align-items: center;
-  gap: 0.15rem; /* entre label e valor */
-  flex-shrink: 0; /* evita que quebre desnecessariamente */
+  gap: 0.15rem;
+  /* entre label e valor */
+  flex-shrink: 0;
+  /* evita que quebre desnecessariamente */
 }
 
 .addresscontract .section-inline label {
@@ -332,7 +347,8 @@
 
 .global-overlay-message {
   margin-top: 1.5rem;
-  font-size: 1.5rem; /* pode aumentar para combinar com o spinner */
+  font-size: 1.5rem;
+  /* pode aumentar para combinar com o spinner */
   font-weight: 800;
   color: #f8f2f8;
   text-transform: uppercase;
@@ -345,11 +361,11 @@
 }
 
 ::ng-deep .p-progress-spinner {
-  width: 200px !important;   /* largura maior */
-  height: 200px !important;  /* altura maior */
+  width: 200px !important;
+  /* largura maior */
+  height: 200px !important;
+  /* altura maior */
 }
-
-
 
 .dialog-content {
   display: flex;
@@ -362,7 +378,8 @@
 .select-with-icon {
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* alinha à esquerda do select */
+  align-items: flex-start;
+  /* alinha à esquerda do select */
   gap: 0.4rem;
 }
 
@@ -409,15 +426,15 @@
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;  
-  margin-bottom: 1.25rem; 
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
 }
 
 .form-group-contract {
   display: flex;
   flex-direction: line;
-  gap: 0.5rem;  
-  margin-bottom: 1.25rem; 
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
   font-family: "IBM Plex Mono", monospace;
   font-weight: bold;
   color: #1c34a0;
@@ -442,15 +459,201 @@
 }
 
 // Garante que o texto dentro dos inputs também use a fonte padrão
-::ng-deep .p-inputtext, 
+::ng-deep .p-inputtext,
 ::ng-deep .p-inputnumber-input,
 ::ng-deep .p-dropdown-label {
   font-family: "IBM Plex Mono", monospace !important;
 }
 
-// Estiliza o rodapé do dialog para separá-lo visualmente do formulário
 ::ng-deep .p-dialog .p-dialog-footer {
   border-top: 1px solid #dee2e6; // Linha separadora sutil
   padding-top: 1rem;
   margin-top: 1rem;
+}
+
+:host ::ng-deep .transfer-dialog-wrapper .p-dialog-content {
+  padding: 0;
+}
+
+// Input global do diálogo
+:host ::ng-deep .transfer-dialog-wrapper input.p-inputtext {
+  font-family: "IBM Plex Mono", monospace !important;
+  width: 100%;
+}
+
+// Estilização específica para o campo CPF/CNPJ
+:host ::ng-deep .transfer-dialog-wrapper input#documento.p-inputtext {
+  padding: 0.75rem 1rem;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 1rem;
+  color: #495057;
+  background-color: #fff;
+  transition: border-color 0.2s ease-in-out;
+
+  &:focus {
+    outline: none;
+    border-color: #1c34a0;
+    box-shadow: 0 0 0 0.1rem rgba(28, 52, 160, 0.25);
+  }
+
+  &::placeholder {
+    color: #adb5bd;
+  }
+}
+
+// Label flutuante (dentro do p-iftalabel)
+:host ::ng-deep .transfer-dialog-wrapper p-iftalabel {
+  position: relative;
+  width: 100%;
+}
+
+:host ::ng-deep .transfer-dialog-wrapper p-iftalabel label {
+  position: absolute;
+  left: 1rem;
+  top: -0.6rem;
+  background: #fff;
+  padding: 0 0.25rem;
+  font-size: 0.8rem;
+  color: #6c757d;
+  pointer-events: none;
+}
+
+// Estilo principal do container do diálogo
+.transfer-dialog {
+  display: flex;
+  flex-direction: column;
+  font-family: "IBM Plex Mono", monospace;
+
+  &__header {
+    background-color: #f8f9fa;
+    padding: 0.75rem 1.5rem;
+    margin: 1.5rem 1.5rem 0 1.5rem;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #dee2e6;
+
+    label {
+      font-weight: 5rem;
+      color: #575353;
+      font-size: 1.30rem;
+    }
+
+    span {
+      font-weight: 700;
+      font-size: 1.30rem;
+      color: #1c34a0;
+    }
+  }
+
+  &__content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 150px;
+    padding: 2rem 1.5rem;
+    transition: all 0.2s ease-in-out;
+  }
+
+  &__step {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    animation: fadeIn 0.4s ease-out;
+
+    input[pInputText] {
+      width: 100%;
+      height: 4rem;
+      font-size: 2rem;
+      text-align: center;
+      background-color: #aac6f762;
+      border-radius: 29px;
+      border: white;
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  &__label {
+    font-size: 1rem;
+    color: #575353;
+  }
+
+  &__name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1c34a0;
+    padding: 0.5rem 1rem;
+    background-color: #f7f4f4;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+  }
+
+  &__icon--error,
+  &__icon--success {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+  }
+
+  &__icon--error {
+    color: #d9534f;
+  }
+
+  &__icon--success {
+    color: #28a745;
+  }
+
+  &__message--error,
+  &__message--success {
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+
+  &__subtext {
+    font-size: 0.9rem;
+    color: #6c757d;
+  }
+
+  &__loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.9);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    border-radius: 0;
+    backdrop-filter: blur(3px);
+  }
+
+  .loading-message {
+    margin-top: 1.5rem;
+    font-weight: 700;
+    color: #1c34a0;
+    font-size: 1.1rem;
+  }
+}
+
+.transfer-dialog .form-group {
+  width: 100%;
 }

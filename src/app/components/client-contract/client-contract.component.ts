@@ -24,7 +24,11 @@ import { ConfirmDialog } from 'primeng/confirmdialog';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { Popover } from 'primeng/popover';
 import { TooltipModule } from 'primeng/tooltip';
-
+import { InputMaskModule } from 'primeng/inputmask';
+import { ClientService } from '../../services/clients/client.service';
+import { SearchclientService } from '../../services/searchclient/searchclient.service';
+import { Cliente as ClientData } from '../../models/cliente/cliente.dto';
+import { IftaLabel } from "primeng/iftalabel";
 
 export interface Seller {
   name: string;
@@ -52,8 +56,10 @@ export interface Plan {
     ConfirmDialog,
     ProgressSpinnerModule,
     Popover,
-    TooltipModule
-  ],
+    InputMaskModule,
+    TooltipModule,
+    IftaLabel
+],
   templateUrl: './client-contract.component.html',
   styleUrl: './client-contract.component.scss',
   providers: [ConfirmationService, MessageService],
@@ -64,11 +70,12 @@ export class ClientContractComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly contractService = inject(ContractsService);
+  private readonly searchclientService = inject(SearchclientService)
+  private readonly clientService = inject(ClientService)
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
 
-  @ViewChild('pop') pop!: Popover;
-
+  private currentClient: ClientData | null = null;
   contracts: Contract[] = [];
   loadingBillingDialog: boolean = false;
   isLoading = false;
@@ -78,6 +85,14 @@ export class ClientContractComponent implements OnInit {
   upgradeDialog: boolean = false;
   dialogBilling: boolean = false;
   selectedBillingCycle: string | null = null;
+  transferDialogVisible: boolean = false;
+  selectedContractForTransfer: Contract | null = null;
+  transferStep: 'search' | 'confirm' | 'notFound' | 'success' = 'search';
+  foundClient: { id: string, name: string } | null = null;
+  isLoadingTransfer: boolean = false;
+  loadingMessage: string = '';
+  documento: string = '';
+  transferForm!: FormGroup;
 
   selectedContract!: Contract;
 
@@ -124,8 +139,9 @@ export class ClientContractComponent implements OnInit {
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('clientId');
     if (id) {
-      this.clientId = id; // salva na propriedade
+      this.clientId = id;
       this.loadContracts(this.clientId);
+      this.loadCurrentClientData(this.clientId);
     }
 
     this.upgradeForm = this.fb.group({
@@ -148,19 +164,32 @@ export class ClientContractComponent implements OnInit {
   }
 
 
-  loadContracts(clientId: string) {
-    this.contractService
-      .getContractsActivesAndWaitByClient(clientId)
-      .subscribe({
-        next: (data) => (this.contracts = data),
-        error: () => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erro',
-            detail: 'Não foi possível carregar os contratos',
-          });
-        },
-      });
+   loadContracts(clientId: string) {
+    this.contractService.getContractsActivesAndWaitByClient(clientId).subscribe({
+      next: (data) => (this.contracts = data),
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: 'Não foi possível carregar os contratos',
+        });
+      },
+    });
+  }
+
+  loadCurrentClientData(clientId: string): void {
+    this.clientService.getClientById(clientId).subscribe({
+      next: (data) => {
+        this.currentClient = data;
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro Crítico',
+          detail: 'Não foi possível carregar os dados do titular do contrato.',
+        });
+      },
+    });
   }
 
   loadAllContracts(clientId: string) {
@@ -237,7 +266,7 @@ export class ClientContractComponent implements OnInit {
   }
 
   transferDateExpired(contract: Contract) {
-    this.loadingBillingDialog = true; // ativa o blockUI
+    this.loadingBillingDialog = true;
 
     const sellerId = this.authService.getSellerId();
     if (!sellerId) {
@@ -246,7 +275,7 @@ export class ClientContractComponent implements OnInit {
         summary: 'Erro',
         detail: 'SellerId não encontrado no token!',
       });
-      this.loadingBillingDialog = false; // desativa ao encontrar erro
+      this.loadingBillingDialog = false;
       return;
     }
 
@@ -318,7 +347,6 @@ export class ClientContractComponent implements OnInit {
       this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Sessão inválida.' });
       return;
     }
-    // const sellerId = "a1b2c3d4-e5f6-7890-1234-567890abcdef"; 
     const formData = this.upgradeForm.getRawValue();
 
     const payload = {
@@ -347,11 +375,11 @@ export class ClientContractComponent implements OnInit {
 
         this.messageService.add({
           severity: 'error',
-          summary: 'Erro de Regra de Negócio', 
+          summary: 'Erro de Regra de Negócio',
           detail: detailMessage
         });
 
-        console.error('Erro detalhado:', err); 
+        console.error('Erro detalhado:', err);
       }
     });
   }
@@ -388,5 +416,132 @@ export class ClientContractComponent implements OnInit {
     } else {
       popover.show(event);
     }
+  }
+
+  // --- MÉTODOS PARA A TRANSFERÊNCIA DE TITULARIDADE ---
+  openTransferDialog(contract: Contract): void {
+    this.selectedContractForTransfer = contract;
+    this.transferStep = 'search';
+    this.foundClient = null;
+    this.documento = '';
+    this.transferDialogVisible = true;
+  }
+
+  closeTransferDialog(): void {
+    this.transferDialogVisible = false;
+  }
+
+   allowOnlyNumbers(event: KeyboardEvent): void {
+    if (!/^\d$/.test(event.key) && !['Backspace', 'ArrowLeft', 'ArrowRight', 'Delete', 'Tab', 'Enter'].includes(event.key)) {
+      event.preventDefault();
+    }
+  }
+
+  formatarDocumento(value: string): void {
+    if (!value) {
+      this.documento = '';
+      return;
+    }
+
+    const unformattedValue = value.replace(/\D/g, '').substring(0, 14);
+
+    if (unformattedValue.length <= 11) {
+      this.documento = unformattedValue
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+    } else {
+      this.documento = unformattedValue
+        .replace(/(\d{2})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d)/, '$1/$2')
+        .replace(/(\d{4})(\d{1,2})$/, '$1-$2');
+    }
+  }
+
+  onPaste(event: ClipboardEvent): void {
+    event.preventDefault();
+    const pastedText = event.clipboardData?.getData('text/plain') || '';
+    setTimeout(() => {
+      this.formatarDocumento(pastedText);
+    }, 0);
+  }
+
+  onSearchClientByCpf(): void {
+    const documentoParaBuscar = this.documento.replace(/\D/g, '');
+
+    if (documentoParaBuscar.length < 11) {
+      this.messageService.add({ severity: 'warn', summary: 'Atenção', detail: 'Por favor, preencha o documento completo.' });
+      return;
+    }
+
+    if (this.currentClient) {
+      const isInputCpf = documentoParaBuscar.length === 11;
+      const cpfAtual = this.currentClient.cpf?.replace(/\D/g, '');
+      const cnpjAtual = this.currentClient.cnpj?.replace(/\D/g, '');
+
+      if ((isInputCpf && cpfAtual === documentoParaBuscar) || (!isInputCpf && cnpjAtual === documentoParaBuscar)) {
+        this.messageService.add({ severity: 'warn', summary: 'Operação Inválida', detail: 'Não é possível transferir um contrato para o mesmo titular.' });
+        return;
+      }
+    }
+
+    this.isLoadingTransfer = true;
+    this.loadingMessage = 'Buscando e sincronizando cliente...';
+
+    this.searchclientService.searchAndRegisterClient(documentoParaBuscar).subscribe({
+      next: (response) => {
+        if (response && response.client && response.client.id && response.client.name) {
+          this.foundClient = { id: response.client.id, name: response.client.name };
+          this.transferStep = 'confirm';
+          this.messageService.add({ severity: 'info', summary: 'Cliente Pronto', detail: response.message });
+        } else if (response && !response.foundInPGDO && !response.foundInRBX) {
+          this.transferStep = 'notFound';
+        } else {
+          this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Resposta inesperada do servidor.' });
+          this.transferStep = 'search';
+        }
+        this.isLoadingTransfer = false;
+      },
+      error: (err) => {
+        this.messageService.add({ severity: 'error', summary: 'Erro na Busca', detail: err.error?.message || 'Não foi possível buscar o cliente.' });
+        this.isLoadingTransfer = false;
+        this.transferStep = 'search';
+      },
+    });
+  }
+
+  onConfirmTransfer(): void {
+    if (!this.selectedContractForTransfer || !this.foundClient) return;
+
+    this.isLoadingTransfer = true;
+    this.loadingMessage = 'Realizando transferência...';
+    const oldContractId = this.selectedContractForTransfer.id;
+    const newClientId = this.foundClient.id;
+
+    this.contractService.transferOwnership(oldContractId, newClientId).subscribe({
+      next: () => {
+        this.transferStep = 'success';
+        this.isLoadingTransfer = false;
+        setTimeout(() => {
+          this.closeTransferDialog();
+          this.loadContracts(this.clientId);
+        }, 2000);
+      },
+      error: (err: { error: { message: any; }; }) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro na Transferência',
+          detail: err.error?.message || 'Não foi possível concluir a transferência.',
+        });
+        this.isLoadingTransfer = false;
+        this.transferStep = 'search';
+      },
+    });
+  }
+
+  navigateToCreateClient(): void {
+    this.router.navigate(['/register']);
+    this.closeTransferDialog();
   }
 }

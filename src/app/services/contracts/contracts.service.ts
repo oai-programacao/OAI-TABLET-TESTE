@@ -61,4 +61,11 @@ export class ContractsService {
       payload
     );
   }
+
+   transferOwnership(oldContractId: string, newClientId: string): Observable<any> {
+    const url = `${this.urlApi}/contract/${oldContractId}/transfer-ownership`;
+    const payload = { newClientId };
+
+    return this.http.post<any>(url, payload);
+  }
 }
