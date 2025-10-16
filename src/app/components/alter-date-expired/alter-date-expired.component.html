@@ -41,7 +41,7 @@
                       <i class="pi pi-dollar"></i>
                       <span
                         >Bruto:
-                        {{ contract!.brutePrice | number : "1.2-2" }}</span
+                        {{ contract.brutePrice | number : "1.2-2" }}</span
                       >
                     </div>
 
@@ -150,7 +150,16 @@
           <ng-template #content>
             <div *ngIf="selectedBillingCycle; else noDateSelected">
               <!-- Conteúdo real do passo 2 -->
-              <p>Termo de Consentimento: Verificar questões de assinatura, abertura de atendimento no rbx , inclusão da imagem lá, salvar a imagem aqui e boa..</p>
+              <p class="step2-info">
+                📌 <strong>Opções de envio do termo:</strong><br />
+                - Caso a comunicação com o cliente seja por WhatsApp, utilize a
+                opção <strong>Autentique</strong>.<br />
+                - Para apenas visualizar o termo, utilize
+                <strong>Visualizar PDF</strong>.<br />
+                - Se o cliente estiver presencial, utilize a opção de
+                <strong>assinatura manual</strong>, que será inserida
+                automaticamente no documento.
+              </p>
 
               <div class="btn-actions">
                 <!-- Visualizar / Baixar PDF -->
@@ -163,16 +172,6 @@
                   (onClick)="getConsentTermPdf()"
                 ></p-button>
 
-                <!-- Enviar via WhatsApp -->
-                <p-button
-                  label="Enviar WhatsApp"
-                  icon="pi pi-whatsapp"
-                  severity="info"
-                  rounded="true"
-                  [raised]="true"
-                  (onClick)="enviarWhatsapp()"
-                ></p-button>
-
                 <!-- Enviar para API autenticada -->
                 <p-button
                   label="Autentique"
@@ -180,7 +179,7 @@
                   severity="warn"
                   rounded="true"
                   [raised]="true"
-                  (onClick)="enviarApi()"
+                  (onClick)="abrirModal()"
                 ></p-button>
               </div>
             </div>
@@ -204,4 +203,62 @@
       </p-step-panels>
     </p-stepper>
   </app-card-base>
+
+  <!-- Modal -->
+  <p-dialog
+    header="Enviar Via WhatsApp ⚙️"
+    [(visible)]="modalVisible"
+    [modal]="true"
+    [closable]="true"
+    resizable="false"
+    [draggable]="false"
+  >
+    <div class="dialog-content">
+      <!-- Ícone WhatsApp -->
+      <div class="icon-container">
+        <i class="pi pi-whatsapp whatsapp-icon"></i>
+      </div>
+
+      <!-- Mensagem informativa -->
+      <p class="info-text">
+        Digite o número no formato <strong>+55</strong> (DDD + Número). <br />
+        O termo será enviado pela Autentique para o cliente assinar via
+        WhatsApp📄✅
+      </p>
+
+      <p-inputgroup>
+        <p-inputgroup-addon>
+          <i class="pi pi-whatsapp"></i>
+        </p-inputgroup-addon>
+
+        <input
+          pInputText
+          id="telefone"
+          name="telefone" 
+          placeholder="+55 (DDD) 00000-0000"
+          [(ngModel)]="phone"
+          required
+          [style]="{ height: '40px', 'font-size': '20px' }"
+          mask="00000000000"
+          prefix="+55"
+        />
+      </p-inputgroup>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <p-button
+        label="Cancelar"
+        icon="pi pi-times"
+        severity="secondary"
+        (onClick)="fecharModal()"
+      ></p-button>
+      <p-button
+        label="Enviar"
+        icon="pi pi-send"
+        severity="success"
+        [disabled]="!phone || phone.trim().length < 10"
+        (onClick)="sendToAutentiqueSubmit()"
+      ></p-button>
+    </ng-template>
+  </p-dialog>
 </div>

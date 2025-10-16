@@ -14,7 +14,7 @@ export interface ConsentTermRequest {
 })
 export class ReportsService {
 
-  private baseUrl = environment.apiUrl;
+  private baseUrl = environment.apiUrl + "/consent-term";
 
   constructor(private http: HttpClient) {}
 
@@ -26,7 +26,7 @@ export class ReportsService {
     contractId: string,
     requestBody: ConsentTermRequest
   ): Observable<Blob> {
-    const url = `${this.baseUrl}/consent/term/${clientId}/${contractId}`;
+    const url = `${this.baseUrl}/alter-date-expired/${clientId}/${contractId}`;
     return this.http.post(url, requestBody, { responseType: 'blob' });
   }
   

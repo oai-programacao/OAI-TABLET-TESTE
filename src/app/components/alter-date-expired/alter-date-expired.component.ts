@@ -1,3 +1,5 @@
+import { ActionsContractsService } from './../../services/actionsToContract/actions-contracts.service';
+import { AuthService } from './../../core/auth.service';
 import { ContractsService } from './../../services/contracts/contracts.service';
 import { Contract } from './../../models/contract/contract.dto';
 import { Component, inject } from '@angular/core';
@@ -13,6 +15,12 @@ import { forkJoin } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ReportsService } from '../../services/reports/reports.service';
+import { Dialog } from 'primeng/dialog';
+import { FloatLabelModule } from 'primeng/floatlabel';
+import { InputGroupModule } from 'primeng/inputgroup';
+import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
+import { InputTextModule } from 'primeng/inputtext';
+import { NgxMaskDirective } from 'ngx-mask';
 
 export interface ConsentTermRequest {
   proportionalValue: number;
@@ -30,6 +38,12 @@ export interface ConsentTermRequest {
     CommonModule,
     DatePipe,
     FormsModule,
+    Dialog,
+    FloatLabelModule,
+    InputGroupModule,
+    InputGroupAddonModule,
+    InputTextModule,
+    NgxMaskDirective,
   ],
   templateUrl: './alter-date-expired.component.html',
   styleUrl: './alter-date-expired.component.scss',
@@ -41,11 +55,15 @@ export class AlterDateExpiredComponent {
   contract!: Contract;
   client!: Cliente;
 
+  modalVisible: boolean = false;
+  phone: string = '';
+
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly contractService = inject(ContractsService);
   private readonly clientService = inject(ClientService);
   private readonly reportsService = inject(ReportsService);
+  private readonly actionsContractsService = inject(ActionsContractsService);
 
   ngOnInit() {
     this.route.queryParams.subscribe((params) => {
@@ -189,8 +207,41 @@ export class AlterDateExpiredComponent {
     }
   }
 
+  abrirModal() {
+    this.modalVisible = true;
+  }
 
-  enviarWhatsapp() {}
+  fecharModal() {
+    this.modalVisible = false;
+    this.phone = '';
+  }
 
-  enviarApi() {}
+  sendToAutentiqueSubmit() {
+    const term = {
+      proportionalValue: this.proportionalBoleto,
+      newDateExpired:
+        this.typesOfDateExpirationCicle.find(
+          (t) => t.value === this.selectedBillingCycle
+        )?.descricao || '',
+    };
+
+    const mappedSigners = [
+      {
+        name: this.client.name,
+        phone: '+55' + this.phone
+      },
+    ];
+
+    const payload = {
+      term,
+      signers: mappedSigners,
+    };
+
+    this.actionsContractsService
+      .sendAlterDateAutentique(payload, this.clientId, this.contractId)
+      .subscribe({
+        next: (res) => console.log('Contrato enviado com sucesso', res),
+        error: (err) => console.error('Erro ao enviar contrato', err),
+      });
+  }
 }
