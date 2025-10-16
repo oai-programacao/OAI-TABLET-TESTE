@@ -68,7 +68,8 @@ export interface Plan {
     StepsModule,
     TooltipModule,
     Stepper,
-    StepperModule
+    StepperModule,
+    IftaLabel
 ],
   templateUrl: './client-contract.component.html',
   styleUrl: './client-contract.component.scss',

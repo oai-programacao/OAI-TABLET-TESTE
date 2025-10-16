@@ -75,7 +75,7 @@ export class ContractsService {
       newClientId: newClientId 
     };
 
-    const endpoint = `${this.urlApi}/consent-terms/transfer-ownership`;
+    const endpoint = `${this.urlApi}/consent-term/transfer-ownership`;
     return this.http.post(endpoint, payload, { 
       responseType: 'blob' 
     });
