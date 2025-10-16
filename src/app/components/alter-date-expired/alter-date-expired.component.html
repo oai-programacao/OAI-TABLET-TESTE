@@ -37,72 +37,94 @@
                 <div class="info-item">
                   <span class="label">Valores Atuais</span>
                   <div class="value">
-
                     <div class="value-row">
                       <i class="pi pi-dollar"></i>
-                      <span>Líquido: {{ contract.liquidPrice }}</span>
+                      <span
+                        >Bruto:
+                        {{ contract.brutePrice | number : "1.2-2" }}</span
+                      >
                     </div>
 
                     <div class="value-row">
                       <i class="pi pi-dollar"></i>
-                      <span>Bruto: {{ contract.brutePrice }}</span>
+                      <span
+                        >Desconto: -{{
+                          contract!.descountFixe | number : "1.2-2"
+                        }}</span
+                      >
                     </div>
-                    
+
                     <div class="value-row">
                       <i class="pi pi-dollar"></i>
-                      <span>Desconto: {{ contract.descountFixe }}</span>
+                      <span
+                        >Líquido:
+                        {{ contract!.liquidPrice | number : "1.2-2" }}</span
+                      >
                     </div>
-                    
                   </div>
-                </div>
-
-                <div class="info-item">
-                  <span class="label">Dia de Vencimento</span>
-                  <span class="value highlight">
-                    {{ contract.cicleBillingExpired }}
-                  </span>
                 </div>
 
                 <div class="info-item">
                   <span class="label">Data de Assinatura / Início</span>
                   <span class="value">
-                    {{ contract.dateSignature | date : "dd/MM/yyyy" }} -
-                    {{ contract.dateStart | date : "dd/MM/yyyy" }}
+                    {{ contract!.dateSignature | date : "dd/MM/yyyy" }} -
+                    {{ contract!.dateStart | date : "dd/MM/yyyy" }}
                   </span>
                 </div>
 
                 <div class="info-item">
                   <span class="label">Vigência</span>
-                  <span class="value">{{ contract.vigencia }} meses</span>
+                  <span class="value">{{ contract!.vigencia }} meses</span>
                 </div>
 
                 <div class="info-item">
                   <span class="label">Ciclo de Faturamento</span>
-                  <span class="value">
-                    {{ contract.cicleBillingDayBase }} /
-                    {{ contract.cicleBillingExpired }}
+                  <span class="value highlight">
+                    Dia base: {{ contract!.cicleBillingDayBase }} / Dia de
+                    Vencimento: {{ contract!.cicleBillingExpired }}
                   </span>
                 </div>
 
-                <!-- Select -->
                 <div class="select-wrapper">
                   <p-select
                     [options]="typesOfDateExpirationCicle"
                     optionLabel="descricao"
                     optionValue="value"
-                    appendTo="body"
                     placeholder="Selecione nova data de vencimento"
-                    [(ngModel)]="selectedBillingCycle"
                     styleClass="custom-select"
+                    [(ngModel)]="selectedBillingCycle"
+                    (onChange)="onBillingCycleChange()"
                   ></p-select>
                 </div>
 
-                
                 <div class="selected-info" *ngIf="selectedBillingCycle">
                   <i class="pi pi-calendar"></i>
-                  <span
-                    >Nova data de vencimento selecionada: {{ selectedBillingCycle }}</span
-                  >
+                  <span>
+                    Novo dia base selecionado:
+                    {{ selectedBillingCycle }}
+                  </span>
+                </div>
+
+                <div class="proportional-explanation">
+                  <p>
+                    O valor abaixo é calculado proporcionalmente ao período
+                    restante do mês atual. Considera-se o valor líquido do
+                    contrato dividido pela quantidade de dias [30], multiplicado
+                    pelo número de dias até o novo dia base escolhido.
+                  </p>
+                </div>
+
+                <div
+                  class="proportional-info"
+                  *ngIf="proportionalBoleto !== null"
+                >
+                  <i class="pi pi-dollar"></i>
+                  <span>
+                    Valor Proporcional:
+                    {{
+                      proportionalBoleto | currency : "BRL" : "symbol" : "1.2-2"
+                    }}
+                  </span>
                 </div>
               </div>
             </div>
@@ -118,13 +140,57 @@
                 iconPos="right"
                 label="Próximo"
                 (onClick)="activateCallback(2)"
+                [disabled]="!selectedBillingCycle"
               ></p-button>
             </div>
           </ng-template>
         </p-step-panel>
 
         <p-step-panel [value]="2">
-          <!-- Conteúdo da etapa 2 -->
+          <ng-template #content>
+            <div *ngIf="selectedBillingCycle; else noDateSelected">
+              <!-- Conteúdo real do passo 2 -->
+              <p class="step2-info">
+                📌 <strong>Opções de envio do termo:</strong><br />
+                - Caso a comunicação com o cliente seja por WhatsApp, utilize a
+                opção <strong>Autentique</strong>.<br />
+                - Para apenas visualizar o termo, utilize
+                <strong>Visualizar PDF</strong>.<br />
+                - Se o cliente estiver presencial, utilize a opção de
+                <strong>assinatura manual</strong>, que será inserida
+                automaticamente no documento.
+              </p>
+
+              <div class="btn-actions">
+                <!-- Visualizar / Baixar PDF -->
+                <p-button
+                  label="Visualizar PDF"
+                  icon="pi pi-file-pdf"
+                  severity="success"
+                  [raised]="true"
+                  rounded="true"
+                  (onClick)="getConsentTermPdf()"
+                ></p-button>
+
+                <!-- Enviar para API autenticada -->
+                <p-button
+                  label="Autentique"
+                  icon="pi pi-send"
+                  severity="warn"
+                  rounded="true"
+                  [raised]="true"
+                  (onClick)="abrirModal()"
+                ></p-button>
+              </div>
+            </div>
+
+            <ng-template #noDateSelected>
+              <div class="alert-warning">
+                ⚠️ Para acessar este passo, volte ao passo anterior e selecione
+                a nova data de vencimento.
+              </div>
+            </ng-template>
+          </ng-template>
         </p-step-panel>
 
         <p-step-panel [value]="3">
@@ -137,4 +203,62 @@
       </p-step-panels>
     </p-stepper>
   </app-card-base>
+
+  <!-- Modal -->
+  <p-dialog
+    header="Enviar Via WhatsApp ⚙️"
+    [(visible)]="modalVisible"
+    [modal]="true"
+    [closable]="true"
+    resizable="false"
+    [draggable]="false"
+  >
+    <div class="dialog-content">
+      <!-- Ícone WhatsApp -->
+      <div class="icon-container">
+        <i class="pi pi-whatsapp whatsapp-icon"></i>
+      </div>
+
+      <!-- Mensagem informativa -->
+      <p class="info-text">
+        Digite o número no formato <strong>+55</strong> (DDD + Número). <br />
+        O termo será enviado pela Autentique para o cliente assinar via
+        WhatsApp📄✅
+      </p>
+
+      <p-inputgroup>
+        <p-inputgroup-addon>
+          <i class="pi pi-whatsapp"></i>
+        </p-inputgroup-addon>
+
+        <input
+          pInputText
+          id="telefone"
+          name="telefone" 
+          placeholder="+55 (DDD) 00000-0000"
+          [(ngModel)]="phone"
+          required
+          [style]="{ height: '40px', 'font-size': '20px' }"
+          mask="00000000000"
+          prefix="+55"
+        />
+      </p-inputgroup>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <p-button
+        label="Cancelar"
+        icon="pi pi-times"
+        severity="secondary"
+        (onClick)="fecharModal()"
+      ></p-button>
+      <p-button
+        label="Enviar"
+        icon="pi pi-send"
+        severity="success"
+        [disabled]="!phone || phone.trim().length < 10"
+        (onClick)="sendToAutentiqueSubmit()"
+      ></p-button>
+    </ng-template>
+  </p-dialog>
 </div>
