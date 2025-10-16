@@ -146,74 +146,74 @@
   header="Transferir Titularidade"
   [(visible)]="transferDialogVisible"
   [modal]="true"
-  [style]="{ width: '30rem' }"
-  [draggable]="false"
-  (onHide)="closeTransferDialog()"
-  styleClass="transfer-dialog-wrapper"
+  [style]="{ width: '50rem' }" (onHide)="closeTransferDialog()"
 >
-  <div class="transfer-dialog">
-    <div class="transfer-dialog__header">
-      <label>Contrato a ser transferido:</label>
-      <span>#{{ selectedContractForTransfer?.codeContractRbx }}</span>
-    </div>
 
-    <div class="transfer-dialog__content">
-      <div *ngIf="isLoadingTransfer" class="transfer-dialog__loading-overlay">
-        <p-progressSpinner strokeWidth="4"></p-progressSpinner>
-        <span class="loading-message">{{ loadingMessage }}</span>
-      </div>
+  <p-stepper [(activeStep)]="activeStepIndex">
+    <p-step-list>
+        <p-step>Buscar Cliente</p-step>
+        <p-step>Termo de Consentimento</p-step>
+        <p-step>Confirmação</p-step>
+    </p-step-list>
 
-      <ng-container [ngSwitch]="transferStep">
-        <div *ngSwitchCase="'search'" class="transfer-dialog__step">
-          <div class="form-group-input" style="width: 100%;">
-            <p-iftalabel variant="on" style="width: 100%">
-              <input
-                pInputText
-                id="documento"
-                [(ngModel)]="documento"
-                name="documento"
-                required
-                minlength="14"
-                maxlength="18"
-                placeholder="CPF/CNPJ"
-                (ngModelChange)="formatarDocumento($event)"
-                (keypress)="allowOnlyNumbers($event)"
-                (paste)="onPaste($event)"
-                autocomplete="off"
-              />
-              <label for="documento"></label>
-            </p-iftalabel>
+    <p-step-panels>
+      
+      <p-step-panel>
+        <ng-template pTemplate="content">
+          <div class="step-content">
+            <p>Digite o documento do novo titular para iniciar a transferência.</p>
+            </div>
+          <div class="step-footer">
+            <p-button label="Próximo" icon="pi pi-arrow-right" (onClick)="goToConsentStep()" [disabled]="!foundClient"></p-button>
           </div>
-        </div>
+        </ng-template>
+      </p-step-panel>
 
-        <!-- Outras etapas (confirm, notFound, success) -->
-        <div *ngSwitchCase="'confirm'" class="transfer-dialog__step">
-            <p class="transfer-dialog__label">Transferir para o cliente:</p>
-            <p class="transfer-dialog__name">{{ foundClient?.name }}</p>
-        </div>
-        <div *ngSwitchCase="'notFound'" class="transfer-dialog__step">
-            <i class="pi pi-exclamation-triangle transfer-dialog__icon--error"></i>
-            <p class="transfer-dialog__message--error">Cliente não encontrado.</p>
-            <p class="transfer-dialog__subtext">Deseja cadastrá-lo agora?</p>
-        </div>
-        <div *ngSwitchCase="'success'" class="transfer-dialog__step">
-            <i class="pi pi-check-circle transfer-dialog__icon--success"></i>
-            <p class="transfer-dialog__message--success">Transferência Concluída!</p>
-        </div>
+      <p-step-panel>
+        <ng-template pTemplate="content">
+            <div class="step-content">
+              <div *ngIf="isLoadingPdf" class="pdf-loading">
+                  <p-progressSpinner></p-progressSpinner>
+                  <span>Gerando termo de consentimento...</span>
+              </div>
+              <div *ngIf="pdfSrc" class="pdf-viewer">
+                  <iframe [src]="pdfSrc" width="100%" height="500px"></iframe>
+              </div>
+              <div *ngIf="!isLoadingPdf" class="p-field-checkbox consent-check">
+                  <p-checkbox [(ngModel)]="consentAgreed" binary="true" inputId="consentCheck"></p-checkbox>
+                  <label for="consentCheck">Declaro que li e concordo com os termos apresentados no documento.</label>
+              </div>
+            </div>
+            <div class="step-footer">
+                <p-button label="Voltar" icon="pi pi-arrow-left" (onClick)="goBackStep(0)" [text]="true"></p-button>
+                <p-button label="Próximo" icon="pi pi-arrow-right" (onClick)="activeStepIndex = 2" [disabled]="!consentAgreed"></p-button>
+            </div>
+        </ng-template>
+      </p-step-panel>
 
-      </ng-container>
-    </div>
-  </div>
+      <p-step-panel>
+        <ng-template pTemplate="content">
+          <div class="step-content confirmation-step">
+              <i class="pi pi-check-circle success-icon"></i>
+              <h3>Tudo pronto para a transferência!</h3>
+              <p>
+                O termo de consentimento foi gerado. Ao clicar em "Efetivar Transferência", a titularidade do contrato
+                será alterada para <strong>{{ foundClient?.name }}</strong>.
+              </p>
+              <p class="future-feature">
+                (No futuro, aqui estarão as opções para enviar via Autentique.)
+              </p>
+          </div>
+          <div class="step-footer">
+              <p-button label="Voltar" icon="pi pi-arrow-left" (onClick)="goBackStep(1)" [text]="true"></p-button>
+              <p-button label="Efetivar Transferência" icon="pi pi-check" (onClick)="onConfirmTransfer()"></p-button>
+          </div>
+        </ng-template>
+      </p-step-panel>
 
-  <ng-template pTemplate="footer">
-    <p-button label="Cancelar" icon="pi pi-times" (click)="closeTransferDialog()" severity="danger"></p-button>
-    <p-button *ngIf="transferStep === 'search'" label="Buscar Cliente" icon="pi pi-search"
-      (click)="onSearchClientByCpf()" severity="success"></p-button>
-    <p-button *ngIf="transferStep === 'confirm'" label="Confirmar Transferência" icon="pi pi-check"
-      (click)="onConfirmTransfer()" severity="success"></p-button>
-    <p-button *ngIf="transferStep === 'notFound'" label="Cadastrar Cliente" icon="pi pi-user-plus"
-      (click)="navigateToCreateClient()" severity="help"></p-button>
-  </ng-template>
+    </p-step-panels>
+  </p-stepper>
+
 </p-dialog>
 
 <!-- UPGRADE/DOWNGRADE -->

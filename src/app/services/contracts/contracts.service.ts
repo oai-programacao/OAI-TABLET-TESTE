@@ -68,4 +68,16 @@ export class ContractsService {
 
     return this.http.post<any>(url, payload);
   }
+
+ getTransferConsentPdf(oldContractId: string, newClientId: string): Observable<Blob> {
+    const payload = { 
+      oldContractId: oldContractId, 
+      newClientId: newClientId 
+    };
+
+    const endpoint = `${this.urlApi}/consent-terms/transfer-ownership`;
+    return this.http.post(endpoint, payload, { 
+      responseType: 'blob' 
+    });
+  }
 }

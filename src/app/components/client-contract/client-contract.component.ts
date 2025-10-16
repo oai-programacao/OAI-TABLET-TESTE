@@ -2,10 +2,11 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { CardBaseComponent } from '../../shared/components/card-base/card-base.component';
 import { ButtonModule } from 'primeng/button';
-import { Divider } from 'primeng/divider';
+import { Divider, DividerModule } from 'primeng/divider';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DialogModule } from 'primeng/dialog';
 import { SelectModule } from 'primeng/select';
+import { StepsModule } from 'primeng/steps';
 import {
   FormBuilder,
   FormGroup,
@@ -20,15 +21,18 @@ import { ContractsService } from '../../services/contracts/contracts.service';
 import { CalendarModule } from 'primeng/calendar';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { AuthService } from '../../core/auth.service';
-import { ConfirmDialog } from 'primeng/confirmdialog';
+import { ConfirmDialog, ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { Popover } from 'primeng/popover';
+import { Popover, PopoverModule } from 'primeng/popover';
 import { TooltipModule } from 'primeng/tooltip';
 import { InputMaskModule } from 'primeng/inputmask';
 import { ClientService } from '../../services/clients/client.service';
 import { SearchclientService } from '../../services/searchclient/searchclient.service';
 import { Cliente as ClientData } from '../../models/cliente/cliente.dto';
 import { IftaLabel } from "primeng/iftalabel";
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { CheckboxModule } from 'primeng/checkbox';
+import { Stepper, StepperModule } from "primeng/stepper";
 
 export interface Seller {
   name: string;
@@ -42,29 +46,38 @@ export interface Plan {
   selector: 'app-client-contract',
   standalone: true,
   imports: [
+    // Módulos Essenciais do Angular
     CommonModule,
-    CardBaseComponent,
-    ButtonModule,
-    Divider,
-    DialogModule,
-    SelectModule,
     FormsModule,
     ReactiveFormsModule,
-    ToastModule,
+    // Componentes da sua Aplicação
+    CardBaseComponent,
+    // Módulos do PrimeNG
+    ButtonModule,
     CalendarModule,
-    InputNumberModule,
-    ConfirmDialog,
-    ProgressSpinnerModule,
-    Popover,
+    CheckboxModule,
+    ConfirmDialogModule,
+    DialogModule,
+    DividerModule,
     InputMaskModule,
+    InputNumberModule,
+    PopoverModule,
+    ProgressSpinnerModule,
+    SelectModule,
+    ToastModule,
+    StepsModule,
     TooltipModule,
-    IftaLabel
+    Stepper,
+    StepperModule
 ],
   templateUrl: './client-contract.component.html',
   styleUrl: './client-contract.component.scss',
   providers: [ConfirmationService, MessageService],
 })
+
+
 export class ClientContractComponent implements OnInit {
+
   private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
@@ -74,33 +87,35 @@ export class ClientContractComponent implements OnInit {
   private readonly clientService = inject(ClientService)
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
+  private readonly sanitizer = inject(DomSanitizer);
 
   private currentClient: ClientData | null = null;
   contracts: Contract[] = [];
   loadingBillingDialog: boolean = false;
   isLoading = false;
-
   dialogTitle: string = '';
   downgradeDialog: boolean = false;
   upgradeDialog: boolean = false;
   dialogBilling: boolean = false;
   selectedBillingCycle: string | null = null;
+  selectedContract!: Contract;
+  clientId!: string;
+  upgradeForm!: FormGroup;
+  selectedContractForUpgrade: Contract | null = null;
+
+  // --- Estado para Dialog de Transferência de Titularidade (NOVA VERSÃO COM STEPPER) ---
   transferDialogVisible: boolean = false;
   selectedContractForTransfer: Contract | null = null;
-  transferStep: 'search' | 'confirm' | 'notFound' | 'success' = 'search';
-  foundClient: { id: string, name: string } | null = null;
   isLoadingTransfer: boolean = false;
   loadingMessage: string = '';
   documento: string = '';
-  transferForm!: FormGroup;
+  foundClient: { id: string, name: string } | null = null;
 
-  selectedContract!: Contract;
-
-  clientId!: string;
-
-  upgradeForm!: FormGroup;
-  selectedContractForUpgrade: Contract | null = null;
-  billingCycleOptions: { label: string, value: number }[] = [];
+  // Propriedades do Stepper
+  activeStepIndex: number = 0;
+  pdfSrc: SafeResourceUrl | null = null;
+  isLoadingPdf: boolean = false;
+  consentAgreed: boolean = false;
 
   typesOfDateExpirationCicle = [
     { dia: '1', vencimento: '1', descricao: '01 a 31 / 01 ', value: '1' },
@@ -136,6 +151,7 @@ export class ClientContractComponent implements OnInit {
     { dia: '28', vencimento: '31', descricao: '28 a 27 / 31', value: '31' },
   ];
 
+  // --- MÉTODOS DO CICLO DE VIDA ---
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('clientId');
     if (id) {
@@ -152,6 +168,7 @@ export class ClientContractComponent implements OnInit {
       cicleBillingDayBase: [null],
       cicleBillingExpired: [null],
     });
+
     this.upgradeForm.get('expirationCycle')?.valueChanges.subscribe(selectedCycle => {
       if (selectedCycle) {
         this.upgradeForm.patchValue({
@@ -163,8 +180,8 @@ export class ClientContractComponent implements OnInit {
     });
   }
 
-
-   loadContracts(clientId: string) {
+  // --- MÉTODOS DE CARREGAMENTO DE DADOS (Originais) ---
+  loadContracts(clientId: string) {
     this.contractService.getContractsActivesAndWaitByClient(clientId).subscribe({
       next: (data) => (this.contracts = data),
       error: () => {
@@ -244,80 +261,112 @@ export class ClientContractComponent implements OnInit {
     });
   }
 
-  goToAlterDateExpired(contract: Contract) {
-    this.router.navigate(['/alter-dateexpired'], {
-      queryParams: { clientId: this.clientId, contractId: contract.id },
-    });
+
+  // --- MÉTODOS PARA TRANSFERÊNCIA DE TITULARIDADE (FLUXO COM STEPPER) ---
+  openTransferDialog(contract: Contract): void {
+    this.selectedContractForTransfer = contract;
+    this.documento = '';
+    this.foundClient = null;
+    this.consentAgreed = false;
+    this.pdfSrc = null;
+    this.activeStepIndex = 0;
+    this.transferDialogVisible = true;
   }
 
-  confirmTransferDate(contract: Contract) {
-    this.confirmationService.confirm({
-      message: 'Deseja realmente alterar a data de vencimento deste contrato?',
-      header: 'Confirmação',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => this.transferDateExpired(contract),
-      reject: () =>
-        this.messageService.add({
-          severity: 'info',
-          summary: 'Cancelado',
-          detail: 'Ação cancelada.',
-        }),
-    });
+  closeTransferDialog(): void {
+    this.transferDialogVisible = false;
   }
 
-  transferDateExpired(contract: Contract) {
-    this.loadingBillingDialog = true;
-
-    const sellerId = this.authService.getSellerId();
-    if (!sellerId) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Erro',
-        detail: 'SellerId não encontrado no token!',
-      });
-      this.loadingBillingDialog = false;
+  onSearchNewOwner(): void {
+    const documentoParaBuscar = this.documento.replace(/\D/g, '');
+    if (documentoParaBuscar.length < 11) {
+      this.messageService.add({ severity: 'warn', summary: 'Atenção', detail: 'Por favor, preencha o documento completo.' });
+      return;
+    }
+    if (this.isTransferringToSameOwner(documentoParaBuscar)) {
+      this.messageService.add({ severity: 'warn', summary: 'Operação Inválida', detail: 'Não é possível transferir um contrato para o mesmo titular.' });
       return;
     }
 
-    const payload = {
-      clientId: contract.clientId,
-      contractNumber: contract.codeContractRbx,
-      billingCycleLabel: this.selectedBillingCycle!,
-      sellerId: sellerId.toString(),
-    };
-
-    this.contractService['changeBillingDate'](payload).subscribe({
-      next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Sucesso',
-          detail: 'Data de vencimento alterada com sucesso!',
-        });
-        this.dialogBilling = false;
-        this.loadingBillingDialog = false;
+    this.isLoadingTransfer = true;
+    this.loadingMessage = 'Buscando e sincronizando cliente...';
+    this.searchclientService.searchAndRegisterClient(documentoParaBuscar).subscribe({
+      next: (response) => {
+        this.isLoadingTransfer = false;
+        if (response?.client?.id && response?.client?.name) {
+          this.foundClient = { id: response.client.id, name: response.client.name };
+          this.messageService.add({ severity: 'info', summary: 'Cliente Localizado', detail: `Cliente ${response.client.name} está pronto para a transferência.` });
+        } else {
+          this.foundClient = null;
+          this.messageService.add({ severity: 'warn', summary: 'Cliente não encontrado', detail: 'Nenhum cliente encontrado com este documento. Você pode cadastrá-lo.' });
+        }
       },
-      error: (err: { error: { errorMessage: string; }; }) => {
-        const backendMessage =
-          err?.error?.errorMessage ||
-          'Não foi possível alterar a data de vencimento.';
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro',
-          detail: backendMessage,
-        });
-        this.loadingBillingDialog = false;
+      error: (err) => {
+        this.isLoadingTransfer = false;
+        this.messageService.add({ severity: 'error', summary: 'Erro na Busca', detail: err.error?.message || 'Não foi possível buscar o cliente.' });
       },
     });
   }
 
-  navigateToCreatContract() {
-    this.router.navigate(['add-contract']);
+  goToConsentStep(): void {
+    this.activeStepIndex = 1;
+    this.isLoadingPdf = true;
+    this.pdfSrc = null;
+    this.consentAgreed = false;
+
+    const oldContractId = this.selectedContractForTransfer?.id;
+    const newClientId = this.foundClient?.id;
+
+    if (!oldContractId || !newClientId) {
+      this.messageService.add({ severity: 'error', summary: 'Erro de Dados', detail: 'Dados do contrato ou do novo cliente não foram encontrados.' });
+      this.isLoadingPdf = false;
+      return;
+    }
+
+    this.contractService.getTransferConsentPdf(oldContractId, newClientId).subscribe({
+      next: (pdfBlob: Blob) => {
+        const objectUrl = URL.createObjectURL(pdfBlob);
+        this.pdfSrc = this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl);
+        this.isLoadingPdf = false;
+      },
+      error: (err) => {
+        this.messageService.add({ severity: 'error', summary: 'Erro ao Gerar PDF', detail: err.error?.message || 'Não foi possível carregar o termo de consentimento.' });
+        this.isLoadingPdf = false;
+      }
+    });
   }
 
-  navigateToInfoClient() {
-    this.router.navigate(['info', this.clientId]);
+  onConfirmTransfer(): void {
+    if (!this.selectedContractForTransfer || !this.foundClient) return;
+
+    this.isLoadingTransfer = true;
+    this.loadingMessage = 'Efetivando transferência, por favor aguarde...';
+    const oldContractId = this.selectedContractForTransfer.id;
+    const newClientId = this.foundClient.id;
+
+    this.contractService.transferOwnership(oldContractId, newClientId).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Sucesso!', detail: 'A transferência de titularidade foi concluída.' });
+        this.isLoadingTransfer = false;
+        setTimeout(() => {
+          this.closeTransferDialog();
+          this.loadContracts(this.clientId);
+        }, 1500);
+      },
+      error: (err) => {
+        this.messageService.add({ severity: 'error', summary: 'Erro na Transferência', detail: err.error?.message || 'Não foi possível concluir a transferência.' });
+        this.isLoadingTransfer = false;
+        this.activeStepIndex = 0;
+      },
+    });
   }
 
+  goBackStep(stepIndex: number): void {
+    this.activeStepIndex = stepIndex;
+  }
+
+
+  // --- MÉTODOS DE UPGRADE/DOWNGRADE E OUTROS DIALOGS (Originais) ---
   openUpgradeDialog(contract: Contract, isUpgrade: boolean) {
     this.dialogTitle = isUpgrade ? 'Upgrade de Contrato' : 'Downgrade de Contrato';
     this.selectedContractForUpgrade = contract;
@@ -339,16 +388,14 @@ export class ClientContractComponent implements OnInit {
       this.messageService.add({ severity: 'warn', summary: 'Atenção', detail: 'Preencha todos os campos obrigatórios.' });
       return;
     }
-
     if (!this.selectedContractForUpgrade) return;
 
     const sellerId = this.authService.getSellerId();
     if (!sellerId) {
-      this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Sessão inválida.' });
+      this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Sessão inválida ou ID do vendedor não encontrado.' });
       return;
     }
     const formData = this.upgradeForm.getRawValue();
-
     const payload = {
       seller: sellerId,
       codePlan: formData.codePlan,
@@ -357,31 +404,133 @@ export class ClientContractComponent implements OnInit {
       cicleBillingDayBase: formData.cicleBillingDayBase,
       cicleBillingExpired: formData.cicleBillingExpired,
     };
-
     const contractId = this.selectedContractForUpgrade.id;
 
     this.contractService.upgradeContract(contractId, payload).subscribe({
       next: () => {
         this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Contrato atualizado com sucesso!' });
-        this.onHide();
+        this.onHideUpgradeDialog();
         this.loadContracts(this.clientId);
       },
       error: (err) => {
-        let detailMessage = 'Não foi possível atualizar o contrato. Tente novamente mais tarde.';
-
-        if (err.error && typeof err.error.message === 'string') {
-          detailMessage = err.error.message;
-        }
-
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro de Regra de Negócio',
-          detail: detailMessage
-        });
-
+        const detailMessage = err.error?.message || 'Não foi possível atualizar o contrato.';
+        this.messageService.add({ severity: 'error', summary: 'Erro de Regra de Negócio', detail: detailMessage });
         console.error('Erro detalhado:', err);
       }
     });
+  }
+
+  onHideUpgradeDialog() {
+    this.upgradeDialog = false;
+    this.upgradeForm.reset();
+    this.selectedContractForUpgrade = null;
+  }
+
+
+  // --- MÉTODOS DIVERSOS (Originais) ---
+  confirmTransferDate(contract: Contract) {
+    this.confirmationService.confirm({
+      message: 'Deseja realmente alterar a data de vencimento deste contrato?',
+      header: 'Confirmação',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => this.transferDateExpired(contract),
+      reject: () =>
+        this.messageService.add({
+          severity: 'info',
+          summary: 'Cancelado',
+          detail: 'Ação cancelada.',
+        }),
+    });
+  }
+
+  transferDateExpired(contract: Contract) {
+    this.loadingBillingDialog = true;
+    const sellerId = this.authService.getSellerId();
+    if (!sellerId) {
+      this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'SellerId não encontrado no token!' });
+      this.loadingBillingDialog = false;
+      return;
+    }
+    const payload = {
+      clientId: contract.clientId,
+      contractNumber: contract.codeContractRbx,
+      billingCycleLabel: this.selectedBillingCycle!,
+      sellerId: sellerId.toString(),
+    };
+    this.contractService['changeBillingDate'](payload).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Data de vencimento alterada com sucesso!' });
+        this.dialogBilling = false;
+        this.loadingBillingDialog = false;
+      },
+      error: (err: { error: { errorMessage: string; }; }) => {
+        const backendMessage = err?.error?.errorMessage || 'Não foi possível alterar a data de vencimento.';
+        this.messageService.add({ severity: 'error', summary: 'Erro', detail: backendMessage });
+        this.loadingBillingDialog = false;
+      },
+    });
+  }
+
+  toggle(popover: Popover, event: Event) {
+    if (popover.overlayVisible) {
+      popover.hide();
+    } else {
+      popover.show(event);
+    }
+  }
+
+  // --- MÉTODOS DE NAVEGAÇÃO E UTILITÁRIOS (Originais) ---
+  navigateToCreatContract() { this.router.navigate(['add-contract']); }
+  navigateToInfoClient() { this.router.navigate(['info', this.clientId]); }
+  navigateToAddressTransfer() { this.router.navigate(['address-transfer']); }
+  navigateToCreateClient(): void {
+    this.router.navigate(['/register']);
+    this.closeTransferDialog();
+  }
+  goToAlterDateExpired(contract: Contract) {
+    this.router.navigate(['/alter-dateexpired'], {
+      queryParams: { clientId: this.clientId, contractId: contract.id },
+    });
+  }
+
+  private isTransferringToSameOwner(documentoParaBuscar: string): boolean {
+    if (!this.currentClient) return false;
+    const isInputCpf = documentoParaBuscar.length === 11;
+    const cpfAtual = this.currentClient.cpf?.replace(/\D/g, '');
+    const cnpjAtual = this.currentClient.cnpj?.replace(/\D/g, '');
+    return (isInputCpf && cpfAtual === documentoParaBuscar) || (!isInputCpf && cnpjAtual === documentoParaBuscar);
+  }
+
+  allowOnlyNumbers(event: KeyboardEvent): void {
+    if (!/^\d$/.test(event.key) && !['Backspace', 'ArrowLeft', 'ArrowRight', 'Delete', 'Tab', 'Enter'].includes(event.key)) {
+      event.preventDefault();
+    }
+  }
+
+  formatarDocumento(value: string): void {
+    if (!value) {
+      this.documento = '';
+      return;
+    }
+    const unformattedValue = value.replace(/\D/g, '').substring(0, 14);
+    if (unformattedValue.length <= 11) {
+      this.documento = unformattedValue
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+    } else {
+      this.documento = unformattedValue
+        .replace(/(\d{2})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d)/, '$1/$2')
+        .replace(/(\d{4})(\d{1,2})$/, '$1-$2');
+    }
+  }
+
+  onPaste(event: ClipboardEvent): void {
+    event.preventDefault();
+    const pastedText = event.clipboardData?.getData('text/plain') || '';
+    setTimeout(() => this.formatarDocumento(pastedText), 0);
   }
 
   onHide() {
@@ -404,144 +553,5 @@ export class ClientContractComponent implements OnInit {
 
   listTransferContracts() {
     this.loadContractsTransfer(this.clientId);
-  }
-
-  navigateToAddressTransfer() {
-    this.router.navigate(['address-transfer']);
-  }
-
-  toggle(popover: any, event: Event) {
-    if (popover.overlayVisible) {
-      popover.hide();
-    } else {
-      popover.show(event);
-    }
-  }
-
-  // --- MÉTODOS PARA A TRANSFERÊNCIA DE TITULARIDADE ---
-  openTransferDialog(contract: Contract): void {
-    this.selectedContractForTransfer = contract;
-    this.transferStep = 'search';
-    this.foundClient = null;
-    this.documento = '';
-    this.transferDialogVisible = true;
-  }
-
-  closeTransferDialog(): void {
-    this.transferDialogVisible = false;
-  }
-
-   allowOnlyNumbers(event: KeyboardEvent): void {
-    if (!/^\d$/.test(event.key) && !['Backspace', 'ArrowLeft', 'ArrowRight', 'Delete', 'Tab', 'Enter'].includes(event.key)) {
-      event.preventDefault();
-    }
-  }
-
-  formatarDocumento(value: string): void {
-    if (!value) {
-      this.documento = '';
-      return;
-    }
-
-    const unformattedValue = value.replace(/\D/g, '').substring(0, 14);
-
-    if (unformattedValue.length <= 11) {
-      this.documento = unformattedValue
-        .replace(/(\d{3})(\d)/, '$1.$2')
-        .replace(/(\d{3})(\d)/, '$1.$2')
-        .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
-    } else {
-      this.documento = unformattedValue
-        .replace(/(\d{2})(\d)/, '$1.$2')
-        .replace(/(\d{3})(\d)/, '$1.$2')
-        .replace(/(\d{3})(\d)/, '$1/$2')
-        .replace(/(\d{4})(\d{1,2})$/, '$1-$2');
-    }
-  }
-
-  onPaste(event: ClipboardEvent): void {
-    event.preventDefault();
-    const pastedText = event.clipboardData?.getData('text/plain') || '';
-    setTimeout(() => {
-      this.formatarDocumento(pastedText);
-    }, 0);
-  }
-
-  onSearchClientByCpf(): void {
-    const documentoParaBuscar = this.documento.replace(/\D/g, '');
-
-    if (documentoParaBuscar.length < 11) {
-      this.messageService.add({ severity: 'warn', summary: 'Atenção', detail: 'Por favor, preencha o documento completo.' });
-      return;
-    }
-
-    if (this.currentClient) {
-      const isInputCpf = documentoParaBuscar.length === 11;
-      const cpfAtual = this.currentClient.cpf?.replace(/\D/g, '');
-      const cnpjAtual = this.currentClient.cnpj?.replace(/\D/g, '');
-
-      if ((isInputCpf && cpfAtual === documentoParaBuscar) || (!isInputCpf && cnpjAtual === documentoParaBuscar)) {
-        this.messageService.add({ severity: 'warn', summary: 'Operação Inválida', detail: 'Não é possível transferir um contrato para o mesmo titular.' });
-        return;
-      }
-    }
-
-    this.isLoadingTransfer = true;
-    this.loadingMessage = 'Buscando e sincronizando cliente...';
-
-    this.searchclientService.searchAndRegisterClient(documentoParaBuscar).subscribe({
-      next: (response) => {
-        if (response && response.client && response.client.id && response.client.name) {
-          this.foundClient = { id: response.client.id, name: response.client.name };
-          this.transferStep = 'confirm';
-          this.messageService.add({ severity: 'info', summary: 'Cliente Pronto', detail: response.message });
-        } else if (response && !response.foundInPGDO && !response.foundInRBX) {
-          this.transferStep = 'notFound';
-        } else {
-          this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Resposta inesperada do servidor.' });
-          this.transferStep = 'search';
-        }
-        this.isLoadingTransfer = false;
-      },
-      error: (err) => {
-        this.messageService.add({ severity: 'error', summary: 'Erro na Busca', detail: err.error?.message || 'Não foi possível buscar o cliente.' });
-        this.isLoadingTransfer = false;
-        this.transferStep = 'search';
-      },
-    });
-  }
-
-  onConfirmTransfer(): void {
-    if (!this.selectedContractForTransfer || !this.foundClient) return;
-
-    this.isLoadingTransfer = true;
-    this.loadingMessage = 'Realizando transferência...';
-    const oldContractId = this.selectedContractForTransfer.id;
-    const newClientId = this.foundClient.id;
-
-    this.contractService.transferOwnership(oldContractId, newClientId).subscribe({
-      next: () => {
-        this.transferStep = 'success';
-        this.isLoadingTransfer = false;
-        setTimeout(() => {
-          this.closeTransferDialog();
-          this.loadContracts(this.clientId);
-        }, 2000);
-      },
-      error: (err: { error: { message: any; }; }) => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro na Transferência',
-          detail: err.error?.message || 'Não foi possível concluir a transferência.',
-        });
-        this.isLoadingTransfer = false;
-        this.transferStep = 'search';
-      },
-    });
-  }
-
-  navigateToCreateClient(): void {
-    this.router.navigate(['/register']);
-    this.closeTransferDialog();
   }
 }
