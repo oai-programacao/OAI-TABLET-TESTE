@@ -1,5 +1,4 @@
 import { ActionsContractsService } from './../../services/actionsToContract/actions-contracts.service';
-import { AuthService } from './../../core/auth.service';
 import { ContractsService } from './../../services/contracts/contracts.service';
 import { Contract } from './../../models/contract/contract.dto';
 import { Component, inject } from '@angular/core';
@@ -21,6 +20,8 @@ import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { InputTextModule } from 'primeng/inputtext';
 import { NgxMaskDirective } from 'ngx-mask';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
 
 export interface ConsentTermRequest {
   proportionalValue: number;
@@ -44,9 +45,11 @@ export interface ConsentTermRequest {
     InputGroupAddonModule,
     InputTextModule,
     NgxMaskDirective,
+    ToastModule,
   ],
   templateUrl: './alter-date-expired.component.html',
   styleUrl: './alter-date-expired.component.scss',
+  providers: [MessageService],
 })
 export class AlterDateExpiredComponent {
   clientId!: string;
@@ -64,6 +67,7 @@ export class AlterDateExpiredComponent {
   private readonly clientService = inject(ClientService);
   private readonly reportsService = inject(ReportsService);
   private readonly actionsContractsService = inject(ActionsContractsService);
+  private readonly messageService = inject(MessageService);
 
   ngOnInit() {
     this.route.queryParams.subscribe((params) => {
@@ -211,11 +215,11 @@ export class AlterDateExpiredComponent {
     this.modalVisible = true;
   }
 
-  fecharModal() {
+  onHide() {
     this.modalVisible = false;
     this.phone = '';
   }
-
+  
   sendToAutentiqueSubmit() {
     const term = {
       proportionalValue: this.proportionalBoleto,
@@ -226,22 +230,38 @@ export class AlterDateExpiredComponent {
     };
 
     const mappedSigners = [
-      {
-        name: this.client.name,
-        phone: '+55' + this.phone
-      },
+      { name: this.client.name, phone: '+55' + this.phone },
     ];
 
-    const payload = {
-      term,
-      signers: mappedSigners,
-    };
+    const payload = { term, signers: mappedSigners };
 
     this.actionsContractsService
       .sendAlterDateAutentique(payload, this.clientId, this.contractId)
       .subscribe({
-        next: (res) => console.log('Contrato enviado com sucesso', res),
-        error: (err) => console.error('Erro ao enviar contrato', err),
+        next: (res: string) => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Sucesso',
+            detail: `${res}.
+            Aguarde o cliente assinar, todo o processo será feito de forma automática.
+            Consulte nos atendimentos do cliente se foi feito de fato.`,
+            life: 10000,
+          });
+          this.modalVisible = false;
+        },
+        error: (err) => {
+          const backendMessage =
+            (typeof err.error === 'string' ? err.error : err?.error?.message) ||
+            'Erro ao tentar enviar para o número, verifique com o Suporte!';
+
+          if (backendMessage.includes('Aguarde 4 minutos antes')) {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Atenção',
+              detail: backendMessage,
+            });
+          }
+        },
       });
   }
 }

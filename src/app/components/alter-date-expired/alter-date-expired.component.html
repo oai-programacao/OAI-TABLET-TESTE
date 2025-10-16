@@ -1,4 +1,5 @@
 <div class="page-container">
+  <p-toast position="top-center"></p-toast>
   <app-card-base header="Alterar Data de Pagamento" width="auto" height="auto">
     <div class="btn-to-back">
       <p-button
@@ -149,38 +150,54 @@
         <p-step-panel [value]="2">
           <ng-template #content>
             <div *ngIf="selectedBillingCycle; else noDateSelected">
-              <!-- Conteúdo real do passo 2 -->
-              <p class="step2-info">
-                📌 <strong>Opções de envio do termo:</strong><br />
-                - Caso a comunicação com o cliente seja por WhatsApp, utilize a
-                opção <strong>Autentique</strong>.<br />
-                - Para apenas visualizar o termo, utilize
-                <strong>Visualizar PDF</strong>.<br />
-                - Se o cliente estiver presencial, utilize a opção de
-                <strong>assinatura manual</strong>, que será inserida
-                automaticamente no documento.
-              </p>
+              <div class="fluxo-container">
+                <!-- CARD 1 - ONLINE -->
+                <div class="fluxo-card online">
+                  <div class="fluxo-header">
+                    🖥️
+                    <h3>Atendimento Online</h3>
+                  </div>
+                  <div class="fluxo-body">
+                    <p>
+                      Envie o termo diretamente para assinatura online via
+                      Autentique. Ideal para clientes atendidos por WhatsApp ou
+                      Telefone
+                    </p>
+                  </div>
+                  <div class="fluxo-footer">
+                    <p-button
+                      label="Enviar Contrato"
+                      icon="pi pi-send"
+                      severity="warn"
+                      [raised]="true"
+                      (onClick)="abrirModal()"
+                      [style]="{ 'padding': '2rem 4rem' }"
+                    ></p-button>
+                  </div>
+                </div>
 
-              <div class="btn-actions">
-                <!-- Visualizar / Baixar PDF -->
-                <p-button
-                  label="Visualizar PDF"
-                  icon="pi pi-file-pdf"
-                  severity="success"
-                  [raised]="true"
-                  rounded="true"
-                  (onClick)="getConsentTermPdf()"
-                ></p-button>
-
-                <!-- Enviar para API autenticada -->
-                <p-button
-                  label="Autentique"
-                  icon="pi pi-send"
-                  severity="warn"
-                  rounded="true"
-                  [raised]="true"
-                  (onClick)="abrirModal()"
-                ></p-button>
+                <!-- CARD 2 - PRESENCIAL -->
+                <div class="fluxo-card presencial">
+                  <div class="fluxo-header">
+                    🤝
+                    <h3>Atendimento Presencial</h3>
+                  </div>
+                  <div class="fluxo-body">
+                    <p>
+                      Gere o termo para assinatura manual presencial. A
+                      assinatura será inserida automaticamente no documento.
+                    </p>
+                  </div>
+                  <div class="fluxo-footer">
+                    <p-button
+                      label="Assinatura Manual"
+                      icon="pi pi-file-edit"
+                      severity="success"
+                      [raised]="true"
+                      [style]="{ 'padding': '2rem 4rem' }"
+                    ></p-button>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -212,18 +229,32 @@
     [closable]="true"
     resizable="false"
     [draggable]="false"
+    (onHide)="onHide()"
   >
     <div class="dialog-content">
-      <!-- Ícone WhatsApp -->
       <div class="icon-container">
         <i class="pi pi-whatsapp whatsapp-icon"></i>
       </div>
 
+      <div class="alert-box">
+        <div class="alert-icon-circle">!</div>
+        <p class="alert-text">
+          Após a assinatura do documento pelo cliente via Autentique,<br />
+          o sistema processará automaticamente a atualização dos dados<br />
+          do contrato no RBX, vinculará um atendimento ao cliente<br />
+          e anexará o documento assinado.<br /><br />
+          Você será notificado assim que a assinatura for concluída<br />
+          e poderá consultar o atendimento diretamente no cadastro do cliente.
+        </p>
+      </div>
+
       <!-- Mensagem informativa -->
       <p class="info-text">
-        Digite o número no formato <strong>+55</strong> (DDD + Número). <br />
-        O termo será enviado pela Autentique para o cliente assinar via
-        WhatsApp📄✅
+        Certifique-se de que o número está correto, caso contrário, poderá ser
+        enviado para outra pessoa!<br />
+        O termo será enviado pela Autentique para o cliente assinar via WhatsApp
+        📄✅ <br />
+        Digite o número no formato <strong>+55</strong> (DDD + Número).<br />
       </p>
 
       <p-inputgroup>
@@ -234,13 +265,14 @@
         <input
           pInputText
           id="telefone"
-          name="telefone" 
+          name="telefone"
           placeholder="+55 (DDD) 00000-0000"
           [(ngModel)]="phone"
           required
           [style]="{ height: '40px', 'font-size': '20px' }"
           mask="00000000000"
           prefix="+55"
+          #phoneModel="ngModel"
         />
       </p-inputgroup>
     </div>
@@ -250,7 +282,7 @@
         label="Cancelar"
         icon="pi pi-times"
         severity="secondary"
-        (onClick)="fecharModal()"
+        (onClick)="onHide()"
       ></p-button>
       <p-button
         label="Enviar"

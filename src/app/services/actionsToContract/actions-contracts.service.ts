@@ -16,7 +16,8 @@ export class ActionsContractsService {
     payload: any,
     clientId: string,
     contractId: string
-  ): Observable<any> {
+  ): Observable<string> {
+    // aqui já definimos que será string
     const sellerId = this.authService.getSellerId();
 
     const finalPayload = {
@@ -24,9 +25,8 @@ export class ActionsContractsService {
       sellerId,
     };
 
-    // Monta URL com os IDs na path
     const url = `${this.apiUrl}/create-consent-document/${clientId}/${contractId}`;
 
-    return this.http.post(url, finalPayload);
+    return this.http.post(url, finalPayload, { responseType: 'text' });
   }
 }
