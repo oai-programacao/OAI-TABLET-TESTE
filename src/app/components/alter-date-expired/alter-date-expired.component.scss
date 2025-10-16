@@ -203,15 +203,15 @@
 }
 
 .alert-warning {
-  padding: 1rem; /* Espaçamento interno */
-  background-color: #fff3cd; /* Amarelo claro */
-  color: #856404; /* Texto marrom escuro */
-  border: 1px solid #ffeeba; /* Borda amarela */
-  border-radius: 0.5rem; /* Cantos arredondados */
-  font-weight: 500; /* Texto um pouco mais destacado */
+  padding: 1rem;
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+  border-radius: 0.5rem;
+  font-weight: 400;
   display: flex;
   align-items: center;
-  gap: 0.5rem; /* Espaço entre ícone e texto */
+  gap: 0.5rem;
 }
 
 .alert-warning i {
@@ -222,7 +222,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.2rem;
   text-align: center;
   padding: 0.5rem;
 }
@@ -243,7 +242,7 @@
 
 .info-text {
   font-size: 1rem;
-  color: #ffffff;
+  color: #333;
   line-height: 1.4;
 }
 
@@ -252,19 +251,118 @@ p-inputgroup {
   max-width: 300px;
 }
 
-:host ::ng-deep .p-dialog {
-  background-color: #2c2c2c !important;
-  color: #ffffff;
-  border: black;
-}
-
-:host ::ng-deep .p-dialog .p-dialog-header {
-  color: #ffffff !important;
-}
-
 .step2-info {
   font-size: 0.95rem;
   line-height: 1.5;
   margin-bottom: 1.2rem;
   color: #333;
+}
+
+.alert-box {
+  display: flex;
+  align-items: center;
+  background-color: rgba(255, 230, 0, 0.3); /* fundo translúcido */
+  padding: 5px;
+  border-radius: 8px;
+  gap: 15px;
+  margin-top: 15px;
+  padding-left: 20px;
+  border-left: 5px solid rgb(255, 136, 0);
+}
+
+.alert-icon-circle {
+  width: 40px;
+  height: 40px;
+  background-color: rgba(245, 127, 23, 0.5); /* amarelo escuro translúcido */
+  color: rgb(255, 255, 255);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.alert-text {
+  margin: 0;
+  color: #000000;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.fluxo-container {
+  display: flex;
+  gap: 25px;
+  margin-top: 25px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.fluxo-card {
+  width: 320px;
+  min-height: 600px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  /* efeito vidro */
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Cores individuais com translucidez */
+.fluxo-card.online {
+  background: rgba(255, 230, 0, 0.05); /* amarelo bem leve */
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-top: 5px solid #fbc02d;
+}
+
+.fluxo-card.presencial {
+  background: rgba(13, 197, 243, 0.05); /* verde bem leve */
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-top: 5px solid #19cefc;
+}
+
+.fluxo-header {
+  font-size: 5rem;
+  text-align: center;
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.fluxo-header h3 {
+  margin-top: 10px;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.fluxo-body {
+  flex: 1;
+  text-align: center;
+  color: #333;
+  font-size: 0.9rem;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fluxo-body p {
+  line-height: 1.4;
+}
+
+.fluxo-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
 }
