@@ -21,7 +21,7 @@
             <ng-template #content let-activateCallback="activateCallback">
               <div>
                 <p-divider>
-                <h1 class="title-address-form">Endereço Atual</h1>
+                  <h1 class="title-address-form">Endereço Atual</h1>
                 </p-divider>
               </div>
 
@@ -68,10 +68,12 @@
                         <i class="pi pi-bell"></i>
                       </p-inputgroup-addon>
                       <p-iftalabel>
-                        <input type="text" 
-                        pInputText 
-                        [ngModel]="currentContract?.number" 
-                        disabled />
+                        <input
+                          type="text"
+                          pInputText
+                          [ngModel]="currentContract?.number"
+                          disabled
+                        />
                         <label for="address-number">N° Casa/Apartamento:</label>
                       </p-iftalabel>
                     </p-inputgroup>
@@ -96,24 +98,24 @@
                   </div>
 
                   <!-- Cidade -->
-                   <div class="input-content">
-            <p-inputgroup>
-              <p-inputgroup-addon
-                ><i class="pi pi-paperclip"></i
-              ></p-inputgroup-addon>
-              <p-iftalabel variant="on">
-                <input
-                  pInputText
-                  id="cidade"
-                  name="cidade"
-                  [ngModel]="currentContract?.city"
-                  #cidade="ngModel"
-                  disabled
-                />
-                <label for="cidade">Cidade:</label>
-              </p-iftalabel>
-            </p-inputgroup>
-          </div>
+                  <div class="input-content">
+                    <p-inputgroup>
+                      <p-inputgroup-addon
+                        ><i class="pi pi-paperclip"></i
+                      ></p-inputgroup-addon>
+                      <p-iftalabel variant="on">
+                        <input
+                          pInputText
+                          id="cidade"
+                          name="cidade"
+                          [ngModel]="currentContract?.city"
+                          #cidade="ngModel"
+                          disabled
+                        />
+                        <label for="cidade">Cidade:</label>
+                      </p-iftalabel>
+                    </p-inputgroup>
+                  </div>
 
                   <div class="input-content">
                     <p-inputgroup>
@@ -125,7 +127,7 @@
                           type="text"
                           [mask]="'AA'"
                           pInputText
-                          [ngModel]="currentContract?.state" 
+                          [ngModel]="currentContract?.state"
                           disabled
                         />
                         <label for="UF">UF:</label>
@@ -151,10 +153,9 @@
                 </div>
               </div>
 
-
               <div>
                 <p-divider>
-                <h1 class="title-address-form">Endereço Novo</h1>
+                  <h1 class="title-address-form">Endereço Novo</h1>
                 </p-divider>
               </div>
 
@@ -182,7 +183,6 @@
                           [mask]="'00000-000'"
                           [(ngModel)]="addressNewForm.cep"
                           #cep="ngModel"
-                          (blur)="searchCEP()"
                           required
                         />
                         <label for="CEP">CEP:</label>
@@ -266,23 +266,23 @@
                     </p-inputgroup>
                   </div>
                   <!-- Cidade -->
-                   <div class="input-content">
-            <p-inputgroup>
-              <p-inputgroup-addon
-                ><i class="pi pi-paperclip"></i
-              ></p-inputgroup-addon>
-              <p-iftalabel variant="on">
-                <input
-                  pInputText
-                  id="cidade"
-                  name="cidade"
-                  [(ngModel)]="addressNewForm.city"
-                  #cidade="ngModel"
-                />
-                <label for="cidade">Cidade</label>
-              </p-iftalabel>
-            </p-inputgroup>
-          </div>
+                  <div class="input-content">
+                    <p-inputgroup>
+                      <p-inputgroup-addon
+                        ><i class="pi pi-paperclip"></i
+                      ></p-inputgroup-addon>
+                      <p-iftalabel variant="on">
+                        <input
+                          pInputText
+                          id="cidade"
+                          name="cidade"
+                          [(ngModel)]="addressNewForm.city"
+                          #cidade="ngModel"
+                        />
+                        <label for="cidade">Cidade</label>
+                      </p-iftalabel>
+                    </p-inputgroup>
+                  </div>
 
                   <!-- UF -->
                   <div class="input-content">
@@ -330,6 +330,21 @@
                       <label for="observation">Observação:</label>
                     </p-iftalabel>
                   </div>
+
+                  <!-- ADESAO -->
+                  <p-inputgroup>
+                    <p-inputgroup-addon>R$</p-inputgroup-addon>
+                    <p-inputNumber
+                      name="adesionValue"
+                      placeholder="Valor de Adesão"
+                      mode="decimal"
+                      [minFractionDigits]="2"
+                      [maxFractionDigits]="2"
+                      [(ngModel)]="addressNewForm.adesionValue"
+                      #adesionValue="ngModel"
+                      required
+                    ></p-inputNumber>
+                  </p-inputgroup>
                 </div>
               </form>
               <div class="btn-actions">
@@ -357,7 +372,44 @@
             </ng-template>
           </p-step-panel>
 
-          <p-step-panel [value]="2"> </p-step-panel>
+          <p-step-panel [value]="2">
+            <ng-template #content let-activateCallback="activateCallback">
+              <div *ngIf="addressNewNgForm.valid; else formInvalido">
+                <!-- Conteúdo real do passo 2 -->
+                <p class="step2-info">
+                  📌 <strong>Opções de envio do termo:</strong><br />
+                  - Para apenas visualizar o termo, utilize
+                  <strong>Visualizar PDF</strong>.<br />
+                  - Caso a comunicação com o cliente seja por WhatsApp, utilize
+                  a opção <strong>Autentique</strong> para enviar o documento
+                  para assinatura.
+                </p>
+                <div class="btn-actions">
+                  <p-button
+                    label="Visualizar PDF"
+                    icon="pi pi-file-pdf"
+                    severity="success"
+                    [raised]="true"
+                    (onClick)="getConsentTermAddressPdf()"
+                    [loading]="isLoading"
+                  ></p-button>
+                  <p-button
+                    label="Autentique"
+                    icon="pi pi-send"
+                    severity="warn"
+                    [raised]="true"
+                    (onClick)="abrirModal()"
+                  ></p-button>
+                </div>
+              </div>
+              <ng-template #formInvalido>
+                <div class="alert-warning">
+                  ⚠️ Para prosseguir, volte ao passo anterior e preencha todos
+                  os campos obrigatórios.
+                </div>
+              </ng-template>
+            </ng-template>
+          </p-step-panel>
 
           <p-step-panel [value]="3">
             <ng-template #content let-activateCallback="activateCallback">
@@ -552,6 +604,52 @@
 </div>
 
 <p-dialog
+  header="Enviar Via WhatsApp ⚙️"
+  [(visible)]="modalVisible"
+  [modal]="true"
+  [closable]="true"
+  [resizable]="false"
+  [draggable]="false"
+>
+  <div class="dialog-content">
+    <div class="icon-container">
+      <i class="pi pi-whatsapp whatsapp-icon"></i>
+    </div>
+    <p class="info-text">
+      O termo será enviado pela <strong>Autentique</strong> para o cliente
+      assinar via WhatsApp. Digite o número com DDD.
+    </p>
+    <p-inputgroup>
+      <p-inputgroup-addon>+55</p-inputgroup-addon>
+      <input
+        pInputText
+        id="telefone"
+        name="telefone"
+        placeholder="(DDD) 00000-0000"
+        [(ngModel)]="phone"
+        required
+        mask="(00) 00000-0000"
+      />
+    </p-inputgroup>
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Cancelar"
+      icon="pi pi-times"
+      severity="secondary"
+      (onClick)="fecharModal()"
+    ></p-button>
+    <p-button
+      label="Enviar"
+      icon="pi pi-send"
+      severity="success"
+      [disabled]="!phone || phone.length < 10"
+      [loading]="isLoading"
+    ></p-button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
   header="Verificar Oferta"
   [(visible)]="displayDialog"
   [modal]="true"
@@ -564,9 +662,7 @@
       <p-inputgroup>
         <p-inputgroup-addon><i class="pi pi-home"></i></p-inputgroup-addon>
         <p-iftalabel>
-          <input 
-          [ngModel]="currentContract?.street"
-          pInputText disabled />
+          <input [ngModel]="currentContract?.street" pInputText disabled />
           <label for="current-address">Endereço Atual:</label>
         </p-iftalabel>
       </p-inputgroup>
@@ -576,10 +672,7 @@
       <p-inputgroup>
         <p-inputgroup-addon><i class="pi pi-home"></i></p-inputgroup-addon>
         <p-iftalabel>
-          <input 
-          [(ngModel)]="addressNewForm.street"
-          pInputText disabled 
-           />
+          <input [(ngModel)]="addressNewForm.street" pInputText disabled />
           <label for="current-address">Endereço Novo:</label>
         </p-iftalabel>
       </p-inputgroup>

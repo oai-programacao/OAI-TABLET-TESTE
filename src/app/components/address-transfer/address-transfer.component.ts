@@ -1,10 +1,9 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 
-// Importações Corretas do PrimeNG (sem ...Module para componentes standalone)
-import { StepperModule } from 'primeng/stepper'; // Stepper ainda é um módulo
+import { StepperModule } from 'primeng/stepper'; 
 import { InputText } from 'primeng/inputtext';
 import { Button } from 'primeng/button';
 import { Textarea } from 'primeng/textarea';
@@ -15,21 +14,25 @@ import { InputGroup } from 'primeng/inputgroup';
 import { InputGroupAddon } from 'primeng/inputgroupaddon';
 import { IftaLabel } from 'primeng/iftalabel';
 import { MessageService } from 'primeng/api';
-import { Toast } from 'primeng/toast'; // Toast é separado do ToastModule
+import { Toast } from 'primeng/toast'; 
 
-// Importações de Terceiros e do seu App
+
 import { NgxMaskDirective } from 'ngx-mask';
 import { CardBaseComponent } from "../../shared/components/card-base/card-base.component";
 import { MessagesValidFormsComponent } from "../../shared/components/message-valid-forms/message-valid-forms.component";
 
-// Modelos e Serviços
+
 import { Contract } from '../../models/contract/contract.dto';
+import { Cliente } from '../../models/cliente/cliente.dto';
 import { AuthService } from '../../core/auth.service';
-import { ContractsService } from '../../services/contracts/contracts.service';
+import { ContractsService} from '../../services/contracts/contracts.service';
 import { CepResponse, CepService } from '../../services/cep/cep.service';
+import { ConsentTermAddressRequest } from '../../services/reports/reports.service';
+import { ActionsContractsService } from '../../services/actionsToContract/actions-contracts.service';
+import { ReportsService } from '../../services/reports/reports.service';
+import { InputNumberModule } from 'primeng/inputnumber'; 
 
 
-// Interface apenas para o formulário, mais limpa
 export interface AddressForm {
   cep: string | null;
   street: string;
@@ -39,7 +42,9 @@ export interface AddressForm {
   neighborhood: string;
   city: string;
   observation: string;
+  adesionValue: number | null;
 }
+
 
 @Component({
   selector: 'app-address-transfer',
@@ -60,7 +65,9 @@ export interface AddressForm {
     IftaLabel,
     NgxMaskDirective,
     MessagesValidFormsComponent,
-    Toast
+    Toast,
+    NgxMaskDirective,
+    InputNumberModule
   
   ],
   providers: [MessageService],
@@ -68,18 +75,33 @@ export interface AddressForm {
   styleUrls: ['./address-transfer.component.scss']
 })
 export class AddressTransferComponent implements OnInit {
-  // --- INJEÇÕES E DECLARAÇÕES DE PROPRIEDADES ---
+    contract!: Contract;
+    client!: Cliente;
+  
+    modalVisible: boolean = false;
+    phone: string = '';
+
+  
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly messageService = inject(MessageService);
   private readonly authService = inject(AuthService);
   private readonly contractsService = inject(ContractsService);
+  private readonly actionsContractsService = inject(ActionsContractsService);
+  private readonly reportsService = inject(ReportsService)
 
-  public currentContract: Contract | null = null;
+  public currentContract!: Contract;
   public isLoading = false;
   public displayDialog = false;
+  public isLoad = false;
 
-  // --- FORMULÁRIOS ---
+   public activeStep: number = 1;
+   
+   @ViewChild('addressNewNgForm') addressNewNgForm!: NgForm;
+
+   public clientId!: string;
+public contractId!: string;
+
   public addressNewForm: AddressForm = {
     cep: null,
     street: '',
@@ -88,7 +110,8 @@ export class AddressTransferComponent implements OnInit {
     uf: '',
     neighborhood: '',
     city: '',
-    observation: ''
+    observation: '',
+    adesionValue: null
   };
 
   public paymentForm = {
@@ -110,11 +133,31 @@ export class AddressTransferComponent implements OnInit {
     }
   }
 
-  ngOnInit(): void {
-    if (!this.currentContract) {
-      console.error("Não foram recebidos dados do contrato. O usuário pode ter atualizado a página.");
+ngOnInit(): void {
+  if (!this.currentContract) {
+    const saved = sessionStorage.getItem('contractData');
+    if (saved) {
+      this.currentContract = JSON.parse(saved);
     }
   }
+
+  if (this.currentContract) {
+    this.clientId = this.currentContract.clientId;
+    this.contractId = this.currentContract.id.toString();
+    return;
+  }
+
+  const clientIdFromRoute = this.route.snapshot.queryParamMap.get('fromClient');
+  const contractIdFromRoute = this.route.snapshot.queryParamMap.get('contractId');
+  if (clientIdFromRoute && contractIdFromRoute) {
+    this.clientId = clientIdFromRoute;
+    this.contractId = contractIdFromRoute;
+    return;
+  }
+
+  console.error("Não foram recebidos dados do contrato. O usuário pode ter atualizado a página ou acessou a URL incorretamente.");
+  this.router.navigate(['/contracts']);
+}
 
  
   sendToAutomation(): void {
@@ -205,6 +248,54 @@ searchCEP(): void {
   }
     );
   }
+
+  enviarApi():void{
+
+  }
+
+  enviarWhats():void{
+
+}
+
+getConsentTermAddressPdf() {
+  const requestBody: ConsentTermAddressRequest = {
+    zipCode: this.addressNewForm.cep,
+    state: this.addressNewForm.uf,
+    city: this.addressNewForm.city,
+    street: this.addressNewForm.street,
+    number: this.addressNewForm.numberFromHome,
+    neighborhood: this.addressNewForm.neighborhood,
+    complement: this.addressNewForm.complement,
+    observation: this.addressNewForm.observation,
+    adesionValue: this.addressNewForm.adesionValue
+  };
+
+  this.isLoading = true;
+  this.reportsService
+    .getConsentTermAddressPdf(this.clientId, this.contractId, requestBody)
+    .subscribe({
+      next: (blob) => {
+        this.isLoading = false;
+        const url = window.URL.createObjectURL(blob);
+        window.open(url, '_blank');
+      },
+      error: (err) => {
+        this.isLoading = false;
+        console.error(err);
+      }
+    });
 }
 
 
+
+
+abrirModal(): void {
+    this.modalVisible = true;
+  }
+
+ 
+  fecharModal(): void {
+    this.modalVisible = false;
+    this.phone = ''; 
+  }
+}

@@ -9,6 +9,19 @@ export interface ConsentTermRequest {
   newDateExpired: string;
 }
 
+export interface ConsentTermAddressRequest {
+  zipCode: string | null;
+  state: string | null;
+  city: string | null;
+  street: string | null;
+  number: string | null;
+  neighborhood: string | null;
+  complement: string | null;
+  observation: string | null;
+  adesionValue: number | null;
+}
+
+
 @Injectable({
   providedIn: 'root',
 })
@@ -30,4 +43,14 @@ export class ReportsService {
     return this.http.post(url, requestBody, { responseType: 'blob' });
   }
   
+  getConsentTermAddressPdf(
+    clientId: string,
+    contractId: string,
+    requestBody: ConsentTermAddressRequest
+  ): Observable<Blob> {
+    const url = `${this.baseUrl}/update-address/${clientId}/${contractId}`;
+    return this.http.post(url, requestBody, { responseType: 'blob' });
+  }
 }
+
+  

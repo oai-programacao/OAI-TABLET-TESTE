@@ -303,3 +303,57 @@
 :host ::ng-deep .form-field-full .p-inputtextarea {
   width: 100%;
 }
+
+/* === Alerta de Formulário Inválido === */
+.alert-warning {
+  padding: 1rem;
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* === Estilos do Modal (Dialog) === */
+.dialog-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+  text-align: center;
+  padding: 0.5rem;
+  min-width: 300px;
+}
+
+.icon-container {
+  display: flex;
+  justify-content: center;
+}
+
+.whatsapp-icon {
+  font-size: 3rem;
+  background-color: #25d366;
+  color: white;
+  padding: 1rem;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(37, 211, 102, 0.6);
+}
+
+.info-text {
+  font-size: 1rem;
+  color: #6c757d; // Cor mais suave
+  line-height: 1.4;
+}
+
+p-inputgroup {
+  width: 100%;
+  max-width: 300px;
+}
+
+// Sobrescreve o estilo do p-dialog se necessário
+:host ::ng-deep .p-dialog .p-dialog-header {
+  // Estilos para o header do dialog, se precisar
+}
