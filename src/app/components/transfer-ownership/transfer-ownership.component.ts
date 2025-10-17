@@ -83,6 +83,8 @@ export class TransferOwnershipComponent implements OnInit {
   // --- Estado Geral do Componente ---
   clientId!: string;
   ContractId!: string;
+  phoneOldOwner!: string;
+  phoneNewOwner!: string;
   contracts: Contract[] = []; // Usado para a lista na página anterior, pode ser adaptado
   currentClient: ClientData | null = null;
   isLoading = false;
@@ -101,7 +103,6 @@ export class TransferOwnershipComponent implements OnInit {
   isLoadingPdf: boolean = false;
   consentAgreed: boolean = false;
   autentiqueModalVisible: boolean = false;
-  phone: string = '';
 
   ngOnInit() {
     // Lógica para carregar os dados iniciais do contrato e cliente
@@ -185,7 +186,6 @@ export class TransferOwnershipComponent implements OnInit {
     });
   }
 
-  // Este método é chamado no final do fluxo de Assinatura Manual
   onConfirmTransfer(): void {
     if (!this.selectedContractForTransfer || !this.foundClient) return;
 
@@ -213,7 +213,8 @@ export class TransferOwnershipComponent implements OnInit {
   // --- MÉTODOS PARA O MODAL AUTENTIQUE ---
   abrirModalAutentique(): void {
     this.autentiqueModalVisible = true;
-    this.phone = '';
+    this.phoneOldOwner = '';
+    this.phoneNewOwner = '';
   }
 
   fecharModalAutentique(): void {
@@ -225,14 +226,15 @@ export class TransferOwnershipComponent implements OnInit {
       this.showError('Erro de Dados', 'Não foi possível obter os dados completos dos titulares ou do contrato.');
       return;
     }
+
     const mappedSigners = [
       { 
         name: this.currentClient.name, 
-        phone: '+55' + (this.currentClient.celular1 || '').replace(/\D/g, '') 
+        phoneOldOwner: '+55' + (this.phoneOldOwner || '').replace(/\D/g, '') 
       },
       { 
         name: this.foundClient.name, 
-        phone: '+55' + this.phone.replace(/\D/g, '')
+        phoneNewOwner: '+55' + (this.phoneNewOwner || '').replace(/\D/g, '')
       }
     ];
 

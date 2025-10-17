@@ -147,37 +147,46 @@
             📄✅ <br />
             Digite o número no formato <strong>+55</strong> (DDD + Número).<br />
         </p>
-        <p style="">Insira o numero do Titular</p>
+        <p>Insira o número do <strong>Titular Atual</strong></p>
         <p-inputgroup>
             <p-inputgroup-addon>
                 <i class="pi pi-whatsapp"></i>
             </p-inputgroup-addon>
             <input 
-            pInputText id="telefone" 
-            name="telefone" 
-            placeholder="+55 (DDD) 00000-0000" [(ngModel)]="phone"
-            required [style]="{ height: '40px', 'font-size': '20px' }" 
-            mask="00000000000" prefix="+55"
-            #phoneModel="ngModel" />
+                pInputText 
+                id="telefone-antigo" 
+                name="telefone-antigo" 
+                mask="(00) 00000-0000"
+                prefix="+55"
+                placeholder="+55 (DDD) 00000-0000" 
+                [(ngModel)]="phoneOldOwner"  
+                required 
+                [style]="{ height: '40px', 'font-size': '20px' }" 
+            />
         </p-inputgroup>
-        <p>Insira o numero do Novo Titular</p>
+
+        <p>Insira o número do <strong>Novo Titular</strong></p>
         <p-inputgroup>
             <p-inputgroup-addon>
                 <i class="pi pi-whatsapp"></i>
             </p-inputgroup-addon>
             <input 
-            pInputText id="telefone" 
-            name="telefone" 
-            placeholder="+55 (DDD) 00000-0000" [(ngModel)]="phone"
-            required [style]="{ height: '40px', 'font-size': '20px' }" 
-            mask="00000000000" prefix="+55"
-            #phoneModel="ngModel" />
+                pInputText 
+                id="telefone-novo" 
+                name="telefone-novo" 
+                mask="00000000000"
+                prefix="+55"
+                placeholder="+55 (DDD) 00000-0000" 
+                [(ngModel)]="phoneNewOwner"
+                required 
+                [style]="{ height: '40px', 'font-size': '20px' }" 
+            />
         </p-inputgroup>
     </div>
     <ng-template pTemplate="footer">
         <p-button label="Cancelar" icon="pi pi-times" severity="secondary"
             (onClick)="fecharModalAutentique()"></p-button>
-        <p-button label="Enviar" icon="pi pi-send" severity="success" [disabled]="!phone || phone.trim().length < 10"
+        <p-button label="Enviar" icon="pi pi-send" severity="success" [disabled]="!phoneNewOwner || phoneNewOwner.trim().length < 10"
             (onClick)="sendToAutentiqueSubmit()"></p-button>
     </ng-template>
 </p-dialog>
