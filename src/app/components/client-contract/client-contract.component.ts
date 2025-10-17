@@ -33,6 +33,9 @@ import { IftaLabel } from "primeng/iftalabel";
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { CheckboxModule } from 'primeng/checkbox';
 import { Stepper, StepperModule } from "primeng/stepper";
+import { InputGroupModule } from "primeng/inputgroup";
+import { InputGroupAddonModule } from "primeng/inputgroupaddon";
+import { InputTextModule } from 'primeng/inputtext';
 
 export interface Seller {
   name: string;
@@ -67,9 +70,10 @@ export interface Plan {
     ToastModule,
     StepsModule,
     TooltipModule,
-    Stepper,
     StepperModule,
-    IftaLabel
+    InputTextModule,
+    InputGroupModule,
+    InputGroupAddonModule
 ],
   templateUrl: './client-contract.component.html',
   styleUrl: './client-contract.component.scss',
@@ -117,6 +121,8 @@ export class ClientContractComponent implements OnInit {
   pdfSrc: SafeResourceUrl | null = null;
   isLoadingPdf: boolean = false;
   consentAgreed: boolean = false;
+  autentiqueModalVisible: boolean = false;
+  phone: string = '';
 
   typesOfDateExpirationCicle = [
     { dia: '1', vencimento: '1', descricao: '01 a 31 / 01 ', value: '1' },
@@ -264,21 +270,11 @@ export class ClientContractComponent implements OnInit {
 
 
   // --- MÉTODOS PARA TRANSFERÊNCIA DE TITULARIDADE (FLUXO COM STEPPER) ---
-  openTransferDialog(contract: Contract): void {
-    this.selectedContractForTransfer = contract;
-    this.documento = '';
-    this.foundClient = null;
-    this.consentAgreed = false;
-    this.pdfSrc = null;
-    this.activeStepIndex = 0;
-    this.transferDialogVisible = true;
-  }
-
   closeTransferDialog(): void {
     this.transferDialogVisible = false;
   }
 
-  onSearchNewOwner(): void {
+   onSearchNewOwner(): void {
     const documentoParaBuscar = this.documento.replace(/\D/g, '');
     if (documentoParaBuscar.length < 11) {
       this.messageService.add({ severity: 'warn', summary: 'Atenção', detail: 'Por favor, preencha o documento completo.' });
@@ -288,23 +284,22 @@ export class ClientContractComponent implements OnInit {
       this.messageService.add({ severity: 'warn', summary: 'Operação Inválida', detail: 'Não é possível transferir um contrato para o mesmo titular.' });
       return;
     }
-
     this.isLoadingTransfer = true;
-    this.loadingMessage = 'Buscando e sincronizando cliente...';
+    this.loadingMessage = 'A procurar e a sincronizar o cliente...';
     this.searchclientService.searchAndRegisterClient(documentoParaBuscar).subscribe({
       next: (response) => {
         this.isLoadingTransfer = false;
         if (response?.client?.id && response?.client?.name) {
           this.foundClient = { id: response.client.id, name: response.client.name };
-          this.messageService.add({ severity: 'info', summary: 'Cliente Localizado', detail: `Cliente ${response.client.name} está pronto para a transferência.` });
+          this.messageService.add({ severity: 'info', summary: 'Cliente Localizado', detail: `O cliente ${response.client.name} está pronto para a transferência.` });
         } else {
-          this.foundClient = null;
-          this.messageService.add({ severity: 'warn', summary: 'Cliente não encontrado', detail: 'Nenhum cliente encontrado com este documento. Você pode cadastrá-lo.' });
+          this.foundClient = null; // Garante que o botão 'Próximo' fique desabilitado.
+          this.messageService.add({ severity: 'warn', summary: 'Cliente não encontrado', detail: response.message || 'Nenhum cliente encontrado com este documento.' });
         }
       },
       error: (err) => {
         this.isLoadingTransfer = false;
-        this.messageService.add({ severity: 'error', summary: 'Erro na Busca', detail: err.error?.message || 'Não foi possível buscar o cliente.' });
+        this.messageService.add({ severity: 'error', summary: 'Erro na Procura', detail: err.error?.message || 'Não foi possível procurar o cliente.' });
       },
     });
   }
@@ -365,7 +360,6 @@ export class ClientContractComponent implements OnInit {
   goBackStep(stepIndex: number): void {
     this.activeStepIndex = stepIndex;
   }
-
 
   // --- MÉTODOS DE UPGRADE/DOWNGRADE E OUTROS DIALOGS (Originais) ---
   openUpgradeDialog(contract: Contract, isUpgrade: boolean) {
@@ -435,12 +429,7 @@ export class ClientContractComponent implements OnInit {
       header: 'Confirmação',
       icon: 'pi pi-exclamation-triangle',
       accept: () => this.transferDateExpired(contract),
-      reject: () =>
-        this.messageService.add({
-          severity: 'info',
-          summary: 'Cancelado',
-          detail: 'Ação cancelada.',
-        }),
+      reject: () => this.messageService.add({ severity: 'info', summary: 'Cancelado', detail: 'Ação cancelada.' }),
     });
   }
 
@@ -480,10 +469,27 @@ export class ClientContractComponent implements OnInit {
     }
   }
 
+   abrirModalAutentique(): void {
+    this.autentiqueModalVisible = true;
+    this.phone = '';
+  }
+
+  fecharModalAutentique(): void {
+    this.autentiqueModalVisible = false;
+  }
+
+  sendToAutentiqueSubmit(): void {
+    console.log('Enviando para o Autentique com o telefone:', this.phone);
+    this.messageService.add({ severity: 'info', summary: 'Processo Iniciado', detail: 'O termo foi enviado para assinatura via Autentique.' });
+    this.fecharModalAutentique();
+    this.closeTransferDialog();
+  }
+
   // --- MÉTODOS DE NAVEGAÇÃO E UTILITÁRIOS (Originais) ---
   navigateToCreatContract() { this.router.navigate(['add-contract']); }
   navigateToInfoClient() { this.router.navigate(['info', this.clientId]); }
   navigateToAddressTransfer() { this.router.navigate(['address-transfer']); }
+  navigateTransferDialog() { this.router.navigate (['transfer-ownership']) }
   navigateToCreateClient(): void {
     this.router.navigate(['/register']);
     this.closeTransferDialog();

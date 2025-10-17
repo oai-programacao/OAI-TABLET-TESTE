@@ -1,0 +1,166 @@
+/*
+  ESTILOS PARA O NOVO COMPONENTE DE PÁGINA: TransferOwnershipComponent
+  --------------------------------------------------------------------
+  Este ficheiro contém todos os estilos que antes estavam no dialog de
+  transferência, agora adaptados para funcionar como uma página inteira.
+*/
+
+// Container da página, herdado do seu layout original
+.page-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+// Cabeçalho com informações do contrato
+.transfer-dialog__header {
+  background-color: #f8f9fa;
+  padding: 0.75rem 1.5rem;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #dee2e6;
+
+  label {
+    font-weight: 500;
+    color: #575353;
+    font-size: 1.3rem;
+  }
+  span {
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: #1c34a0;
+  }
+}
+
+// Container da barra de passos
+.step-numbers {
+  padding: 1.5rem 0;
+  border-bottom: 1px solid #dee2e6;
+}
+
+// Container dos painéis de conteúdo dos passos
+.step-panels-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  padding: 2rem 1.5rem;
+  transition: all 0.2s ease-in-out;
+}
+
+p-inputgroup {
+  width: 100%;
+  max-width: 300px;
+}
+
+// Estilo base para o conteúdo de cada painel
+.step-panel-content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+// Rodapé com botões de navegação dos passos
+.step-footer {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding-top: 1.5rem;
+  margin-top: 1.5rem;
+  border-top: 1px solid #dee2e6;
+}
+
+// Estilos específicos para os elementos dos passos
+.step-instruction { font-size: 1rem; color: #575353; margin-bottom: 1rem; }
+.pdf-viewer { width: 100%; border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden; }
+.consent-check { margin-top: 1.5rem; }
+
+// Estilos para o input de busca (Passo 1)
+.form-group-input {
+  display: flex;
+  width: 100%;
+  max-width: 600px; // Limita a largura do input
+  gap: 0.5rem;
+  align-items: center;
+  p-iftalabel { flex-grow: 1; }
+  input[pInputText] {
+    width: 100%;
+    height: 4rem;
+    font-size: 2rem;
+    text-align: center;
+    background-color: #aac6f762;
+    border-radius: 29px;
+    border: none;
+    font-family: "IBM Plex Mono", monospace;
+  }
+}
+
+// Estilos para os cards de fluxo de assinatura (Passo 2)
+.fluxo-container {
+  display: flex;
+  gap: 2rem;
+  width: 100%;
+  justify-content: center;
+  align-items: stretch;
+}
+.fluxo-card {
+  flex: 1;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease-in-out;
+  &:hover { transform: translateY(-5px); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2); }
+  &.online { border-top: 5px solid #fbc02d; }
+  &.presencial { border-top: 5px solid #19cefc; }
+  .fluxo-header { font-size: 3.5rem; text-align: center; margin-bottom: 15px; }
+  .fluxo-header h3 { margin-top: 10px; font-size: 1.3rem; font-weight: 600; }
+  .fluxo-body { flex-grow: 1; text-align: center; color: #333; font-size: 0.9rem; padding: 0 10px; display: flex; align-items: center; justify-content: center; min-height: 100px; }
+  .fluxo-footer { padding: 1rem; text-align: center; background-color: #f8f9fa; border-top: 1px solid #dee2e6; }
+}
+
+// Overlay de carregamento
+.transfer-dialog__loading-overlay {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background-color: rgba(255, 255, 255, 0.9);
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  z-index: 10; backdrop-filter: blur(3px);
+  .loading-message { margin-top: 1.5rem; font-weight: 700; color: #1c34a0; font-size: 1.1rem; }
+}
+
+// Estilos para o Dialog do WhatsApp/Autentique
+.dialog-content {
+  display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0.5rem;
+  .whatsapp-icon { font-size: 3rem; background-color: #25d366; color: white; padding: 1rem; border-radius: 50%; box-shadow: 0 0 10px rgba(37, 211, 102, 0.6); }
+  .info-text { font-size: 1rem; color: #333; line-height: 1.4; }
+  .alert-box { display: flex; align-items: center; background-color: rgba(255, 230, 0, 0.3); padding: 5px 20px 5px 20px; border-radius: 8px; gap: 15px; margin-top: 15px; border-left: 5px solid rgb(255, 136, 0); }
+  .alert-icon-circle { width: 40px; height: 40px; background-color: rgba(245, 127, 23, 0.5); color: rgb(255, 255, 255); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 20px; }
+  .alert-text { margin: 0; color: #000000; font-size: 16px; line-height: 1.5; }
+}
+:host ::ng-deep .p-dialog .dialog-content p-inputgroup {
+  width: 100%; max-width: 300px; border: 1px solid #ced4da; border-radius: 6px; transition: all 0.2s ease-in-out;
+  &.p-element { background: none; border-spacing: 0; }
+  .p-inputgroup-addon { background-color: #f8f9fa; border: none; color: #6c757d; }
+  .p-inputtext { border: none; box-shadow: none !important; }
+  &:focus-within { border-color: #1c34a0; box-shadow: 0 0 0 0.1rem rgba(28, 52, 160, 0.25); }
+}

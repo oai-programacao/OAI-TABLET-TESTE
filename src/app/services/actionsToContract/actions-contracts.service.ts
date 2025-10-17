@@ -29,4 +29,21 @@ export class ActionsContractsService {
 
     return this.http.post(url, finalPayload, { responseType: 'text' });
   }
+
+  sendTransferOwnershipAutentique(
+    payload: any,
+    clientId: string,
+    contractId: string
+  ): Observable<string> {
+    const sellerId = this.authService.getSellerId();
+
+    const finalPayload = {
+      ...payload,
+      sellerId,
+    };
+
+    const url = `${this.apiUrl}/create-consent-document/${clientId}/${contractId}`;
+
+    return this.http.post(url, finalPayload, { responseType: 'text' });
+  }
 }

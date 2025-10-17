@@ -78,7 +78,7 @@
               <span>{{ contract.zipCode }}</span>
             </div>
 
-            
+
             <div class="section section-inline">
               <div class="group">
                 <label>🌆 Cidade:</label>
@@ -131,7 +131,7 @@
           <p-button icon="pi pi-calendar" (onClick)="goToAlterDateExpired(contract)" severity="success" [rounded]="true"
             [text]="true" pTooltip="Alterar Vencimento" tooltipPosition="top">
           </p-button>
-          <p-button icon="pi pi-users" (onClick)="openTransferDialog(contract)" severity="info" [rounded]="true"
+          <p-button icon="pi pi-users" (onClick)="navigateTransferDialog()" severity="info" [rounded]="true"
             [text]="true" pTooltip="Transferir Titularidade" tooltipPosition="top">
           </p-button>
         </div>
@@ -140,93 +140,6 @@
     </div>
   </app-card-base>
 </div>
-
-<!-- Transferir titluatriade DIALOGO  -->
-<p-dialog
-  header="Transferir Titularidade"
-  [(visible)]="transferDialogVisible"
-  [modal]="true"
-  [style]="{ width: '50rem' }" (onHide)="closeTransferDialog()"
->
-
-  <p-stepper [value]="activeStepIndex + 1">
-    <p-step-list>
-        <p-step [value]="1">Buscar Cliente</p-step>
-        <p-step [value]="2">Termo de Consentimento</p-step>
-        <p-step [value]="3">Confirmação</p-step>
-    </p-step-list>
-  </p-stepper>
-
-  <!-- Usamos *ngIf para controlar manualmente qual painel é exibido -->
-  <div class="step-panels-container">
-    <div *ngIf="activeStepIndex === 0" class="step-panel-content">
-      <div class="step-content">
-        <p>Digite o documento do novo titular para iniciar a transferência.</p>
-        <div class="form-group-input" style="width: 100%; margin-top: 1.5rem;">
-            <p-iftalabel variant="on" style="width: 100%">
-              <input
-                pInputText
-                id="documento"
-                [(ngModel)]="documento"
-                name="documento"
-                required
-                minlength="14"
-                maxlength="18"
-                placeholder="CPF/CNPJ"
-                (ngModelChange)="formatarDocumento($event)"
-                (keypress)="allowOnlyNumbers($event)"
-                (paste)="onPaste($event)"
-                autocomplete="off"
-              />
-              <label for="documento"></label>
-            </p-iftalabel>
-        </div>
-      </div>
-      <div class="step-footer">
-        <p-button label="Buscar" [rounded]="true" severity="info" icon="pi pi-search" (onClick)="onSearchNewOwner()" [loading]="isLoadingTransfer"></p-button>
-        <p-button label="Próximo"  [rounded]="true" severity="success" icon="pi pi-arrow-right" (onClick)="goToConsentStep()" [disabled]="!foundClient"></p-button>
-      </div>
-    </div>
-
-    <!-- PAINEL 2: Termo de Consentimento -->
-    <div *ngIf="activeStepIndex === 1" class="step-panel-content">
-      <div class="step-content">
-        <div *ngIf="isLoadingPdf" class="pdf-loading">
-          <p-progressSpinner></p-progressSpinner>
-          <span>Gerando termo de consentimento...</span>
-        </div>
-        <div *ngIf="pdfSrc" class="pdf-viewer">
-          <iframe [src]="pdfSrc" width="100%" height="500px"></iframe>
-        </div>
-        <div *ngIf="!isLoadingPdf" class="p-field-checkbox consent-check">
-          <p-checkbox [(ngModel)]="consentAgreed" binary="true" inputId="consentCheck"></p-checkbox>
-          <label for="consentCheck">Declaro que li e concordo com os termos apresentados no documento.</label>
-        </div>
-      </div>
-      <div class="step-footer">
-        <p-button [rounded]="true" label="Voltar" icon="pi pi-arrow-left" (onClick)="goBackStep(0)" [text]="true"></p-button>
-        <p-button [rounded]="true" severity="success" label="Próximo" icon="pi pi-arrow-right" (onClick)="activeStepIndex = 2" [disabled]="!consentAgreed"></p-button>
-      </div>
-    </div>
-
-    <!-- PAINEL 3: Confirmação -->
-    <div *ngIf="activeStepIndex === 2" class="step-panel-content">
-      <div class="step-content confirmation-step">
-        <i class="pi pi-check-circle success-icon"></i>
-        <h3>Tudo pronto para a transferência!</h3>
-        <p>
-          O termo de consentimento foi gerado. Ao clicar em "Efetivar Transferência", a titularidade do contrato
-          será alterada para <strong>{{ foundClient?.name }}</strong>.
-        </p>
-      </div>
-      <div class="step-footer">
-        <p-button [rounded]="true" label="Voltar" icon="pi pi-arrow-left" (onClick)="goBackStep(1)" [text]="true"></p-button>
-        <p-button [rounded]="true" severity="success" label="Efetivar Transferência" icon="pi pi-check" (onClick)="onConfirmTransfer()" [loading]="isLoadingTransfer"></p-button>
-      </div>
-    </div>
-
-  </div>
-</p-dialog>
 
 <!-- UPGRADE/DOWNGRADE -->
 <p-dialog [header]="dialogTitle" [(visible)]="upgradeDialog" [modal]="true" (onHide)="onHide()"

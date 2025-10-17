@@ -103,5 +103,12 @@ export const routes: Routes = [
       import('./components/alter-date-expired/alter-date-expired.component').then(
         (m) => m.AlterDateExpiredComponent
       )
-  }
+  },
+  {
+    path: 'transfer-ownership',
+    loadComponent: () =>
+      import('./components/transfer-ownership/transfer-ownership.component').then(
+        (m) => m.TransferOwnershipComponent
+      )
+  },
 ];
