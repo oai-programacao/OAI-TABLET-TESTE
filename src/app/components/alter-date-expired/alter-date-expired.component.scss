@@ -202,6 +202,8 @@
   position: relative;
 }
 
+
+// DIALOG ENVIAR WHATSAPP
 .alert-warning {
   padding: 1rem;
   background-color: #fff3cd;
@@ -242,7 +244,7 @@
 
 .info-text {
   font-size: 1rem;
-  color: #333;
+  color: #ffffff;
   line-height: 1.4;
 }
 
@@ -256,6 +258,15 @@ p-inputgroup {
   line-height: 1.5;
   margin-bottom: 1.2rem;
   color: #333;
+}
+
+:host ::ng-deep .p-dialog {
+  background-color: #1b1b1b;
+  border-color: black;
+}
+
+:host ::ng-deep .p-dialog-header {
+  color: white;
 }
 
 .alert-box {
@@ -289,6 +300,9 @@ p-inputgroup {
   font-size: 16px;
   line-height: 1.5;
 }
+
+
+//ENCERRA DIALOG ENVIAR WHATSAPP
 
 .fluxo-container {
   display: flex;

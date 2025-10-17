@@ -3,7 +3,10 @@ import { provideRouter } from '@angular/router';
 import { provideZoneChangeDetection } from '@angular/core';
 import { providePrimeNG } from 'primeng/config';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { provideEnvironmentNgxCurrency, NgxCurrencyInputMode } from 'ngx-currency';
+import {
+  provideEnvironmentNgxCurrency,
+  NgxCurrencyInputMode,
+} from 'ngx-currency';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { LOCALE_ID, isDevMode } from '@angular/core';
 
@@ -11,9 +14,13 @@ import { routes } from './app.routes';
 
 import Aura from '@primeng/themes/aura';
 import { provideServiceWorker } from '@angular/service-worker';
+
+
+
+
 export const appConfig: ApplicationConfig = {
   providers: [
-     { provide: LOCALE_ID, useValue: 'pt-BR' },
+    { provide: LOCALE_ID, useValue: 'pt-BR' },
     provideAnimationsAsync(),
     providePrimeNG({
       theme: {
@@ -23,19 +30,50 @@ export const appConfig: ApplicationConfig = {
       translation: {
         accept: 'Aceitar',
         reject: 'Rejeitar',
-        dayNames: ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'],
+        dayNames: [
+          'Domingo',
+          'Segunda-feira',
+          'Terça-feira',
+          'Quarta-feira',
+          'Quinta-feira',
+          'Sexta-feira',
+          'Sábado',
+        ],
         dayNamesShort: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'],
         dayNamesMin: ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'],
         monthNames: [
-          'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-          'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+          'Janeiro',
+          'Fevereiro',
+          'Março',
+          'Abril',
+          'Maio',
+          'Junho',
+          'Julho',
+          'Agosto',
+          'Setembro',
+          'Outubro',
+          'Novembro',
+          'Dezembro',
         ],
-        monthNamesShort: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+        monthNamesShort: [
+          'Jan',
+          'Fev',
+          'Mar',
+          'Abr',
+          'Mai',
+          'Jun',
+          'Jul',
+          'Ago',
+          'Set',
+          'Out',
+          'Nov',
+          'Dez',
+        ],
         today: 'Hoje',
         clear: 'Limpar',
         weekHeader: 'Sm',
         dateFormat: 'dd/mm/yy',
-      }
+      },
     }),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
@@ -49,15 +87,14 @@ export const appConfig: ApplicationConfig = {
       suffix: '',
       thousands: '.',
       nullable: true,
-      inputMode: NgxCurrencyInputMode.Financial
+      inputMode: NgxCurrencyInputMode.Financial,
     }),
     provideHttpClient(
-      withInterceptors([]) //authInterceptor
-    ), provideServiceWorker('ngsw-worker.js', {
-            enabled: !isDevMode(),
-            registrationStrategy: 'registerWhenStable:30000'
-          }),
-
-    //AuthGuard,
+      withInterceptors([]) 
+    ),
+    provideServiceWorker('ngsw-worker.js', {
+      enabled: !isDevMode(),
+      registrationStrategy: 'registerWhenStable:30000',
+    }),
   ],
 };
