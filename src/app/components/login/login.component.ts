@@ -56,7 +56,9 @@ export class LoginComponent implements OnInit {
   ngOnInit() {}
 
   login(form: NgForm) {
+
     if (form.invalid) {
+      console.log('form inválido', form);
       this.messageService.add({
         detail: 'E-mail ou senha inválidos',
         summary: 'ERRO',
@@ -69,14 +71,17 @@ export class LoginComponent implements OnInit {
     localStorage.clear();
 
     const credentials: LoginSeller = { ...this.loginData };
+    console.log('credenciais', credentials);
 
     this.authService.login(credentials).subscribe({
       next: (response: any) => {
+        console.log('login sucesso', response);
         this.router.navigate(['search']);
         this.loginFailed = false;
         this.form.resetForm();
       },
       error: (error: any) => {
+        console.log('login erro', error);
         this.loginFailed = true;
         const errorMsg = error?.error?.message || 'Falha ao efetuar login';
         this.messageService.add({
@@ -85,7 +90,6 @@ export class LoginComponent implements OnInit {
           severity: 'error',
           icon: 'pi-thumbs-down-fill',
         });
-        console.error(error);
       },
     });
   }
@@ -93,4 +97,5 @@ export class LoginComponent implements OnInit {
   get camposObrigatoriosInvalidos(): boolean {
     return !!((this.form?.submitted && this.form?.invalid) || this.loginFailed);
   }
+
 }

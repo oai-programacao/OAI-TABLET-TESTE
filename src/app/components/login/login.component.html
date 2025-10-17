@@ -57,6 +57,12 @@
               text="E-mail e senha válidos são obrigatórios!"
               [visible]="camposObrigatoriosInvalidos"
             />
+
+            <app-message-valid-forms
+              [control]="password"
+              error="required"
+              text="A senha precisa ter 6 dígitos!"
+            ></app-message-valid-forms>
           </div>
         </div>
 

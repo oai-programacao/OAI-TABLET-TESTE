@@ -6,7 +6,7 @@ export class WebSocketService {
   public messages$ = new Subject<string>();
 
   constructor() {
-    // Simulação de websocket recebendo mensagem a cada 5s
+    // Simula mensagens chegando do websocket a cada 5s
     setInterval(() => {
       this.messages$.next('Nova notificação do websocket!');
     }, 5000);
