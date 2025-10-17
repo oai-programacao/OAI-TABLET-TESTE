@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule, NgForm } from '@angular/forms';
@@ -8,14 +8,11 @@ import { InputText } from 'primeng/inputtext';
 import { Button } from 'primeng/button';
 import { Textarea } from 'primeng/textarea';
 import { Divider } from 'primeng/divider';
-import { Select } from 'primeng/select';
 import { Dialog } from 'primeng/dialog';
 import { InputGroup } from 'primeng/inputgroup';
 import { InputGroupAddon } from 'primeng/inputgroupaddon';
 import { IftaLabel } from 'primeng/iftalabel';
 import { MessageService } from 'primeng/api';
-import { Toast } from 'primeng/toast'; 
-
 
 import { NgxMaskDirective } from 'ngx-mask';
 import { CardBaseComponent } from "../../shared/components/card-base/card-base.component";
@@ -31,6 +28,7 @@ import { ConsentTermAddressRequest } from '../../services/reports/reports.servic
 import { ActionsContractsService } from '../../services/actionsToContract/actions-contracts.service';
 import { ReportsService } from '../../services/reports/reports.service';
 import { InputNumberModule } from 'primeng/inputnumber'; 
+
 
 
 export interface AddressForm {
@@ -58,16 +56,14 @@ export interface AddressForm {
     Button,
     Textarea,
     Divider,
-    Select,
     Dialog,
     InputGroup,
     InputGroupAddon,
     IftaLabel,
     NgxMaskDirective,
     MessagesValidFormsComponent,
-    Toast,
     NgxMaskDirective,
-    InputNumberModule
+    InputNumberModule,
   
   ],
   providers: [MessageService],
@@ -75,11 +71,19 @@ export interface AddressForm {
   styleUrls: ['./address-transfer.component.scss']
 })
 export class AddressTransferComponent implements OnInit {
-    contract!: Contract;
-    client!: Cliente;
+
+  addressNewFormValid = false;
+  contract!: Contract;
+  client!: Cliente;
   
-    modalVisible: boolean = false;
-    phone: string = '';
+  modalVisible: boolean = false;
+
+  phone: string = '';
+  formIsValid: boolean = false;
+
+  @ViewChild('addressNewNgForm') addressNewNgForm!: NgForm;
+
+ 
 
   
   private readonly router = inject(Router);
@@ -95,12 +99,9 @@ export class AddressTransferComponent implements OnInit {
   public displayDialog = false;
   public isLoad = false;
 
-   public activeStep: number = 1;
-   
-   @ViewChild('addressNewNgForm') addressNewNgForm!: NgForm;
-
-   public clientId!: string;
-public contractId!: string;
+  public activeStep: number = 1;
+  public clientId!: string;
+  public contractId!: string;
 
   public addressNewForm: AddressForm = {
     cep: null,
@@ -157,6 +158,10 @@ ngOnInit(): void {
 
   console.error("Não foram recebidos dados do contrato. O usuário pode ter atualizado a página ou acessou a URL incorretamente.");
   this.router.navigate(['/contracts']);
+}
+
+ get isAddressValid(): boolean {
+  return this.addressNewNgForm?.valid ?? false;
 }
 
  
@@ -294,8 +299,64 @@ abrirModal(): void {
   }
 
  
-  fecharModal(): void {
+
+  onHide(): void {
     this.modalVisible = false;
-    this.phone = ''; 
+    this.phone = '';
   }
+
+  avisoInvalido: boolean = true;
+
+  meuMetodoExtra(): void {
+    this.formIsValid = true;
+    this.avisoInvalido = false;
+  }
+ sendToAutentiqueSubmit() {
+  const term = {
+    newAddress: true, // ou qualquer flag/valor que indique a alteração de endereço
+    cep: this.addressNewForm.cep,
+    street: this.addressNewForm.street,
+    number: this.addressNewForm.numberFromHome,
+    complement: this.addressNewForm.complement,
+    city: this.addressNewForm.city,
+    state: this.addressNewForm.uf,
+    observation: this.addressNewForm.observation,
+    adesionValue: this.addressNewForm.adesionValue
+  };
+
+  const mappedSigners = [
+    { name: this.client?.name || 'Cliente', phone: '+55' + (this.phone || '') },
+  ];
+
+  const payload = { term, signers: mappedSigners };
+
+  this.actionsContractsService
+    .sendAddressChangeAutentique(payload, this.clientId, this.contractId)
+    .subscribe({
+      next: (res: string) => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Sucesso!',
+          detail: `${res}.
+            Aguarde o cliente assinar, todo o processo será feito de forma automática.
+            Consulte nos atendimentos do cliente se foi feito de fato.`,
+          life: 10000
+        });
+        this.modalVisible = false;
+      },
+      error: (err) => {
+        const backendMessage =
+          (typeof err.error === 'string' ? err.error : err?.error?.message) ||
+          'Erro ao tentar enviar para o número, verifique com o Suporte!';
+        if (backendMessage.includes('Aguarde 4 minutos antes')) {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Atenção',
+            detail: backendMessage
+          });
+        }
+      }
+    });
+}
+
 }

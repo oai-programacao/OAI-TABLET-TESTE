@@ -9,7 +9,7 @@
       />
     </div>
     <div class="content">
-      <p-stepper [value]="1">
+      <p-stepper [(value)]="activeStep">
         <p-step-list>
           <p-step [value]="1">Endereço</p-step>
           <p-step [value]="2">Termo de Consentimento</p-step>
@@ -37,7 +37,7 @@
                           type="text"
                           [mask]="'00000-000'"
                           pInputText
-                          [ngModel]="currentContract?.zipCode"
+                          [ngModel]="currentContract.zipCode"
                           disabled
                         />
                         <label for="CEP">CEP:</label>
@@ -54,7 +54,7 @@
                         <input
                           type="text"
                           pInputText
-                          [ngModel]="currentContract?.street"
+                          [ngModel]="currentContract.street"
                           disabled
                         />
                         <label for="address-street">Logradouro:</label>
@@ -71,7 +71,7 @@
                         <input
                           type="text"
                           pInputText
-                          [ngModel]="currentContract?.number"
+                          [ngModel]="currentContract.number"
                           disabled
                         />
                         <label for="address-number">N° Casa/Apartamento:</label>
@@ -89,7 +89,7 @@
                           type="text"
                           id="address-complement"
                           pInputText
-                          [ngModel]="currentContract?.complement"
+                          [ngModel]="currentContract.complement"
                           disabled
                         />
                         <label for="address-complement">Complemento:</label>
@@ -108,7 +108,7 @@
                           pInputText
                           id="cidade"
                           name="cidade"
-                          [ngModel]="currentContract?.city"
+                          [ngModel]="currentContract.city"
                           #cidade="ngModel"
                           disabled
                         />
@@ -127,7 +127,7 @@
                           type="text"
                           [mask]="'AA'"
                           pInputText
-                          [ngModel]="currentContract?.state"
+                          [ngModel]="currentContract.state"
                           disabled
                         />
                         <label for="UF">UF:</label>
@@ -139,13 +139,12 @@
                     <p-iftalabel>
                       <textarea
                         style="width: 100%; height: auto"
-                        placeholder="Observações"
                         disabled
                         rows="5"
                         cols="20"
                         pTextarea
                         [autoResize]="true"
-                        [value]="currentContract?.observation"
+                        [value]="currentContract.observation"
                       ></textarea>
                       <label for="observation">Observação:</label>
                     </p-iftalabel>
@@ -184,6 +183,7 @@
                           [(ngModel)]="addressNewForm.cep"
                           #cep="ngModel"
                           required
+                          (blur)="searchCEP()"
                         />
                         <label for="CEP">CEP:</label>
                       </p-iftalabel>
@@ -235,7 +235,7 @@
                         <input
                           id="address-number"
                           name="numberFromHome"
-                          type="text"
+                          type="number"
                           pInputText
                           [(ngModel)]="addressNewForm.numberFromHome"
                           #numberFromHome="ngModel"
@@ -342,7 +342,6 @@
                       [maxFractionDigits]="2"
                       [(ngModel)]="addressNewForm.adesionValue"
                       #adesionValue="ngModel"
-                      required
                     ></p-inputNumber>
                   </p-inputgroup>
                 </div>
@@ -365,8 +364,14 @@
                   severity="success"
                   label="Próximo"
                   size="large"
-                  (onClick)="activateCallback(2)"
-                  [disabled]="!addressNewNgForm.valid"
+                  (onClick)="meuMetodoExtra(); activateCallback(2)"
+                  [disabled]="
+                    !cep.valid ||
+                    !street.valid ||
+                    !numberFromHome.valid ||
+                    !uf.valid ||
+                    !adesionValue.valid
+                  "
                 />
               </div>
             </ng-template>
@@ -374,35 +379,59 @@
 
           <p-step-panel [value]="2">
             <ng-template #content let-activateCallback="activateCallback">
-              <div *ngIf="addressNewNgForm.valid; else formInvalido">
-                <!-- Conteúdo real do passo 2 -->
-                <p class="step2-info">
-                  📌 <strong>Opções de envio do termo:</strong><br />
-                  - Para apenas visualizar o termo, utilize
-                  <strong>Visualizar PDF</strong>.<br />
-                  - Caso a comunicação com o cliente seja por WhatsApp, utilize
-                  a opção <strong>Autentique</strong> para enviar o documento
-                  para assinatura.
-                </p>
-                <div class="btn-actions">
-                  <p-button
-                    label="Visualizar PDF"
-                    icon="pi pi-file-pdf"
-                    severity="success"
-                    [raised]="true"
-                    (onClick)="getConsentTermAddressPdf()"
-                    [loading]="isLoading"
-                  ></p-button>
-                  <p-button
-                    label="Autentique"
-                    icon="pi pi-send"
-                    severity="warn"
-                    [raised]="true"
-                    (onClick)="abrirModal()"
-                  ></p-button>
+              <div *ngIf="formIsValid; else avisoInvalido">
+                <div class="fluxo-container">
+                  <!-- CARD 1 - ONLINE -->
+                  <div class="fluxo-card online">
+                    <div class="fluxo-header">
+                      🖥️
+                      <h3>Atendimento Online</h3>
+                    </div>
+                    <div class="fluxo-body">
+                      <p>
+                        Envie o termo diretamente para assinatura online via
+                        Autentique. Ideal para clientes atendidos por WhatsApp
+                        ou Telefone
+                      </p>
+                    </div>
+                    <div class="fluxo-footer">
+                      <p-button
+                        label="Enviar Contrato"
+                        icon="pi pi-send"
+                        severity="warn"
+                        [raised]="true"
+                        (onClick)="abrirModal()"
+                        [style]="{ padding: '2rem 4rem' }"
+                      ></p-button>
+                    </div>
+                  </div>
+
+                  <!-- CARD 2 - PRESENCIAL -->
+                  <div class="fluxo-card presencial">
+                    <div class="fluxo-header">
+                      🤝
+                      <h3>Atendimento Presencial</h3>
+                    </div>
+                    <div class="fluxo-body">
+                      <p>
+                        Gere o termo para assinatura manual presencial. A
+                        assinatura será inserida automaticamente no documento.
+                      </p>
+                    </div>
+                    <div class="fluxo-footer">
+                      <p-button
+                        label="Assinatura Manual"
+                        icon="pi pi-file-edit"
+                        severity="success"
+                        [raised]="true"
+                        [style]="{ padding: '2rem 4rem' }"
+                      ></p-button>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <ng-template #formInvalido>
+
+              <ng-template #avisoInvalido>
                 <div class="alert-warning">
                   ⚠️ Para prosseguir, volte ao passo anterior e preencha todos
                   os campos obrigatórios.
@@ -601,103 +630,78 @@
       </p-stepper>
     </div>
   </app-card-base>
-</div>
 
-<p-dialog
-  header="Enviar Via WhatsApp ⚙️"
-  [(visible)]="modalVisible"
-  [modal]="true"
-  [closable]="true"
-  [resizable]="false"
-  [draggable]="false"
->
-  <div class="dialog-content">
-    <div class="icon-container">
-      <i class="pi pi-whatsapp whatsapp-icon"></i>
-    </div>
-    <p class="info-text">
-      O termo será enviado pela <strong>Autentique</strong> para o cliente
-      assinar via WhatsApp. Digite o número com DDD.
-    </p>
-    <p-inputgroup>
-      <p-inputgroup-addon>+55</p-inputgroup-addon>
-      <input
-        pInputText
-        id="telefone"
-        name="telefone"
-        placeholder="(DDD) 00000-0000"
-        [(ngModel)]="phone"
-        required
-        mask="(00) 00000-0000"
-      />
-    </p-inputgroup>
-  </div>
-  <ng-template pTemplate="footer">
-    <p-button
-      label="Cancelar"
-      icon="pi pi-times"
-      severity="secondary"
-      (onClick)="fecharModal()"
-    ></p-button>
-    <p-button
-      label="Enviar"
-      icon="pi pi-send"
-      severity="success"
-      [disabled]="!phone || phone.length < 10"
-      [loading]="isLoading"
-    ></p-button>
-  </ng-template>
-</p-dialog>
+  <!-- Modal -->
+  <p-dialog
+    header="Enviar Via WhatsApp ⚙️"
+    [(visible)]="modalVisible"
+    [appendTo]="'body'"
+    [modal]="true"
+    [closable]="true"
+    resizable="false"
+    [draggable]="false"
+    (onHide)="onHide()"
+  >
+    <div class="dialog-content">
+      <div class="icon-container">
+        <i class="pi pi-whatsapp whatsapp-icon"></i>
+      </div>
 
-<p-dialog
-  header="Verificar Oferta"
-  [(visible)]="displayDialog"
-  [modal]="true"
-  [style]="{ width: '35rem' }"
-  [draggable]="false"
-  [resizable]="false"
->
-  <div class="dialog-form-container">
-    <div class="form-field">
+      <div class="alert-box">
+        <div class="alert-icon-circle">!</div>
+        <p class="alert-text">
+          Após a assinatura do documento pelo cliente via Autentique,<br />
+          o sistema processará automaticamente a atualização dos dados<br />
+          do contrato no RBX, vinculará um atendimento ao cliente<br />
+          e anexará o documento assinado.<br /><br />
+          Você será notificado assim que a assinatura for concluída<br />
+          e poderá consultar o atendimento diretamente no cadastro do cliente.
+        </p>
+      </div>
+
+      <!-- Mensagem informativa -->
+      <p class="info-text">
+        Certifique-se de que o número está correto, caso contrário, poderá ser
+        enviado para outra pessoa!<br />
+        O termo será enviado pela Autentique para o cliente assinar via WhatsApp
+        📄✅ <br />
+        Digite o número no formato <strong>+55</strong> (DDD + Número).<br />
+      </p>
+
       <p-inputgroup>
-        <p-inputgroup-addon><i class="pi pi-home"></i></p-inputgroup-addon>
-        <p-iftalabel>
-          <input [ngModel]="currentContract?.street" pInputText disabled />
-          <label for="current-address">Endereço Atual:</label>
-        </p-iftalabel>
+        <p-inputgroup-addon>
+          <i class="pi pi-whatsapp"></i>
+        </p-inputgroup-addon>
+
+        <input
+          pInputText
+          id="telefone"
+          name="telefone"
+          placeholder="+55 (DDD) 00000-0000"
+          [(ngModel)]="phone"
+          required
+          [style]="{ height: '40px', 'font-size': '20px' }"
+          mask="00000000000"
+          prefix="+55"
+          #phoneModel="ngModel"
+        />
       </p-inputgroup>
     </div>
 
-    <div class="form-field">
-      <p-inputgroup>
-        <p-inputgroup-addon><i class="pi pi-home"></i></p-inputgroup-addon>
-        <p-iftalabel>
-          <input [(ngModel)]="addressNewForm.street" pInputText disabled />
-          <label for="current-address">Endereço Novo:</label>
-        </p-iftalabel>
-      </p-inputgroup>
-    </div>
-
-    <div class="form-field-full">
-      <label>Observações</label>
-      <textarea
-        style="width: 100%"
-        rows="8"
-        cols="54"
-        style="resize: none"
-        pTextarea
-      ></textarea>
-    </div>
-  </div>
-  <ng-template pTemplate="footer">
-    <div class="btn-to-navigate">
+    <ng-template pTemplate="footer">
       <p-button
-        label="Voltar"
-        icon="pi pi-arrow-left"
-        severity="danger"
-        size="large"
-        (click)="closeDialog()"
-      />
-    </div>
-  </ng-template>
-</p-dialog>
+        label="Cancelar"
+        icon="pi pi-times"
+        severity="secondary"
+        (onClick)="onHide()"
+      ></p-button>
+      <p-button
+        label="Enviar"
+        icon="pi pi-send"
+        severity="success"
+        [disabled]="!phone || phone.trim().length < 10"
+        (onClick)="sendToAutentiqueSubmit()"
+      ></p-button>
+    </ng-template>
+  </p-dialog>
+</div>
