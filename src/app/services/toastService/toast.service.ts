@@ -1,35 +1,46 @@
-// src/app/services/toast/toast.service.ts
 import { Injectable, ApplicationRef, ComponentRef, createComponent, EnvironmentInjector } from '@angular/core';
 import { AnimatedToastComponent } from '../../shared/components/animated-toast/animated-toast.component';
 
 @Injectable({ providedIn: 'root' })
 export class ToastService {
+  private containerEl!: HTMLElement;
 
   constructor(
     private appRef: ApplicationRef,
     private environmentInjector: EnvironmentInjector
-  ) {}
+  ) {
+    this.createContainer();
+  }
 
-  show(message: string, duration = 4000) {
+  private createContainer() {
+    this.containerEl = document.createElement('div');
+    this.containerEl.style.position = 'fixed';
+    this.containerEl.style.top = '20px';
+    this.containerEl.style.left = '50%';
+    this.containerEl.style.transform = 'translateX(-50%)';
+    this.containerEl.style.zIndex = '9999';
+    this.containerEl.style.display = 'flex';
+    this.containerEl.style.flexDirection = 'column';
+    this.containerEl.style.alignItems = 'center';
+    document.body.appendChild(this.containerEl);
+  }
+
+  show(message: string) {
     const componentRef: ComponentRef<AnimatedToastComponent> = createComponent(AnimatedToastComponent, {
       environmentInjector: this.environmentInjector
     });
 
-    // Define a mensagem
     componentRef.instance.message = message;
-    // Mostra o toast
-    componentRef.instance.show = true;
 
-    // Adiciona diretamente ao body
-    document.body.appendChild(componentRef.location.nativeElement);
+    this.appRef.attachView(componentRef.hostView);
+    this.containerEl.appendChild(componentRef.location.nativeElement);
 
-    // Inicia o timer para desaparecer
-    componentRef.instance.hideAfter(duration);
+    // Duração fixa de 4 segundos
+    componentRef.instance.hideAfter(4000);
 
-    // Remove o componente da DOM após o tempo
     setTimeout(() => {
       this.appRef.detachView(componentRef.hostView);
       componentRef.destroy();
-    }, duration + 500);
+    }, 4500);
   }
 }
