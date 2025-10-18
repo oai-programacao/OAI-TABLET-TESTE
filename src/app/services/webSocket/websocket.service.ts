@@ -3,11 +3,11 @@ import { Injectable, NgZone } from '@angular/core';
 import { RxStompService } from '@stomp/ng2-stompjs';
 import { wsStompConfig } from './wsStompConfig';
 import { ToastService } from '../toastService/toast.service';
+import { filter } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class WebSocketService {
   private activated = false;
-
   email!: string | null;
 
   constructor(
@@ -24,25 +24,35 @@ export class WebSocketService {
     if (!token) return;
 
     const payload = JSON.parse(atob(token.split('.')[1]));
-    this.email = payload.sub; // usar sub como canal do seller
+    this.email = payload.sub; // canal do seller
 
-    // Configura o RxStompService
+    // Configuração do RxStomp com reconexão automática
     this.rxStompService.configure({
       ...wsStompConfig,
       connectHeaders: {
         Authorization: `Bearer ${token}`,
       },
+      reconnectDelay: 5000, // tenta reconectar a cada 5 segundos
     });
 
+    // Ativa a conexão
     this.rxStompService.activate();
 
+    // Log de conexão
     this.rxStompService.connected$.subscribe(() => {
-      console.log('WS conectado para: ' + this.email);
+      console.log('✅ WS conectado para: ' + this.email);
+      this.subscribeToNotifications();
     });
 
-    this.rxStompService.connectionState$.subscribe((state) => {
-      console.log('Estado da conexão: ', state);
-    });
+    this.rxStompService.connectionState$
+      .pipe(filter((state) => state === 0))
+      .subscribe(() => {
+        console.log('⚠️ WS desconectado, tentando reconectar...');
+      });
+  }
+
+  private subscribeToNotifications() {
+    if (!this.email) return;
 
     this.rxStompService
       .watch(`/user/${this.email}/topic/seller-notifications`)
@@ -52,6 +62,7 @@ export class WebSocketService {
 
           // Monta a mensagem no formato desejado
           const toastMessage = `ASSINATURAS<br>${payload.data.message} ${payload.data.clientName}<br>CPF: ${payload.data.clientCpf}`;
+
           // Mostra no toast
           this.toastService.show(toastMessage, 'info');
         });
@@ -62,6 +73,6 @@ export class WebSocketService {
     if (!this.activated) return;
     this.rxStompService.deactivate();
     this.activated = false;
-    console.log('WS desconectado' + this.email);
+    console.log('WS desconectado para: ' + this.email);
   }
 }
