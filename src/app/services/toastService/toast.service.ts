@@ -25,7 +25,7 @@ export class ToastService {
     document.body.appendChild(this.containerEl);
   }
 
-  show(message: string, animationPath: string = 'assets/contrato.json', duration = 4000) {
+  show(message: string, animationPath: string = 'contrato.json', duration = 4000) {
     const componentRef: ComponentRef<AnimatedToastComponent> = createComponent(AnimatedToastComponent, {
       environmentInjector: this.environmentInjector
     });

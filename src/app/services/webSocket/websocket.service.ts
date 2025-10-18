@@ -51,8 +51,7 @@ export class WebSocketService {
           const payload = JSON.parse(msg.body);
 
           // Monta a mensagem no formato desejado
-          const toastMessage = `ASSINATURAS\n${payload.data.message} ${payload.data.clientName}\nCPF: ${payload.data.clientCpf}`;
-
+          const toastMessage = `ASSINATURAS<br>${payload.data.message} ${payload.data.clientName}<br>CPF: ${payload.data.clientCpf}`;
           // Mostra no toast
           this.toastService.show(toastMessage, 'info');
         });
