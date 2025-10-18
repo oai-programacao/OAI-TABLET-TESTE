@@ -24,9 +24,12 @@ import player from 'lottie-web';
   styles: [
     `
       .toast-header {
-        font-weight: bold;
-        font-size: 16px;
+        font-weight: 700;
+        font-size: 18px;
         margin-bottom: 5px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #222;
       }
 
       .toast-container {
@@ -55,9 +58,12 @@ import player from 'lottie-web';
       }
 
       .toast-message {
-        margin: 10px;
-        font-weight: bold;
-        color: #333;
+        margin: 10px 20px 20px 20px;
+        font-weight: 500;
+        font-size: 15px;
+        color: #2d2d2d;
+        line-height: 1.5;
+        text-align: center;
         white-space: pre-line;
       }
 

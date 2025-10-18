@@ -51,7 +51,9 @@ export class WebSocketService {
           const payload = JSON.parse(msg.body);
           // Mostra no toast
           this.toastService.show(
-            `${payload.data.message} ${payload.data.clientName}<br>CPF: ${payload.data.clientCpf}`
+            `O documento foi assinado com sucesso. ✔️<br>
+             Cliente: <b>${payload.data.clientName}</b><br>
+             CPF: <b>${this.formatCPF(payload.data.clientCpf)}</b>`
           );
         });
       });
@@ -62,5 +64,9 @@ export class WebSocketService {
     this.rxStompService.deactivate();
     this.activated = false;
     console.log('WS desconectado' + this.email);
+  }
+
+  private formatCPF(cpf: string): string {
+    return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
   }
 }
