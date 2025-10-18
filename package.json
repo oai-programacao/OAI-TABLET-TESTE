@@ -10,6 +10,7 @@
   },
   "private": true,
   "dependencies": {
+    "@angular/animations": "^19.2.0",
     "@angular/common": "^19.2.0",
     "@angular/compiler": "^19.2.0",
     "@angular/core": "^19.2.0",
@@ -23,7 +24,9 @@
     "@ngx-translate/http-loader": "^16.0.1",
     "@primeng/themes": "^20.1.1",
     "jwt-decode": "^4.0.0",
+    "lottie-web": "^5.13.0",
     "ngx-currency": "^19.0.0",
+    "ngx-lottie": "^3.1.0",
     "ngx-mask": "^20.0.3",
     "ngx-translate": "^0.0.1-security",
     "primeicons": "^6.0.1",

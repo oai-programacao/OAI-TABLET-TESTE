@@ -17,7 +17,6 @@ export class ActionsContractsService {
     clientId: string,
     contractId: string
   ): Observable<string> {
-    // aqui já definimos que será string
     const sellerId = this.authService.getSellerId();
 
     const finalPayload = {
