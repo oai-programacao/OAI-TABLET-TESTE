@@ -122,19 +122,32 @@ import player from 'lottie-web';
   imports: [CommonModule],
 })
 export class AnimatedToastComponent implements AfterViewInit {
-  @Input() animationPath = 'contrato.json';
-  @Input() message = '';
+  private _message = '';
+  private _animationPath = '';
   formattedMessage = '';
+  show = true;
 
   @ViewChild('lottieContainer', { static: true })
   lottieContainer!: ElementRef<HTMLDivElement>;
-  show = true;
 
-  ngAfterViewInit() {
+  @Input()
+  set message(value: string) {
+    this._message = value;
+    this.formattedMessage = value.replace(/\n/g, '<br/>');
+  }
+  get message() {
+    return this._message;
+  }
+
+  @Input()
+  set animationPath(value: string) {
+    if (!value) return;
+    this._animationPath = value;
+
     if (this.lottieContainer) {
       player.loadAnimation({
         container: this.lottieContainer.nativeElement,
-        path: this.animationPath,
+        path: value,
         renderer: 'svg',
         loop: false,
         autoplay: true,
@@ -142,8 +155,14 @@ export class AnimatedToastComponent implements AfterViewInit {
     }
   }
 
-  ngOnChanges() {
-    this.formattedMessage = this.message.replace(/\n/g, '<br/>');
+  ngAfterViewInit() {
+    player.loadAnimation({
+      container: this.lottieContainer.nativeElement,
+      path: '/contrato.json',
+      renderer: 'svg',
+      loop: false,
+      autoplay: true,
+    });
   }
 
   hideAfter(ms: number) {
