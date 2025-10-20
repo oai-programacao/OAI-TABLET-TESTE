@@ -19,6 +19,7 @@ import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { AuthService } from '../../core/auth.service';
 import { MessagesValidFormsComponent } from '../../shared/components/message-valid-forms/message-valid-forms.component';
+import { WebSocketService } from '../../services/webSocket/websocket.service';
 
 @Component({
   selector: 'app-searchclient',
@@ -45,6 +46,7 @@ export class SearchclientComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly searchClientService = inject(SearchclientService);
+  private readonly ws = inject(WebSocketService);
 
   @ViewChild('searchClientForm') form!: NgForm;
 
@@ -224,6 +226,7 @@ export class SearchclientComponent implements OnInit {
   }
 
   logout() {
+    this.ws.disconnect();
     this.authService.logout();
 
     this.messageService.add({
