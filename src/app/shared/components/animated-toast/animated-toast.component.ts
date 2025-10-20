@@ -58,7 +58,7 @@ import player from 'lottie-web';
       }
 
       .toast-message {
-        margin: 10px 20px 20px 20px;
+        margin: 10px 10px 10px 10px;
         font-weight: 500;
         font-size: 15px;
         color: #2d2d2d;

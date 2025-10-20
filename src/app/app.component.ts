@@ -14,6 +14,9 @@ export class AppComponent implements OnInit {
 
   constructor(private wsService: WebSocketService) { }
 
+
+  notificationCount: number = 10;
+  
   ngOnInit() {
     const token = localStorage.getItem('accessToken');
     if (token) {
