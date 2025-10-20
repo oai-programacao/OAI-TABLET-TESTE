@@ -254,11 +254,11 @@ searchCEP(): void {
     );
   }
 
-  enviarApi():void{
+enviarApi():void{
 
   }
 
-  enviarWhats():void{
+enviarWhats():void{
 
 }
 
@@ -297,23 +297,23 @@ getConsentTermAddressPdf() {
 abrirModal(): void {
     this.modalVisible = true;
   }
-
  
 
-  onHide(): void {
+onHide(): void {
     this.modalVisible = false;
     this.phone = '';
   }
 
   avisoInvalido: boolean = true;
 
-  meuMetodoExtra(): void {
+meuMetodoExtra(): void {
     this.formIsValid = true;
     this.avisoInvalido = false;
   }
- sendToAutentiqueSubmit() {
+ 
+sendToAutentiqueSubmit() {
   const term = {
-    newAddress: true, // ou qualquer flag/valor que indique a alteração de endereço
+    newAddress: true, 
     cep: this.addressNewForm.cep,
     street: this.addressNewForm.street,
     number: this.addressNewForm.numberFromHome,
