@@ -244,7 +244,7 @@
 
 .info-text {
   font-size: 1rem;
-  color: #ffffff;
+  color: #000000;
   line-height: 1.4;
 }
 
@@ -261,12 +261,12 @@ p-inputgroup {
 }
 
 :host ::ng-deep .p-dialog {
-  background-color: #1b1b1b;
+  background-color: #ffffff;
   border-color: black;
 }
 
 :host ::ng-deep .p-dialog-header {
-  color: white;
+  color: rgb(0, 0, 0);
 }
 
 .alert-box {
@@ -296,7 +296,7 @@ p-inputgroup {
 
 .alert-text {
   margin: 0;
-  color: #000000;
+  color: #070707;
   font-size: 16px;
   line-height: 1.5;
 }
