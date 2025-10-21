@@ -19,6 +19,7 @@ export interface ConsentTermAddressRequest {
   complement: string | null;
   observation: string | null;
   adesionValue: number | null;
+  signatureBase64?: string;
 }
 
 
@@ -51,6 +52,17 @@ export class ReportsService {
     const url = `${this.baseUrl}/update-address/${clientId}/${contractId}`;
     return this.http.post(url, requestBody, { responseType: 'blob' });
   }
+
+  getConsentTermWithSignaturePdf(
+    clientId: string,
+    contractId: string,
+    signatureDataUrl: string
+  ): Observable<Blob> {
+    const url = `${this.baseUrl}/with-signature/${clientId}/${contractId}`;
+    const requestBody = { signature: signatureDataUrl };
+    return this.http.post(url, requestBody, { responseType: 'blob' });
+  }
 }
+
 
   

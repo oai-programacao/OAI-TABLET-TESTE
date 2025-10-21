@@ -66,7 +66,7 @@
 }
 
 .btn-actions {
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   padding: 0.2rem;
   display: flex;
   gap: 0.5rem;
@@ -151,7 +151,6 @@
 
 .btn-to-generate-contract {
     display: flex;
-    justify-content: flex-end;
     align-items: center;
     width: 50%;
     gap: 1rem;
@@ -167,9 +166,8 @@
 .payment-content {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     flex-direction: row;
-    gap: 5rem;
+    gap: 1rem;
 }
 
 .payment-input {
@@ -275,22 +273,20 @@
     padding: 0 0 0.5rem 0;
 }
 
-// CSS para o seu componente
 
 .dialog-form-container {
-  display: flex;         // Ativa o layout flexível
-  flex-wrap: wrap;       // Permite que os itens quebrem para a próxima linha
-  gap: 1.5rem 1rem;      // Mágica! Espaço de 1.5rem vertical e 1rem horizontal entre os campos
+  display: flex;         
+  flex-wrap: wrap;      
+  gap: 1.5rem 1rem;      
 }
 
-// Estilo para campos que ocupam "metade" da largura
+
 .form-field {
-  // A fórmula para 2 colunas com um gap de 1rem:
   flex: 1 1 calc(50% - 0.5rem); 
   box-sizing: border-box;
 }
 
-// Estilo para campos que ocupam a largura TOTAL
+
 .form-field-full {
   flex: 1 1 100%;
   box-sizing: border-box;
@@ -353,9 +349,9 @@ p-inputgroup {
   max-width: 300px;
 }
 
-// Sobrescreve o estilo do p-dialog se necessário
+
 :host ::ng-deep .p-dialog .p-dialog-header {
-  // Estilos para o header do dialog, se precisar
+
 }
 
 .alert-warning {
@@ -371,7 +367,7 @@ p-inputgroup {
 }
 
 .alert-warning i {
-  font-size: 1.2rem; /* Tamanho do ícone */
+  font-size: 1.2rem; 
 }
 
 .dialog-content {
@@ -417,7 +413,7 @@ p-inputgroup {
 .alert-box {
   display: flex;
   align-items: center;
-  background-color: rgba(255, 230, 0, 0.3); /* fundo translúcido */
+  background-color: rgba(255, 230, 0, 0.3); 
   padding: 5px;
   border-radius: 8px;
   gap: 15px;
@@ -429,7 +425,7 @@ p-inputgroup {
 .alert-icon-circle {
   width: 40px;
   height: 40px;
-  background-color: rgba(245, 127, 23, 0.5); /* amarelo escuro translúcido */
+  background-color: rgba(245, 127, 23, 0.5); 
   color: rgb(255, 255, 255);
   border-radius: 50%;
   display: flex;
@@ -473,16 +469,16 @@ p-inputgroup {
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-/* Cores individuais com translucidez */
+
 .fluxo-card.online {
-  background: rgba(255, 230, 0, 0.05); /* amarelo bem leve */
+  background: rgba(255, 230, 0, 0.05); 
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
   border-top: 5px solid #fbc02d;
 }
 
 .fluxo-card.presencial {
-  background: rgba(13, 197, 243, 0.05); /* verde bem leve */
+  background: rgba(13, 197, 243, 0.05); 
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
   border-top: 5px solid #19cefc;
@@ -521,5 +517,10 @@ p-inputgroup {
 .fluxo-footer {
   display: flex;
   justify-content: center;
-  
+}
+
+.btn-signature{
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
 }

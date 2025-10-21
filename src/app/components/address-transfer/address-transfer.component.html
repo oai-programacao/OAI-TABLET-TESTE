@@ -1,4 +1,5 @@
 <div class="panel-container">
+   <p-toast position="top-center"></p-toast>
   <app-card-base header="Transferência De Endereço" width="auto" height="auto">
     <div class="btn-to-back">
       <p-button
@@ -9,6 +10,12 @@
       />
     </div>
     <div class="content">
+      <ng-template #avisoInvalido>
+        <div class="alert-warning">
+          ⚠️ Para prosseguir, volte ao passo anterior e preencha todos os campos
+          obrigatórios.
+        </div>
+      </ng-template>
       <p-stepper [(value)]="activeStep">
         <p-step-list>
           <p-step [value]="1">Endereço</p-step>
@@ -425,203 +432,208 @@
                         severity="success"
                         [raised]="true"
                         [style]="{ padding: '2rem 4rem' }"
+                        (onClick)="goToStep(3)"
                       ></p-button>
                     </div>
                   </div>
                 </div>
               </div>
-
-              <ng-template #avisoInvalido>
-                <div class="alert-warning">
-                  ⚠️ Para prosseguir, volte ao passo anterior e preencha todos
-                  os campos obrigatórios.
-                </div>
-              </ng-template>
             </ng-template>
           </p-step-panel>
 
-          <p-step-panel [value]="3">
-            <ng-template #content let-activateCallback="activateCallback">
-              <div class="signature-pad-container">
-                <div class="signature-input">
-                  <p-iftalabel style="width: 100%">
-                    <label for="signature">Assinatura:</label>
-                    <textarea
-                      style="width: 100%; height: 100%"
-                      [autoResize]="true"
-                      rows="5"
-                      cols="30"
-                      pTextarea
-                    ></textarea>
-                  </p-iftalabel>
-                </div>
-                <div class="btn-to-capture">
-                  <div class="btn-to-signature">
-                    <p-button
-                      label="Capturar Assinatura"
-                      size="large"
-                      severity="success"
-                      variant="outlined"
-                    />
-                    <p-button
-                      label="Cancelar"
-                      severity="danger"
-                      size="large"
-                      variant="outlined"
-                    />
-                  </div>
-                  <div class="btn-to-generate-contract">
-                    <p-button
-                      label="Gerar Contrato"
-                      [outlined]="true"
-                      size="large"
-                      severity="info"
-                      variant="outlined"
-                    />
-                  </div>
-                </div>
+         <p-step-panel [value]="3">
+  <ng-template #content let-activateCallback="activateCallback">
+    <div *ngIf="formIsValid; else avisoInvalido">
 
-                <div class="btn-to-navigate">
-                  <p-button
-                    label="Voltar"
-                    severity="danger"
-                    size="large"
-                    (onClick)="activateCallback(2)"
-                  />
-                  <p-button
-                    label="Próximo"
-                    severity="success"
-                    size="large"
-                    (onClick)="activateCallback(4)"
-                  />
-                </div>
-              </div>
-            </ng-template>
-          </p-step-panel>
+      <div class="pdf-preview-section p-mb-3">
+        <div *ngIf="!safePdfPreviewUrl && !isLoadingPreview">
+           <p>Clique no botão para carregar a pré-visualização do termo.</p>
+           <p-button
+             label="Visualizar Termo"
+             icon="pi pi-eye"
+             styleClass="p-button-secondary"
+             (click)="loadPdfPreview()"
+             [loading]="isLoadingPreview">
+           </p-button>
+        </div>
+
+        <div *ngIf="isLoadingPreview" class="text-center p-py-3">
+          <p-progressSpinner styleClass="w-4rem h-4rem" strokeWidth="8" animationDuration=".5s"></p-progressSpinner>
+          <p>Carregando pré-visualização...</p>
+        </div>
+
+        <div *ngIf="previewLoadFailed && !isLoadingPreview" class="p-mt-2 text-center p-text-danger">
+          <p><i class="pi pi-exclamation-triangle p-mr-1"></i> Falha ao carregar o preview.</p>
+          <p-button label="Tentar Novamente" icon="pi pi-refresh" styleClass="p-button-sm p-button-danger p-button-outlined" (click)="loadPdfPreview()"></p-button>
+        </div>
+
+        <div *ngIf="safePdfPreviewUrl && !isLoadingPreview" class="pdf-viewer p-mt-2">
+           <p>Revise o termo abaixo. Se preferir, use as opções do visualizador para imprimir ou salvar.</p>
+           <iframe [src]="safePdfPreviewUrl" width="100%" height="350px" style="border: 1px solid #ccc;"></iframe>
+           <div class="btn-signature">
+           <p-button label="Recarregar Visualização" icon="pi pi-refresh" styleClass="p-button-sm p-button-outlined p-mt-1" (click)="loadPdfPreview()"></p-button>
+           <p-button label="Assinar" icon="pi pi-pencil" styleClass="p-button-sm"  severity="info" (click)="abrirAssinatura()" ></p-button>
+        </div>
+        </div>
+      </div>
+
+
+      <div class="btn-to-navigate">
+        <p-button
+          label="Voltar"
+          severity="danger"
+          size="large"
+          (onClick)="activateCallback(2)"
+        />
+        <p-button
+          label="Próximo"
+          severity="success"
+          size="large"
+          (onClick)="activateCallback(4)"
+          [disabled]="!capturedSignature" 
+          tooltip="É necessário capturar a assinatura online para prosseguir"
+          tooltipPosition="top"
+        />
+      </div>
+      </div>
+
+    <ng-template #avisoInvalido>
+       <div class="alert-warning">
+         ⚠️ Para visualizar o termo e assinar, preencha corretamente os dados do endereço no Passo 1.
+       </div>
+       <div class="btn-to-navigate p-mt-3">
+         <p-button label="Voltar (Endereço)" severity="danger" size="large" (onClick)="activateCallback(1)"></p-button>
+       </div>
+    </ng-template>
+
+  </ng-template>
+</p-step-panel>
 
           <p-step-panel [value]="4">
             <ng-template #content let-activateCallback="activateCallback">
-              <div class="payment-container">
-                <form #paymentNgForm="ngForm" class="payment-content">
-                  <div class="input-content">
-                    <div class="msg-error">
-                      <app-message-valid-forms
-                        [control]="title"
-                        error="required"
-                        text="Campo Obrigatório"
-                      ></app-message-valid-forms>
+              <div *ngIf="formIsValid; else avisoInvalido">
+                <div class="payment-container">
+                  <form #paymentNgForm="ngForm" class="payment-content">
+                    <div class="input-content">
+                      <div class="msg-error">
+                        <app-message-valid-forms
+                          [control]="title"
+                          error="required"
+                          text="Campo Obrigatório"
+                        ></app-message-valid-forms>
+                      </div>
+                      <p-inputgroup>
+                        <p-inputgroup-addon>
+                          <span class="material-symbols-outlined"
+                            >attach_money</span
+                          >
+                        </p-inputgroup-addon>
+                        <p-iftalabel>
+                          <input
+                            [(ngModel)]="paymentForm.title"
+                            #title="ngModel"
+                            name="title"
+                            id="title"
+                            pInputText
+                            required
+                          />
+                          <label for="title">Título:</label>
+                          <div></div>
+                        </p-iftalabel>
+                      </p-inputgroup>
                     </div>
-                    <p-inputgroup>
-                      <p-inputgroup-addon>
-                        <span class="material-symbols-outlined"
-                          >attach_money</span
-                        >
-                      </p-inputgroup-addon>
-                      <p-iftalabel>
-                        <input
-                          [(ngModel)]="paymentForm.title"
-                          #title="ngModel"
-                          name="title"
-                          id="title"
-                          pInputText
-                          required
-                        />
-                        <label for="title">Título:</label>
-                        <div></div>
-                      </p-iftalabel>
-                    </p-inputgroup>
-                  </div>
 
-                  <div class="input-content">
-                    <div class="msg-error">
-                      <app-message-valid-forms
-                        [control]="dueDate"
-                        error="required"
-                        text="Campo Obrigatório"
-                      ></app-message-valid-forms>
+                    <div class="input-content">
+                      <div class="msg-error">
+                        <app-message-valid-forms
+                          [control]="dueDate"
+                          error="required"
+                          text="Campo Obrigatório"
+                        ></app-message-valid-forms>
+                      </div>
+                      <p-inputgroup>
+                        <p-inputgroup-addon>
+                          <span class="material-symbols-outlined"
+                            >calendar_clock</span
+                          >
+                        </p-inputgroup-addon>
+                        <p-iftalabel>
+                          <input
+                            [(ngModel)]="paymentForm.dueDate"
+                            #dueDate="ngModel"
+                            name="dueDate"
+                            id="due-date"
+                            pInputText
+                            required
+                          />
+                          <label for="due-date">Data de Vencimento:</label>
+                        </p-iftalabel>
+                      </p-inputgroup>
                     </div>
-                    <p-inputgroup>
-                      <p-inputgroup-addon>
-                        <span class="material-symbols-outlined"
-                          >calendar_clock</span
-                        >
-                      </p-inputgroup-addon>
-                      <p-iftalabel>
-                        <input
-                          [(ngModel)]="paymentForm.dueDate"
-                          #dueDate="ngModel"
-                          name="dueDate"
-                          id="due-date"
-                          pInputText
-                          required
-                        />
-                        <label for="due-date">Data de Vencimento:</label>
-                      </p-iftalabel>
-                    </p-inputgroup>
-                  </div>
 
-                  <div class="input-content">
-                    <div class="msg-error">
-                      <app-message-valid-forms
-                        [control]="price"
-                        error="required"
-                        text="Campo Obrigatório"
-                      ></app-message-valid-forms>
+                    <div class="input-content">
+                      <div class="msg-error">
+                        <app-message-valid-forms
+                          [control]="price"
+                          error="required"
+                          text="Campo Obrigatório"
+                        ></app-message-valid-forms>
+                      </div>
+                      <p-inputgroup>
+                        <p-inputgroup-addon>
+                          <span class="material-symbols-outlined"
+                            >attach_money</span
+                          >
+                        </p-inputgroup-addon>
+                        <p-iftalabel>
+                          <input
+                            [(ngModel)]="paymentForm.price"
+                            #price="ngModel"
+                            name="price"
+                            id="price"
+                            pInputText
+                            prefix="R$"
+                            thousandSeparator="."
+                            decimalMarker=","
+                            [mask]="'separator.2'"
+                            required
+                          />
+                          <label for="price">Valor:</label>
+                        </p-iftalabel>
+                      </p-inputgroup>
                     </div>
-                    <p-inputgroup>
-                      <p-inputgroup-addon>
-                        <span class="material-symbols-outlined"
-                          >attach_money</span
-                        >
-                      </p-inputgroup-addon>
-                      <p-iftalabel>
-                        <input
-                          [(ngModel)]="paymentForm.price"
-                          #price="ngModel"
-                          name="price"
-                          id="price"
-                          pInputText
-                          prefix="R$"
-                          thousandSeparator="."
-                          decimalMarker=","
-                          [mask]="'separator.2'"
-                          required
-                        />
-                        <label for="price">Valor:</label>
-                      </p-iftalabel>
-                    </p-inputgroup>
+                  </form>
+                  <div class="btn-actions-payment">
+                    <p-button
+                      label="Gerar Boleto"
+                      [outlined]="true"
+                      size="large"
+                      severity="info"
+                      icon="pi pi-file"
+                    ></p-button>
+                    <p-button
+                      label="Enviar Por Whatsapp"
+                      size="large"
+                      [outlined]="true"
+                      severity="success"
+                      icon="pi pi-whatsapp"
+                    ></p-button>
                   </div>
-                </form>
-                <div class="btn-actions-payment">
-                  <p-button
-                    label="Gerar Boleto"
-                    [outlined]="true"
-                    size="large"
-                    severity="info"
-                    icon="pi pi-file"
-                  ></p-button>
-                  <p-button
-                    label="Enviar Por Whatsapp"
-                    size="large"
-                    [outlined]="true"
-                    severity="success"
-                    icon="pi pi-whatsapp"
-                  ></p-button>
-                </div>
-                <div class="btn-to-navigate">
-                  <p-button
-                    label="Voltar"
-                    size="large"
-                    severity="danger"
-                    (onClick)="activateCallback(3)"
-                  />
-                  <p-button
-                    label="Concluir"
-                    size="large"
-                    icon="pi pi-check"
-                    severity="success"
-                    (onClick)="sendToAutomation()"
-                  />
+                  <div class="btn-to-navigate">
+                    <p-button
+                      label="Voltar"
+                      size="large"
+                      severity="danger"
+                      (onClick)="activateCallback(3)"
+                    />
+                    <p-button
+                      label="Concluir"
+                      size="large"
+                      icon="pi pi-check"
+                      severity="success"
+                      (onClick)="sendToAutomation()"
+                    />
+                  </div>
                 </div>
               </div>
             </ng-template>
@@ -631,11 +643,49 @@
     </div>
   </app-card-base>
 
+  <p-dialog
+  header="Assinatura Online 🖋️"
+  [(visible)]="signDialogVisible"
+  (onShow)="forceSignatureRedraw()"
+  (onHide)="resetSignaturePad()"
+>
+  <div class="signature-pad-container">
+    <div class="signature-input">
+      <p-iftalabel style="width: 100%">
+        <label for="signature">Assinatura Online (Opcional):</label>
+        <ng-container *ngIf="signatureVisibleFlag">
+          <app-signature-pad (signatureData)="onSignatureCaptured($event)">
+          </app-signature-pad>
+        </ng-container>
+      </p-iftalabel>
+    </div>
+  </div>
+
+  <p-divider layout="horizontal" styleClass="p-my-3"></p-divider>
+
+  <div class="btn-to-capture">
+    <div class="btn-to-generate-contract">
+      <p-button
+        label="Gerar Termo Final com Assinatura"
+        icon="pi pi-file-pdf"
+        [outlined]="true"
+        size="large"
+        severity="info"
+        variant="outlined"
+        [disabled]="!capturedSignature"
+        tooltip="Capture a assinatura online para habilitar"
+        tooltipPosition="top"
+        (onClick)="generateConsentTermWithSignature()"
+      ></p-button>
+    </div>
+  </div>
+</p-dialog>
+
+
   <!-- Modal -->
   <p-dialog
     header="Enviar Via WhatsApp ⚙️"
     [(visible)]="modalVisible"
-    [appendTo]="'body'"
     [modal]="true"
     [closable]="true"
     resizable="false"
