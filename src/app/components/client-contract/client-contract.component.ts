@@ -74,7 +74,7 @@ export interface Plan {
     InputTextModule,
     InputGroupModule,
     InputGroupAddonModule
-],
+  ],
   templateUrl: './client-contract.component.html',
   styleUrl: './client-contract.component.scss',
   providers: [ConfirmationService, MessageService],
@@ -274,7 +274,7 @@ export class ClientContractComponent implements OnInit {
     this.transferDialogVisible = false;
   }
 
-   onSearchNewOwner(): void {
+  onSearchNewOwner(): void {
     const documentoParaBuscar = this.documento.replace(/\D/g, '');
     if (documentoParaBuscar.length < 11) {
       this.messageService.add({ severity: 'warn', summary: 'Atenção', detail: 'Por favor, preencha o documento completo.' });
@@ -362,11 +362,7 @@ export class ClientContractComponent implements OnInit {
   }
 
   // --- MÉTODOS DE UPGRADE/DOWNGRADE E OUTROS DIALOGS (Originais) ---
-  openUpgradeDialog(contract: Contract, isUpgrade: boolean) {
-    this.dialogTitle = isUpgrade ? 'Upgrade de Contrato' : 'Downgrade de Contrato';
-    this.selectedContractForUpgrade = contract;
-    this.upgradeDialog = true;
-  }
+ 
 
   openDowngradeDialog() {
     this.downgradeDialog = true;
@@ -375,44 +371,6 @@ export class ClientContractComponent implements OnInit {
   openBillingDialog(contract: Contract) {
     this.selectedContract = contract;
     this.dialogBilling = true;
-  }
-
-  submitUpgrade() {
-    if (this.upgradeForm.invalid) {
-      this.upgradeForm.markAllAsTouched();
-      this.messageService.add({ severity: 'warn', summary: 'Atenção', detail: 'Preencha todos os campos obrigatórios.' });
-      return;
-    }
-    if (!this.selectedContractForUpgrade) return;
-
-    const sellerId = this.authService.getSellerId();
-    if (!sellerId) {
-      this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Sessão inválida ou ID do vendedor não encontrado.' });
-      return;
-    }
-    const formData = this.upgradeForm.getRawValue();
-    const payload = {
-      seller: sellerId,
-      codePlan: formData.codePlan,
-      descountFixe: formData.descountFixe,
-      cicleFatId: formData.cicleFatId,
-      cicleBillingDayBase: formData.cicleBillingDayBase,
-      cicleBillingExpired: formData.cicleBillingExpired,
-    };
-    const contractId = this.selectedContractForUpgrade.id;
-
-    this.contractService.upgradeContract(contractId, payload).subscribe({
-      next: () => {
-        this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Contrato atualizado com sucesso!' });
-        this.onHideUpgradeDialog();
-        this.loadContracts(this.clientId);
-      },
-      error: (err) => {
-        const detailMessage = err.error?.message || 'Não foi possível atualizar o contrato.';
-        this.messageService.add({ severity: 'error', summary: 'Erro de Regra de Negócio', detail: detailMessage });
-        console.error('Erro detalhado:', err);
-      }
-    });
   }
 
   onHideUpgradeDialog() {
@@ -469,7 +427,7 @@ export class ClientContractComponent implements OnInit {
     }
   }
 
-   abrirModalAutentique(): void {
+  abrirModalAutentique(): void {
     this.autentiqueModalVisible = true;
     this.phone = '';
   }
@@ -489,9 +447,16 @@ export class ClientContractComponent implements OnInit {
   navigateToCreatContract() { this.router.navigate(['add-contract']); }
   navigateToInfoClient() { this.router.navigate(['info', this.clientId]); }
   navigateToAddressTransfer() { this.router.navigate(['address-transfer']); }
+
   navigateToTransferOwnership(contract: Contract): void {
-      this.router.navigate(['/transfer-ownership', this.clientId, contract.id]);
+    this.router.navigate(['/transfer-ownership', this.clientId, contract.id]);
   }
+  
+  openUpgradeDialog(contract: Contract, isUpgrade: boolean) {
+    const action = isUpgrade ? 'upgrade' : 'downgrade';
+    this.router.navigate([`/contract-change`, this.clientId, action, contract.id]);
+  }
+
   navigateToCreateClient(): void {
     this.router.navigate(['/register']);
     this.closeTransferDialog();

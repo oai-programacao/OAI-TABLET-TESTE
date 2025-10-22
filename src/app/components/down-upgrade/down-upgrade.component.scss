@@ -1,0 +1,232 @@
+/* === Fontes Globais === */
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap");
+
+/* === Container Principal === */
+.page-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 88vh;
+}
+
+/* === Botões Superiores (Voltar/Home) === */
+.btn-to-back {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+/* === Botões Inferiores (Navegação do Stepper) === */
+.btn-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+/* * === Conteúdo do Step === 
+ * Este é o "card" branco dentro de cada painel do stepper.
+ */
+.step {
+  width: 100%;
+  max-width: 650px; // Define a largura máxima do conteúdo
+  margin: 2rem auto; // Centraliza o card
+  padding: 2rem;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease-in-out;
+
+  .step-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  /* ❌ REMOVIDO:
+    O seletor ".active" não estava sendo usado no seu HTML.
+    Removi para evitar código morto.
+  */
+}
+
+/* === Itens de Informação (Label/Value) === */
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px dashed #d4d4d4;
+  padding-bottom: 0.75rem;
+  gap: 1rem; // Adicionado gap para evitar que o texto encoste
+
+  .label {
+    color: #1a3b73;
+    font-weight: 600;
+    font-size: 1.1rem;
+    flex-shrink: 0; // Impede que o label encolha
+  }
+
+  .value {
+    color: #111827;
+    font-size: 1.05rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.4rem;
+    text-align: right; // Garante alinhamento
+
+    .value-row {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+
+      i.pi-dollar {
+        color: #16a34a;
+        font-size: 1rem;
+      }
+    }
+  }
+
+  .highlight {
+    background: #fef3c7;
+    color: #92400e;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-weight: 600;
+  }
+}
+
+/* === Wrapper do Seletor de Plano === */
+.select-wrapper {
+  display: flex;
+  justify-content: center;
+  padding-top: 1rem; // Adiciona um espaço antes do seletor
+
+  /* ✅ CORREÇÃO:
+    Seu seletor antigo era ".custom-select", mas no HTML 
+    você usa o componente <p-select>.
+    Corrigi o seletor para "p-select" e mantive sua 
+    intenção de 80% de largura.
+  */
+  p-select {
+    width: 80%;
+    font-size: 1.1rem;
+  }
+}
+
+/* === Info do Plano Selecionado === */
+.selected-info {
+  margin-top: 1.25rem;
+  text-align: center;
+  color: #1a3b73;
+  font-weight: 600;
+  font-size: 1.1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.4rem;
+
+  i {
+    color: #3b82f6;
+    font-size: 1.3rem;
+  }
+}
+
+/* === Explicação Proporcional === */
+.proportional-explanation {
+  margin: 0;
+  padding: 0.75rem 1rem; // Adicionado padding
+  font-size: 0.95rem;
+  color: #333; // Corrigido de #000 para um tom mais suave
+  line-height: 1.5;
+  text-align: center;
+  background-color: #ffffe5; // Leve ajuste na cor
+  border: 1px dashed #ccc; // Borda mais suave
+  border-radius: 0.5rem;
+}
+
+/* === Info do Valor Proporcional === */
+.proportional-info {
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem; // Ajustado padding
+  border-radius: 8px;
+  background-color: #f0f9ff;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+
+  // ✅ CORREÇÃO: O valor máximo de font-weight é 900.
+  font-weight: 900; 
+
+  i {
+    font-size: 1.75rem; // Ajustado
+    color: #2f9102;
+  }
+  span {
+    font-size: 1.75rem; // Ajustado
+  }
+}
+
+/* * ❌ REMOVIDO:
+ * A classe ".menu-wrapper" não estava sendo usada no HTML.
+ * Removi para evitar código morto.
+ */
+
+/*
+ * ==============================================
+ * === Overrides de Componentes PrimeNG (::ng-deep) ===
+ * Agrupados aqui para facilitar a manutenção.
+ * ==============================================
+ */
+
+/* === Stepper (PrimeNG) === */
+:host ::ng-deep .p-stepper {
+  --p-stepper-step-number-font-size: 2rem;
+  --p-stepper-step-number-background: #fff;
+  --p-stepper-step-number-color: #004e9b;
+  --p-stepper-step-number-active-background: #004e9b;
+  --p-stepper-step-number-active-color: #fff;
+  --p-stepper-separator-background: #375ca4;
+  --p-stepper-separator-active-background: #000;
+
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: transparent;
+
+  /* Título do Step */
+  .p-step-title {
+    font-family: "IBM Plex Mono", monospace;
+    font-weight: 400;
+    font-size: 1.05rem !important;
+    padding: 0.25rem 0.5rem;
+    border-radius: 3px;
+    transition: all 0.2s ease-in-out;
+  }
+
+  /* Título do Step ATIVO */
+  .p-step.p-step-active .p-step-title {
+    background-color: #5ccdf9;
+    color: #000;
+    border: 1px solid #000;
+    box-shadow: 0 0 5px rgba(0.1, 0.3, 0.2, 0.4);
+    font-weight: 600 !important;
+  }
+}
+
+/* === Select (p-select) === */
+:host ::ng-deep .p-select {
+  /* Estilos para a opção selecionada no dropdown */
+  --p-select-option-selected-background: #4da3ff;
+  --p-select-option-selected-color: white;
+  --p-select-option-selected-focus-background: #377ad6;
+  --p-select-option-selected-focus-color: white;
+
+  /* Estilo do Foco (Borda azul) */
+  &.p-focus {
+    border-color: #4da3ff !important;
+    box-shadow: 0 0 0 0.2rem rgba(77, 163, 255, 0.3) !important;
+  }
+}

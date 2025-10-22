@@ -111,4 +111,11 @@ export const routes: Routes = [
         (m) => m.TransferOwnershipComponent
       )
   },
+  {
+    path: 'contract-change/:clientId/:action/:contractId',
+    loadComponent: () =>
+      import('./components/down-upgrade/down-upgrade.component').then(
+        (m) => m.DownUpgradeComponent
+      )
+  },
 ];

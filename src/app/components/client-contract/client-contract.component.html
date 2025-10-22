@@ -124,7 +124,7 @@
         <div class="contract-actions">
           <p-button icon="pi pi-arrow-up" (onClick)="openUpgradeDialog(contract, true)" severity="success"
             [rounded]="true" [text]="true" pTooltip="Fazer Upgrade" tooltipPosition="top" />
-          <p-button icon="pi pi-arrow-down" (onClick)="openUpgradeDialog(contract, false)" severity="danger"
+          <p-button icon="pi pi-arrow-down" (onClick)="openUpgradeDialog(contract, true)" severity="danger"
             [rounded]="true" [text]="true" pTooltip="Fazer Downgrade" tooltipPosition="top" />
           <p-button icon="pi pi-home" (onClick)="navigateToAddressTransfer()" severity="warn" [rounded]="true"
             [text]="true" pTooltip="Transferir Endereço" tooltipPosition="top" />
@@ -140,58 +140,6 @@
     </div>
   </app-card-base>
 </div>
-
-<!-- UPGRADE/DOWNGRADE -->
-<p-dialog [header]="dialogTitle" [(visible)]="upgradeDialog" [modal]="true" (onHide)="onHide()"
-  [style]="{ width: '38rem' }" [draggable]="false">
-  <form [formGroup]="upgradeForm" (ngSubmit)="submitUpgrade()">
-    <div class="dialog-container">
-      <div class="p-fluid form-grid">
-        <div class="grid">
-          <div class="col-6">
-            <div class="form-group-contract">
-              <label for="contract">Nº do Contrato: </label>
-              <span class="contract-code">{{ selectedContractForUpgrade?.codeContractRbx }}</span>
-            </div>
-          </div>
-          <div class="col-6">
-            <div class="form-group">
-              <label for="codePlan">Código do Plano:</label>
-              <p-inputNumber inputId="codePlan" formControlName="codePlan"></p-inputNumber>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="descountFixe">Desconto Fixo (R$)</label>
-          <p-inputNumber inputId="descountFixe" formControlName="descountFixe" mode="currency" currency="BRL"
-            locale="pt-BR"></p-inputNumber>
-        </div>
-
-        <div class="grid">
-          <div class="col-6">
-            <div class="form-group">
-              <label for="cicleFatId">Ciclo de Faturamento:</label>
-              <p-select id="expirationCycle" formControlName="expirationCycle"
-                placeholder="Selecionar ciclo de vencimento" [options]="typesOfDateExpirationCicle"
-                optionLabel="descricao" appendTo="body">
-              </p-select>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </form>
-  <ng-template pTemplate="footer">
-    <p-button label="Cancelar" icon="pi pi-times" (click)="onHide()" severity="danger">
-    </p-button>
-
-    <p-button label="Confirmar Alteração" icon="pi pi-check" type="submit" [disabled]="upgradeForm.invalid"
-      (click)="submitUpgrade()" severity="success">
-    </p-button>
-  </ng-template>
-</p-dialog>
-<p-toast />
 
 <p-dialog header="Alterar Data de Vencimento" [(visible)]="dialogBilling" [modal]="true" [resizable]="false"
   [draggable]="false">

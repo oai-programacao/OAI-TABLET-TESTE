@@ -1,0 +1,218 @@
+<div class="page-container">
+    <p-toast position="top-center"></p-toast>
+    <app-card-base header="Alterar Plano do contrato" width="auto" height="auto">
+        <div class="btn-to-back">
+            <p-button 
+                icon="pi pi-arrow-left" 
+                [rounded]="true" 
+                severity="danger" 
+                raised="true" 
+                size="large"
+                (onClick)="voltarParaCliente()"/>
+
+            <p-button 
+                icon="pi pi-home" 
+                [rounded]="true" 
+                severity="info" 
+                raised="true" 
+                size="large"
+                (onClick)="backToHome()"/>
+        </div>
+
+        <p-stepper [value]="1">
+            <p-step-list>
+                <p-step [value]="1">Selecionar Planos</p-step>
+                <p-step [value]="2">Termo de Consentimento</p-step>
+                <p-step [value]="3">Assinatura</p-step>
+                <p-step [value]="4">Pagamento</p-step>
+                <p-step [value]="5">Finalização</p-step>
+            </p-step-list>
+        
+
+            <p-step-panels>
+                <p-step-panel [value]="1">
+                    <ng-template #content let-activateCallBack="activateCallback">
+                        <div class="step step1">
+                            <div class="step-content">
+                                <div class="info-item">
+                                    <span class="label">Plano Atual</span>
+                                    <div class="value">
+                                        <div class="value-row">
+                                            <i class="pi pi-dollar"></i>
+                                            <span>Bruto:
+                                                {{ contract.brutePrice | number : "1.2-2" }}
+                                            </span>
+                                        </div>
+                                        <div class="value-row">
+                                            <i class="pi pi-dollar"></i>
+                                            <span>Desconto:
+                                                -{{ contract!.descountFixe | number : "1.2-2" }}
+                                            </span>
+                                        </div>
+                                        <div class="value-row">
+                                            <i class="pi pi-dollar"></i>
+                                                <span>
+                                                    Liquido:
+                                                    {{ contract!.liquidPrice | number : "1.2-2" }}
+                                                </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="info-item">
+                                    <span class="label">Data de Assinatura / ínicio</span>
+                                    <span class="value">
+                                        {{ contract!.dateSignature | date : "dd/MM/yyyy" }} -
+                                        {{ contract!.dateStart | date : "dd/MM/yyyy "}}
+                                    </span>
+                                </div>
+
+                                <div class="info-item">
+                                    <span class="label">Vigência</span>
+                                    <span class="value">{{ contract!.vigencia }} meses</span>
+                                </div>
+
+
+                                <div class="info-item">
+                                    <span class="label">Ciclo de Faturamento</span>
+                                     <span class="value highlight">
+                                        Dia Base: {{ contract!.cicleBillingDayBase}} /
+                                        Dia de Vencimento: {{ contract!.cicleBillingExpired }}
+                                    </span>
+                                </div>
+
+                                <div class="select-wrapper">
+                                    <p-select
+                                        [(ngModel)]="selectedPlan"  
+                                        [options]="typesofplans"
+                                        optionLabel="nome"        
+                                        placeholder="Selecione o novo Plano"
+                                        [showClear]="true"
+
+                                        [filter]="true"
+                                        filterBy="nome,codePlanRBX" 
+
+                                        [virtualScroll]="true" 
+                                        [virtualScrollItemSize]="40"
+                                    ></p-select>
+                                </div>
+
+                                <div class="selected-info">
+                                    <i class="pi pi-calendar"></i>
+                                    <span>
+                                        Novo Plano selecionado:
+                                        {{ selectedPlan?.nome || "Nenhum" }}
+                                    </span>
+                                </div>
+
+                                <div class="proportional-explanation">
+                                    <p>
+                                        O valor abaixo é calculado proporcionalmente ao período
+                                        restante do mês atual. Considera-se o valor líquido do
+                                        contrato dividido pela quantidade de dias [30], multiplicado
+                                        pelo número de dias até o novo dia base escolhido.
+                                    </p>
+                                </div>
+
+                                <div class="proportional-info" *ngIf="proportionalBoleto !== null">
+                                    <i class="pi pi-dollar"></i>
+                                    <span>
+                                        Valor Proporcional:
+                                        {{ proportionalBoleto | currency : "BRL" : "symbol" : "1.2-2" }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="btn-actions">
+                            <p-button
+                                severity="success"
+                                rounded="true"
+                                raised="true"
+                                size="large"
+                                icon="pi pi-arrow-right"
+                                iconPos="right"
+                                label="Próximo"
+                                (onClick)="activateCallBack(2)"
+                                [disabled]="!selectedPlan"
+                            ></p-button>
+                        </div>
+                    </ng-template>
+                </p-step-panel>
+
+
+            </p-step-panels>
+        </p-stepper>
+    </app-card-base>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- <form [formGroup]="upgradeForm" (ngSubmit)="submitUpgrade()">
+    <div class="dialog-container">
+        <div class="p-fluid form-grid">
+            <div class="grid">
+                <div class="col-6">
+                    <div class="form-group-contract">
+                        <label for="contract">Nº do Contrato: </label>
+                        <span class="contract-code">{{ selectedContractForUpgrade?.codeContractRbx }}</span>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label for="codePlan">Código do Plano:</label>
+                        <p-inputNumber inputId="codePlan" formControlName="codePlan"></p-inputNumber>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="descountFixe">Desconto Fixo (R$)</label>
+                <p-inputNumber inputId="descountFixe" formControlName="descountFixe" mode="currency" currency="BRL"
+                    locale="pt-BR"></p-inputNumber>
+            </div>
+
+            <div class="grid">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label for="cicleFatId">Ciclo de Faturamento:</label>
+                        <p-select id="expirationCycle" formControlName="expirationCycle"
+                            placeholder="Selecionar ciclo de vencimento" [options]="typesOfDateExpirationCicle"
+                            optionLabel="descricao" appendTo="body">
+                        </p-select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<ng-template pTemplate="footer">
+    <p-button label="Cancelar" icon="pi pi-times" (click)="onHide()" severity="danger">
+    </p-button>
+
+    <p-button label="Confirmar Alteração" icon="pi pi-check" type="submit" [disabled]="upgradeForm.invalid"
+        (click)="submitUpgrade()" severity="success">
+    </p-button>
+</ng-template> -->
