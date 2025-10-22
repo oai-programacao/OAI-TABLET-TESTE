@@ -634,6 +634,8 @@
             severity="help"
             icon="pi pi-check"
             (onClick)="saveCliente()"
+            [disabled]="isLoading"  
+            [loading]="isLoading" 
           ></p-button>
         </div>
       </form>
@@ -682,6 +684,7 @@
             size="large"
             icon="pi pi-pencil"
             (onClick)="toggleEditing()"
+            [disabled]="isLoading" 
           />
         </div>
       </div>

@@ -64,7 +64,7 @@ export class InfoClientComponent implements OnInit {
 
   isEditing = false;
   rankingOverlayVisible = false;
-
+  isLoading = false;
   tipoCliente: 'PF' | 'PJ' = 'PF';
 
   items: MenuItem[] | undefined;
@@ -130,19 +130,45 @@ export class InfoClientComponent implements OnInit {
   }
 
   toggleEditing() {
+    if(this.isLoading){
+      return;
+    }
     this.isEditing = !this.isEditing;
   }
 
   saveCliente() {
-    console.log('Cliente salvo:', this.cliente);
+    if (!this.cliente.id) {
+      console.error('ID do cliente não encontrado, impossível salvar.');
+      return;
+    }
 
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Successo!',
-      detail: 'Alterações salvas com sucesso!',
+    this.isLoading = true; 
+
+    this.clientService.updateClient(this.cliente.id, this.cliente).subscribe({
+      next: (clienteAtualizado) => {
+
+        this.cliente = clienteAtualizado;
+
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Sucesso!',
+          detail: 'Alterações salvas com sucesso!',
+        });
+
+        this.isEditing = false; 
+        this.isLoading = false; 
+      },
+      error: (err) => {
+        // ERRO!
+        console.error('Erro ao salvar cliente:', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro!',
+          detail: 'Não foi possível salvar as alterações. Tente novamente.',
+        });
+        this.isLoading = false; 
+      },
     });
-
-    this.isEditing = false;
   }
 
   btnToBack() {
@@ -155,7 +181,8 @@ export class InfoClientComponent implements OnInit {
       this.cepService.searchCEP(cep).subscribe({
         next: (dados) => {
           if (!dados.erro) {
-            this.cliente.rua = dados.rua || '';
+            this.cliente.rua = dados.logradouro|| '';
+            this.cliente.cidade = dados.localidade || '';
             this.cliente.uf = dados.uf || '';
             this.cliente.complemento = dados.complemento || '';
           } else {
@@ -173,7 +200,7 @@ export class InfoClientComponent implements OnInit {
     } else {
       this.messageService.add({
         severity: 'warn',
-        summary: 'Aviso',
+        summary: 'Aviso', 
         detail: 'ID do cliente não encontrado!',
       });
     }
@@ -193,4 +220,6 @@ export class InfoClientComponent implements OnInit {
 
     window.open(url, '_blank');
   }
+
+
 }

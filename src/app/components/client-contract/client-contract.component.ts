@@ -45,6 +45,8 @@ export interface Plan {
   plan: string;
 }
 
+
+
 @Component({
   selector: 'app-client-contract',
   standalone: true,
@@ -446,10 +448,9 @@ export class ClientContractComponent implements OnInit {
   // --- MÉTODOS DE NAVEGAÇÃO E UTILITÁRIOS (Originais) ---
   navigateToCreatContract() { this.router.navigate(['add-contract']); }
   navigateToInfoClient() { this.router.navigate(['info', this.clientId]); }
-  navigateToAddressTransfer() { this.router.navigate(['address-transfer']); }
-
+  
   navigateToTransferOwnership(contract: Contract): void {
-    this.router.navigate(['/transfer-ownership', this.clientId, contract.id]);
+    this.router.navigate(['/transfer-ownership', this.clientId, contract.id]); 
   }
   
   openUpgradeDialog(contract: Contract, isUpgrade: boolean) {
@@ -527,5 +528,23 @@ export class ClientContractComponent implements OnInit {
 
   listTransferContracts() {
     this.loadContractsTransfer(this.clientId);
+  }
+  navigateToAddressTransfer(contract: Contract) {
+
+    const sellerId = this.authService.getSellerId();
+    if(!sellerId){
+      console.error("Id do vendedor não encontrado");
+      return;
+    }
+    this.router.navigate(['address-transfer'], {
+      queryParams: {
+        fromClient: contract.clientId,
+        contractId: contract.id
+      },
+
+      state: {
+        contractData: contract
+      }
+    });
   }
 }

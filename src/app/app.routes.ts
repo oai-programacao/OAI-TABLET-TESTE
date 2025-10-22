@@ -125,4 +125,12 @@ export const routes: Routes = [
         (m) => m.DownUpgradeComponent
       )
   },
+  {
+  path: 'conclude',
+    loadComponent: () =>
+      import('./components/sales-panel/sales-panel.component').then(
+        (m) => m.ConcludeSaleComponent
+      ),
+    // canActivate: [AuthGuard],
+  },
 ];

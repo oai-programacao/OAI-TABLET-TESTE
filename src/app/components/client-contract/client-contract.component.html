@@ -67,7 +67,6 @@
               <span>{{ contract.codeContractRbx }}</span>
             </div>
           </div>
-
           <div class="addresscontract">
             <!-- Plano -->
             <div class="section">
@@ -137,7 +136,7 @@
             [rounded]="true" [text]="true" pTooltip="Fazer Upgrade" tooltipPosition="top" />
           <p-button icon="pi pi-arrow-down" (onClick)="openUpgradeDialog(contract, true)" severity="danger"
             [rounded]="true" [text]="true" pTooltip="Fazer Downgrade" tooltipPosition="top" />
-          <p-button icon="pi pi-home" (onClick)="navigateToAddressTransfer()" severity="warn" [rounded]="true"
+          <p-button icon="pi pi-home" (onClick)="navigateToAddressTransfer(contract)" severity="warn" [rounded]="true"
             [text]="true" pTooltip="Transferir Endereço" tooltipPosition="top" />
           <p-button icon="pi pi-calendar" (onClick)="goToAlterDateExpired(contract)" severity="success" [rounded]="true"
             [text]="true" pTooltip="Alterar Vencimento" tooltipPosition="top">

@@ -20,8 +20,8 @@ export class ClientService {
   }
 
 
-
-
-
-
+  updateClient(clientId: string, clientData: Partial<Cliente>): Observable<Cliente> {
+    const url = `${this.apiUrl}/client/update/${clientId}`;
+    return this.http.patch<Cliente>(url, clientData);
+}
 }

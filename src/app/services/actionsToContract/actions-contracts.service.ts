@@ -64,4 +64,17 @@ export class ActionsContractsService {
     const url = `${this.apiUrl}/create-consent-document-transfer/${oldClientId}/${contractId}`;
     return this.http.post(url, payload, { responseType: 'text' });
   }
+
+  sendAddressChangeAutentique(
+    payload: any,
+    clientId: string,
+    contractId: string
+  ): Observable<any> {
+    const sellerId = this.authService.getSellerId();
+    const finalPayload = {...payload, sellerId };
+
+    // Monta URL com os IDs na path
+    const url = `${this.apiUrl}/create-consent-document-update-address/${clientId}/${contractId}`;
+    return this.http.post(url, finalPayload);
+  }
 }

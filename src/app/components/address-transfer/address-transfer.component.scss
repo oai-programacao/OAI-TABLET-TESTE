@@ -23,21 +23,19 @@
 
 .form-container {
     display: flex;
-    align-items: center;
     width: 100%;
-    justify-content: space-between;
     flex-direction: row;
-    max-width: 31.25rem;
+    max-width: 30rem;
     min-width: 50rem;
     padding: 1rem;
     gap: 1rem;
-    padding: 0.125rem;
+    padding: 0.1rem;
+    margin: 1rem;
 }
 
 
 .form-content {
-    gap: 1rem;
-    width: 100%;
+    gap: 0.6rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -54,7 +52,10 @@
     align-items: center;
     flex-direction: column;
     justify-content: space-between;
-    flex: 1 1 calc(33.33% - 1rem)
+    flex: 1 1 calc(33.33% - 1rem);
+    position: relative; 
+    padding-top: 0.9rem;
+    margin-bottom: 1rem;
 }
 
 .text-area-content {
@@ -65,10 +66,13 @@
 }
 
 .btn-actions {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 1rem;
+  margin-bottom: 0.5rem;
+  padding: 0.2rem;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-start;
+  padding-bottom: 0rem;
+  margin: 0.9rem;
 }
 
 
@@ -95,21 +99,13 @@
     flex-direction: column;
 }
 
-.btn-actions-os {
-    display: flex;
-    gap: 5rem;
-    width: 100%;
-    align-items: center;
-    justify-content: center;
-}
 
 .btn-to-navigate {
     display: flex;
     width: 100%;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 0 0;
-    margin-top: 5rem;
+    margin-top: 1rem;
 }
 
 .signature-pad-container {
@@ -155,7 +151,6 @@
 
 .btn-to-generate-contract {
     display: flex;
-    justify-content: flex-end;
     align-items: center;
     width: 50%;
     gap: 1rem;
@@ -171,9 +166,8 @@
 .payment-content {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     flex-direction: row;
-    gap: 5rem;
+    gap: 1rem;
 }
 
 .payment-input {
@@ -263,9 +257,13 @@
 }
 
 .msg-error {
-    text-align: start;
+    position: absolute;  
+    bottom: 100%;  
+    top: 0;
+    left: 5px; 
     width: 100%;
-    padding: 0.2rem;
+    z-index: 2; 
+    white-space: nowrap;
 }
 
 .btn-to-back{
@@ -274,3 +272,279 @@
     justify-content: flex-start;
     padding: 0 0 0.5rem 0;
 }
+
+
+.dialog-form-container {
+  display: flex;         
+  flex-wrap: wrap;      
+  gap: 1.5rem 1rem;      
+}
+
+
+.form-field {
+  flex: 1 1 calc(50% - 0.5rem); 
+  box-sizing: border-box;
+}
+
+
+.form-field-full {
+  flex: 1 1 100%;
+  box-sizing: border-box;
+
+}
+
+// Garante que o input dentro do PrimeNG ocupe todo o espaço do seu container
+:host ::ng-deep .form-field .p-inputtext,
+:host ::ng-deep .form-field-full .p-inputtext,
+:host ::ng-deep .form-field-full .p-inputtextarea {
+  width: 100%;
+}
+
+/* === Alerta de Formulário Inválido === */
+.alert-warning {
+  padding: 1rem;
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* === Estilos do Modal (Dialog) === */
+.dialog-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+  text-align: center;
+  padding: 0.5rem;
+  min-width: 300px;
+}
+
+.icon-container {
+  display: flex;
+  justify-content: center;
+}
+
+.whatsapp-icon {
+  font-size: 3rem;
+  background-color: #25d366;
+  color: white;
+  padding: 1rem;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(37, 211, 102, 0.6);
+}
+
+.info-text {
+  font-size: 1rem;
+  color: #6c757d; // Cor mais suave
+  line-height: 1.4;
+}
+
+p-inputgroup {
+  width: 100%;
+  max-width: 300px;
+}
+
+
+:host ::ng-deep .p-dialog .p-dialog-header {
+
+}
+
+.alert-warning {
+  padding: 1rem;
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+  border-radius: 0.5rem;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.alert-warning i {
+  font-size: 1.2rem; 
+}
+
+.dialog-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0.5rem;
+}
+
+.icon-container {
+  display: flex;
+  justify-content: center;
+}
+
+.whatsapp-icon {
+  font-size: 3rem;
+  background-color: #25d366;
+  color: white;
+  padding: 1rem;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(37, 211, 102, 0.6);
+}
+
+.info-text {
+  font-size: 1rem;
+  color: #333;
+  line-height: 1.4;
+}
+
+p-inputgroup {
+  width: 100%;
+  max-width: 300px;
+}
+
+.step2-info {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 1.2rem;
+  color: #333;
+}
+
+.alert-box {
+  display: flex;
+  align-items: center;
+  background-color: rgba(255, 230, 0, 0.3); 
+  padding: 5px;
+  border-radius: 8px;
+  gap: 15px;
+  margin-top: 15px;
+  padding-left: 20px;
+  border-left: 5px solid rgb(255, 136, 0);
+}
+
+.alert-icon-circle {
+  width: 40px;
+  height: 40px;
+  background-color: rgba(245, 127, 23, 0.5); 
+  color: rgb(255, 255, 255);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.alert-text {
+  margin: 0;
+  color: #000000;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.fluxo-container {
+  display: flex;
+  gap: 25px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.fluxo-card {
+  width: 320px;
+  min-height: 600px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  /* efeito vidro */
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+
+.fluxo-card.online {
+  background: rgba(255, 230, 0, 0.05); 
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-top: 5px solid #fbc02d;
+}
+
+.fluxo-card.presencial {
+  background: rgba(13, 197, 243, 0.05); 
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-top: 5px solid #19cefc;
+}
+
+.fluxo-header {
+  font-size: 5rem;
+  text-align: center;
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.fluxo-header h3 {
+  margin-top: 10px;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.fluxo-body {
+  flex: 1;
+  text-align: center;
+  color: #333;
+  font-size: 0.9rem;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fluxo-body p {
+  line-height: 1.4;
+}
+
+.fluxo-footer {
+  display: flex;
+  justify-content: center;
+}
+
+.btn-signature{
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.btn-edit{
+  margin-left: 1rem;
+}
+
+.payment-value{
+  width: 30%;
+}
+
+.payment{
+  width: 100%;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.payment-method {
+  width: 30%;
+  flex-grow: 0;      // Não crescer além do basis
+  flex-shrink: 1;    // Pode encolher se necessário
+  flex-basis: 30%;   // Define o tamanho base como 30%
+  min-width: 150px;  // Adiciona um mínimo para evitar ficar muito pequeno
+}
+
