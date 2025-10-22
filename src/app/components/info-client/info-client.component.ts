@@ -86,6 +86,7 @@ export class InfoClientComponent implements OnInit {
           {
             label: 'Atendimentos',
             icon: 'pi pi-paperclip',
+            command: () => this.navigateToAttendances()
           },
         ],
       },
@@ -122,6 +123,10 @@ export class InfoClientComponent implements OnInit {
 
   navigateToContractClient() {
     this.router.navigate(['client-contracts', this.cliente.id]);
+  }
+
+  navigateToAttendances() {
+    this.router.navigate([`/attendances/${this.cliente.id}`]);
   }
 
   toggleEditing() {

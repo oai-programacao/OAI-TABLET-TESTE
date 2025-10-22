@@ -103,5 +103,12 @@ export const routes: Routes = [
       import('./components/alter-date-expired/alter-date-expired.component').then(
         (m) => m.AlterDateExpiredComponent
       )
+  },
+  {
+    path: 'attendances/:clientId',
+    loadComponent: () =>
+      import('./components/attendances-client/attendances-client.component').then(
+        (m) => m.AttendancesClientComponent
+      )
   }
 ];
