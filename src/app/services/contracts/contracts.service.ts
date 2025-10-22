@@ -75,7 +75,15 @@ export class ContractsService {
       newClientId: newClientId 
     };
 
-    const endpoint = `${this.urlApi}/consent-term/transfer-ownership`;
+    const endpoint = `${this.urlApi}/consent-term/generate-transfer-term`;
+    return this.http.post(endpoint, payload, { 
+      responseType: 'blob' 
+    });
+  }
+
+  finalizeAndSignTransfer(payload: any): Observable<Blob> {
+    const endpoint = `${this.urlApi}/consent-term/finalize-transfer`;
+
     return this.http.post(endpoint, payload, { 
       responseType: 'blob' 
     });

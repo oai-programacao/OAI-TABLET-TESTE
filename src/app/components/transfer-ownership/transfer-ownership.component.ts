@@ -1,21 +1,18 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 
-// PrimeNG Modules
 import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
 import { DividerModule } from 'primeng/divider';
-import { InputMaskModule } from 'primeng/inputmask';
-import { InputNumberModule } from 'primeng/inputnumber';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { Popover, PopoverModule } from 'primeng/popover';
+import { PopoverModule } from 'primeng/popover';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { SelectModule } from 'primeng/select';
 import { StepperModule } from 'primeng/stepper';
@@ -25,7 +22,6 @@ import { InputTextModule } from 'primeng/inputtext';
 
 // Services and Models
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { AuthService } from '../../core/auth.service';
 import { Cliente as ClientData } from '../../models/cliente/cliente.dto';
 import { Contract } from '../../models/contract/contract.dto';
 import { ClientService } from '../../services/clients/client.service';
@@ -35,32 +31,35 @@ import { SearchclientService } from '../../services/searchclient/searchclient.se
 // Components
 import { CardBaseComponent } from '../../shared/components/card-base/card-base.component';
 import { IftaLabel } from "primeng/iftalabel";
-import { ActionsContractsService } from '../../services/actionsToContract/actions-contracts.service';
+import { ActionsContractsService, CreateTransferConsentPayload } from '../../services/actionsToContract/actions-contracts.service';
+import { NgxMaskDirective } from 'ngx-mask';
+import SignaturePad from 'signature_pad';
+import { concatMap } from 'rxjs/internal/operators/concatMap';
+import { AuthService } from '../../core/auth.service';
 
 @Component({
   selector: 'app-transfer-ownership',
   standalone: true,
   imports: [
-    CommonModule, 
-    FormsModule, 
+    CommonModule,
+    FormsModule,
     ReactiveFormsModule,
-    ButtonModule, 
-    CalendarModule, 
-    CheckboxModule, 
-    ConfirmDialogModule, 
-    DialogModule, 
+    ButtonModule,
+    CalendarModule,
+    CheckboxModule,
+    ConfirmDialogModule,
+    DialogModule,
     DividerModule,
-    InputMaskModule, 
     InputTextModule,
-    InputNumberModule, 
-    InputGroupModule, 
-    InputGroupAddonModule, 
-    IftaLabel, 
-    PopoverModule, 
+    InputGroupModule,
+    InputGroupAddonModule,
+    IftaLabel,
+    PopoverModule,
     ProgressSpinnerModule,
-    SelectModule, 
-    StepperModule, 
-    ToastModule, 
+    SelectModule,
+    StepperModule,
+    NgxMaskDirective,
+    ToastModule,
     TooltipModule,
     CardBaseComponent
   ],
@@ -68,7 +67,11 @@ import { ActionsContractsService } from '../../services/actionsToContract/action
   styleUrl: './transfer-ownership.component.scss',
   providers: [ConfirmationService, MessageService],
 })
-export class TransferOwnershipComponent implements OnInit {
+export class TransferOwnershipComponent implements OnInit, AfterViewInit {
+  @ViewChild('signaturePadOld') signatureCanvasOld!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('signaturePadNew') signatureCanvasNew!: ElementRef<HTMLCanvasElement>;
+
+
   // --- Injeção de Dependências ---
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
@@ -79,6 +82,9 @@ export class TransferOwnershipComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly actionsContractsService = inject(ActionsContractsService);
   private readonly sanitizer = inject(DomSanitizer);
+  private signaturePadOld!: SignaturePad;
+  private signaturePadNew!: SignaturePad;
+  private readonly authService = inject(AuthService);
 
   // --- Estado Geral do Componente ---
   clientId!: string;
@@ -99,18 +105,26 @@ export class TransferOwnershipComponent implements OnInit {
   documento: string = '';
   foundClient: { id: string, name: string } | null = null;
   activeStepIndex: number = 0;
-  pdfSrc: SafeResourceUrl | null = null;
+  pdfSrc: any;
   isLoadingPdf: boolean = false;
   consentAgreed: boolean = false;
   autentiqueModalVisible: boolean = false;
 
+
+  pdfDialogVisible: boolean = false;
+
+  ngAfterViewInit() { }
+
   ngOnInit() {
-    // Lógica para carregar os dados iniciais do contrato e cliente
     const clientId = this.route.snapshot.paramMap.get('clientId');
-    const contractId = this.route.snapshot.paramMap.get('contractId'); // Supondo que o ID do contrato venha da rota
+    const contractId = this.route.snapshot.paramMap.get('contractId');
+
     if (clientId && contractId) {
       this.clientId = clientId;
       this.loadInitialData(clientId, contractId);
+    } else {
+      this.isLoading = false;
+      this.showError('Erro Crítico', 'Faltam os IDs do cliente ou do contrato na URL.');
     }
   }
 
@@ -123,6 +137,72 @@ export class TransferOwnershipComponent implements OnInit {
       this.selectedContractForTransfer = contract;
       this.isLoading = false;
     });
+  }
+
+  private initializeSignaturePads() {
+    console.log('--- A TENTAR INICIALIZAR OS SIGNATURE PADS ---');
+
+    if (this.signatureCanvasOld && this.signatureCanvasNew) {
+      console.log('Referências dos canvas encontradas no @ViewChild.');
+
+      this.signaturePadOld = new SignaturePad(this.signatureCanvasOld.nativeElement);
+      this.signaturePadNew = new SignaturePad(this.signatureCanvasNew.nativeElement);
+
+      this.resizeCanvas();
+    } else {
+      console.error('--- FALHA: As referências @ViewChild para os <canvas> não foram encontradas. ---');
+    }
+  }
+
+  private resizeCanvas() {
+    console.log('A redimensionar os canvas...');
+    const oldCanvas = this.signatureCanvasOld.nativeElement;
+    const newCanvas = this.signatureCanvasNew.nativeElement;
+
+    console.log(`Tamanho do Canvas Antigo (offsetWidth): ${oldCanvas.offsetWidth}px`);
+    console.log(`Tamanho do Canvas Novo (offsetWidth): ${newCanvas.offsetWidth}px`);
+
+    if (oldCanvas.offsetWidth === 0 || newCanvas.offsetWidth === 0) {
+      console.error('--- ERRO CRÍTICO: Os elementos canvas têm 0px de largura. O CSS pode não ter sido aplicado a tempo. ---');
+      this.showError('Erro de Interface', 'Não foi possível inicializar a área de assinatura. Tente novamente.');
+      return;
+    }
+
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+
+    oldCanvas.width = oldCanvas.offsetWidth * ratio;
+    oldCanvas.height = oldCanvas.offsetHeight * ratio;
+    oldCanvas.getContext('2d')?.scale(ratio, ratio);
+    this.signaturePadOld.clear();
+
+    newCanvas.width = newCanvas.offsetWidth * ratio;
+    newCanvas.height = newCanvas.offsetHeight * ratio;
+    newCanvas.getContext('2d')?.scale(ratio, ratio);
+    this.signaturePadNew.clear();
+
+    console.log('--- SUCESSO: Canvas redimensionados e prontos para desenhar. ---');
+  }
+
+
+  clearSignatureOld(): void {
+    if (this.signaturePadOld) {
+      this.signaturePadOld.clear();
+    }
+  }
+
+  clearSignatureNew(): void {
+    if (this.signaturePadNew) {
+      this.signaturePadNew.clear();
+    }
+  }
+
+  isConfirmDisabled(): boolean {
+    return !this.signaturePadOld || this.signaturePadOld.isEmpty() ||
+      !this.signaturePadNew || this.signaturePadNew.isEmpty();
+  }
+
+   voltarParaCliente() {
+    this.router.navigate(['/client-contracts', this.clientId]);
   }
 
   // --- MÉTODOS DO FLUXO DE TRANSFERÊNCIA DE TITULARIDADE ---
@@ -142,9 +222,12 @@ export class TransferOwnershipComponent implements OnInit {
     this.searchclientService.searchAndRegisterClient(documentoParaBuscar).subscribe({
       next: (response) => {
         this.isLoadingTransfer = false;
-        if (response?.client?.id && response?.client?.name) {
-          this.foundClient = { id: response.client.id, name: response.client.name };
-          this.showInfo('Cliente Localizado', `O cliente ${response.client.name} está pronto para a transferência.`);
+        const client = response?.client;
+        console.log("--- DEBUG: RESPOSTA DA API ---");
+        console.log("Objeto 'client' recebido:", client);
+        if (client?.id) {
+          const clientName = client?.name || client?.socialName || client?.fantasyName; this.foundClient = { id: client.id, name: clientName };
+          this.showInfo('Cliente Localizado', `O cliente ${clientName} está pronto para a transferência.`);
         } else {
           this.foundClient = null;
           this.showWarning('Cliente não encontrado', 'Nenhum cliente foi encontrado com este documento. Pode registá-lo.');
@@ -159,7 +242,7 @@ export class TransferOwnershipComponent implements OnInit {
 
   // NOVO: Este método é chamado ao clicar em "Assinatura Manual"
   goToPdfViewerStep(): void {
-    this.activeStepIndex = 2; // Avança para o passo 3 (visualização do PDF)
+    this.activeStepIndex = 2;
     this.isLoadingPdf = true;
     this.pdfSrc = null;
     this.consentAgreed = false;
@@ -178,6 +261,7 @@ export class TransferOwnershipComponent implements OnInit {
         const objectUrl = URL.createObjectURL(pdfBlob);
         this.pdfSrc = this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl);
         this.isLoadingPdf = false;
+        setTimeout(() => this.initializeSignaturePads(), 100);
       },
       error: (err) => {
         this.showError('Erro ao Gerar PDF', err.error?.message || 'Não foi possível carregar o termo de consentimento.');
@@ -187,26 +271,47 @@ export class TransferOwnershipComponent implements OnInit {
   }
 
   onConfirmTransfer(): void {
-    if (!this.selectedContractForTransfer || !this.foundClient) return;
+    if (this.isConfirmDisabled()) {
+      this.showWarning('Ação Bloqueada', 'É necessário aceitar o termo e preencher ambas as assinaturas.');
+      return;
+    }
 
     this.isLoadingTransfer = true;
-    this.loadingMessage = 'A efetivar a transferência, por favor aguarde...';
-    const oldContractId = this.selectedContractForTransfer.id;
-    const newClientId = this.foundClient.id;
+    this.loadingMessage = 'A processar a transferência de negócio...';
 
-    this.contractService.transferOwnership(oldContractId, newClientId).subscribe({
-      next: () => {
-        this.activeStepIndex = 3; // Avança para o passo de Finalização/Sucesso
-        this.showSuccess('Sucesso!', 'A transferência de titularidade foi concluída.');
+    const signatureOldData = this.signaturePadOld.toDataURL();
+    const signatureNewData = this.signaturePadNew.toDataURL();
+    const oldContractId = this.selectedContractForTransfer!.id;
+    const newClientId = this.foundClient!.id;
+
+    const signPayload = {
+      oldContractId: oldContractId,
+      newClientId: newClientId,
+      signatureOld: signatureOldData,
+      signatureNew: signatureNewData,
+    };
+
+    this.contractService.transferOwnership(oldContractId, newClientId).pipe(
+      concatMap(() => {
+        this.loadingMessage = 'A carimbar assinaturas no PDF final...';
+        return this.contractService.finalizeAndSignTransfer(signPayload);
+      })
+
+    ).subscribe({
+      next: (signedPdfBlob: Blob) => {
+        const objectUrl = URL.createObjectURL(signedPdfBlob);
+        this.pdfSrc = this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl);
+
+        this.activeStepIndex = 3;
+        this.showSuccess('Sucesso!', 'A transferência foi concluída e o PDF assinado.');
         this.isLoadingTransfer = false;
-        // Opcional: Redirecionar após alguns segundos
-        // setTimeout(() => this.navigateToInfoClient(), 3000);
       },
       error: (err) => {
-        this.showError('Erro na Transferência', err.error?.message || 'Não foi possível concluir a transferência.');
+        const detail = err.error?.message || 'Não foi possível concluir a operação.';
+        this.showError('Erro na Operação', `${detail} (Verifique o contrato, a transferência pode ter sido concluída mesmo sem o PDF.)`);
         this.isLoadingTransfer = false;
-        this.activeStepIndex = 0; // Volta para o primeiro passo em caso de erro.
-      },
+        this.activeStepIndex = 0;
+      }
     });
   }
 
@@ -222,32 +327,46 @@ export class TransferOwnershipComponent implements OnInit {
   }
 
   sendToAutentiqueSubmit(): void {
+    // 1. Validação de dados (verificando se os clientes e o contrato existem)
     if (!this.currentClient || !this.foundClient || !this.selectedContractForTransfer) {
       this.showError('Erro de Dados', 'Não foi possível obter os dados completos dos titulares ou do contrato.');
       return;
     }
 
-    const mappedSigners = [
-      { 
-        name: this.currentClient.name, 
-        phoneOldOwner: '+55' + (this.phoneOldOwner || '').replace(/\D/g, '') 
-      },
-      { 
-        name: this.foundClient.name, 
-        phoneNewOwner: '+55' + (this.phoneNewOwner || '').replace(/\D/g, '')
-      }
-    ];
+    const sellerIdNumber = this.authService.getSellerId();
+    if (!sellerIdNumber) {
+      this.showError('Erro de Autenticação', 'Não foi possível identificar o vendedor logado.');
+      return;
+    }
+    const sellerId: string = sellerIdNumber.toString();
 
-    const payload = { 
-      signers: mappedSigners
+    const payload: CreateTransferConsentPayload = {
+      sellerId: sellerId,
+      newClientId: this.foundClient.id,
+      signers: [
+        {
+          name: this.currentClient.name || '',
+          phone: '+55' + (this.phoneOldOwner || '').replace(/\D/g, '')
+        },
+        {
+          name: this.foundClient.name || '',
+          phone: '+55' + (this.phoneNewOwner || '').replace(/\D/g, '')
+        }
+      ]
     };
-    
+
+    // 4. Feedback de UI
     this.isLoadingTransfer = true;
     this.loadingMessage = 'A enviar documento para assinatura...';
     this.fecharModalAutentique();
 
+    // 5. Chamada ao NOVO Serviço
     this.actionsContractsService
-      .sendTransferOwnershipAutentique(payload, this.selectedContractForTransfer.id, this.foundClient.id)
+      .sendTransferConsentAutentique(
+        payload,
+        this.clientId,
+        this.selectedContractForTransfer.id
+      )
       .subscribe({
         next: (res: string) => {
           this.isLoadingTransfer = false;
@@ -276,6 +395,12 @@ export class TransferOwnershipComponent implements OnInit {
     }
   }
 
+  public get arePhonesInvalid(): boolean {
+    const cleanPhoneOld = (this.phoneOldOwner || '').replace(/\D/g, '');
+    const cleanPhoneNew = (this.phoneNewOwner || '').replace(/\D/g, '');
+    return cleanPhoneOld.length < 10 || cleanPhoneNew.length < 10;
+  }
+
   private isTransferringToSameOwner(documentoParaBuscar: string): boolean {
     if (!this.currentClient) return false;
     const isInputCpf = documentoParaBuscar.length === 11;
@@ -285,7 +410,8 @@ export class TransferOwnershipComponent implements OnInit {
   }
 
   allowOnlyNumbers(event: KeyboardEvent): void {
-    if (!/^\d$/.test(event.key) && !['Backspace', 'ArrowLeft', 'ArrowRight', 'Delete', 'Tab', 'Enter'].includes(event.key)) {
+    if (!/^\d$/.test(event.key) &&
+      !['Backspace', 'ArrowLeft', 'ArrowRight', 'Delete', 'Tab', 'Enter'].includes(event.key)) {
       event.preventDefault();
     }
   }
@@ -316,10 +442,15 @@ export class TransferOwnershipComponent implements OnInit {
     setTimeout(() => this.formatarDocumento(pastedText), 0);
   }
 
+
+
+
+
+
+
   // Métodos de mensagens Toast
   private showSuccess(summary: string, detail: string, life: number = 3000) { this.messageService.add({ severity: 'success', summary, detail, life }); }
   private showError(summary: string, detail: string) { this.messageService.add({ severity: 'error', summary, detail }); }
   private showWarning(summary: string, detail: string) { this.messageService.add({ severity: 'warn', summary, detail }); }
   private showInfo(summary: string, detail: string) { this.messageService.add({ severity: 'info', summary, detail }); }
 }
-

@@ -95,7 +95,7 @@ export const routes: Routes = [
       import('./components/waiting-leads/waiting-leads.component').then(
         (m) => m.WaitingLeadsComponent
       ),
-   canActivate: [AuthGuard],
+    canActivate: [AuthGuard],
   },
   {
     path: 'alter-dateexpired',
@@ -105,7 +105,7 @@ export const routes: Routes = [
       )
   },
   {
-    path: 'transfer-ownership',
+    path: 'transfer-ownership/:clientId/:contractId',
     loadComponent: () =>
       import('./components/transfer-ownership/transfer-ownership.component').then(
         (m) => m.TransferOwnershipComponent

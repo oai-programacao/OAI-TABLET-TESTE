@@ -4,13 +4,23 @@ import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../core/auth.service';
 import { environment } from '../../../environments/environment';
 
+export interface CreateTransferConsentPayload {
+  sellerId: string;
+  newClientId: string;
+  signers: {
+    name: string;
+    phone: string;
+  }[];
+}
+
 @Injectable({
   providedIn: 'root',
 })
+
 export class ActionsContractsService {
   apiUrl = environment.apiUrl + '/autentique';
 
-  constructor(private http: HttpClient, private authService: AuthService) {}
+  constructor(private http: HttpClient, private authService: AuthService) { }
 
   sendAlterDateAutentique(
     payload: any,
@@ -44,5 +54,14 @@ export class ActionsContractsService {
     const url = `${this.apiUrl}/create-consent-document/${clientId}/${contractId}`;
 
     return this.http.post(url, finalPayload, { responseType: 'text' });
+  }
+  sendTransferConsentAutentique(
+    payload: CreateTransferConsentPayload,
+    oldClientId: string,
+    contractId: string
+  ): Observable<string> {
+
+    const url = `${this.apiUrl}/create-consent-document-transfer/${oldClientId}/${contractId}`;
+    return this.http.post(url, payload, { responseType: 'text' });
   }
 }

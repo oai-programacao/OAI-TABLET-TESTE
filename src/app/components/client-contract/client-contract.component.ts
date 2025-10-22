@@ -489,7 +489,9 @@ export class ClientContractComponent implements OnInit {
   navigateToCreatContract() { this.router.navigate(['add-contract']); }
   navigateToInfoClient() { this.router.navigate(['info', this.clientId]); }
   navigateToAddressTransfer() { this.router.navigate(['address-transfer']); }
-  navigateTransferDialog() { this.router.navigate (['transfer-ownership']) }
+  navigateToTransferOwnership(contract: Contract): void {
+      this.router.navigate(['/transfer-ownership', this.clientId, contract.id]);
+  }
   navigateToCreateClient(): void {
     this.router.navigate(['/register']);
     this.closeTransferDialog();

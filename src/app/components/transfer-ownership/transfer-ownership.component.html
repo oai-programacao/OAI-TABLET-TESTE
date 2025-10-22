@@ -1,7 +1,10 @@
 <div class="page-container">
     <p-toast />
     <app-card-base header="Transferência de Titularidade" width="auto" height="auto">
-
+        <div class="btn-to-back">
+            <p-button icon="pi pi-arrow-left" [rounded]="true" severity="danger" raised="true" size="large"
+                (onClick)="voltarParaCliente()" />
+        </div>
         <div class="transfer-dialog__header">
             <label>Contrato a ser transferido:</label>
             <span>#{{ selectedContractForTransfer?.codeContractRbx }}</span>
@@ -29,33 +32,25 @@
                     <p class="step-instruction">Digite o documento do novo titular para iniciar a transferência.</p>
                     <div class="form-group-input">
                         <p-iftalabel variant="on">
-                            <input 
-                            pInputText id="documento" 
-                            [(ngModel)]="documento"
-                            name="documento" required
-                            minlength="14" maxlength="18" placeholder="CPF/CNPJ"
-                            (ngModelChange)="formatarDocumento($event)" (keypress)="allowOnlyNumbers($event)"
-                            (paste)="onPaste($event)" autocomplete="off" />
+                            <input pInputText id="documento" [(ngModel)]="documento" name="documento" required
+                                minlength="14" maxlength="18" placeholder="CPF/CNPJ"
+                                (ngModelChange)="formatarDocumento($event)" (keypress)="allowOnlyNumbers($event)"
+                                (paste)="onPaste($event)" autocomplete="off" />
                             <label for="documento"></label>
                         </p-iftalabel>
                     </div>
                 </div>
                 <div class="step-footer">
                     <p-button [rounded]="true" severity="help" label="Buscar" icon="pi pi-search"
-                            (onClick)="onSearchNewOwner()"></p-button>
+                        (onClick)="onSearchNewOwner()"></p-button>
                     <p-button [rounded]="true" label="Próximo" icon="pi pi-arrow-right" (onClick)="activeStepIndex = 1"
-                        
-                        ></p-button>
-
-                        <!-- [disabled]="!foundClient" -->
+                        [disabled]="!foundClient"> </p-button>
                 </div>
             </div>
 
             <div *ngIf="activeStepIndex === 1" class="step-panel-content">
                 <div class="step-content">
-                    <p class="step-instruction">Escolha o método para a coleta da assinatura do termo.</p>
                     <div class="fluxo-container">
-                        <!-- CARD 1 - ONLINE (AUTENTIQUE) -->
                         <div class="fluxo-card online">
                             <div class="fluxo-header">
                                 🖥️
@@ -102,20 +97,49 @@
                         <p-progressSpinner></p-progressSpinner>
                         <span>A gerar termo de consentimento...</span>
                     </div>
-                    <div *ngIf="pdfSrc" class="pdf-viewer">
-                        <iframe [src]="pdfSrc" width="100%" height="600px"></iframe>
-                    </div>
-                    <div *ngIf="!isLoadingPdf" class="p-field-checkbox consent-check">
-                        <p-checkbox [(ngModel)]="consentAgreed" binary="true" inputId="consentCheck"></p-checkbox>
-                        <label for="consentCheck">Declaro que li e concordo com os termos apresentados no
-                            documento.</label>
+                    <div *ngIf="!isLoadingPdf" class="signature-container">
+                        <p-button label="Visualizar Termo de Transferência" icon="pi pi-file-pdf" severity="help"
+                            (onClick)="pdfDialogVisible = true" [rounded]="true">
+                        </p-button>
+                        <div class="signature-box">
+                            <label>Assinatura do Cedente (Titular Antigo)</label>
+                            <canvas #signaturePadOld class="signature-canvas"></canvas>
+                            <p-button label="Limpar" icon="pi pi-refresh" [text]="true"
+                                (onClick)="clearSignatureOld()"></p-button>
+                        </div>
+                        <div class="signature-box">
+                            <label>Assinatura do Cessionário (Novo Titular)</label>
+                            <canvas #signaturePadNew class="signature-canvas"></canvas>
+                            <p-button label="Limpar" icon="pi pi-refresh" [text]="true"
+                                (onClick)="clearSignatureNew()"></p-button>
+                        </div>
                     </div>
                 </div>
                 <div class="step-footer">
                     <p-button [rounded]="true" label="Voltar" icon="pi pi-arrow-left" (onClick)="goBackStep(1)"
                         [text]="true"></p-button>
                     <p-button [rounded]="true" label="Efetivar Transferência" icon="pi pi-check"
-                        (onClick)="onConfirmTransfer()" [disabled]="!consentAgreed"></p-button>
+                        (onClick)="onConfirmTransfer()" [disabled]="isConfirmDisabled()"></p-button>
+                </div>
+            </div>
+
+            <!-- PAINEL 4: TERMO DE CONSENTIMENTO (FLUXO MANUAL) -->
+            <div *ngIf="activeStepIndex === 3" class="step-panel-content">
+                <div class="step-content confirmation-step">
+                    <i class="pi pi-check-circle success-icon"></i>
+                    <h3>Processo Concluído!</h3>
+                    <p>
+                        A transferência de titularidade foi concluída com sucesso.
+                    </p>
+                </div>
+
+                <div *ngIf="pdfSrc" class="pdf-viewer final-pdf-viewer">
+                    <iframe [src]="pdfSrc" width="100%" height="600px"></iframe>
+                </div>
+
+                <div class="step-footer">
+                    <p-button [rounded]="true" label="Voltar para o Início" icon="pi pi-home"
+                        (onClick)="navigateToInfoClient()"></p-button>
                 </div>
             </div>
         </div>
@@ -152,17 +176,9 @@
             <p-inputgroup-addon>
                 <i class="pi pi-whatsapp"></i>
             </p-inputgroup-addon>
-            <input 
-                pInputText 
-                id="telefone-antigo" 
-                name="telefone-antigo" 
-                mask="(00) 00000-0000"
-                prefix="+55"
-                placeholder="+55 (DDD) 00000-0000" 
-                [(ngModel)]="phoneOldOwner"  
-                required 
-                [style]="{ height: '40px', 'font-size': '20px' }" 
-            />
+            <input pInputText id="telefone-antigo" name="telefone-antigo" mask="(00) 00000-0000" prefix="+55"
+                placeholder="+55 (DDD) 00000-0000" [(ngModel)]="phoneOldOwner" required
+                [style]="{ height: '40px', 'font-size': '20px' }" />
         </p-inputgroup>
 
         <p>Insira o número do <strong>Novo Titular</strong></p>
@@ -170,23 +186,29 @@
             <p-inputgroup-addon>
                 <i class="pi pi-whatsapp"></i>
             </p-inputgroup-addon>
-            <input 
-                pInputText 
-                id="telefone-novo" 
-                name="telefone-novo" 
-                mask="00000000000"
-                prefix="+55"
-                placeholder="+55 (DDD) 00000-0000" 
-                [(ngModel)]="phoneNewOwner"
-                required 
-                [style]="{ height: '40px', 'font-size': '20px' }" 
-            />
+            <input pInputText id="telefone-novo" name="telefone-novo" mask="(00) 00000-0000" prefix="+55"
+                placeholder="+55 (DDD) 00000-0000" [(ngModel)]="phoneNewOwner" required
+                [style]="{ height: '40px', 'font-size': '20px' }" />
         </p-inputgroup>
     </div>
     <ng-template pTemplate="footer">
         <p-button label="Cancelar" icon="pi pi-times" severity="secondary"
             (onClick)="fecharModalAutentique()"></p-button>
-        <p-button label="Enviar" icon="pi pi-send" severity="success" [disabled]="!phoneNewOwner || phoneNewOwner.trim().length < 10"
+
+        <p-button label="Enviar" icon="pi pi-send" severity="success" [disabled]="arePhonesInvalid"
             (onClick)="sendToAutentiqueSubmit()"></p-button>
+    </ng-template>
+</p-dialog>
+
+<p-dialog header="Termo de Transferência de Titularidade" [(visible)]="pdfDialogVisible" [modal]="true"
+    [style]="{ width: '90vw', height: '90vh' }" [draggable]="false" [resizable]="false">
+
+    <div *ngIf="pdfSrc" class="pdf-viewer-dialog">
+        <iframe [src]="pdfSrc" width="100%" height="100%"></iframe>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <p-button label="Fechar" icon="pi pi-times" (onClick)="pdfDialogVisible = false" styleClass="p-button-text">
+        </p-button>
     </ng-template>
 </p-dialog>

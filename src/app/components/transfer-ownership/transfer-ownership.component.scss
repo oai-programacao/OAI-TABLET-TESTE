@@ -1,19 +1,10 @@
-/*
-  ESTILOS PARA O NOVO COMPONENTE DE PÁGINA: TransferOwnershipComponent
-  --------------------------------------------------------------------
-  Este ficheiro contém todos os estilos que antes estavam no dialog de
-  transferência, agora adaptados para funcionar como uma página inteira.
-*/
-
-// Container da página, herdado do seu layout original
 .page-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100%;
+  min-height: 88vh;
 }
 
-// Cabeçalho com informações do contrato
 .transfer-dialog__header {
   background-color: #f8f9fa;
   padding: 0.75rem 1.5rem;
@@ -29,6 +20,7 @@
     color: #575353;
     font-size: 1.3rem;
   }
+
   span {
     font-weight: 700;
     font-size: 1.3rem;
@@ -36,22 +28,65 @@
   }
 }
 
-// Container da barra de passos
-.step-numbers {
-  padding: 1.5rem 0;
-  border-bottom: 1px solid #dee2e6;
+.btn-to-back {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
 }
 
-// Container dos painéis de conteúdo dos passos
-.step-panels-container {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 400px;
-  padding: 2rem 1.5rem;
+.p-stepper {
+  --p-stepper-step-number-font-size: 2rem;
+  --p-stepper-step-number-background: #fff;
+  --p-stepper-step-number-color: #004e9b;
+  --p-stepper-step-number-active-background: #004e9b;
+  --p-stepper-step-number-active-color: #fff;
+  --p-stepper-separator-background: #375ca4;
+  --p-stepper-separator-active-background: #000;
+
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: transparent;
+}
+
+:host ::ng-deep .p-stepper .p-step-title {
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 400;
+  font-size: 1.05rem !important;
+  padding: 0.25rem 0.5rem;
+  border-radius: 3px;
   transition: all 0.2s ease-in-out;
+}
+
+:host ::ng-deep .p-stepper .p-step.p-step-active .p-step-title {
+  background-color: #5ccdf9;
+  color: #000;
+  border: 1px solid #000;
+  box-shadow: 0 0 5px rgba(0.1, 0.3, 0.2, 0.4);
+  font-weight: 600 !important;
+}
+
+.step {
+  width: 100%;
+  max-width: 650px;
+  margin: 2rem auto;
+  padding: 2rem;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease-in-out;
+  box-sizing: border-box;
+
+  &.active {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  }
+
+  .step-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
 }
 
 p-inputgroup {
@@ -70,8 +105,15 @@ p-inputgroup {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 // Rodapé com botões de navegação dos passos
@@ -86,9 +128,22 @@ p-inputgroup {
 }
 
 // Estilos específicos para os elementos dos passos
-.step-instruction { font-size: 1rem; color: #575353; margin-bottom: 1rem; }
-.pdf-viewer { width: 100%; border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden; }
-.consent-check { margin-top: 1.5rem; }
+.step-instruction {
+  font-size: 1rem;
+  color: #575353;
+  margin-bottom: 1rem;
+}
+
+.pdf-viewer {
+  width: 100%;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.consent-check {
+  margin-top: 1.5rem;
+}
 
 // Estilos para o input de busca (Passo 1)
 .form-group-input {
@@ -97,7 +152,11 @@ p-inputgroup {
   max-width: 600px; // Limita a largura do input
   gap: 0.5rem;
   align-items: center;
-  p-iftalabel { flex-grow: 1; }
+
+  p-iftalabel {
+    flex-grow: 1;
+  }
+
   input[pInputText] {
     width: 100%;
     height: 4rem;
@@ -113,54 +172,280 @@ p-inputgroup {
 // Estilos para os cards de fluxo de assinatura (Passo 2)
 .fluxo-container {
   display: flex;
-  gap: 2rem;
-  width: 100%;
+  gap: 25px;
+  margin-top: 25px;
+  flex-wrap: wrap;
   justify-content: center;
-  align-items: stretch;
 }
+
 .fluxo-card {
-  flex: 1;
-  max-width: 320px;
+  width: 320px;
+  min-height: 600px;
   display: flex;
   flex-direction: column;
-  border: 1px solid #dee2e6;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
-  transition: all 0.2s ease-in-out;
-  &:hover { transform: translateY(-5px); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2); }
-  &.online { border-top: 5px solid #fbc02d; }
-  &.presencial { border-top: 5px solid #19cefc; }
-  .fluxo-header { font-size: 3.5rem; text-align: center; margin-bottom: 15px; }
-  .fluxo-header h3 { margin-top: 10px; font-size: 1.3rem; font-weight: 600; }
-  .fluxo-body { flex-grow: 1; text-align: center; color: #333; font-size: 0.9rem; padding: 0 10px; display: flex; align-items: center; justify-content: center; min-height: 100px; }
-  .fluxo-footer { padding: 1rem; text-align: center; background-color: #f8f9fa; border-top: 1px solid #dee2e6; }
+  justify-content: space-between;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  /* efeito vidro */
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
+
+/* Cores individuais com translucidez */
+.fluxo-card.online {
+  background: rgba(255, 230, 0, 0.05);
+  /* amarelo bem leve */
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-top: 5px solid #fbc02d;
+}
+
+.fluxo-card.presencial {
+  background: rgba(13, 197, 243, 0.05);
+  /* verde bem leve */
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-top: 5px solid #19cefc;
+}
+
+.fluxo-header {
+  font-size: 5rem;
+  text-align: center;
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.fluxo-header h3 {
+  margin-top: 10px;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.fluxo-body {
+  flex: 1;
+  text-align: center;
+  color: #333;
+  font-size: 0.9rem;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fluxo-body p {
+  line-height: 1.4;
+}
+
+.fluxo-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
 
 // Overlay de carregamento
 .transfer-dialog__loading-overlay {
-  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background-color: rgba(255, 255, 255, 0.9);
-  display: flex; flex-direction: column; justify-content: center; align-items: center;
-  z-index: 10; backdrop-filter: blur(3px);
-  .loading-message { margin-top: 1.5rem; font-weight: 700; color: #1c34a0; font-size: 1.1rem; }
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  backdrop-filter: blur(3px);
+
+  .loading-message {
+    margin-top: 1.5rem;
+    font-weight: 700;
+    color: #1c34a0;
+    font-size: 1.1rem;
+  }
 }
 
 // Estilos para o Dialog do WhatsApp/Autentique
 .dialog-content {
-  display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0.5rem;
-  .whatsapp-icon { font-size: 3rem; background-color: #25d366; color: white; padding: 1rem; border-radius: 50%; box-shadow: 0 0 10px rgba(37, 211, 102, 0.6); }
-  .info-text { font-size: 1rem; color: #333; line-height: 1.4; }
-  .alert-box { display: flex; align-items: center; background-color: rgba(255, 230, 0, 0.3); padding: 5px 20px 5px 20px; border-radius: 8px; gap: 15px; margin-top: 15px; border-left: 5px solid rgb(255, 136, 0); }
-  .alert-icon-circle { width: 40px; height: 40px; background-color: rgba(245, 127, 23, 0.5); color: rgb(255, 255, 255); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 20px; }
-  .alert-text { margin: 0; color: #000000; font-size: 16px; line-height: 1.5; }
+  display: flex;
+  flex-direction:
+    column;
+  align-items:
+    center;
+  text-align:
+    center;
+  padding: 0.5rem;
+
+  .whatsapp-icon {
+    font-size: 3rem;
+    background-color: #25d366;
+    color: white;
+    padding: 1rem;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(37, 211, 102, 0.6);
+  }
+
+  .info-text {
+    font-size: 1rem;
+    color: #333;
+    line-height: 1.4;
+  }
+
+  .alert-box {
+    display: flex;
+    align-items: center;
+    background-color: rgba(255, 230, 0, 0.3);
+    padding: 5px 20px 5px 20px;
+    border-radius: 8px;
+    gap: 15px;
+    margin-top: 15px;
+    border-left: 5px solid rgb(255, 136, 0);
+  }
+
+  .alert-icon-circle {
+    width: 40px;
+    height: 40px;
+    background-color: rgba(245, 127, 23, 0.5);
+    color: rgb(255, 255, 255);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 20px;
+  }
+
+  .alert-text {
+    margin: 0;
+    color: #000000;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
 }
+
 :host ::ng-deep .p-dialog .dialog-content p-inputgroup {
-  width: 100%; max-width: 300px; border: 1px solid #ced4da; border-radius: 6px; transition: all 0.2s ease-in-out;
-  &.p-element { background: none; border-spacing: 0; }
-  .p-inputgroup-addon { background-color: #f8f9fa; border: none; color: #6c757d; }
-  .p-inputtext { border: none; box-shadow: none !important; }
-  &:focus-within { border-color: #1c34a0; box-shadow: 0 0 0 0.1rem rgba(28, 52, 160, 0.25); }
+  width: 100%;
+  max-width: 300px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  transition: all 0.2s ease-in-out;
+
+  &.p-element {
+    background: none;
+    border-spacing: 0;
+  }
+
+  .p-inputgroup-addon {
+    background-color: #f8f9fa;
+    border: none;
+    color: #6c757d;
+  }
+
+  .p-inputtext {
+    border: none;
+    box-shadow: none !important;
+  }
+
+  &:focus-within {
+    border-color: #1c34a0;
+    box-shadow: 0 0 0 0.1rem rgba(28, 52, 160, 0.25);
+  }
+}
+
+
+.signature-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  width: 100%;
+  margin-top: 1.5rem;
+  box-sizing: border-box;
+}
+
+.signature-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 40rem;
+
+  label {
+    font-weight: 500;
+    color: #333;
+  }
+}
+
+.signature-canvas {
+  width: 40rem;
+  height: 10rem;
+  border: 1px dashed #ced4da;
+  border-radius: 6px;
+  cursor: crosshair;
+  background-color: #f8f9fa;
+  box-sizing: border-box;
+}
+
+.pdf-viewer-dialog {
+  width: 100%;
+  height: 75vh; 
+
+  iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+}
+
+
+.confirmation-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 2.5rem 1rem;
+
+  background: var(--surface-a);
+  border: 1px solid var(--surface-d);
+  border-radius: 8px;
+
+  .success-icon {
+    font-size: 3.5rem;
+    color: var(--green-500);
+  }
+
+  h3 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    font-size: 1.1rem;
+    color: var(--text-color-secondary);
+    margin: 0;
+  }
+}
+
+.final-pdf-viewer {
+  margin-top: 1.5rem;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--surface-d);
+
+  iframe {
+    display: block;
+    border: none;
+  }
 }
