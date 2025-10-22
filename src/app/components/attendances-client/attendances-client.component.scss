@@ -1,0 +1,66 @@
+.page-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 88vh;
+}
+
+
+.btn-to-back {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.attendances-container {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  overflow: hidden;
+  font-size: 0.95rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+
+  .attendances-header {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr 2fr 1fr 1fr 1fr 1.5fr 1fr;
+    background-color: #e0e0e0;
+    font-weight: bold;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid #ccc;
+  }
+
+  .attendances-body {
+    .attendance-row {
+      display: grid;
+      grid-template-columns: 1fr 1.5fr 2fr 1fr 1fr 1fr 1.5fr 1fr;
+      padding: 0.5rem 1rem;
+      align-items: center;
+      border-bottom: 1px solid #eee;
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: #f1f1f1;
+      }
+
+      .cell {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+      }
+    }
+  }
+}
+
+.empty-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: #777;
+  font-size: 1rem;
+
+  i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+}

@@ -219,7 +219,7 @@ export class AlterDateExpiredComponent {
     this.modalVisible = false;
     this.phone = '';
   }
-  
+
   sendToAutentiqueSubmit() {
     const term = {
       proportionalValue: this.proportionalBoleto,
@@ -250,17 +250,18 @@ export class AlterDateExpiredComponent {
           this.modalVisible = false;
         },
         error: (err) => {
+          // mostra exatamente o que o backend retornou
           const backendMessage =
-            (typeof err.error === 'string' ? err.error : err?.error?.message) ||
-            'Erro ao tentar enviar para o número, verifique com o Suporte!';
+            typeof err.error === 'string'
+              ? err.error
+              : 'Erro ao tentar enviar para o Autentique!';
 
-          if (backendMessage.includes('Aguarde 4 minutos antes')) {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Atenção',
-              detail: backendMessage,
-            });
-          }
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erro',
+            detail: backendMessage,
+            life: 10000,
+          });
         },
       });
   }

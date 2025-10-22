@@ -9,10 +9,21 @@
     </p-divider>
 
     <div class="btn-to-create-another-contract">
-      <p-button [rounded]="true" [raised]="true" (onClick)="navigateToInfoClient()" icon="pi pi-arrow-left"
-        severity="danger" />
-      <p-button [raised]="true" label="Criar Contrato" (onClick)="navigateToCreatContract()" icon="pi pi-plus"
-        severity="success" />
+      <p-button
+        [rounded]="true"
+        [raised]="true"
+        (onClick)="navigateToInfoClient()"
+        icon="pi pi-arrow-left"
+        severity="danger"
+        size="large"
+      />
+      <p-button
+        [raised]="true"
+        label="Lançar Contrato"
+        (onClick)="navigateToCreatContract()"
+        icon="pi pi-dollar"
+        severity="success"
+      />
     </div>
 
     <div class="infolegends">

@@ -25,24 +25,22 @@ export class ToastService {
     document.body.appendChild(this.containerEl);
   }
 
-  show(message: string, animationPath: string = 'assets/contrato.json', duration = 4000) {
+  show(message: string) {
     const componentRef: ComponentRef<AnimatedToastComponent> = createComponent(AnimatedToastComponent, {
       environmentInjector: this.environmentInjector
     });
 
     componentRef.instance.message = message;
-    componentRef.instance.animationPath = animationPath;
 
     this.appRef.attachView(componentRef.hostView);
     this.containerEl.appendChild(componentRef.location.nativeElement);
 
-    // Inicia a animação de vida útil
-    componentRef.instance.hideAfter(duration);
+    // Duração fixa de 4 segundos
+    componentRef.instance.hideAfter(4000);
 
-    // Remove o toast da DOM após expirar
     setTimeout(() => {
       this.appRef.detachView(componentRef.hostView);
       componentRef.destroy();
-    }, duration + 500);
+    }, 4500);
   }
 }

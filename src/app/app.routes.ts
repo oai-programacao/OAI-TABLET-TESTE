@@ -105,6 +105,13 @@ export const routes: Routes = [
       )
   },
   {
+    path: 'attendances/:clientId',
+    loadComponent: () =>
+      import('./components/attendances-client/attendances-client.component').then(
+        (m) => m.AttendancesClientComponent
+      )
+  },
+  {
     path: 'transfer-ownership/:clientId/:contractId',
     loadComponent: () =>
       import('./components/transfer-ownership/transfer-ownership.component').then(

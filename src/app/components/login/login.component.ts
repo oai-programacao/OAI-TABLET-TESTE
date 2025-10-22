@@ -17,6 +17,7 @@ import { NgForm } from '@angular/forms';
 import { LoginSeller } from '../../models/login/login-seller.dto';
 import { MessagesValidFormsComponent } from '../../shared/components/message-valid-forms/message-valid-forms.component';
 import { ToastModule } from 'primeng/toast';
+import { WebSocketService } from '../../services/webSocket/websocket.service';
 
 @Component({
   selector: 'app-login',
@@ -43,6 +44,7 @@ export class LoginComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly messageService = inject(MessageService);
+  private readonly wsService = inject(WebSocketService);
 
   @ViewChild('loginForm') form!: NgForm;
 
@@ -71,11 +73,12 @@ export class LoginComponent implements OnInit {
     localStorage.clear();
 
     const credentials: LoginSeller = { ...this.loginData };
-    console.log('credenciais', credentials);
 
     this.authService.login(credentials).subscribe({
       next: (response: any) => {
         console.log('login sucesso', response);
+
+        this.wsService.initWebSocket();
         this.router.navigate(['search']);
         this.loginFailed = false;
         this.form.resetForm();
