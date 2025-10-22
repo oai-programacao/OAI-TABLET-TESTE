@@ -206,7 +206,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy{
         paymentMethod: null,
 
       };
-      
+      this.originalAddressForm = { ...this.addressNewForm };
       return;
     }
 
