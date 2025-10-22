@@ -524,3 +524,27 @@ p-inputgroup {
   gap: 1rem;
   margin-top: 1rem;
 }
+
+.btn-edit{
+  margin-left: 1rem;
+}
+
+.payment-value{
+  width: 30%;
+}
+
+.payment{
+  width: 100%;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.payment-method {
+  width: 30%;
+  flex-grow: 0;      // Não crescer além do basis
+  flex-shrink: 1;    // Pode encolher se necessário
+  flex-basis: 30%;   // Define o tamanho base como 30%
+  min-width: 150px;  // Adiciona um mínimo para evitar ficar muito pequeno
+}
+

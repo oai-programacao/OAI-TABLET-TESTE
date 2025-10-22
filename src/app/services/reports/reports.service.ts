@@ -20,6 +20,7 @@ export interface ConsentTermAddressRequest {
   observation: string | null;
   adesionValue: number | null;
   signatureBase64?: string;
+  paymentMethod: null | string;
 }
 
 

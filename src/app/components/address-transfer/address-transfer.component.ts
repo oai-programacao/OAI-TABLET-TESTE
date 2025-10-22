@@ -5,6 +5,7 @@ import {
   OnInit,
   ViewChild
 } from '@angular/core';
+import { SelectModule } from 'primeng/select';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule, NgForm } from '@angular/forms';
@@ -36,16 +37,17 @@ import { ActionsContractsService } from '../../services/actionsToContract/action
 import { ReportsService } from '../../services/reports/reports.service';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { ToastModule } from 'primeng/toast';
+import { MidiaService } from '../../services/midia/midia.service';
 
 import { SignaturePadComponent } from '../signature-pad/signature-pad.component';
 
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser'; 
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { DialogModule } from 'primeng/dialog';
-import { PdfViewerModule } from 'ng2-pdf-viewer';
+import { DropdownModule } from 'primeng/dropdown';
 
 export interface AddressForm {
-  cep: string | null;
+  zipCode: string | null;
   street: string;
   numberFromHome: string | null;
   complement: string;
@@ -54,6 +56,7 @@ export interface AddressForm {
   city: string;
   observation: string;
   adesionValue: number | null;
+  paymentMethod: string | null;
 }
 
 @Component({
@@ -81,7 +84,8 @@ export interface AddressForm {
     ProgressSpinnerModule,
     MessageModule,
     DialogModule,
-    PdfViewerModule
+    DropdownModule,
+    SelectModule
 
   ],
   providers: [MessageService],
@@ -94,7 +98,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy{
   client!: Cliente;
 
   modalVisible: boolean = false;
- signatureVisibleFlag = false;
+  signatureVisibleFlag = false;
 
   phone: string = '';
   formIsValid: boolean = false;
@@ -113,7 +117,8 @@ export class AddressTransferComponent implements OnInit, OnDestroy{
   private readonly contractsService = inject(ContractsService);
   private readonly actionsContractsService = inject(ActionsContractsService);
   private readonly reportsService = inject(ReportsService);
-public pdfPreviewUrl: string | null = null;
+  private readonly midiaService = inject(MidiaService);
+  public pdfPreviewUrl: string | null = null;
   
   safePdfPreviewUrl: SafeResourceUrl | null = null;
   isLoadingPreview = false;
@@ -134,8 +139,11 @@ public pdfPreviewUrl: string | null = null;
   public clientId!: string;
   public contractId!: string;
 
+  public isEditingAddress = false;
+  private originalAddressForm: AddressForm | null = null;
+
   public addressNewForm: AddressForm = {
-    cep: null,
+    zipCode: null,
     street: '',
     numberFromHome: null,
     complement: '',
@@ -144,6 +152,7 @@ public pdfPreviewUrl: string | null = null;
     city: '',
     observation: '',
     adesionValue: null,
+    paymentMethod: null,
   };
 
   public paymentForm = {
@@ -181,6 +190,23 @@ public pdfPreviewUrl: string | null = null;
     if (this.currentContract) {
       this.clientId = this.currentContract.clientId;
       this.contractId = this.currentContract.id.toString();
+
+
+
+      this.addressNewForm = {
+        zipCode: this.currentContract.zipCode || null,
+        street: this.currentContract.street || '',
+        numberFromHome: this.currentContract.number || null,
+        complement: this.currentContract.complement || '',
+        uf: this.currentContract.state || '',
+        city: this.currentContract.city || '',
+        neighborhood: this.currentContract.neighborhood || '', 
+        observation: this.currentContract.observation || '',
+        adesionValue: null,
+        paymentMethod: null,
+
+      };
+      
       return;
     }
 
@@ -218,13 +244,16 @@ public pdfPreviewUrl: string | null = null;
     this.previewLoadFailed = false;
     this.safePdfPreviewUrl = null;
 
+    this.capturedSignature = null;
+    this.limparPreview();
+
     if(this.pdfPreviewUrl){
       URL.revokeObjectURL(this.pdfPreviewUrl);
       this.pdfPreviewUrl = null;
     }
 
     const requestBody: ConsentTermAddressRequest = {
-      zipCode: this.addressNewForm.cep ?? '',
+      zipCode: this.addressNewForm.zipCode ?? '',
       state: this.addressNewForm.uf,
       city: this.addressNewForm.city,
       street: this.addressNewForm.street,
@@ -233,6 +262,7 @@ public pdfPreviewUrl: string | null = null;
       complement: this.addressNewForm.complement,
       observation: this.addressNewForm.observation,
       adesionValue: this.addressNewForm.adesionValue ?? 0,
+      paymentMethod: this.addressNewForm.paymentMethod,
     };
     this.reportsService.getConsentTermAddressPdf(this.clientId, this.contractId, requestBody)
       .subscribe({
@@ -255,64 +285,7 @@ public pdfPreviewUrl: string | null = null;
       });
   }
 
-  sendToAutomation(): void {
-    if (!this.currentContract) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Erro',
-        detail: 'Dados do contrato original não encontrados!',
-      });
-      return;
-    }
-
-    this.isLoading = true;
-
-    const sellerIdFromAuth = this.authService.getSellerId();
-
-    const payload = {
-      clientId: this.currentContract.clientId,
-      sellerId: sellerIdFromAuth!.toString(),
-      contractNumber: this.currentContract.codeContractRbx,
-      newZip: this.addressNewForm.cep,
-      newNumber: this.addressNewForm.numberFromHome,
-      newComplement: this.addressNewForm.complement,
-      newState: this.ufToNome(this.addressNewForm.uf),
-      newCity: this.addressNewForm.city,
-      newStreet: this.addressNewForm.street,
-      newNeighborhood: this.addressNewForm.neighborhood,
-      observation: this.addressNewForm.observation || null,
-    };
-
-    console.log('Payload enviado:', payload);
-
-    console.log('UF digitado:', this.addressNewForm.uf);
-    console.log('Nome convertido:', this.ufToNome(this.addressNewForm.uf));
-    this.contractsService.changeAddressContract(payload).subscribe({
-      next: () => {
-        this.isLoading = false;
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Sucesso!',
-          detail: 'Automação iniciada!',
-        });
-        this.router.navigate([
-          '/client-contracts',
-          this.currentContract?.clientId,
-        ]);
-      },
-      error: (err) => {
-        this.isLoading = false;
-        const detailMessage =
-          err?.error?.message || 'Falha ao iniciar a automação.';
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro',
-          detail: detailMessage,
-        });
-      },
-    });
-  }
-
+  
   btnToBack(): void {
     const clientId =
       this.currentContract?.clientId ||
@@ -332,43 +305,10 @@ public pdfPreviewUrl: string | null = null;
     this.displayDialog = false;
   }
 
-  ufToNome(uf: string): string {
-    const mapa: Record<string, string> = {
-      AC: 'Acre',
-      AL: 'Alagoas',
-      AP: 'Amapá',
-      AM: 'Amazonas',
-      BA: 'Bahia',
-      CE: 'Ceará',
-      DF: 'Distrito Federal',
-      ES: 'Espírito Santo',
-      GO: 'Goiás',
-      MA: 'Maranhão',
-      MT: 'Mato Grosso',
-      MS: 'Mato Grosso do Sul',
-      MG: 'Minas Gerais',
-      PA: 'Pará',
-      PB: 'Paraíba',
-      PR: 'Paraná',
-      PE: 'Pernambuco',
-      PI: 'Piauí',
-      RJ: 'Rio de Janeiro',
-      RN: 'Rio Grande do Norte',
-      RS: 'Rio Grande do Sul',
-      RO: 'Rondônia',
-      RR: 'Roraima',
-      SC: 'Santa Catarina',
-      SP: 'São Paulo',
-      SE: 'Sergipe',
-      TO: 'Tocantins',
-    };
-    return mapa[uf] || uf;
-  }
-
   searchCEP(): void {
-    if (!this.addressNewForm.cep) return;
+    if (!this.addressNewForm.zipCode) return;
     this.cepService
-      .searchCEP(this.addressNewForm.cep)
+      .searchCEP(this.addressNewForm.zipCode)
       .subscribe((res: CepResponse) => {
         if (res.erro) {
           this.messageService.add({
@@ -388,7 +328,7 @@ public pdfPreviewUrl: string | null = null;
 
   getConsentTermAddressPdf() {
     const requestBody: ConsentTermAddressRequest = {
-      zipCode: this.addressNewForm.cep,
+      zipCode: this.addressNewForm.zipCode,
       state: this.addressNewForm.uf,
       city: this.addressNewForm.city,
       street: this.addressNewForm.street,
@@ -397,6 +337,7 @@ public pdfPreviewUrl: string | null = null;
       complement: this.addressNewForm.complement,
       observation: this.addressNewForm.observation,
       adesionValue: this.addressNewForm.adesionValue,
+      paymentMethod: this.addressNewForm.paymentMethod,
     };
 
     this.isLoading = true;
@@ -434,16 +375,17 @@ public pdfPreviewUrl: string | null = null;
   }
 
   sendToAutentiqueSubmit() {
-    const term = {
-      newAddress: true,
-      cep: this.addressNewForm.cep,
+    const term: ConsentTermAddressRequest = {
+      zipCode: this.addressNewForm.zipCode,
+      state: this.addressNewForm.uf,
+      city: this.addressNewForm.city,
       street: this.addressNewForm.street,
       number: this.addressNewForm.numberFromHome,
+      neighborhood: this.addressNewForm.neighborhood,
       complement: this.addressNewForm.complement,
-      city: this.addressNewForm.city,
-      state: this.addressNewForm.uf,
       observation: this.addressNewForm.observation,
       adesionValue: this.addressNewForm.adesionValue,
+      paymentMethod: this.addressNewForm.paymentMethod,
     };
 
     const mappedSigners = [
@@ -527,7 +469,7 @@ savePad() {
     }
 
     const requestBody = {
-      zipCode: this.addressNewForm.cep ?? '',
+      zipCode: this.addressNewForm.zipCode ?? '',
       state: this.addressNewForm.uf,
       city: this.addressNewForm.city,
       street: this.addressNewForm.street,
@@ -537,6 +479,7 @@ savePad() {
       observation: this.addressNewForm.observation,
       adesionValue: this.addressNewForm.adesionValue ?? 0,
       signatureBase64: this.capturedSignature,
+      paymentMethod: this.addressNewForm.paymentMethod,
     };
 
     this.reportsService.getConsentTermAddressPdf (this.clientId, this.contractId, requestBody).subscribe({
@@ -558,7 +501,6 @@ savePad() {
   }
 
   forceSignatureRedraw() {
-    // força o Angular a recriar o componente após o dialog estar visível
     setTimeout(() => {
       this.signatureVisibleFlag = false;
       setTimeout(() => {
@@ -573,7 +515,90 @@ savePad() {
 
   abrirAssinatura() {
   this.signDialogVisible = true;
-  this.signatureVisibleFlag = true; // <<< ESSA LINHA É NECESSÁRIA
-}
+  this.signatureVisibleFlag = true; 
 }
 
+thumbnailPreview: string | ArrayBuffer | null = null;
+  fotoCapturadaFile: File | null = null; 
+
+ 
+  onFotoCapturada(event: Event): void {
+    const input = event.target as HTMLInputElement;
+
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      this.fotoCapturadaFile = file; 
+      const reader = new FileReader();
+      
+      reader.onload = (e) => {
+        this.thumbnailPreview = e.target?.result ?? null;
+      };
+
+      reader.readAsDataURL(file);
+    }
+  }
+
+  
+  limparPreview(): void {
+    this.thumbnailPreview = null;
+    this.fotoCapturadaFile = null;
+  }
+
+
+  salvarFotoCapturada() {
+    if (!this.fotoCapturadaFile) {
+      this.messageService.add({ 
+        severity: 'warn', 
+        summary: 'Nenhuma foto', 
+        detail: 'Tire uma foto antes de salvar.' 
+      });
+      return;
+    }
+
+    if (!this.clientId) {
+       this.messageService.add({ 
+         severity: 'error', 
+         summary: 'Erro', 
+         detail: 'ID do cliente não encontrado para associar a foto.' 
+       });
+       return;
+    }
+
+    const filesToUpload: File[] = [this.fotoCapturadaFile]; 
+    this.midiaService.saveMidias(filesToUpload, this.clientId).subscribe({
+      next: () => {
+        this.messageService.add({ 
+          severity: 'success', 
+          summary: 'Foto salva com sucesso!' 
+        });
+        
+        this.limparPreview(); 
+      },
+      error: (err) => {
+        this.messageService.add({ 
+          severity: 'error', 
+          summary: 'Erro ao salvar a foto' 
+        });
+        console.error(err);
+      }
+    });
+  }
+  toggleEditingAddress(): void {
+    this.isEditingAddress = !this.isEditingAddress;
+    
+    // Se o usuário clicou em "Cancelar" (voltando para false)
+    if (!this.isEditingAddress && this.originalAddressForm) {
+      // Restaura os dados originais
+      this.addressNewForm = { ...this.originalAddressForm };
+    }
+  }
+
+  paymentMethods = [
+  { label: 'Dinheiro', value: 'cash' },
+  { label: 'Cartão de Crédito', value: 'credit_card' },
+  { label: 'Pix', value: 'pix' },
+  { label: 'Boleto', value: 'boleto' }
+];
+
+
+}
