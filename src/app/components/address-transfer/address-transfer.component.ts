@@ -1,10 +1,4 @@
-import {
-  Component,
-  inject,
-  OnDestroy,
-  OnInit,
-  ViewChild
-} from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { SelectModule } from 'primeng/select';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -41,7 +35,7 @@ import { MidiaService } from '../../services/midia/midia.service';
 
 import { SignaturePadComponent } from '../signature-pad/signature-pad.component';
 
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser'; 
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
@@ -85,14 +79,13 @@ export interface AddressForm {
     MessageModule,
     DialogModule,
     DropdownModule,
-    SelectModule
-
+    SelectModule,
   ],
   providers: [MessageService],
   templateUrl: './address-transfer.component.html',
   styleUrls: ['./address-transfer.component.scss'],
 })
-export class AddressTransferComponent implements OnInit, OnDestroy{
+export class AddressTransferComponent implements OnInit, OnDestroy {
   addressNewFormValid = false;
   contract!: Contract;
   client!: Cliente;
@@ -104,9 +97,10 @@ export class AddressTransferComponent implements OnInit, OnDestroy{
   formIsValid: boolean = false;
 
   @ViewChild('addressNewNgForm') addressNewNgForm!: NgForm;
-  @ViewChild(SignaturePadComponent) signaturePadComponent!: SignaturePadComponent;
-  @ViewChild('signaturePadInDialog') signaturePadInDialog!: SignaturePadComponent;
-
+  @ViewChild(SignaturePadComponent)
+  signaturePadComponent!: SignaturePadComponent;
+  @ViewChild('signaturePadInDialog')
+  signaturePadInDialog!: SignaturePadComponent;
 
   capturedSignature: string | null = null;
 
@@ -119,7 +113,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy{
   private readonly reportsService = inject(ReportsService);
   private readonly midiaService = inject(MidiaService);
   public pdfPreviewUrl: string | null = null;
-  
+
   safePdfPreviewUrl: SafeResourceUrl | null = null;
   isLoadingPreview = false;
   previewLoadFailed = false;
@@ -129,7 +123,6 @@ export class AddressTransferComponent implements OnInit, OnDestroy{
   isLoadingSignature = false; // Loading para o botão dentro do dialog
   // --------------------------------------
 
-  
   public currentContract!: Contract;
   public isLoading = false;
   public displayDialog = false;
@@ -161,10 +154,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy{
     price: '',
   };
 
-  constructor(
-    private cepService: CepService,
-    private sanitizer: DomSanitizer
-  ) {
+  constructor(private cepService: CepService, private sanitizer: DomSanitizer) {
     const navigation = this.router.getCurrentNavigation();
 
     if (navigation?.extras.state && navigation.extras.state['contractData']) {
@@ -191,8 +181,6 @@ export class AddressTransferComponent implements OnInit, OnDestroy{
       this.clientId = this.currentContract.clientId;
       this.contractId = this.currentContract.id.toString();
 
-
-
       this.addressNewForm = {
         zipCode: this.currentContract.zipCode || null,
         street: this.currentContract.street || '',
@@ -200,11 +188,10 @@ export class AddressTransferComponent implements OnInit, OnDestroy{
         complement: this.currentContract.complement || '',
         uf: this.currentContract.state || '',
         city: this.currentContract.city || '',
-        neighborhood: this.currentContract.neighborhood || '', 
+        neighborhood: this.currentContract.neighborhood || '',
         observation: this.currentContract.observation || '',
         adesionValue: null,
         paymentMethod: null,
-
       };
       this.originalAddressForm = { ...this.addressNewForm };
       return;
@@ -231,13 +218,13 @@ export class AddressTransferComponent implements OnInit, OnDestroy{
   }
 
   ngOnDestroy(): void {
-    if(this.pdfPreviewUrl) {
+    if (this.pdfPreviewUrl) {
       URL.revokeObjectURL(this.pdfPreviewUrl);
     }
   }
 
   loadPdfPreview(): void {
-    if(this.isLoadingPreview) return;
+    if (this.isLoadingPreview) return;
 
     console.log('Carregando preview do PDF...');
     this.isLoadingPreview = true;
@@ -247,7 +234,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy{
     this.capturedSignature = null;
     this.limparPreview();
 
-    if(this.pdfPreviewUrl){
+    if (this.pdfPreviewUrl) {
       URL.revokeObjectURL(this.pdfPreviewUrl);
       this.pdfPreviewUrl = null;
     }
@@ -264,28 +251,29 @@ export class AddressTransferComponent implements OnInit, OnDestroy{
       adesionValue: this.addressNewForm.adesionValue ?? 0,
       paymentMethod: this.addressNewForm.paymentMethod,
     };
-    this.reportsService.getConsentTermAddressPdf(this.clientId, this.contractId, requestBody)
+    this.reportsService
+      .getConsentTermAddressPdf(this.clientId, this.contractId, requestBody)
       .subscribe({
         next: (blob) => {
           this.pdfPreviewUrl = window.URL.createObjectURL(blob);
-          this.safePdfPreviewUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfPreviewUrl);
+          this.safePdfPreviewUrl =
+            this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfPreviewUrl);
           this.isLoadingPreview = false;
           console.log('Preview carregado no iframe.');
         },
         error: (err) => {
           console.error('Erro ao carregar preview do PDF:', err);
           this.messageService.add({
-             severity: 'error',
-             summary: 'Erro no Preview',
-             detail: 'Não foi possível carregar o termo. Tente novamente.'
+            severity: 'error',
+            summary: 'Erro no Preview',
+            detail: 'Não foi possível carregar o termo. Tente novamente.',
           });
           this.previewLoadFailed = true; // Sinaliza que falhou
           this.isLoadingPreview = false;
-        }
+        },
       });
   }
 
-  
   btnToBack(): void {
     const clientId =
       this.currentContract?.clientId ||
@@ -360,8 +348,6 @@ export class AddressTransferComponent implements OnInit, OnDestroy{
     this.modalVisible = true;
   }
 
-
-
   onHide(): void {
     this.modalVisible = false;
     this.phone = '';
@@ -400,12 +386,12 @@ export class AddressTransferComponent implements OnInit, OnDestroy{
     this.actionsContractsService
       .sendAddressChangeAutentique(payload, this.clientId, this.contractId)
       .subscribe({
-        next: (res: string) => {
+        next: (res) => {
+          // Mensagem personalizada independentemente do backend
           this.messageService.add({
             severity: 'success',
-            summary: 'Sucesso!',
-            detail: `${res}.
-            Aguarde o cliente assinar, todo o processo será feito de forma automática.
+            summary: 'Sucesso',
+            detail: `Aguarde o cliente assinar, todo o processo será feito de forma automática.
             Consulte nos atendimentos do cliente se foi feito de fato.`,
             life: 10000,
           });
@@ -413,15 +399,15 @@ export class AddressTransferComponent implements OnInit, OnDestroy{
         },
         error: (err) => {
           const backendMessage =
-            (typeof err.error === 'string' ? err.error : err?.error?.message) ||
-            'Erro ao tentar enviar para o número, verifique com o Suporte!';
-          if (backendMessage.includes('Aguarde 4 minutos antes')) {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Atenção',
-              detail: backendMessage,
-            });
-          }
+            typeof err.error === 'string'
+              ? err.error
+              : 'Erro ao tentar enviar para o Autentique!';
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erro',
+            detail: backendMessage,
+            life: 10000,
+          });
         },
       });
   }
@@ -429,7 +415,6 @@ export class AddressTransferComponent implements OnInit, OnDestroy{
   goToStep(stepNumber: number): void {
     this.activeStep = stepNumber;
   }
-
 
   ngAfterViewInit() {
     if (this.signaturePadComponent) {
@@ -443,12 +428,16 @@ export class AddressTransferComponent implements OnInit, OnDestroy{
   }
 
   onSignatureCaptured(base64Data: string) {
-  this.capturedSignature = base64Data;
-  this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Assinatura capturada!' });
-}
+    this.capturedSignature = base64Data;
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Sucesso',
+      detail: 'Assinatura capturada!',
+    });
+  }
 
-savePad() {
-    this.signaturePadComponent.savePad(); 
+  savePad() {
+    this.signaturePadComponent.savePad();
   }
 
   generateConsentTermWithSignature() {
@@ -456,14 +445,14 @@ savePad() {
       alert('Capture a assinatura antes de gerar o termo.');
       return;
     }
-    if (this.isLoadingPreview) return
+    if (this.isLoadingPreview) return;
 
     console.log('Gerando termo com assinatura...');
     this.isLoadingPreview = true;
     this.previewLoadFailed = false;
     this.safePdfPreviewUrl = null;
 
-    if(this.pdfPreviewUrl){
+    if (this.pdfPreviewUrl) {
       URL.revokeObjectURL(this.pdfPreviewUrl);
       this.pdfPreviewUrl = null;
     }
@@ -482,22 +471,33 @@ savePad() {
       paymentMethod: this.addressNewForm.paymentMethod,
     };
 
-    this.reportsService.getConsentTermAddressPdf (this.clientId, this.contractId, requestBody).subscribe({
-      next:(blob) => {
-        this.pdfPreviewUrl = window.URL.createObjectURL(blob);
-        this.safePdfPreviewUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfPreviewUrl);
-        this.isLoadingPreview = false;
-        console.log('Termo com assinatura carregado no iframe.');
-        this.messageService.add({severity: 'success', summary: 'Sucesso', detail: 'Termo com assinatura gerado!' });
-        this.signDialogVisible = false;
-      },
-      error: (err) => {
-        console.error('Erro ao gerar termo com assinatura:', err);
-        this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao gerar o termo final com assinatura.' });
-          this.previewLoadFailed = true; 
+    this.reportsService
+      .getConsentTermAddressPdf(this.clientId, this.contractId, requestBody)
+      .subscribe({
+        next: (blob) => {
+          this.pdfPreviewUrl = window.URL.createObjectURL(blob);
+          this.safePdfPreviewUrl =
+            this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfPreviewUrl);
           this.isLoadingPreview = false;
-      }
-    });
+          console.log('Termo com assinatura carregado no iframe.');
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Sucesso',
+            detail: 'Termo com assinatura gerado!',
+          });
+          this.signDialogVisible = false;
+        },
+        error: (err) => {
+          console.error('Erro ao gerar termo com assinatura:', err);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erro',
+            detail: 'Falha ao gerar o termo final com assinatura.',
+          });
+          this.previewLoadFailed = true;
+          this.isLoadingPreview = false;
+        },
+      });
   }
 
   forceSignatureRedraw() {
@@ -514,22 +514,21 @@ savePad() {
   }
 
   abrirAssinatura() {
-  this.signDialogVisible = true;
-  this.signatureVisibleFlag = true; 
-}
+    this.signDialogVisible = true;
+    this.signatureVisibleFlag = true;
+  }
 
-thumbnailPreview: string | ArrayBuffer | null = null;
-  fotoCapturadaFile: File | null = null; 
+  thumbnailPreview: string | ArrayBuffer | null = null;
+  fotoCapturadaFile: File | null = null;
 
- 
   onFotoCapturada(event: Event): void {
     const input = event.target as HTMLInputElement;
 
     if (input.files && input.files[0]) {
       const file = input.files[0];
-      this.fotoCapturadaFile = file; 
+      this.fotoCapturadaFile = file;
       const reader = new FileReader();
-      
+
       reader.onload = (e) => {
         this.thumbnailPreview = e.target?.result ?? null;
       };
@@ -538,54 +537,52 @@ thumbnailPreview: string | ArrayBuffer | null = null;
     }
   }
 
-  
   limparPreview(): void {
     this.thumbnailPreview = null;
     this.fotoCapturadaFile = null;
   }
 
-
   salvarFotoCapturada() {
     if (!this.fotoCapturadaFile) {
-      this.messageService.add({ 
-        severity: 'warn', 
-        summary: 'Nenhuma foto', 
-        detail: 'Tire uma foto antes de salvar.' 
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Nenhuma foto',
+        detail: 'Tire uma foto antes de salvar.',
       });
       return;
     }
 
     if (!this.clientId) {
-       this.messageService.add({ 
-         severity: 'error', 
-         summary: 'Erro', 
-         detail: 'ID do cliente não encontrado para associar a foto.' 
-       });
-       return;
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erro',
+        detail: 'ID do cliente não encontrado para associar a foto.',
+      });
+      return;
     }
 
-    const filesToUpload: File[] = [this.fotoCapturadaFile]; 
+    const filesToUpload: File[] = [this.fotoCapturadaFile];
     this.midiaService.saveMidias(filesToUpload, this.clientId).subscribe({
       next: () => {
-        this.messageService.add({ 
-          severity: 'success', 
-          summary: 'Foto salva com sucesso!' 
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Foto salva com sucesso!',
         });
-        
-        this.limparPreview(); 
+
+        this.limparPreview();
       },
       error: (err) => {
-        this.messageService.add({ 
-          severity: 'error', 
-          summary: 'Erro ao salvar a foto' 
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro ao salvar a foto',
         });
         console.error(err);
-      }
+      },
     });
   }
   toggleEditingAddress(): void {
     this.isEditingAddress = !this.isEditingAddress;
-    
+
     // Se o usuário clicou em "Cancelar" (voltando para false)
     if (!this.isEditingAddress && this.originalAddressForm) {
       // Restaura os dados originais
@@ -594,11 +591,9 @@ thumbnailPreview: string | ArrayBuffer | null = null;
   }
 
   paymentMethods = [
-  { label: 'Dinheiro', value: 'cash' },
-  { label: 'Cartão de Crédito', value: 'credit_card' },
-  { label: 'Pix', value: 'pix' },
-  { label: 'Boleto', value: 'boleto' }
-];
-
-
+    { label: 'Dinheiro', value: 'cash' },
+    { label: 'Cartão de Crédito', value: 'credit_card' },
+    { label: 'Pix', value: 'pix' },
+    { label: 'Boleto', value: 'boleto' },
+  ];
 }

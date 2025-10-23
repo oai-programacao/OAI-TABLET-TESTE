@@ -73,8 +73,10 @@ export class ActionsContractsService {
     const sellerId = this.authService.getSellerId();
     const finalPayload = {...payload, sellerId };
 
-    // Monta URL com os IDs na path
     const url = `${this.apiUrl}/create-consent-document-update-address/${clientId}/${contractId}`;
-    return this.http.post(url, finalPayload);
+    return this.http.post(url, finalPayload, { responseType: 'text' });
   }
+
+
+
 }
