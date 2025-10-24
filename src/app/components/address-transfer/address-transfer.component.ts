@@ -117,6 +117,8 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly messageService = inject(MessageService);
+  private readonly authService = inject(AuthService);
+  private readonly contractsService = inject(ContractsService);
   private readonly actionsContractsService = inject(ActionsContractsService);
   private readonly reportsService = inject(ReportsService);
   private readonly midiaService = inject(MidiaService);
@@ -127,7 +129,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   previewLoadFailed = false;
 
   signDialogVisible = false;
-  isLoadingSignature = false; 
+  isLoadingSignature = false;
 
   isPreviewDialogVisible: boolean = false;
 
@@ -239,7 +241,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     const MINIMUM_SPINNER_TIME = 2000;
 
     this.isLoadingPreview = true;
-    const startTime = Date.now(); 
+    const startTime = Date.now();
 
     this.previewLoadFailed = false;
     this.safePdfPreviewUrl = null;
@@ -684,5 +686,96 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       this.addressNewForm.city !== this.originalAddressForm.city ||
       this.addressNewForm.observation !== this.originalAddressForm.observation
     );
+  }
+
+  sendToAutomation(): void {
+    if (!this.currentContract) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erro',
+        detail: 'Dados do contrato original não encontrados!',
+      });
+      return;
+    }
+
+    this.isLoading = true;
+
+    const sellerIdFromAuth = this.authService.getSellerId();
+
+    const payload = {
+      clientId: this.currentContract.clientId,
+      sellerId: sellerIdFromAuth!.toString(),
+      contractNumber: this.currentContract.codeContractRbx,
+      newZip: this.addressNewForm.zipCode,
+      newNumber: this.addressNewForm.numberFromHome,
+      newComplement: this.addressNewForm.complement,
+      newState: this.ufToNome(this.addressNewForm.uf),
+      newCity: this.addressNewForm.city,
+      newStreet: this.addressNewForm.street,
+      newNeighborhood: this.addressNewForm.neighborhood,
+      observation: this.addressNewForm.observation || null,
+    };
+
+    console.log('Payload enviado:', payload);
+
+    console.log('UF digitado:', this.addressNewForm.uf);
+    console.log('Nome convertido:', this.ufToNome(this.addressNewForm.uf));
+    this.contractsService.changeAddressContract(payload).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Sucesso!',
+          detail: 'Automação iniciada!',
+        });
+        this.router.navigate([
+          '/client-contracts',
+          this.currentContract?.clientId,
+        ]);
+      },
+      error: (err) => {
+        this.isLoading = false;
+        const detailMessage =
+          err?.error?.message || 'Falha ao iniciar a automação.';
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: detailMessage,
+        });
+      },
+    });
+  }
+
+  ufToNome(uf: string): string {
+    const mapa: Record<string, string> = {
+      AC: 'Acre',
+      AL: 'Alagoas',
+      AP: 'Amapá',
+      AM: 'Amazonas',
+      BA: 'Bahia',
+      CE: 'Ceará',
+      DF: 'Distrito Federal',
+      ES: 'Espírito Santo',
+      GO: 'Goiás',
+      MA: 'Maranhão',
+      MT: 'Mato Grosso',
+      MS: 'Mato Grosso do Sul',
+      MG: 'Minas Gerais',
+      PA: 'Pará',
+      PB: 'Paraíba',
+      PR: 'Paraná',
+      PE: 'Pernambuco',
+      PI: 'Piauí',
+      RJ: 'Rio de Janeiro',
+      RN: 'Rio Grande do Norte',
+      RS: 'Rio Grande do Sul',
+      RO: 'Rondônia',
+      RR: 'Roraima',
+      SC: 'Santa Catarina',
+      SP: 'São Paulo',
+      SE: 'Sergipe',
+      TO: 'Tocantins',
+    };
+    return mapa[uf] || uf;
   }
 }
