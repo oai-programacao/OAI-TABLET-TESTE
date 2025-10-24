@@ -30,6 +30,7 @@ import { MidiaService } from '../../services/midia/midia.service';
   providers: [ConfirmationService, MessageService],
 })
 export class PicturesClientComponent {
+  
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   defaultImage = { src: '/OAILogo.png', alt: 'Imagem padrão' };
 
@@ -58,10 +59,10 @@ export class PicturesClientComponent {
   selectedType?: 'frente' | 'verso';
   selectedIndex: number | null = null;
   selectedFiles: File[] = []; // arquivos ainda não enviados
-
+  
   previewVisible = false;
   previewImage: string | null = null;
-
+  
   responsiveOptions: any[] = [
     { breakpoint: '1199px', numVisible: 3, numScroll: 1 },
     { breakpoint: '821px', numVisible: 2, numScroll: 1 },
@@ -210,4 +211,14 @@ export class PicturesClientComponent {
       },
     });
   }
+
+
+
+
+
+
+
+
+
+
 }

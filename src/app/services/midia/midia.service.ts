@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { MidiaDTO } from '../../models/cliente/midia.dto';
 import { environment } from '../../../environments/environment';
@@ -20,6 +20,10 @@ export class MidiaService {
     return this.http.get<MidiaDTO[]>(this.baseUrl, { params });
   }
 
+  removeMidias(midiaId: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${midiaId}`);
+  }
+
   saveMidias(
     arquivos: File[],
     clientId?: string,
@@ -32,10 +36,12 @@ export class MidiaService {
     if (clientId) params = params.set('clientId', clientId);
     if (contractId) params = params.set('contractId', contractId);
 
-    return this.http.post<void>(this.baseUrl, formData, { params });
+    return this.http.post<void>(this.baseUrl, formData, {
+      params,
+      withCredentials: true, // mantém cookies/sessão se necessário
+    });
   }
 
-  removeMidias(midiaId: string): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/${midiaId}`);
-  }
+
+  
 }
