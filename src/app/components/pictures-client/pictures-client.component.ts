@@ -15,7 +15,7 @@ import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { ImageUtilsService } from '../../services/midia/image-utils.service';
 
 @Component({
-  selector: 'app-upload-pictures',
+  selector: 'app-pictures-client',
   standalone: true,
   imports: [
     CommonModule,

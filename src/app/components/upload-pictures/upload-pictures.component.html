@@ -20,16 +20,17 @@
     </div>
     <div class="container">
       <p-divider class="title">
-        <h1 class="title">Documentos do Cliente</h1>
+        <h1 class="title">1º Registro | Documentos do Cliente</h1>
       </p-divider>
       <div class="btn-to-add-images">
         <div class="upload-btn-wrapper">
-          <label>Frente</label>
+          <label>1º Frente</label>
           <p-button
             styleClass="btn-frente"
             iconPos="top"
             size="large"
             severity="info"
+            [disabled]="allSlotsOccupied()"
             (onClick)="openFileInput('frente')"
           />
           <div
@@ -42,12 +43,14 @@
         </div>
 
         <div class="upload-btn-wrapper">
-          <label>Verso</label>
+          <label>2º Verso</label>
           <p-button
             styleClass="btn-verso"
             iconPos="top"
             size="large"
             severity="info"
+            [disabled]="allSlotsOccupied()"
+            [disabled]="!isVersoEnabled()"
             (onClick)="openFileInput('verso')"
           />
           <div
@@ -92,7 +95,7 @@
 
           <!-- overlay + só nos quadrados extras vazios -->
           <div
-            *ngIf="img.src === defaultImage.src && i > 1"
+            *ngIf="img.src === defaultImage.src && i > 1 && isExtraEnabled(i)"
             class="overlay-plus"
             (click)="selectSlot(i); $event.stopPropagation()"
           >
@@ -105,7 +108,7 @@
         type="file"
         #fileInput
         style="display: none"
-        (change)="onFileSelected($event)"
+        (change)="onFileSelected($event, selectedIndex!)"
         accept="image/*"
       />
 
@@ -128,14 +131,19 @@
       <p-button
         label="Salvar Fotos"
         severity="success"
-        icon="pi pi-dollar"
+        icon="pi pi-check"
         [raised]="true"
         size="large"
-        (onClick)="confirm1($event)"
+        (onClick)="saveImages()"
       />
     </div>
   </app-card-base>
 </div>
 
 <p-toast></p-toast>
-<p-confirmdialog></p-confirmdialog>
+<p-confirmDialog
+  [acceptLabel]="'👍'"
+  [rejectLabel]="'👎'"
+  [acceptButtonStyleClass]="'p-button-success custom-accept-btn'"
+  [rejectButtonStyleClass]="'p-button-danger custom-reject-btn'"
+></p-confirmDialog>
