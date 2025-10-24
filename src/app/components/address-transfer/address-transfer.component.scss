@@ -349,11 +349,6 @@ p-inputgroup {
   max-width: 300px;
 }
 
-
-:host ::ng-deep .p-dialog .p-dialog-header {
-
-}
-
 .alert-warning {
   padding: 1rem;
   background-color: #fff3cd;
@@ -548,3 +543,14 @@ p-inputgroup {
   min-width: 150px;  // Adiciona um mínimo para evitar ficar muito pequeno
 }
 
+.btn-to-back-step {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 10px;
+  margin-left: 2px;
+}
+
+.btn-step1-prox {
+  display: flex;
+  margin-left: 18rem;
+}

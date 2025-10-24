@@ -95,13 +95,34 @@ export const routes: Routes = [
       import('./components/waiting-leads/waiting-leads.component').then(
         (m) => m.WaitingLeadsComponent
       ),
-   canActivate: [AuthGuard],
+    canActivate: [AuthGuard],
   },
   {
     path: 'alter-dateexpired',
     loadComponent: () =>
       import('./components/alter-date-expired/alter-date-expired.component').then(
         (m) => m.AlterDateExpiredComponent
+      )
+  },
+  {
+    path: 'attendances/:clientId',
+    loadComponent: () =>
+      import('./components/attendances-client/attendances-client.component').then(
+        (m) => m.AttendancesClientComponent
+      )
+  },
+  {
+    path: 'transfer-ownership/:clientId/:contractId',
+    loadComponent: () =>
+      import('./components/transfer-ownership/transfer-ownership.component').then(
+        (m) => m.TransferOwnershipComponent
+      )
+  },
+  {
+    path: 'contract-change/:clientId/:action/:contractId',
+    loadComponent: () =>
+      import('./components/down-upgrade/down-upgrade.component').then(
+        (m) => m.DownUpgradeComponent
       )
   },
   {

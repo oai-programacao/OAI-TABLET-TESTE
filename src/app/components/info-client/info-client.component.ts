@@ -86,6 +86,7 @@ export class InfoClientComponent implements OnInit {
           {
             label: 'Atendimentos',
             icon: 'pi pi-paperclip',
+            command: () => this.navigateToAttendances()
           },
         ],
       },
@@ -104,8 +105,10 @@ export class InfoClientComponent implements OnInit {
   carregarCliente(clientId: string) {
     this.clientService.getClientById(clientId).subscribe({
       next: (cliente) => {
+
         if (cliente.birthDate) {
-          cliente.birthDate = new Date(cliente.birthDate); // o datepicker espera um objeto e não string
+          cliente.birthDate = new Date(cliente.birthDate);
+          console.log(cliente.birthDate)
         }
 
         if (cliente.openingDate) {
@@ -124,6 +127,10 @@ export class InfoClientComponent implements OnInit {
     this.router.navigate(['client-contracts', this.cliente.id]);
   }
 
+  navigateToAttendances() {
+    this.router.navigate([`/attendances/${this.cliente.id}`]);
+  }
+
   toggleEditing() {
     if(this.isLoading){
       return;
@@ -132,39 +139,47 @@ export class InfoClientComponent implements OnInit {
   }
 
   saveCliente() {
-    if (!this.cliente.id) {
-      console.error('ID do cliente não encontrado, impossível salvar.');
-      return;
-    }
-
-    this.isLoading = true; 
-
-    this.clientService.updateClient(this.cliente.id, this.cliente).subscribe({
-      next: (clienteAtualizado) => {
-
-        this.cliente = clienteAtualizado;
-
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Sucesso!',
-          detail: 'Alterações salvas com sucesso!',
-        });
-
-        this.isEditing = false; 
-        this.isLoading = false; 
-      },
-      error: (err) => {
-        // ERRO!
-        console.error('Erro ao salvar cliente:', err);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro!',
-          detail: 'Não foi possível salvar as alterações. Tente novamente.',
-        });
-        this.isLoading = false; 
-      },
-    });
+  if (!this.cliente.id) {
+    console.error('ID do cliente não encontrado, impossível salvar.');
+    return;
   }
+
+  this.isLoading = true;
+
+  this.clientService.updateClient(this.cliente.id, this.cliente).subscribe({
+    next: (clienteAtualizado) => {
+
+      if (clienteAtualizado.birthDate) {
+        clienteAtualizado.birthDate = new Date(clienteAtualizado.birthDate);
+      }
+
+      if (clienteAtualizado.openingDate) {
+        clienteAtualizado.openingDate = new Date(clienteAtualizado.openingDate);
+      }
+
+      this.cliente = clienteAtualizado;
+
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Sucesso!',
+        detail: 'Alterações salvas com sucesso!',
+      });
+
+      this.isEditing = false;
+      this.isLoading = false;
+    },
+    error: (err) => {
+      console.error('Erro ao salvar cliente:', err);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erro!',
+        detail: 'Não foi possível salvar as alterações. Tente novamente.',
+      });
+      this.isLoading = false;
+    },
+  });
+}
+
 
   btnToBack() {
     this.router.navigate(['search']);

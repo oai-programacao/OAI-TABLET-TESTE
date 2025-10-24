@@ -39,6 +39,11 @@ export class ContractsService {
     );
   }
 
+  upgradeContract(contractId: string, payload: any): Observable<any> {
+    return this.http.patch(`${this.urlApi}/contract/${contractId}/upgrade`, payload);
+  }
+
+
   getContractById(contractId: string): Observable<Contract> {
     return this.http.get<Contract>(
       `${this.urlApi}/contract/${contractId}`
@@ -55,6 +60,33 @@ export class ContractsService {
       `${this.urlApi}/automation/billing-date`,
       payload
     );
+  }
+
+   transferOwnership(oldContractId: string, newClientId: string): Observable<any> {
+    const url = `${this.urlApi}/contract/${oldContractId}/transfer-ownership`;
+    const payload = { newClientId };
+
+    return this.http.post<any>(url, payload);
+  }
+
+ getTransferConsentPdf(oldContractId: string, newClientId: string): Observable<Blob> {
+    const payload = { 
+      oldContractId: oldContractId, 
+      newClientId: newClientId 
+    };
+
+    const endpoint = `${this.urlApi}/consent-term/generate-transfer-term`;
+    return this.http.post(endpoint, payload, { 
+      responseType: 'blob' 
+    });
+  }
+
+  finalizeAndSignTransfer(payload: any): Observable<Blob> {
+    const endpoint = `${this.urlApi}/consent-term/finalize-transfer`;
+
+    return this.http.post(endpoint, payload, { 
+      responseType: 'blob' 
+    });
   }
 
   changeAddressContract(payload: {

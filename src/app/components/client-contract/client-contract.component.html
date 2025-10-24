@@ -15,6 +15,7 @@
         (onClick)="navigateToInfoClient()"
         icon="pi pi-arrow-left"
         severity="danger"
+        size="large"
       />
       <p-button
         [raised]="true"
@@ -34,34 +35,14 @@
     </div>
 
     <div class="headerlist">
-      <p-button
-        [raised]="true"
-        label="Somente Ativos"
-        (onClick)="listActivesContracts()"
-        icon="pi pi-list"
-        severity="info"
-      />
-      <p-button
-        [raised]="true"
-        label="Visualizar todos"
-        (onClick)="listToAllContracts()"
-        icon="pi pi-list"
-        severity="secondary"
-      />
-      <p-button
-        [raised]="true"
-        label="Bloqueados"
-        (onClick)="listBlockedsContracts()"
-        icon="pi pi-list"
-        severity="secondary"
-      />
-      <p-button
-        [raised]="true"
-        label="Transferidos"
-        (onClick)="listTransferContracts()"
-        icon="pi pi-list"
-        severity="secondary"
-      />
+      <p-button [raised]="true" label="Somente Ativos" (onClick)="listActivesContracts()" icon="pi pi-list"
+        severity="info" />
+      <p-button [raised]="true" label="Visualizar todos" (onClick)="listToAllContracts()" icon="pi pi-list"
+        severity="secondary" />
+      <p-button [raised]="true" label="Bloqueados" (onClick)="listBlockedsContracts()" icon="pi pi-list"
+        severity="secondary" />
+      <p-button [raised]="true" label="Transferidos" (onClick)="listTransferContracts()" icon="pi pi-list"
+        severity="secondary" />
     </div>
 
     <div class="contracts-list">
@@ -74,20 +55,15 @@
         <div class="contract-info">
           <div class="wrapper status-wrapper">
             <div class="status">
-              <span
-                class="status-dot"
-                [ngClass]="{
+              <span class="status-dot" [ngClass]="{
                   active: contract.situationDescription == 'ATIVO',
                   waiting:
                     contract.situationDescription == 'AGUARDANDO_INSTALACAO',
                   blocked: contract.situationDescription == 'BLOQUEADO',
                   transfer: contract.situationDescription == 'TRANSFERIDO'
-                }"
-              ></span>
-              <label
-                >[{{ contract.situationDescription }}] N° Contrato 📜 (RBX)
-                →</label
-              >
+                }"></span>
+              <label>[{{ contract.situationDescription }}] N° Contrato 📜 (RBX)
+                →</label>
               <span>{{ contract.codeContractRbx }}</span>
             </div>
           </div>
@@ -112,7 +88,7 @@
               <span>{{ contract.zipCode }}</span>
             </div>
 
-            
+
             <div class="section section-inline">
               <div class="group">
                 <label>🌆 Cidade:</label>
@@ -156,34 +132,17 @@
         </div>
 
         <div class="contract-actions">
-          <p-button
-            icon="pi pi-arrow-up"
-            (onClick)="openUpgradeDialog()"
-            severity="success"
-            [rounded]="true"
-            [text]="true"
-          />
-          <p-button
-            icon="pi pi-arrow-down"
-            (onClick)="openDowngradeDialog()"
-            severity="danger"
-            [rounded]="true"
-            [text]="true"
-          />
-          <p-button
-            icon="pi pi-home"
-            (onClick)="navigateToAddressTransfer(contract)"
-            severity="warn"
-            [rounded]="true"
-            [text]="true"
-          />
-          <p-button
-            icon="pi pi-calendar"
-            (onClick)="goToAlterDateExpired(contract)"
-            severity="success"
-            [rounded]="true"
-            [text]="true"
-          >
+          <p-button icon="pi pi-arrow-up" (onClick)="openUpgradeDialog(contract, true)" severity="success"
+            [rounded]="true" [text]="true" pTooltip="Fazer Upgrade" tooltipPosition="top" />
+          <p-button icon="pi pi-arrow-down" (onClick)="openUpgradeDialog(contract, true)" severity="danger"
+            [rounded]="true" [text]="true" pTooltip="Fazer Downgrade" tooltipPosition="top" />
+          <p-button icon="pi pi-home" (onClick)="navigateToAddressTransfer(contract)" severity="warn" [rounded]="true"
+            [text]="true" pTooltip="Transferir Endereço" tooltipPosition="top" />
+          <p-button icon="pi pi-calendar" (onClick)="goToAlterDateExpired(contract)" severity="success" [rounded]="true"
+            [text]="true" pTooltip="Alterar Vencimento" tooltipPosition="top">
+          </p-button>
+          <p-button icon="pi pi-users" (onClick)="navigateToTransferOwnership(contract)" severity="info" [rounded]="true"
+            [text]="true" pTooltip="Transferir Titularidade" tooltipPosition="top">
           </p-button>
         </div>
       </div>
@@ -192,108 +151,13 @@
   </app-card-base>
 </div>
 
-<!-- UPGRADE -->
-<p-dialog
-  header="Upgrade"
-  [modal]="true"
-  (onHide)="onHide()"
-  [(visible)]="upgradeDialog"
-  [style]="{ width: '35rem' }"
-  [draggable]="false"
->
-  <div class="dialog-container">
-    <div class="plan-title">
-      <span></span>
-    </div>
-    <form>
-      <div class="father-form">
-        <div class="select-dialog">
-          <p-select
-            placeholder="Selecionar Vendedor"
-            appendTo="body"
-            optionLabel="name"
-            name="seller"
-            required
-          ></p-select>
-        </div>
-        <div class="select-dialog">
-          <p-select
-            placeholder="Selecionar Plano"
-            appendTo="body"
-            optionLabel="plan"
-            name="plan"
-            required
-          ></p-select>
-        </div>
-      </div>
-      <div class="btn-to-send-new-contract">
-        <p-button label="Enviar" type="submit"></p-button>
-      </div>
-    </form>
-  </div>
-</p-dialog>
-
-<!-- DOWNGRADE -->
-<p-dialog
-  header="Downgrade"
-  [modal]="true"
-  (onHide)="onHide()"
-  [(visible)]="downgradeDialog"
-  [style]="{ width: '35rem' }"
-  [draggable]="false"
->
-  <div class="dialog-container">
-    <div class="plan-title">
-      <span></span>
-    </div>
-
-    <form>
-      <div class="father-form">
-        <div class="select-dialog">
-          <p-select
-            placeholder="Selecionar Vendedor"
-            appendTo="body"
-            optionLabel="name"
-            name="seller"
-            required
-          ></p-select>
-        </div>
-
-        <div class="select-dialog">
-          <p-select
-            placeholder="Selecionar Plano"
-            appendTo="body"
-            optionLabel="plan"
-            name="plan"
-            required
-          ></p-select>
-        </div>
-      </div>
-
-      <div class="btn-to-send-new-contract">
-        <p-button label="Enviar" type="submit"></p-button>
-      </div>
-    </form>
-  </div>
-</p-dialog>
-
-<p-dialog
-  header="Alterar Data de Vencimento"
-  [(visible)]="dialogBilling"
-  [modal]="true"
-  [resizable]="false"
-  [draggable]="false"
->
+<p-dialog header="Alterar Data de Vencimento" [(visible)]="dialogBilling" [modal]="true" [resizable]="false"
+  [draggable]="false">
   <div class="dialog-content">
     <!-- Container para ícone acima do select -->
     <div class="select-with-icon">
       <div class="warn-icon-container">
-        <span
-          class="warn-icon"
-          (click)="toggle(pop3, $event)"
-          role="button"
-          aria-label="Informação importante"
-        >
+        <span class="warn-icon" (click)="toggle(pop3, $event)" role="button" aria-label="Informação importante">
           !
         </span>
         <p-popover #pop3 [dismissable]="true">
@@ -307,34 +171,20 @@
         </p-popover>
       </div>
 
-      <p-select
-        [options]="typesOfDateExpirationCicle"
-        [appendTo]="'body'"
-        optionLabel="descricao"
-        optionValue="value"
-        placeholder="Selecione um Ciclo"
-        [(ngModel)]="selectedBillingCycle"
-      ></p-select>
+      <p-select [options]="typesOfDateExpirationCicle" [appendTo]="'body'" optionLabel="descricao" optionValue="value"
+        placeholder="Selecione um Ciclo" [(ngModel)]="selectedBillingCycle"></p-select>
     </div>
 
     <div>
-      <button
-        pButton
-        label="Trocar"
-        class="p-button-warning"
-        (click)="confirmTransferDate(selectedContract)"
-      ></button>
+      <button pButton label="Trocar" class="p-button-warning" (click)="confirmTransferDate(selectedContract)"></button>
     </div>
   </div>
 </p-dialog>
 
 <!-- Overlay Global -->
 <div class="global-overlay" *ngIf="loadingBillingDialog">
-  <p-progressSpinner
-    strokeWidth="4"
-    animationDuration=".5s"
-    [style]="{ width: '200px', height: '200px' }"
-  ></p-progressSpinner>
+  <p-progressSpinner strokeWidth="4" animationDuration=".5s"
+    [style]="{ width: '200px', height: '200px' }"></p-progressSpinner>
   <span class="global-overlay-message">
     [⚙️] Aguarde enquanto a automação altera os dados.
   </span>

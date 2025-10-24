@@ -4,13 +4,23 @@ import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../core/auth.service';
 import { environment } from '../../../environments/environment';
 
+export interface CreateTransferConsentPayload {
+  sellerId: string;
+  newClientId: string;
+  signers: {
+    name: string;
+    phone: string;
+  }[];
+}
+
 @Injectable({
   providedIn: 'root',
 })
+
 export class ActionsContractsService {
   apiUrl = environment.apiUrl + '/autentique';
 
-  constructor(private http: HttpClient, private authService: AuthService) {}
+  constructor(private http: HttpClient, private authService: AuthService) { }
 
   sendAlterDateAutentique(
     payload: any,
@@ -29,6 +39,32 @@ export class ActionsContractsService {
     return this.http.post(url, finalPayload, { responseType: 'text' });
   }
 
+  sendTransferOwnershipAutentique(
+    payload: any,
+    clientId: string,
+    contractId: string
+  ): Observable<string> {
+    const sellerId = this.authService.getSellerId();
+
+    const finalPayload = {
+      ...payload,
+      sellerId,
+    };
+
+    const url = `${this.apiUrl}/create-consent-document/${clientId}/${contractId}`;
+
+    return this.http.post(url, finalPayload, { responseType: 'text' });
+  }
+  sendTransferConsentAutentique(
+    payload: CreateTransferConsentPayload,
+    oldClientId: string,
+    contractId: string
+  ): Observable<string> {
+
+    const url = `${this.apiUrl}/create-consent-document-transfer/${oldClientId}/${contractId}`;
+    return this.http.post(url, payload, { responseType: 'text' });
+  }
+
   sendAddressChangeAutentique(
     payload: any,
     clientId: string,
@@ -37,8 +73,10 @@ export class ActionsContractsService {
     const sellerId = this.authService.getSellerId();
     const finalPayload = {...payload, sellerId };
 
-    // Monta URL com os IDs na path
     const url = `${this.apiUrl}/create-consent-document-update-address/${clientId}/${contractId}`;
-    return this.http.post(url, finalPayload);
+    return this.http.post(url, finalPayload, { responseType: 'text' });
   }
+
+
+
 }
