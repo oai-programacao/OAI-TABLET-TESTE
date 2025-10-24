@@ -408,8 +408,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy{
             Aguarde o cliente assinar, todo o processo será feito de forma automática.
             Consulte nos atendimentos do cliente se foi feito de fato.`,
             life: 10000,
-          });
-          this.modalVisible = false;
+          }); 
         },
         error: (err) => {
           const backendMessage =
