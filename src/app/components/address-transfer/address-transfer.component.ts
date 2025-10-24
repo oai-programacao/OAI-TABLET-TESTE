@@ -1,8 +1,16 @@
-import { Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  inject,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  ElementRef,
+} from '@angular/core';
 import { SelectModule } from 'primeng/select';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule, NgForm } from '@angular/forms';
+import { TooltipModule } from 'primeng/tooltip';
 
 import { StepperModule } from 'primeng/stepper';
 import { InputText } from 'primeng/inputtext';
@@ -80,6 +88,7 @@ export interface AddressForm {
     DialogModule,
     DropdownModule,
     SelectModule,
+    TooltipModule,
   ],
   providers: [MessageService],
   templateUrl: './address-transfer.component.html',
@@ -101,6 +110,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   signaturePadComponent!: SignaturePadComponent;
   @ViewChild('signaturePadInDialog')
   signaturePadInDialog!: SignaturePadComponent;
+  @ViewChild('pdfIframe') pdfIframe!: ElementRef<HTMLIFrameElement>;
 
   capturedSignature: string | null = null;
 
@@ -118,10 +128,10 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   isLoadingPreview = false;
   previewLoadFailed = false;
 
-  // --- CONTROLE DO DIALOG DE ASSINATURA ---
   signDialogVisible = false;
-  isLoadingSignature = false; // Loading para o botão dentro do dialog
-  // --------------------------------------
+  isLoadingSignature = false;
+
+  isPreviewDialogVisible: boolean = false;
 
   public currentContract!: Contract;
   public isLoading = false;
@@ -226,8 +236,13 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   loadPdfPreview(): void {
     if (this.isLoadingPreview) return;
 
-    console.log('Carregando preview do PDF...');
+    console.log('Aguarde enquanto o PDF é gerado...');
+
+    const MINIMUM_SPINNER_TIME = 2000;
+
     this.isLoadingPreview = true;
+    const startTime = Date.now();
+
     this.previewLoadFailed = false;
     this.safePdfPreviewUrl = null;
 
@@ -251,15 +266,23 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       adesionValue: this.addressNewForm.adesionValue ?? 0,
       paymentMethod: this.addressNewForm.paymentMethod,
     };
+
     this.reportsService
       .getConsentTermAddressPdf(this.clientId, this.contractId, requestBody)
       .subscribe({
         next: (blob) => {
           this.pdfPreviewUrl = window.URL.createObjectURL(blob);
           this.safePdfPreviewUrl =
-            this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfPreviewUrl);
-          this.isLoadingPreview = false;
+            this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfPreviewUrl); // this.isLoadingPreview = false; // <-- REMOVA ESTA LINHA
+          // --- CORREÇÃO 2: Linha duplicada ---
           console.log('Preview carregado no iframe.');
+          // Agora 'startTime' existe e o cálculo funciona
+          const duration = Date.now() - startTime;
+          const delay = Math.max(0, MINIMUM_SPINNER_TIME - duration);
+
+          setTimeout(() => {
+            this.isLoadingPreview = false; // <-- MANTENHA APENAS ESTA
+          }, delay);
         },
         error: (err) => {
           console.error('Erro ao carregar preview do PDF:', err);
@@ -269,7 +292,13 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
             detail: 'Não foi possível carregar o termo. Tente novamente.',
           });
           this.previewLoadFailed = true; // Sinaliza que falhou
-          this.isLoadingPreview = false;
+          // Agora 'startTime' existe e o cálculo funciona
+          const duration = Date.now() - startTime;
+          const delay = Math.max(0, MINIMUM_SPINNER_TIME - duration);
+
+          setTimeout(() => {
+            this.isLoadingPreview = false;
+          }, delay);
         },
       });
   }
@@ -386,12 +415,12 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     this.actionsContractsService
       .sendAddressChangeAutentique(payload, this.clientId, this.contractId)
       .subscribe({
-        next: (res) => {
-          // Mensagem personalizada independentemente do backend
+        next: (res: string) => {
           this.messageService.add({
             severity: 'success',
-            summary: 'Sucesso',
-            detail: `Aguarde o cliente assinar, todo o processo será feito de forma automática.
+            summary: 'Sucesso!',
+            detail: `${res}.
+            Aguarde o cliente assinar, todo o processo será feito de forma automática.
             Consulte nos atendimentos do cliente se foi feito de fato.`,
             life: 10000,
           });
@@ -399,21 +428,25 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
         },
         error: (err) => {
           const backendMessage =
-            typeof err.error === 'string'
-              ? err.error
-              : 'Erro ao tentar enviar para o Autentique!';
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erro',
-            detail: backendMessage,
-            life: 10000,
-          });
+            (typeof err.error === 'string' ? err.error : err?.error?.message) ||
+            'Erro ao tentar enviar para o número, verifique com o Suporte!';
+          if (backendMessage.includes('Aguarde 4 minutos antes')) {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Atenção',
+              detail: backendMessage,
+            });
+          }
         },
       });
   }
 
   goToStep(stepNumber: number): void {
     this.activeStep = stepNumber;
+
+    if (stepNumber === 3 && !this.safePdfPreviewUrl) {
+      this.loadPdfPreview();
+    }
   }
 
   ngAfterViewInit() {
@@ -425,19 +458,6 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   clearSignature() {
     this.signaturePadComponent.clearPad();
     this.capturedSignature = null;
-  }
-
-  onSignatureCaptured(base64Data: string) {
-    this.capturedSignature = base64Data;
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Sucesso',
-      detail: 'Assinatura capturada!',
-    });
-  }
-
-  savePad() {
-    this.signaturePadComponent.savePad();
   }
 
   generateConsentTermWithSignature() {
@@ -506,7 +526,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       setTimeout(() => {
         this.signatureVisibleFlag = true;
       });
-    }, 50);
+    }, 30);
   }
 
   resetSignaturePad() {
@@ -516,6 +536,24 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   abrirAssinatura() {
     this.signDialogVisible = true;
     this.signatureVisibleFlag = true;
+  }
+
+  captureAndGenerate(): void {
+    if (this.isLoadingPreview) return;
+
+    const signatureBase64 = this.signaturePadInDialog.getSignatureAsBase64();
+
+    if (!signatureBase64) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Atenção',
+        detail: 'Por favor, assine no campo antes de gerar o termo.',
+      });
+      return;
+    }
+
+    this.capturedSignature = signatureBase64;
+    this.generateConsentTermWithSignature();
   }
 
   thumbnailPreview: string | ArrayBuffer | null = null;
@@ -531,6 +569,8 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
 
       reader.onload = (e) => {
         this.thumbnailPreview = e.target?.result ?? null;
+
+        this.isPreviewDialogVisible = true;
       };
 
       reader.readAsDataURL(file);
@@ -540,6 +580,8 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   limparPreview(): void {
     this.thumbnailPreview = null;
     this.fotoCapturadaFile = null;
+
+    this.isPreviewDialogVisible = false;
   }
 
   salvarFotoCapturada() {
@@ -580,12 +622,11 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       },
     });
   }
+
   toggleEditingAddress(): void {
     this.isEditingAddress = !this.isEditingAddress;
 
-    // Se o usuário clicou em "Cancelar" (voltando para false)
     if (!this.isEditingAddress && this.originalAddressForm) {
-      // Restaura os dados originais
       this.addressNewForm = { ...this.originalAddressForm };
     }
   }
@@ -596,4 +637,145 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     { label: 'Pix', value: 'pix' },
     { label: 'Boleto', value: 'boleto' },
   ];
+
+  savePdf(): void {
+    if (!this.pdfPreviewUrl) {
+      console.error('URL do PDF não disponível para salvar.');
+      return;
+    }
+
+    const link = document.createElement('a');
+
+    link.href = this.pdfPreviewUrl;
+
+    link.download = 'termo_de_consentimento.pdf';
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  printPdf(): void {
+    if (!this.pdfIframe || !this.pdfIframe.nativeElement.contentWindow) {
+      console.error('Iframe do PDF não está pronto para impressão.');
+      return;
+    }
+    this.pdfIframe.nativeElement.contentWindow.print();
+  }
+
+  isPdfViewerLoaded: boolean = false;
+
+  onPdfViewerLoad(): void {
+    console.log('O Iframe do PDF está 100% carregado e pronto.');
+    this.isPdfViewerLoaded = true;
+  }
+
+  public get isAddressDataChanged(): boolean {
+    if (!this.originalAddressForm) {
+      return false;
+    }
+    return (
+      this.addressNewForm.zipCode !== this.originalAddressForm.zipCode ||
+      this.addressNewForm.street !== this.originalAddressForm.street ||
+      this.addressNewForm.numberFromHome !==
+        this.originalAddressForm.numberFromHome ||
+      this.addressNewForm.complement !== this.originalAddressForm.complement ||
+      this.addressNewForm.uf !== this.originalAddressForm.uf ||
+      this.addressNewForm.neighborhood !==
+        this.originalAddressForm.neighborhood ||
+      this.addressNewForm.city !== this.originalAddressForm.city ||
+      this.addressNewForm.observation !== this.originalAddressForm.observation
+    );
+  }
+
+  sendToAutomation(): void {
+    if (!this.currentContract) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erro',
+        detail: 'Dados do contrato original não encontrados!',
+      });
+      return;
+    }
+
+    this.isLoading = true;
+
+    const sellerIdFromAuth = this.authService.getSellerId();
+
+    const payload = {
+      clientId: this.currentContract.clientId,
+      sellerId: sellerIdFromAuth!.toString(),
+      contractNumber: this.currentContract.codeContractRbx,
+      newZip: this.addressNewForm.zipCode,
+      newNumber: this.addressNewForm.numberFromHome,
+      newComplement: this.addressNewForm.complement,
+      newState: this.ufToNome(this.addressNewForm.uf),
+      newCity: this.addressNewForm.city,
+      newStreet: this.addressNewForm.street,
+      newNeighborhood: this.addressNewForm.neighborhood,
+      observation: this.addressNewForm.observation || null,
+    };
+
+    console.log('Payload enviado:', payload);
+
+    console.log('UF digitado:', this.addressNewForm.uf);
+    console.log('Nome convertido:', this.ufToNome(this.addressNewForm.uf));
+    this.contractsService.changeAddressContract(payload).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Sucesso!',
+          detail: 'Automação iniciada!',
+        });
+        this.router.navigate([
+          '/client-contracts',
+          this.currentContract?.clientId,
+        ]);
+      },
+      error: (err) => {
+        this.isLoading = false;
+        const detailMessage =
+          err?.error?.message || 'Falha ao iniciar a automação.';
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: detailMessage,
+        });
+      },
+    });
+  }
+
+  ufToNome(uf: string): string {
+    const mapa: Record<string, string> = {
+      AC: 'Acre',
+      AL: 'Alagoas',
+      AP: 'Amapá',
+      AM: 'Amazonas',
+      BA: 'Bahia',
+      CE: 'Ceará',
+      DF: 'Distrito Federal',
+      ES: 'Espírito Santo',
+      GO: 'Goiás',
+      MA: 'Maranhão',
+      MT: 'Mato Grosso',
+      MS: 'Mato Grosso do Sul',
+      MG: 'Minas Gerais',
+      PA: 'Pará',
+      PB: 'Paraíba',
+      PR: 'Paraná',
+      PE: 'Pernambuco',
+      PI: 'Piauí',
+      RJ: 'Rio de Janeiro',
+      RN: 'Rio Grande do Norte',
+      RS: 'Rio Grande do Sul',
+      RO: 'Rondônia',
+      RR: 'Roraima',
+      SC: 'Santa Catarina',
+      SP: 'São Paulo',
+      SE: 'Sergipe',
+      TO: 'Tocantins',
+    };
+    return mapa[uf] || uf;
+  }
 }

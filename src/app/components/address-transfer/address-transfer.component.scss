@@ -1,70 +1,165 @@
+// --- IMPORTAÇÕES ---
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap");
+
+// --- ANIMAÇÕES (KEYFRAMES) ---
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// --- OVERLAY DE LOADING ---
+:host ::ng-deep .loading-overlay {
+  // Posição
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  // Aparência
+  background-color: rgba(255, 255, 255, 0.7);
+  z-index: 9999;
+  // Alinhamento
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  // Animação
+  animation: fadeIn 0.3s ease-out;
+}
+
+:host ::ng-deep .loading-overlay .p-progressspinner {
+  z-index: 10000;
+}
+
+:host ::ng-deep .loading-overlay .loading-text {
+  color: #2d11c9; // <-- Cor do texto
+  margin-top: 1rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  z-index: 10000;
+}
+
+// --- LAYOUT GERAL ---
 .panel-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
 }
 
 .content {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: row;
-    width: 100%;
-    height: auto;
-    flex-wrap: wrap;
-
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  width: 100%;
+  height: auto;
+  flex-wrap: wrap;
 }
 
 .title-address-form {
-    font-size: 1.5rem;
-    margin: 0 auto;
+  font-size: 1.5rem;
+  margin: 0 auto;
 }
 
+// --- COMPONENTES DE FORMULÁRIO ---
 .form-container {
-    display: flex;
-    width: 100%;
-    flex-direction: row;
-    max-width: 30rem;
-    min-width: 50rem;
-    padding: 1rem;
-    gap: 1rem;
-    padding: 0.1rem;
-    margin: 1rem;
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+  max-width: 30rem;
+  min-width: 50rem;
+  padding: 1rem;
+  gap: 1rem;
+  padding: 0.1rem;
+  margin: 1rem;
 }
-
 
 .form-content {
-    gap: 0.6rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-direction: row;
-    flex-wrap: wrap;
-}
-
-.material-symbols-outlined {
-    font-size: 1.2rem;
+  gap: 0.6rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: wrap;
 }
 
 .input-content {
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    justify-content: space-between;
-    flex: 1 1 calc(33.33% - 1rem);
-    position: relative; 
-    padding-top: 0.9rem;
-    margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1 1 calc(33.33% - 1rem);
+  position: relative;
+  padding-top: 0.9rem;
+  margin-bottom: 1rem;
 }
 
 .text-area-content {
-    display: flex;
-    justify-content: center;
-    width: 100%;
-    flex-direction: column;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  flex-direction: column;
 }
 
+.input-content-os {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex-direction: column;
+
+  label,
+  input {
+    width: 100%;
+    text-align: start;
+  }
+}
+
+.os-content {
+  width: 100%;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.dialog-form-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem 1rem;
+}
+
+.form-field {
+  flex: 1 1 calc(50% - 0.5rem);
+  box-sizing: border-box;
+}
+
+.form-field-full {
+  flex: 1 1 100%;
+  box-sizing: border-box;
+}
+
+// Garante que o input dentro do PrimeNG ocupe todo o espaço
+:host ::ng-deep .form-field .p-inputtext,
+:host ::ng-deep .form-field-full .p-inputtext,
+:host ::ng-deep .form-field-full .p-inputtextarea {
+  width: 100%;
+}
+
+:host ::ng-deep p-iftalabel label {
+  padding: 0;
+  padding-top: 0;
+}
+
+// --- BOTÕES ---
 .btn-actions {
   margin-bottom: 0.5rem;
   padding: 0.2rem;
@@ -75,327 +170,196 @@
   margin: 0.9rem;
 }
 
-
-.input-content-os {
-    width: 100%;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    flex-direction: column;
-
-    label,
-    input {
-        width: 100%;
-        text-align: start;
-    }
-}
-
-.os-content {
-    width: 100%;
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-}
-
-
 .btn-to-navigate {
-    display: flex;
-    width: 100%;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 1rem;
-}
-
-.signature-pad-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    max-width: 31.25rem;
-    min-width: 50rem;
-    width: 100%;
-}
-
-.signature-input {
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    justify-content: center;
-    gap: 0.4rem;
-    width: 100%;
-
-    label {
-        width: 100%;
-        text-align: start;
-    }
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
 }
 
 .btn-to-capture {
-    padding: 1rem 0;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 1rem;
+  padding: 1rem 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1rem;
 }
 
 .btn-to-signature {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    width: 50%;
-    gap: 1rem;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  width: 50%;
+  gap: 1rem;
 }
 
 .btn-to-generate-contract {
-    display: flex;
-    align-items: center;
-    width: 50%;
-    gap: 1rem;
+  display: flex;
+  align-items: center;
+  width: 50%;
+  gap: 1rem;
 }
 
+.btn-to-back-to-contract {
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
+  padding: 0.5rem 0 0 0;
+  padding-top: 0;
+  padding-left: 0;
+  padding-right: 0;
+  align-items: center;
+}
+
+.btn-to-back {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 0 0.5rem 0;
+}
+
+.btn-to-back-step {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 10px;
+  margin-left: 2px;
+}
+
+.btn-step1-prox {
+  display: flex;
+  margin-left: 18rem;
+}
+
+.btn-signature {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.btn-edit {
+  margin-left: 1rem;
+}
+
+// --- ASSINATURA ---
+.signature-pad-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  max-width: 60rem;
+  width: 100%;
+  height: auto;
+}
+
+.signature-input {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+
+  label {
+    width: 100%;
+    text-align: start;
+  }
+}
+
+// --- PAGAMENTO ---
 .payment-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .payment-content {
-    display: flex;
-    align-items: center;
-    flex-direction: row;
-    gap: 1rem;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  gap: 1rem;
 }
 
 .payment-input {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
 }
 
 .btn-actions-payment {
-    gap: 1rem;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    flex-direction: row;
-    width: 100%;
-    padding: 5rem 0 0;
+  gap: 1rem;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-direction: row;
+  width: 100%;
+  padding: 5rem 0 0;
 }
-
-
 
 .finish-process {
-    gap: 1rem;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    width: 50%;
+  gap: 1rem;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  width: 50%;
 }
 
-
-.btn-to-back-to-contract {
-    display: flex;
-    justify-content: flex-start;
-    width: 100%;
-    padding: 0.5rem 0 0 0;
-    padding-top: 0;
-    padding-left: 0;
-    padding-right: 0;
-    align-items: center;
+.payment-value {
+  width: 30%;
 }
 
+.payment {
+  width: 100%;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.payment-method {
+  width: 30%;
+  flex-grow: 0;
+  flex-shrink: 1;
+  flex-basis: 30%;
+  min-width: 150px;
+}
+
+// --- STEPPER (PASSOS) ---
 .p-stepper {
-    position: relative;
-    background-size: cover;
-    border-radius: 0.75rem;
-    overflow: hidden;
-    height: auto;
-    --p-stepper-separator-background: #000000;
-
-    --p-stepper-step-title-color: #4e4d4d;
-    --p-stepper-step-title-active-color: #000000;
-
-    --p-stepper-step-number-background: #ffffff;
-    --p-stepper-step-number-active-background: #004e9b;
-    --p-stepper-step-number-color: #004e9b;
-    --p-stepper-step-number-active-color: #ffffff;
-    --p-stepper-step-number-font-size: 2rem;
-
-    --p-stepper-separator-background: #375ca4;
-    --p-stepper-separator-active-background: #000000;
+  position: relative;
+  background-size: cover;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  height: auto;
+  --p-stepper-separator-background: #000000;
+  --p-stepper-step-title-color: #4e4d4d;
+  --p-stepper-step-title-active-color: #000000;
+  --p-stepper-step-number-background: #ffffff;
+  --p-stepper-step-number-active-background: #004e9b;
+  --p-stepper-step-number-color: #004e9b;
+  --p-stepper-step-number-active-color: #ffffff;
+  --p-stepper-step-number-font-size: 2rem;
+  --p-stepper-separator-background: #375ca4;
+  --p-stepper-separator-active-background: #000000;
 }
-
-
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap");
 
 :host ::ng-deep .p-stepper .p-step-title {
-    font-family: "IBM Plex Mono", monospace;
-    font-weight: 400;
-    font-size: 1.1rem !important;
-    background-color: #ffffff;
-    padding: 0.2rem;
-    border-radius: 3px;
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 400;
+  font-size: 1.1rem !important;
+  background-color: #ffffff;
+  padding: 0.2rem;
+  border-radius: 3px;
 }
 
 :host ::ng-deep .p-stepper .p-step.p-step-active .p-step-title {
-    background-color: #5ccdf9;
-    color: #000000;
-    border: 0.5px solid #000000;
-    box-shadow: 0 0 5px rgba(0.1, 0.3, 0.2, 0.4);
-    font-weight: 700 !important;
-}
-
-
-:host ::ng-deep p-iftalabel label {
-    padding: 0;
-    padding-top: 0;
-}
-
-.msg-error {
-    position: absolute;  
-    bottom: 100%;  
-    top: 0;
-    left: 5px; 
-    width: 100%;
-    z-index: 2; 
-    white-space: nowrap;
-}
-
-.btn-to-back{
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 0 0 0.5rem 0;
-}
-
-
-.dialog-form-container {
-  display: flex;         
-  flex-wrap: wrap;      
-  gap: 1.5rem 1rem;      
-}
-
-
-.form-field {
-  flex: 1 1 calc(50% - 0.5rem); 
-  box-sizing: border-box;
-}
-
-
-.form-field-full {
-  flex: 1 1 100%;
-  box-sizing: border-box;
-
-}
-
-// Garante que o input dentro do PrimeNG ocupe todo o espaço do seu container
-:host ::ng-deep .form-field .p-inputtext,
-:host ::ng-deep .form-field-full .p-inputtext,
-:host ::ng-deep .form-field-full .p-inputtextarea {
-  width: 100%;
-}
-
-/* === Alerta de Formulário Inválido === */
-.alert-warning {
-  padding: 1rem;
-  background-color: #fff3cd;
-  color: #856404;
-  border: 1px solid #ffeeba;
-  border-radius: 0.5rem;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-/* === Estilos do Modal (Dialog) === */
-.dialog-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.2rem;
-  text-align: center;
-  padding: 0.5rem;
-  min-width: 300px;
-}
-
-.icon-container {
-  display: flex;
-  justify-content: center;
-}
-
-.whatsapp-icon {
-  font-size: 3rem;
-  background-color: #25d366;
-  color: white;
-  padding: 1rem;
-  border-radius: 50%;
-  box-shadow: 0 0 10px rgba(37, 211, 102, 0.6);
-}
-
-.info-text {
-  font-size: 1rem;
-  color: #6c757d; // Cor mais suave
-  line-height: 1.4;
-}
-
-p-inputgroup {
-  width: 100%;
-  max-width: 300px;
-}
-
-.alert-warning {
-  padding: 1rem;
-  background-color: #fff3cd;
-  color: #856404;
-  border: 1px solid #ffeeba;
-  border-radius: 0.5rem;
-  font-weight: 400;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.alert-warning i {
-  font-size: 1.2rem; 
-}
-
-.dialog-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 0.5rem;
-}
-
-.icon-container {
-  display: flex;
-  justify-content: center;
-}
-
-.whatsapp-icon {
-  font-size: 3rem;
-  background-color: #25d366;
-  color: white;
-  padding: 1rem;
-  border-radius: 50%;
-  box-shadow: 0 0 10px rgba(37, 211, 102, 0.6);
-}
-
-.info-text {
-  font-size: 1rem;
-  color: #333;
-  line-height: 1.4;
-}
-
-p-inputgroup {
-  width: 100%;
-  max-width: 300px;
+  background-color: #5ccdf9;
+  color: #000000;
+  border: 0.5px solid #000000;
+  box-shadow: 0 0 5px rgba(0.1, 0.3, 0.2, 0.4);
+  font-weight: 700 !important;
 }
 
 .step2-info {
@@ -405,10 +369,37 @@ p-inputgroup {
   color: #333;
 }
 
+// --- ALERTAS E MENSAGENS ---
+.msg-error {
+  position: absolute;
+  bottom: 100%;
+  top: 0;
+  left: 5px;
+  width: 100%;
+  z-index: 2;
+  white-space: nowrap;
+}
+
+.alert-warning {
+  padding: 1rem;
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+  border-radius: 0.5rem;
+  font-weight: 400; // Unificado
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.alert-warning i {
+  font-size: 1.2rem;
+}
+
 .alert-box {
   display: flex;
   align-items: center;
-  background-color: rgba(255, 230, 0, 0.3); 
+  background-color: rgba(255, 230, 0, 0.3);
   padding: 5px;
   border-radius: 8px;
   gap: 15px;
@@ -420,7 +411,7 @@ p-inputgroup {
 .alert-icon-circle {
   width: 40px;
   height: 40px;
-  background-color: rgba(245, 127, 23, 0.5); 
+  background-color: rgba(245, 127, 23, 0.5);
   color: rgb(255, 255, 255);
   border-radius: 50%;
   display: flex;
@@ -437,6 +428,43 @@ p-inputgroup {
   line-height: 1.5;
 }
 
+// --- MODAL (DIALOG) ---
+.dialog-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem; // Unificado
+  text-align: center;
+  padding: 0.5rem;
+  min-width: 300px; // Unificado
+}
+
+.icon-container {
+  display: flex;
+  justify-content: center;
+}
+
+.whatsapp-icon {
+  font-size: 3rem;
+  background-color: #25d366;
+  color: white;
+  padding: 1rem;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(37, 211, 102, 0.6);
+}
+
+.info-text {
+  font-size: 1rem;
+  color: #333; // Unificado
+  line-height: 1.4;
+}
+
+p-inputgroup {
+  width: 100%;
+  max-width: 300px;
+}
+
+// --- FLUXO CARDS ---
 .fluxo-container {
   display: flex;
   gap: 25px;
@@ -456,7 +484,6 @@ p-inputgroup {
   padding: 20px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-
   /* efeito vidro */
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(15px);
@@ -464,16 +491,15 @@ p-inputgroup {
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-
 .fluxo-card.online {
-  background: rgba(255, 230, 0, 0.05); 
+  background: rgba(255, 230, 0, 0.05);
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
   border-top: 5px solid #fbc02d;
 }
 
 .fluxo-card.presencial {
-  background: rgba(13, 197, 243, 0.05); 
+  background: rgba(13, 197, 243, 0.05);
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
   border-top: 5px solid #19cefc;
@@ -512,45 +538,4 @@ p-inputgroup {
 .fluxo-footer {
   display: flex;
   justify-content: center;
-}
-
-.btn-signature{
-  display: flex;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.btn-edit{
-  margin-left: 1rem;
-}
-
-.payment-value{
-  width: 30%;
-}
-
-.payment{
-  width: 100%;
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-}
-
-.payment-method {
-  width: 30%;
-  flex-grow: 0;      // Não crescer além do basis
-  flex-shrink: 1;    // Pode encolher se necessário
-  flex-basis: 30%;   // Define o tamanho base como 30%
-  min-width: 150px;  // Adiciona um mínimo para evitar ficar muito pequeno
-}
-
-.btn-to-back-step {
-  display: flex;
-  justify-content: flex-start;
-  margin-top: 10px;
-  margin-left: 2px;
-}
-
-.btn-step1-prox {
-  display: flex;
-  margin-left: 18rem;
 }

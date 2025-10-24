@@ -16,6 +16,7 @@ export class SignaturePadComponent implements AfterViewInit, OnDestroy {
   @Output() signatureData: EventEmitter<string> = new EventEmitter<string>();
 
   @ViewChild('canvas') canvasEl!: ElementRef<HTMLCanvasElement>;
+ 
 
   private resizeObserver!: ResizeObserver;
 
@@ -70,5 +71,19 @@ export class SignaturePadComponent implements AfterViewInit, OnDestroy {
     // Restaura a assinatura após o resize
     this.signaturePad.clear();
     this.signaturePad.fromData(data);
+  }
+
+
+/**
+ * Método público que o pai pode chamar para "puxar" a assinatura.
+ */
+public getSignatureAsBase64(): string | null {
+    // <-- 2. USE 'this.signaturePad' AQUI
+    if (!this.signaturePad || this.signaturePad.isEmpty()) { 
+      return null; // Retorna nulo se estiver vazio
+    }
+    // Retorna a imagem da assinatura
+    // <-- 2. USE 'this.signaturePad' AQUI
+    return this.signaturePad.toDataURL('image/png');
   }
 }
