@@ -12,6 +12,7 @@ import { DialogModule } from 'primeng/dialog';
 import { Cliente } from '../../models/cliente/cliente.dto';
 import { MidiaService } from '../../services/midia/midia.service';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
+import { ImageUtilsService } from '../../services/midia/image-utils.service';
 
 @Component({
   selector: 'app-upload-pictures',
@@ -41,6 +42,7 @@ export class PicturesClientComponent {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly midiaService = inject(MidiaService);
+  private readonly imageUtils = inject(ImageUtilsService);
 
   clientId: string | undefined;
   cliente: Cliente | undefined;
@@ -197,8 +199,8 @@ export class PicturesClientComponent {
   async saveImages() {
     if (!this.clientId) return;
 
-    // filtra apenas arquivos selecionados
-    if (!this.selectedFiles.length) {
+    const filesToUpload = this.selectedFiles.filter((f) => !!f);
+    if (!filesToUpload.length) {
       this.messageService.add({
         severity: 'warn',
         summary: 'Nenhum arquivo',
@@ -208,9 +210,9 @@ export class PicturesClientComponent {
     }
 
     try {
-      // Redimensiona/comprime todas as imagens
+      // Redimensiona/comprime todas as imagens usando o serviço
       const resizedFiles = await Promise.all(
-        this.selectedFiles.map((file) => this.resizeImage(file))
+        filesToUpload.map((file) => this.imageUtils.resizeImage(file))
       );
 
       this.midiaService.saveMidias(resizedFiles, this.clientId).subscribe({
