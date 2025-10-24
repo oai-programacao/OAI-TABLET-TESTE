@@ -286,13 +286,8 @@
                     iconPos="right"
                     label="Próximo"
                     (onClick)="meuMetodoExtra(); activateCallback(2)"
-                    [disabled]="
-                      !cep.valid ||
-                      !street.valid ||
-                      !numberFromHome.valid ||
-                      !uf.valid ||
-                      !adesionValue.valid
-                    "
+                    [disabled]="!isAddressValid || !isAddressDataChanged"
+                    tooltipPosition="top"
                   />
                 </div>
               </div>
@@ -368,33 +363,21 @@
             </ng-template>
           </p-step-panel>
 
+          <div *ngIf="isLoadingPreview" class="loading-overlay">
+            <p-progressSpinner
+              styleClass="w-6rem h-6rem"
+              strokeWidth="6"
+              animationDuration=".5s"
+            ></p-progressSpinner>
+            <span class="loading-text">
+              Aguarde enquanto o PDF é gerado...</span
+            >
+          </div>
+
           <p-step-panel [value]="3">
             <ng-template #content let-activateCallback="activateCallback">
               <div *ngIf="formIsValid; else avisoInvalido">
                 <div class="pdf-preview-section p-mb-3">
-                  <div *ngIf="!safePdfPreviewUrl && !isLoadingPreview">
-                    <p>
-                      Clique no botão para carregar a pré-visualização do termo.
-                    </p>
-                    <p-button
-                      label="Visualizar Termo"
-                      icon="pi pi-eye"
-                      styleClass="p-button-secondary"
-                      (click)="loadPdfPreview()"
-                      [loading]="isLoadingPreview"
-                    >
-                    </p-button>
-                  </div>
-
-                  <div *ngIf="isLoadingPreview" class="text-center p-py-3">
-                    <p-progressSpinner
-                      styleClass="w-4rem h-4rem"
-                      strokeWidth="8"
-                      animationDuration=".5s"
-                    ></p-progressSpinner>
-                    <p>Carregando pré-visualização...</p>
-                  </div>
-
                   <div
                     *ngIf="previewLoadFailed && !isLoadingPreview"
                     class="p-mt-2 text-center p-text-danger"
@@ -415,28 +398,20 @@
                     *ngIf="safePdfPreviewUrl && !isLoadingPreview"
                     class="pdf-viewer p-mt-2"
                   >
-                    <p>
-                      Revise o termo abaixo. Se preferir, use as opções do
-                      visualizador para imprimir ou salvar.
-                    </p>
                     <iframe
                       [src]="safePdfPreviewUrl"
                       width="100%"
-                      height="350px"
+                      height="700px"
                       style="border: 1px solid #ccc"
                     ></iframe>
                     <div class="btn-signature">
-                      <p-button
-                        label="Recarregar Visualização"
-                        icon="pi pi-refresh"
-                        styleClass="p-button-sm p-button-outlined p-mt-1"
-                        (click)="loadPdfPreview()"
-                      ></p-button>
                       <p-button
                         label="Assinar"
                         icon="pi pi-pencil"
                         styleClass="p-button-sm"
                         severity="info"
+                        rounded="true"
+                        raised="true"
                         (click)="abrirAssinatura()"
                       ></p-button>
                       <p-button
@@ -445,6 +420,17 @@
                         (click)="cameraInput.click()"
                         styleClass="p-button-sm"
                         severity="info"
+                        rounded="true"
+                        raised="true"
+                      ></p-button>
+                      <p-button
+                        label="Salvar"
+                        icon="pi pi-download"
+                        styleClass="p-button-sm p-button-success"
+                        (click)="savePdf()"
+                        [disabled]="!safePdfPreviewUrl"
+                        rounded="true"
+                        raised="true"
                       ></p-button>
                     </div>
                   </div>
@@ -460,32 +446,6 @@
                   style="display: none"
                   #cameraInput
                 />
-
-                <div *ngIf="thumbnailPreview" class="p-mt-5 text-center">
-                  <img
-                    [src]="thumbnailPreview"
-                    alt="Preview da foto capturada"
-                    style="
-                      max-width: 200px;
-                      max-height: 200px;
-                      border: 1px solid #ddd;
-                      border-radius: 4px;
-                      margin-top: 10px;
-                    "
-                  />
-                  <p-button
-                    icon="pi pi-times"
-                    (click)="limparPreview()"
-                    styleClass="p-button-danger p-button-text p-button-rounded"
-                  ></p-button>
-
-                  <p-button
-                    icon="pi pi-save"
-                    (click)="salvarFotoCapturada()"
-                    styleClass="p-button-success p-button-text p-button-rounded"
-                    [disabled]="!fotoCapturadaFile"
-                  ></p-button>
-                </div>
               </div>
 
               <div class="btn-to-navigate">
@@ -625,8 +585,11 @@
                   <div class="btn-to-navigate">
                     <p-button
                       label="Voltar"
+                      icon="pi pi-arrow-left"
                       size="large"
-                      severity="danger"
+                      severity="secondary"
+                      raised="true"
+                      rounded="true"
                       (onClick)="activateCallback(3)"
                     />
                     <p-button
@@ -634,6 +597,7 @@
                       size="large"
                       icon="pi pi-check"
                       severity="success"
+                      raised="true"
                     />
                   </div>
                 </div>
@@ -646,6 +610,46 @@
   </app-card-base>
 
   <p-dialog
+    header="Confirmar Foto Capturada"
+    [(visible)]="isPreviewDialogVisible"
+    [modal]="true"
+    [style]="{ width: '90vw', 'max-width': '600px' }"
+    (onHide)="limparPreview()"
+  >
+    <div *ngIf="thumbnailPreview" class="text-center">
+      <img
+        [src]="thumbnailPreview"
+        alt="Preview da foto capturada"
+        style="
+          width: 100%;
+          height: auto;
+          max-height: 60vh;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          margin-bottom: 1rem;
+        "
+      />
+    </div>
+
+    <ng-template pTemplate="footer">
+      <p-button
+        label="Descartar"
+        icon="pi pi-times"
+        (click)="limparPreview()"
+        styleClass="p-button-danger p-button-text"
+      ></p-button>
+
+      <p-button
+        label="Salvar Foto"
+        icon="pi pi-save"
+        (click)="salvarFotoCapturada()"
+        styleClass="p-button-success"
+        [disabled]="!fotoCapturadaFile"
+      ></p-button>
+    </ng-template>
+  </p-dialog>
+
+  <p-dialog
     header="Assinatura Online 🖋️"
     [(visible)]="signDialogVisible"
     (onShow)="forceSignatureRedraw()"
@@ -653,11 +657,10 @@
   >
     <div class="signature-pad-container">
       <div class="signature-input">
-        <p-iftalabel style="width: 100%">
+        <p-iftalabel>
           <label for="signature">Assinatura Online (Opcional):</label>
           <ng-container *ngIf="signatureVisibleFlag">
-            <app-signature-pad (signatureData)="onSignatureCaptured($event)">
-            </app-signature-pad>
+            <app-signature-pad #signaturePadInDialog> </app-signature-pad>
           </ng-container>
         </p-iftalabel>
       </div>
@@ -674,10 +677,8 @@
           size="large"
           severity="info"
           variant="outlined"
-          [disabled]="!capturedSignature"
-          tooltip="Capture a assinatura online para habilitar"
-          tooltipPosition="top"
-          (onClick)="generateConsentTermWithSignature()"
+          [loading]="isLoadingPreview"
+          (onClick)="captureAndGenerate()"
         ></p-button>
       </div>
     </div>
