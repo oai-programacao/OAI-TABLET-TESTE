@@ -41,7 +41,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { ToastModule } from 'primeng/toast';
 import { MidiaService } from '../../services/midia/midia.service';
 
-import { SignaturePadComponent } from '../signature-pad/signature-pad.component';
+import { SignaturePadComponent } from '../../shared/components/signature-pad/signature-pad.component';
 
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
