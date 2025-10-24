@@ -238,7 +238,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
 
     console.log('Aguarde enquanto o PDF é gerado...');
 
-    const MINIMUM_SPINNER_TIME = 2000;
+    const MINIMUM_SPINNER_TIME = 700;
 
     this.isLoadingPreview = true;
     const startTime = Date.now();
@@ -273,15 +273,13 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
         next: (blob) => {
           this.pdfPreviewUrl = window.URL.createObjectURL(blob);
           this.safePdfPreviewUrl =
-            this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfPreviewUrl); // this.isLoadingPreview = false; // <-- REMOVA ESTA LINHA
-          // --- CORREÇÃO 2: Linha duplicada ---
-          console.log('Preview carregado no iframe.');
-          // Agora 'startTime' existe e o cálculo funciona
+            this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfPreviewUrl); 
+
           const duration = Date.now() - startTime;
           const delay = Math.max(0, MINIMUM_SPINNER_TIME - duration);
 
           setTimeout(() => {
-            this.isLoadingPreview = false; // <-- MANTENHA APENAS ESTA
+            this.isLoadingPreview = false; 
           }, delay);
         },
         error: (err) => {
@@ -291,8 +289,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
             summary: 'Erro no Preview',
             detail: 'Não foi possível carregar o termo. Tente novamente.',
           });
-          this.previewLoadFailed = true; // Sinaliza que falhou
-          // Agora 'startTime' existe e o cálculo funciona
+          this.previewLoadFailed = true; 
           const duration = Date.now() - startTime;
           const delay = Math.max(0, MINIMUM_SPINNER_TIME - duration);
 
