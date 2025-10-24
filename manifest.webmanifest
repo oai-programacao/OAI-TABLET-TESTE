@@ -1,13 +1,13 @@
 {
-  "name": "OAI App",
+  "name": "OAI SELLER",
   "short_name": "OAI",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#1976d2",
+  "theme_color": "#000",
   "icons": [
     {
-      "src": "/icons/OAIlogo.ico",
+      "src": "/icons/logopdw.png",
       "sizes": "192x192 512x512",
       "type": "image/x-icon"
     }
