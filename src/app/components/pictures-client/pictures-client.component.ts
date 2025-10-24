@@ -194,13 +194,11 @@ export class PicturesClientComponent {
     this.selectedFiles[index] = file;
   }
 
-  saveImages() {
+  async saveImages() {
     if (!this.clientId) return;
 
-    // filtra apenas os arquivos selecionados
-    const filesToUpload = this.selectedFiles.filter((f) => !!f);
-
-    if (!filesToUpload.length) {
+    // filtra apenas arquivos selecionados
+    if (!this.selectedFiles.length) {
       this.messageService.add({
         severity: 'warn',
         summary: 'Nenhum arquivo',
@@ -209,22 +207,35 @@ export class PicturesClientComponent {
       return;
     }
 
-    this.midiaService.saveMidias(filesToUpload, this.clientId).subscribe({
-      next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Upload concluído',
-        });
-        this.selectedFiles = [];
-        this.loadImages();
-      },
-      error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro ao enviar',
-        });
-      },
-    });
+    try {
+      // Redimensiona/comprime todas as imagens
+      const resizedFiles = await Promise.all(
+        this.selectedFiles.map((file) => this.resizeImage(file))
+      );
+
+      this.midiaService.saveMidias(resizedFiles, this.clientId).subscribe({
+        next: () => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Upload concluído',
+          });
+          this.selectedFiles = [];
+          this.loadImages();
+        },
+        error: () => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erro ao enviar',
+          });
+        },
+      });
+    } catch (err) {
+      console.error(err);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erro ao processar imagens',
+      });
+    }
   }
 
   isFrenteEnabled(): boolean {
@@ -236,19 +247,66 @@ export class PicturesClientComponent {
   }
 
   isExtraEnabled(index: number): boolean {
-  if (index <= 1) return false; // não é extra
-  // index 2 (primeiro extra) precisa de Frente e Verso
-  if (index === 2) {
-    return this.images[0].src !== this.defaultImage.src &&
-           this.images[1].src !== this.defaultImage.src;
+    if (index <= 1) return false; // não é extra
+    // index 2 (primeiro extra) precisa de Frente e Verso
+    if (index === 2) {
+      return (
+        this.images[0].src !== this.defaultImage.src &&
+        this.images[1].src !== this.defaultImage.src
+      );
+    }
+    // index 3 (segundo extra) precisa do slot extra 1
+    if (index === 3) {
+      return this.images[2].src !== this.defaultImage.src;
+    }
+    return true; // qualquer extra depois disso (se houver)
   }
-  // index 3 (segundo extra) precisa do slot extra 1
-  if (index === 3) {
-    return this.images[2].src !== this.defaultImage.src;
+
+  resizeImage(
+    file: File,
+    maxWidth = 1920,
+    maxHeight = 1080,
+    quality = 0.7
+  ): Promise<File> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const reader = new FileReader();
+
+      reader.onload = (e: any) => {
+        img.src = e.target.result;
+      };
+      reader.onerror = reject;
+      img.onerror = reject;
+
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxWidth || height > maxHeight) {
+          const ratio = Math.min(maxWidth / width, maxHeight / height);
+          width *= ratio;
+          height *= ratio;
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+        ctx!.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) return reject('Erro ao criar blob');
+            const resizedFile = new File([blob], file.name, {
+              type: file.type,
+            });
+            resolve(resizedFile);
+          },
+          file.type,
+          quality
+        );
+      };
+
+      reader.readAsDataURL(file);
+    });
   }
-  return true; // qualquer extra depois disso (se houver)
-}
-
-
-
 }
