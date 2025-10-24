@@ -26,7 +26,6 @@ bootstrapApplication(AppComponent, {
 
     provideNgxMask(),
 
-    // ✅ Usa interceptors baseados em classe (AuthInterceptor + HttpLoggerInterceptor)
     provideHttpClient(withInterceptorsFromDi()),
 
     {
@@ -40,7 +39,6 @@ bootstrapApplication(AppComponent, {
       multi: true,
     },
 
-    // ✅ Serviço de WebSocket
     {
       provide: RxStompService,
       useFactory: () => {
@@ -50,4 +48,20 @@ bootstrapApplication(AppComponent, {
       },
     },
   ],
-}).catch((err) => console.error(err));
+})
+.then(() => {
+  // ✅ Bloqueia emojis globalmente em todos inputs/textarea/p-inputText/p-textarea
+  document.addEventListener('input', (event: Event) => {
+    const target = event.target as HTMLInputElement | HTMLTextAreaElement | null;
+    if (!target) return;
+
+    const emojiRegex = /([\u2700-\u27BF]|[\uE000-\uF8FF]|[\uD83C-\uDBFF\uDC00-\uDFFF])/g;
+
+    // Remove emojis
+    target.value = target.value.replace(emojiRegex, '');
+
+    // Dispara evento input para atualizar FormControl/ngModel
+    target.dispatchEvent(new Event('input'));
+  });
+})
+.catch((err) => console.error(err));
