@@ -11,8 +11,10 @@ import { AuthInterceptor } from './app/core/auth.interceptor';
 
 import { RxStompService } from '@stomp/ng2-stompjs';
 import { wsStompConfig } from './app/services/webSocket/wsStompConfig';
+import { DevToolsLogger } from './app/shared/components/devtools-logger/devtools-logger';
 
 registerLocaleData(localePt);
+DevToolsLogger.init();
 
 bootstrapApplication(AppComponent, {
   ...appConfig,
