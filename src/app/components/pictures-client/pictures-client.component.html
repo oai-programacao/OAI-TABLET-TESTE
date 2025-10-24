@@ -24,7 +24,7 @@
       </p-divider>
       <div class="btn-to-add-images">
         <div class="upload-btn-wrapper">
-          <label>Frente</label>
+          <label>1º Frente</label>
           <p-button
             styleClass="btn-frente"
             iconPos="top"
@@ -43,13 +43,14 @@
         </div>
 
         <div class="upload-btn-wrapper">
-          <label>Verso</label>
+          <label>2º Verso</label>
           <p-button
             styleClass="btn-verso"
             iconPos="top"
             size="large"
             severity="info"
             [disabled]="allSlotsOccupied()"
+            [disabled]="!isVersoEnabled()"
             (onClick)="openFileInput('verso')"
           />
           <div
@@ -94,7 +95,7 @@
 
           <!-- overlay + só nos quadrados extras vazios -->
           <div
-            *ngIf="img.src === defaultImage.src && i > 1"
+            *ngIf="img.src === defaultImage.src && i > 1 && isExtraEnabled(i)"
             class="overlay-plus"
             (click)="selectSlot(i); $event.stopPropagation()"
           >
@@ -140,4 +141,9 @@
 </div>
 
 <p-toast></p-toast>
-<p-confirmdialog></p-confirmdialog>
+<p-confirmDialog
+  [acceptLabel]="'👍'"
+  [rejectLabel]="'👎'"
+  [acceptButtonStyleClass]="'p-button-success custom-accept-btn'"
+  [rejectButtonStyleClass]="'p-button-danger custom-reject-btn'"
+></p-confirmDialog>

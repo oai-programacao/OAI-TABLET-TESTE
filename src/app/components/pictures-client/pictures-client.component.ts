@@ -11,6 +11,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { DialogModule } from 'primeng/dialog';
 import { Cliente } from '../../models/cliente/cliente.dto';
 import { MidiaService } from '../../services/midia/midia.service';
+import { ConfirmPopupModule } from 'primeng/confirmpopup';
 
 @Component({
   selector: 'app-upload-pictures',
@@ -24,13 +25,13 @@ import { MidiaService } from '../../services/midia/midia.service';
     ToastModule,
     DividerModule,
     DialogModule,
+    ConfirmPopupModule,
   ],
   templateUrl: './pictures-client.component.html',
   styleUrl: './pictures-client.component.scss',
   providers: [ConfirmationService, MessageService],
 })
 export class PicturesClientComponent {
-  
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   defaultImage = { src: '/OAILogo.png', alt: 'Imagem padrão' };
 
@@ -59,10 +60,10 @@ export class PicturesClientComponent {
   selectedType?: 'frente' | 'verso';
   selectedIndex: number | null = null;
   selectedFiles: File[] = []; // arquivos ainda não enviados
-  
+
   previewVisible = false;
   previewImage: string | null = null;
-  
+
   responsiveOptions: any[] = [
     { breakpoint: '1199px', numVisible: 3, numScroll: 1 },
     { breakpoint: '821px', numVisible: 2, numScroll: 1 },
@@ -139,28 +140,42 @@ export class PicturesClientComponent {
   removeImage(index: number) {
     const midiaId = this.images[index].midiaId;
 
-    // Sempre reseta o preview
-    this.images[index].src = '/OAILogo.png';
-    this.images[index].midiaId = undefined;
+    this.confirmationService.confirm({
+      message: 'Deseja realmente remover esta imagem?',
+      header: 'Confirmação',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        // Sempre reseta o preview local
+        this.images[index].src = '/OAILogo.png';
+        this.images[index].midiaId = undefined;
 
-    if (!midiaId) {
-      // Imagem só estava local, nada a excluir no backend
-      return;
-    }
+        if (!midiaId) {
+          // Imagem só estava local, nada a excluir no backend
+          this.selectedFiles[index] = undefined!;
+          return;
+        }
 
-    // Se existe no backend, chama o serviço para remover
-    this.midiaService.removeMidias(midiaId).subscribe({
-      next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Imagem removida do servidor',
+        // Se existe no backend, chama o serviço para remover
+        this.midiaService.removeMidias(midiaId).subscribe({
+          next: () => {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Imagem removida do servidor',
+            });
+            // também limpa o arquivo local
+            this.selectedFiles[index] = undefined!;
+          },
+          error: () => {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Erro ao excluir imagem do servidor',
+            });
+          },
         });
       },
-      error: () =>
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro ao excluir imagem do servidor',
-        }),
+      reject: () => {
+        // Usuário cancelou, nada acontece
+      },
     });
   }
 
@@ -212,12 +227,27 @@ export class PicturesClientComponent {
     });
   }
 
+  isFrenteEnabled(): boolean {
+    return true; // sempre habilitado
+  }
 
+  isVersoEnabled(): boolean {
+    return this.images[0].src !== this.defaultImage.src;
+  }
 
-
-
-
-
+  isExtraEnabled(index: number): boolean {
+  if (index <= 1) return false; // não é extra
+  // index 2 (primeiro extra) precisa de Frente e Verso
+  if (index === 2) {
+    return this.images[0].src !== this.defaultImage.src &&
+           this.images[1].src !== this.defaultImage.src;
+  }
+  // index 3 (segundo extra) precisa do slot extra 1
+  if (index === 3) {
+    return this.images[2].src !== this.defaultImage.src;
+  }
+  return true; // qualquer extra depois disso (se houver)
+}
 
 
 
