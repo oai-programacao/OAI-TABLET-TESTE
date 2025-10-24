@@ -52,7 +52,7 @@
           ></app-message-valid-forms>
           <app-message-valid-forms
             [control]="nome"
-            text="O nome deve ter no mínimo 15 caracteres"
+            text="O nome deve ter no mínimo 10 caracteres"
             error="minlength"
           ></app-message-valid-forms>
           <div class="name-date">
@@ -67,7 +67,7 @@
                   id="nome"
                   autocomplete="off"
                   maxlength="50"
-                  minlength="15"
+                  minlength="10"
                   name="nome"
                   required
                   [(ngModel)]="cliente.name"
