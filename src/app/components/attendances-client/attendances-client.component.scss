@@ -207,6 +207,7 @@
   .cell-content {
     display: flex;
     align-items: center;
+    margin-left: 0;
     gap: 0.6rem;
 
     .cell-icon {
@@ -362,60 +363,60 @@
       }
     }
 
-    // .media-list {
-    //   display: flex;
-    //   flex-direction: column;
-    //   gap: 0.75rem;
+    .media-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
 
-    //   .media-item {
-    //     display: flex;
-    //     align-items: center;
-    //     gap: 1rem;
-    //     background: #f0f9ff;
-    //     padding: 1rem;
-    //     border-radius: 12px;
-    //     transition: all 0.3s ease;
+      .media-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: #f0f9ff;
+        padding: 1rem;
+        border-radius: 12px;
+        transition: all 0.3s ease;
 
-    //     .media-icon {
-    //       display: flex;
-    //       align-items: center;
-    //       justify-content: center;
-    //       width: 48px;
-    //       height: 48px;
-    //       background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
-    //       border-radius: 12px;
-    //       flex-shrink: 0;
+        .media-icon {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 48px;
+          height: 48px;
+          background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+          border-radius: 12px;
+          flex-shrink: 0;
 
-    //       i {
-    //         color: white;
-    //         font-size: 1.5rem;
-    //       }
-    //     }
+          i {
+            color: white;
+            font-size: 1.5rem;
+          }
+        }
 
-    //     .media-info {
-    //       flex: 1;
+        .media-info {
+          flex: 1;
 
-    //       .media-link {
-    //         color: #0ea5e9;
-    //         text-decoration: none;
-    //         font-weight: 600;
-    //         font-size: 1rem;
+          .media-link {
+            color: #0ea5e9;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
 
-    //         &:hover {
-    //           color: #06b6d4;
-    //           text-decoration: underline;
-    //         }
-    //       }
-    //     }
+            &:hover {
+              color: #06b6d4;
+              text-decoration: underline;
+            }
+          }
+        }
 
-    //     .media-action {
-    //       i {
-    //         color: #0ea5e9;
-    //         font-size: 1.2rem;
-    //       }
-    //     }
-    //   }
-    // }
+        .media-action {
+          i {
+            color: #0ea5e9;
+            font-size: 1.2rem;
+          }
+        }
+      }
+    }
 
     .no-media {
       display: flex;
