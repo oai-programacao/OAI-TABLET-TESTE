@@ -277,11 +277,15 @@ export class PicturesClientComponent {
       reader.onload = (e: any) => {
         img.src = e.target.result;
       };
+
       reader.onerror = reject;
+      
       img.onerror = reject;
 
       img.onload = () => {
+
         let { width, height } = img;
+
         if (width > maxWidth || height > maxHeight) {
           const ratio = Math.min(maxWidth / width, maxHeight / height);
           width *= ratio;
@@ -311,4 +315,5 @@ export class PicturesClientComponent {
       reader.readAsDataURL(file);
     });
   }
+
 }

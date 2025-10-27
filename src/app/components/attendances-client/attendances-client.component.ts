@@ -8,6 +8,7 @@ import { Attendance } from '../../models/attendance/attendance.dto';
 import { DialogModule } from 'primeng/dialog';
 import { AttendancesService } from '../../services/attendances/attendance.service';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { environment } from '../../../environments/environment';
 
 
 @Component({
@@ -123,13 +124,14 @@ export class AttendancesClientComponent implements OnInit {
   pdfDialogVisible = false;
   pdfUrl: SafeResourceUrl | null = null;
 
-  openPdf(urlFile: string) {
-    const nomeArquivo = urlFile.split('/').pop();
-    if (nomeArquivo) {
-      this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-        `/api/imagem/${nomeArquivo}`
-      );
-      this.pdfDialogVisible = true;
-    }
+  openPdf(filePath: string) {
+  const fileName = filePath.split('/home/oai/imagesDocuments/')[1];
+  const apiUrl = environment.apiUrl + `/imagem/${fileName}`;
+  this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(apiUrl);
+
+  console.log(this.pdfUrl);
+  this.pdfDialogVisible = true;
   }
+ // a 
+  
 }
