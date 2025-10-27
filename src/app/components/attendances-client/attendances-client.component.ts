@@ -7,8 +7,9 @@ import { CardBaseComponent } from '../../shared/components/card-base/card-base.c
 import { Attendance } from '../../models/attendance/attendance.dto';
 import { DialogModule } from 'primeng/dialog';
 import { AttendancesService } from '../../services/attendances/attendance.service';
-import { HttpClient } from '@angular/common/http';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { environment } from '../../../environments/environment';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-attendances-client',
@@ -21,18 +22,20 @@ import { environment } from '../../../environments/environment';
     DialogModule,
   ],
   templateUrl: './attendances-client.component.html',
-  styleUrls: ['./attendances-client.component.scss'],
+  styleUrl: './attendances-client.component.scss',
 })
 export class AttendancesClientComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private attendancesService = inject(AttendancesService);
+  private sanitizer = inject(DomSanitizer);
   private http = inject(HttpClient);
 
   clientId!: string;
   attendances: Attendance[] = [];
   client: any;
   displayDialog = false;
+
   totalElements = 0;
 
   selectedAttendance: Attendance = {
@@ -50,13 +53,8 @@ export class AttendancesClientComponent implements OnInit {
     topic: '',
     subject: '',
     codeAttendanceRbx: 0,
-    medias: [],
+    medias: [], // array vazio garante que não será undefined
   };
-
-  // PDF dialog
-  pdfDialogVisible = false;
-  pdfSrc: string | ArrayBuffer | null = null;
-  currentFilePath: string | null = null;
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('clientId');
@@ -72,14 +70,26 @@ export class AttendancesClientComponent implements OnInit {
       .subscribe({
         next: (res) => {
           this.attendances = res.content;
-          this.totalElements = res.totalElements;
+          this.totalElements = res.totalElements; // <- informa ao PrimeNG quantos registros existem
+
+          if (this.attendances.length > 0) {
+            const first = this.attendances[0];
+            this.client = {
+              name: first.sellerName,
+              contract: first.contract,
+              openDate: first.openDate,
+              openHour: first.openHour,
+              codeAttendanceRbx: first.codeAttendanceRbx,
+            };
+          }
         },
         error: (err) => console.error('Erro ao carregar atendimentos', err),
       });
   }
 
+  // Evento chamado pelo paginator do PrimeNG
   onPageChange(event: any) {
-    const page = event.first / event.rows;
+    const page = event.first / event.rows; // calcula o número da página
     const size = event.rows;
     this.loadAttendances(page, size);
   }
@@ -93,29 +103,41 @@ export class AttendancesClientComponent implements OnInit {
   }
 
   verDetalhes(att: Attendance) {
+    // Chamar API para pegar detalhes completos, incluindo mídias
     this.attendancesService.getAttendanceDetails(att.id).subscribe({
       next: (res) => {
+        console.log('Detalhes do atendimento:', res.medias);
         this.selectedAttendance = res;
+
         if (!this.selectedAttendance.medias) {
           this.selectedAttendance.medias = [];
         }
+
         this.displayDialog = true;
       },
-      error: (err) => console.error('Erro ao carregar detalhes', err),
+      error: (err) => {
+        console.error('Erro ao carregar detalhes do atendimento', err);
+      },
     });
   }
 
-  pdfUrl: string | null = null; // <-- declara aqui
+  // Variáveis para o dialog do PDF
+  pdfDialogVisible = false;
+  pdfUrl: SafeResourceUrl | null = null;
+
+  currentFilePath: string | null = null;
 
   openPdf(filePath: string) {
+    this.currentFilePath = filePath; // salva o caminho atual
     const fileName = filePath.split(
       '/home/oai/imagesDocuments/contratosassinados/'
     )[1];
-    this.currentFilePath = filePath;
-    this.pdfUrl = environment.apiUrl + `/pdf/${fileName}`; // <-- usa pdfUrl
+    const apiUrl = environment.apiUrl + `/pdf/${fileName}`;
+    this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(apiUrl);
     this.pdfDialogVisible = true;
   }
 
+  // Botão de download usando Blob
   downloadPdf(filePath: string) {
     const fileName = filePath.split(
       '/home/oai/imagesDocuments/contratosassinados/'

@@ -288,14 +288,20 @@
   [closable]="true"
   [draggable]="false"
   [resizable]="false"
-  [style]="{ width: '95vw', height: '95vh', maxWidth: '95vw', maxHeight: '95vh', padding: '0' }"
+  [style]="{
+    width: '95vw',
+    height: '95vh',
+    maxWidth: '95vw',
+    maxHeight: '95vh',
+    padding: '0'
+  }"
 >
-  <div style="height: 100%; overflow-y: auto;">
+  <div style="height: 100%; overflow-y: auto">
     <iframe
       *ngIf="pdfUrl"
       [src]="pdfUrl"
       width="100%"
-      style="min-height: 100%; border: none;"
+      style="min-height: 100%; border: none"
       frameborder="0"
     ></iframe>
   </div>
