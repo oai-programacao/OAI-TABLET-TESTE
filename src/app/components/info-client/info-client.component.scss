@@ -16,13 +16,20 @@
   font-weight: 300;
 }
 
-::ng-deep p-divider .p-divider-content,
-::ng-deep p-divider .p-divider-content b {
+:host ::ng-deep p-divider .p-divider-content,
+:host ::ng-deep p-divider .p-divider-content b {
   font-family: "IBM Plex Mono", monospace;
   color: #575353;
   font-weight: 400;
   font-size: medium;
 }
+
+
+:host ::ng-deep p-divider.title {
+  margin: 0.1rem;       
+  padding: 0.1rem;     
+}
+
 
 .container {
   display: flex;
@@ -71,7 +78,7 @@
   }
 
   textarea {
-    font-size: 0.9rem; // define o tamanho da letra dentro do textarea
+    font-size: 0.9rem; 
   }
 }
 
@@ -146,6 +153,7 @@
   align-items: center;
   justify-content: flex-start;
   padding: 0 0 0 0;
+  margin: 0;
 }
 
 .avatar-center > img {

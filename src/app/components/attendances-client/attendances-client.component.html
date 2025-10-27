@@ -1,74 +1,173 @@
 <div class="page-container">
-  <app-card-base [header]="'Atendimentos Realizados'">
+  <app-card-base>
+    <!-- Botões de navegação e badge fora do card com bordas, mas dentro do app-card-base -->
     <div class="btn-to-back">
-      <p-button
-        icon="pi pi-arrow-left"
-        [rounded]="true"
-        severity="danger"
-        raised="true"
-        size="large"
-        (onClick)="backToClient()"
-      ></p-button>
+      <div class="nav-buttons">
+        <p-button
+          icon="pi pi-arrow-left"
+          [rounded]="true"
+          severity="danger"
+          raised="true"
+          [size]="'large'"
+          (onClick)="backToClient()"
+        ></p-button>
 
-      <p-button
-        icon="pi pi-home"
-        [rounded]="true"
-        severity="info"
-        raised="true"
-        size="large"
-        (onClick)="backToHome()"
-      ></p-button>
+        <p-button
+          icon="pi pi-home"
+          [rounded]="true"
+          severity="info"
+          raised="true"
+          [size]="'large'"
+          (onClick)="backToHome()"
+        ></p-button>
+      </div>
+
+      <div class="stats-badge" *ngIf="attendances!.length > 0">
+        <i class="pi pi-chart-line"></i>
+        <span>{{ attendances.length }} atendimento{{ attendances.length !== 1 ? 's' : '' }}</span>
+      </div>
     </div>
 
-    <!-- Tabela paginada -->
-    <p-table
-      [value]="attendances"
-      [paginator]="true"
-      [rows]="5"
-      [paginatorDropdownAppendTo]="'body'"
-      [rowsPerPageOptions]="[5,10,20]"
-      styleClass="p-datatable-striped p-datatable-sm"
-      *ngIf="attendances!.length > 0"
-    >
-      <ng-template pTemplate="header">
-        <tr>
-          <th>RBX</th>
-          <th>Fluxo</th>
-          <th>Assunto</th>
-          <th>Iniciativa</th>
-          <th>Modo</th>
-          <th>Tipo Cliente</th>
-          <th>Data</th>
-          <th>Ações</th>
-        </tr>
-      </ng-template>
+    <!-- Card com bordas contendo o conteúdo principal -->
+    <div class="content-card">
+      <!-- Header "Atendimentos Realizados" dentro do card -->
+      <div class="page-header">
+        <div class="header-content">
+          <h1 class="page-title">
+            <i class="pi pi-check-circle"></i>
+            Atendimentos Realizados
+          </h1>
+          <p class="page-subtitle">Histórico completo de interações com os contratos do cliente em loja</p>
+        </div>
+      </div>
 
-      <ng-template pTemplate="body" let-att>
-        <tr>
-          <td>#{{ att.codeAttendanceRbx }}</td>
-          <td><i class="pi pi-random" title="Fluxo"></i> {{ att.flow }}</td>
-          <td><i class="pi pi-file" title="Assunto"></i> {{ att.subject }}</td>
-          <td><i class="pi pi-lightbulb" title="Iniciativa"></i> {{ att.initiative }}</td>
-          <td><i class="pi pi-cog" title="Modo"></i> {{ att.mode }}</td>
-          <td><i class="pi pi-users" title="Tipo Cliente"></i> {{ att.typeClient }}</td>
-          <td>{{ att.openDate | date : "dd/MM/yyyy" }} {{ att.openHour }}</td>
-          <td>
-            <p-button
-              icon="pi pi-eye"
-              severity="info"
-              [rounded]="true"
-              size="small"
-              (onClick)="verDetalhes(att)"
-            ></p-button>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
+      <!-- Tabela com headers horizontais tradicionais -->
+      <div class="table-wrapper" *ngIf="attendances!.length > 0">
+        <p-table
+          [value]="attendances"
+          [paginator]="true"
+          [rows]="5"
+          [paginatorDropdownAppendTo]="'body'"
+          [rowsPerPageOptions]="[5]"
+          styleClass="p-datatable-striped custom-table"
+          [tableStyle]="{'min-width': '100%'}"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th>
+                <i class="pi pi-hashtag"></i>
+                RBX
+              </th>
+              <th>
+                <i class="pi pi-random"></i>
+                Fluxo
+              </th>
+              <th>
+                <i class="pi pi-file"></i>
+                Assunto
+              </th>
+              <th>
+                <i class="pi pi-lightbulb"></i>
+                Iniciativa
+              </th>
+              <th>
+                <i class="pi pi-cog"></i>
+                Modo
+              </th>
+              <th>
+                <i class="pi pi-users"></i>
+                Tipo Cliente
+              </th>
+              <th>
+                <i class="pi pi-calendar"></i>
+                Data
+              </th>
+              <th>
+              </th>
+            </tr>
+          </ng-template>
 
-    <!-- Estado vazio -->
-    <div *ngIf="attendances?.length === 0" class="empty-message">
-      <i class="pi pi-info-circle"></i>
-      <p>Nenhum atendimento encontrado para este cliente.</p>
+          <ng-template pTemplate="body" let-att>
+            <tr class="table-row">
+              <td>
+                <span class="code-badge">#{{ att.codeAttendanceRbx }}</span>
+              </td>
+              <td>
+                <div class="cell-content">
+                  <i class="pi pi-random cell-icon flow-icon"></i>
+                  <span>{{ att.flow }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="cell-content">
+                  <i class="pi pi-file cell-icon subject-icon"></i>
+                  <span class="text-truncate">{{ att.subject }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="cell-content">
+                  <i class="pi pi-lightbulb cell-icon initiative-icon"></i>
+                  <span>{{ att.initiative }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="cell-content">
+                  <i class="pi pi-cog cell-icon mode-icon"></i>
+                  <span>{{ att.mode }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="cell-content">
+                  <i class="pi pi-users cell-icon client-icon"></i>
+                  <span>{{ att.typeClient }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="date-cell">
+                  <span class="date-text">{{ att.openDate | date : "dd/MM/yyyy" }}</span>
+                  <span class="time-text">{{ att.openHour }}</span>
+                </div>
+              </td>
+              <td>
+                <p-button
+                  icon="pi pi-eye"
+                  severity="info"
+                  [rounded]="true"
+                  size="large"
+                  (onClick)="verDetalhes(att)"
+                  styleClass="action-btn"
+                ></p-button>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+
+      <!-- Estado vazio -->
+      <div *ngIf="attendances?.length === 0" class="empty-state">
+        <div class="empty-illustration">
+          <img 
+            src="/placeholder.svg?height=300&width=400" 
+            alt="Nenhum atendimento"
+          />
+        </div>
+        <div class="empty-content">
+          <h2 class="empty-title">
+            <i class="pi pi-inbox"></i>
+            Nenhum Atendimento Encontrado
+          </h2>
+          <p class="empty-description">
+            Não há registros de atendimentos para este cliente no momento.
+          </p>
+          <p-button
+            icon="pi pi-arrow-left"
+            label="Voltar para Clientes"
+            severity="info"
+            [rounded]="true"
+            (onClick)="backToClient()"
+          ></p-button>
+        </div>
+      </div>
     </div>
   </app-card-base>
 </div>
@@ -79,23 +178,59 @@
   [(visible)]="displayDialog"
   [modal]="true"
   [closable]="true"
-  [style]="{ width: '600px' }"
+  [draggable]="false"
+  resizable="false"
+  [style]="{ width: '700px', maxWidth: '90vw' }"
+  styleClass="custom-dialog"
 >
-  <div *ngIf="selectedAttendance">
-    <h3>Descrição</h3>
-    <p>{{ selectedAttendance.description || 'Sem descrição' }}</p>
-
-    <h3>Mídias</h3>
-    <div *ngIf="selectedAttendance.medias?.length > 0; else noMedia">
-      <ul>
-        <li *ngFor="let file of selectedAttendance.medias">
-          <i class="pi pi-file-pdf" style="color:red; margin-right:0.5rem"></i>
-          <a [href]="file.url" target="_blank">{{ file.name }}</a>
-        </li>
-      </ul>
+  <div *ngIf="selectedAttendance" class="dialog-content">
+    <div class="dialog-header-info">
+      <div class="info-badge">
+        <i class="pi pi-hashtag"></i>
+        <span>RBX: {{ selectedAttendance.codeAttendanceRbx }}</span>
+      </div>
+      <div class="info-badge">
+        <i class="pi pi-calendar"></i>
+        <span>{{ selectedAttendance.openDate | date : "dd/MM/yyyy" }} {{ selectedAttendance.openHour }}</span>
+      </div>
     </div>
-    <ng-template #noMedia>
-      <p>Nenhum arquivo disponível.</p>
-    </ng-template>
+
+    <div class="dialog-section">
+      <h3 class="section-title">
+        <i class="pi pi-align-left"></i>
+        Descrição
+      </h3>
+      <div class="description-box">
+        <p>{{ selectedAttendance.description || 'Sem descrição disponível' }}</p>
+      </div>
+    </div>
+
+    <div class="dialog-section">
+      <h3 class="section-title">
+        <i class="pi pi-paperclip"></i>
+        Arquivos Anexados
+      </h3>
+      <div *ngIf="selectedAttendance.medias?.length > 0; else noMedia" class="media-list">
+        <div *ngFor="let file of selectedAttendance.medias" class="media-item">
+          <div class="media-icon">
+            <i class="pi pi-file-pdf"></i>
+          </div>
+          <div class="media-info">
+            <a [href]="file.url" target="_blank" class="media-link">
+              {{ file.name }}
+            </a>
+          </div>
+          <div class="media-action">
+            <i class="pi pi-external-link"></i>
+          </div>
+        </div>
+      </div>
+      <ng-template #noMedia>
+        <div class="no-media">
+          <i class="pi pi-inbox"></i>
+          <p>Nenhum arquivo anexado a este atendimento.</p>
+        </div>
+      </ng-template>
+    </div>
   </div>
 </p-dialog>
