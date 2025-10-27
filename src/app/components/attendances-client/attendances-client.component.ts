@@ -7,7 +7,7 @@ import { CardBaseComponent } from '../../shared/components/card-base/card-base.c
 import { Attendance } from '../../models/attendance/attendance.dto';
 import { DialogModule } from 'primeng/dialog';
 import { AttendancesService } from '../../services/attendances/attendance.service';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -21,19 +21,18 @@ import { environment } from '../../../environments/environment';
     DialogModule,
   ],
   templateUrl: './attendances-client.component.html',
-  styleUrl: './attendances-client.component.scss',
+  styleUrls: ['./attendances-client.component.scss'],
 })
 export class AttendancesClientComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private attendancesService = inject(AttendancesService);
-  private sanitizer = inject(DomSanitizer);
+  private http = inject(HttpClient);
 
   clientId!: string;
   attendances: Attendance[] = [];
   client: any;
   displayDialog = false;
-
   totalElements = 0;
 
   selectedAttendance: Attendance = {
@@ -51,8 +50,13 @@ export class AttendancesClientComponent implements OnInit {
     topic: '',
     subject: '',
     codeAttendanceRbx: 0,
-    medias: [], // array vazio garante que não será undefined
+    medias: [],
   };
+
+  // PDF dialog
+  pdfDialogVisible = false;
+  pdfSrc: string | ArrayBuffer | null = null;
+  currentFilePath: string | null = null;
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('clientId');
@@ -68,26 +72,14 @@ export class AttendancesClientComponent implements OnInit {
       .subscribe({
         next: (res) => {
           this.attendances = res.content;
-          this.totalElements = res.totalElements; // <- informa ao PrimeNG quantos registros existem
-
-          if (this.attendances.length > 0) {
-            const first = this.attendances[0];
-            this.client = {
-              name: first.sellerName,
-              contract: first.contract,
-              openDate: first.openDate,
-              openHour: first.openHour,
-              codeAttendanceRbx: first.codeAttendanceRbx,
-            };
-          }
+          this.totalElements = res.totalElements;
         },
         error: (err) => console.error('Erro ao carregar atendimentos', err),
       });
   }
 
-  // Evento chamado pelo paginator do PrimeNG
   onPageChange(event: any) {
-    const page = event.first / event.rows; // calcula o número da página
+    const page = event.first / event.rows;
     const size = event.rows;
     this.loadAttendances(page, size);
   }
@@ -101,43 +93,42 @@ export class AttendancesClientComponent implements OnInit {
   }
 
   verDetalhes(att: Attendance) {
-    // Chamar API para pegar detalhes completos, incluindo mídias
     this.attendancesService.getAttendanceDetails(att.id).subscribe({
       next: (res) => {
-        console.log('Detalhes do atendimento:', res.medias);
         this.selectedAttendance = res;
-
         if (!this.selectedAttendance.medias) {
           this.selectedAttendance.medias = [];
         }
-
         this.displayDialog = true;
       },
-      error: (err) => {
-        console.error('Erro ao carregar detalhes do atendimento', err);
-      },
+      error: (err) => console.error('Erro ao carregar detalhes', err),
     });
   }
 
-  // Variáveis para o dialog do PDF
-  pdfDialogVisible = false;
-  pdfUrl: SafeResourceUrl | null = null;
+  pdfUrl: string | null = null; // <-- declara aqui
 
   openPdf(filePath: string) {
-    // Pega apenas o nome do arquivo, sem o caminho absoluto do servidor
     const fileName = filePath.split(
       '/home/oai/imagesDocuments/contratosassinados/'
     )[1];
-
-    // Monta a URL do endpoint específico para PDFs
-    const apiUrl = environment.apiUrl + `/pdf/${fileName}`;
-
-    // Usa o DomSanitizer para evitar erros de segurança no Angular
-    this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(apiUrl);
-
-    console.log('PDF URL segura:', this.pdfUrl);
-
+    this.currentFilePath = filePath;
+    this.pdfUrl = environment.apiUrl + `/pdf/${fileName}`; // <-- usa pdfUrl
     this.pdfDialogVisible = true;
   }
-  // a
+
+  downloadPdf(filePath: string) {
+    const fileName = filePath.split(
+      '/home/oai/imagesDocuments/contratosassinados/'
+    )[1];
+    const apiUrl = environment.apiUrl + `/pdf/${fileName}`;
+
+    this.http.get(apiUrl, { responseType: 'blob' }).subscribe((blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    });
+  }
 }

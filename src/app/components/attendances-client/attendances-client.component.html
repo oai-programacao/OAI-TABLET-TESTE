@@ -72,6 +72,10 @@
                 <i class="pi pi-users"></i>
                 Topico
               </th>
+              <th>
+                <i class="pi pi-users"></i>
+                Tipo
+              </th>
               <th>🙍‍♂️ Vendedor</th>
               <th>
                 <i class="pi pi-lightbulb"></i>
@@ -110,6 +114,21 @@
                         : att.topic === "88"
                         ? "88 • Downgrade"
                         : att.topic
+                    }}
+                  </span>
+                </div>
+              </td>
+              <td>
+                <div class="cell-content">
+                  <span>
+                    {{
+                      att.type === "T"
+                        ? "Técnico"
+                        : att.type === "A"
+                        ? "Admin/Finan"
+                        : att.type === "C"
+                        ? "Comercial"
+                        : att.type
                     }}
                   </span>
                 </div>
@@ -225,7 +244,10 @@
         Arquivos Anexados
       </h3>
 
-      <div *ngIf="selectedAttendance.medias!.length > 0; else noMedia" class="media-list">
+      <div
+        *ngIf="selectedAttendance.medias!.length > 0; else noMedia"
+        class="media-list"
+      >
         <div *ngFor="let file of selectedAttendance.medias" class="media-item">
           <div class="media-icon">
             <i class="pi pi-file-pdf"></i>
@@ -259,9 +281,33 @@
   </div>
 </p-dialog>
 
-<p-dialog header="Visualizador de PDF" [(visible)]="pdfDialogVisible" [modal]="true" [closable]="true"
-          [draggable]="false" resizable="false" [style]="{ width: '90%', height: '80vh' }">
+<p-dialog
+  header="Visualizador de PDF"
+  [(visible)]="pdfDialogVisible"
+  [modal]="true"
+  [closable]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '95vw', height: '95vh', maxWidth: '95vw', maxHeight: '95vh', padding: '0' }"
+>
+  <div style="height: 100%; overflow-y: auto;">
+    <iframe
+      *ngIf="pdfUrl"
+      [src]="pdfUrl"
+      width="100%"
+      style="min-height: 100%; border: none;"
+      frameborder="0"
+    ></iframe>
+  </div>
 
-  <iframe *ngIf="pdfUrl" [src]="pdfUrl" width="100%" height="100%" frameborder="0"></iframe>
-
+  <ng-template pTemplate="footer">
+    <button
+      pButton
+      type="button"
+      label="Salvar PDF"
+      icon="pi pi-download"
+      (click)="downloadPdf(currentFilePath!)"
+      class="p-button-sm p-button-text"
+    ></button>
+  </ng-template>
 </p-dialog>
