@@ -10,7 +10,6 @@ import { AttendancesService } from '../../services/attendances/attendance.servic
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { environment } from '../../../environments/environment';
 
-
 @Component({
   selector: 'app-attendances-client',
   standalone: true,
@@ -125,13 +124,20 @@ export class AttendancesClientComponent implements OnInit {
   pdfUrl: SafeResourceUrl | null = null;
 
   openPdf(filePath: string) {
-  const fileName = filePath.split('/home/oai/imagesDocuments/')[1];
-  const apiUrl = environment.apiUrl + `/imagem/${fileName}`;
-  this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(apiUrl);
+    // Pega apenas o nome do arquivo, sem o caminho absoluto do servidor
+    const fileName = filePath.split(
+      '/home/oai/imagesDocuments/contratosassinados/'
+    )[1];
 
-  console.log(this.pdfUrl);
-  this.pdfDialogVisible = true;
+    // Monta a URL do endpoint específico para PDFs
+    const apiUrl = environment.apiUrl + `/pdf/${fileName}`;
+
+    // Usa o DomSanitizer para evitar erros de segurança no Angular
+    this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(apiUrl);
+
+    console.log('PDF URL segura:', this.pdfUrl);
+
+    this.pdfDialogVisible = true;
   }
- // a 
-  
+  // a
 }
