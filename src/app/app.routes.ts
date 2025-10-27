@@ -119,7 +119,7 @@ export const routes: Routes = [
       )
   },
   {
-    path: 'contract-change/:clientId/:action/:contractId',
+    path: 'upgrade-downgrade/:clientId/:action/:contractId',
     loadComponent: () =>
       import('./components/down-upgrade/down-upgrade.component').then(
         (m) => m.DownUpgradeComponent

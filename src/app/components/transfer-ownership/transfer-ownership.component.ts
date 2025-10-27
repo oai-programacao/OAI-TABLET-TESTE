@@ -91,7 +91,7 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
   ContractId!: string;
   phoneOldOwner!: string;
   phoneNewOwner!: string;
-  contracts: Contract[] = []; // Usado para a lista na página anterior, pode ser adaptado
+  contracts: Contract[] = []; 
   currentClient: ClientData | null = null;
   isLoading = false;
 
@@ -281,7 +281,7 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
 
     const signatureOldData = this.signaturePadOld.toDataURL();
     const signatureNewData = this.signaturePadNew.toDataURL();
-    const oldContractId = this.selectedContractForTransfer!.id;
+    const oldContractId = this.selectedContractForTransfer!.id;2
     const newClientId = this.foundClient!.id;
 
     const signPayload = {
@@ -325,6 +325,23 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
   fecharModalAutentique(): void {
     this.autentiqueModalVisible = false;
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   sendToAutentiqueSubmit(): void {
     // 1. Validação de dados (verificando se os clientes e o contrato existem)
@@ -380,6 +397,34 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
         },
       });
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   // --- MÉTODOS DE NAVEGAÇÃO E UTILITÁRIOS ---
   goBackStep(stepIndex: number): void {

@@ -31,6 +31,7 @@ export interface Contract {
     codePlanRbx: number; 
     sellerId: string | null;
     saleId: string | null;
+    cicleFatId: number | null;
     cicleBillingDayBase: number | null;
     cicleBillingExpired: number | null;
     vigencia: number | null;

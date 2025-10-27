@@ -55,6 +55,7 @@ export class ActionsContractsService {
 
     return this.http.post(url, finalPayload, { responseType: 'text' });
   }
+
   sendTransferConsentAutentique(
     payload: CreateTransferConsentPayload,
     oldClientId: string,
@@ -63,6 +64,22 @@ export class ActionsContractsService {
 
     const url = `${this.apiUrl}/create-consent-document-transfer/${oldClientId}/${contractId}`;
     return this.http.post(url, payload, { responseType: 'text' });
+  }
+
+  sendUpgradeConsentAutentique(
+    payload: any,
+    contractId: string,
+    clientId: string
+  ): Observable<string> {
+    const sellerId = this.authService.getSellerId();
+    const finalPayload = {
+      ...payload,
+      sellerId,
+    };
+
+    const url = `${this.apiUrl}/create-consent-document-upgradePlan/${clientId}/${contractId}`;
+
+    return this.http.post(url, finalPayload, { responseType: 'text' });
   }
 
   sendAddressChangeAutentique(

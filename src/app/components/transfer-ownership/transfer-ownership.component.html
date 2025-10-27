@@ -60,11 +60,17 @@
                                 <p>Envie o termo para assinatura online via Autentique. Ideal para clientes atendidos
                                     remotamente.</p>
                             </div>
+
                             <div class="fluxo-footer">
                                 <!-- Este botão agora abre o modal, que é uma ação final deste fluxo -->
-                                <p-button label="Enviar via Autentique" icon="pi pi-send" severity="warn"
-                                    [raised]="true" (onClick)="abrirModalAutentique()"></p-button>
+                                <p-button 
+                                label="Enviar via Autentique" 
+                                icon="pi pi-send" 
+                                severity="warn"
+                                [raised]="true" 
+                                (onClick)="abrirModalAutentique()"></p-button>
                             </div>
+
                         </div>
                         <!-- CARD 2 - PRESENCIAL (MANUAL) -->
                         <div class="fluxo-card presencial">
@@ -77,9 +83,12 @@
                                     visualização do termo.</p>
                             </div>
                             <div class="fluxo-footer">
-                                <!-- CORREÇÃO LÓGICA: Este botão agora avança para o passo do PDF -->
-                                <p-button label="Assinatura Manual" icon="pi pi-file-pdf" severity="success"
-                                    [raised]="true" (onClick)="goToPdfViewerStep()"></p-button>
+                                <p-button 
+                                label="Assinatura Manual" 
+                                icon="pi pi-file-pdf" 
+                                severity="success"
+                                [raised]="true" 
+                                (onClick)="goToPdfViewerStep()"></p-button>
                             </div>
                         </div>
                     </div>
@@ -147,8 +156,12 @@
 </div>
 
 <!-- MODAL PARA O AUTENTIQUE (continua a ser um dialog) -->
-<p-dialog header="Enviar Via WhatsApp ⚙️" [(visible)]="autentiqueModalVisible" [modal]="true" [closable]="true"
-    [style]="{ width: '50rem' }" (onHide)="fecharModalAutentique()">
+<p-dialog 
+header="Enviar Via WhatsApp ⚙️" 
+[(visible)]="autentiqueModalVisible" 
+[modal]="true" [closable]="true"
+[style]="{ width: '50rem' }" 
+(onHide)="fecharModalAutentique()">
     <div class="dialog-content">
         <div class="icon-container">
             <i class="pi pi-whatsapp whatsapp-icon"></i>
@@ -192,13 +205,24 @@
         </p-inputgroup>
     </div>
     <ng-template pTemplate="footer">
-        <p-button label="Cancelar" icon="pi pi-times" severity="secondary"
-            (onClick)="fecharModalAutentique()"></p-button>
+        <p-button 
+        label="Cancelar" 
+        icon="pi pi-times" 
+        severity="secondary"
+        (onClick)="fecharModalAutentique()"></p-button>
 
-        <p-button label="Enviar" icon="pi pi-send" severity="success" [disabled]="arePhonesInvalid"
-            (onClick)="sendToAutentiqueSubmit()"></p-button>
+        <p-button 
+        label="Enviar" 
+        icon="pi pi-send" 
+        severity="success" 
+        [disabled]="arePhonesInvalid"
+        (onClick)="sendToAutentiqueSubmit()"></p-button>
     </ng-template>
 </p-dialog>
+
+
+
+
 
 <p-dialog header="Termo de Transferência de Titularidade" [(visible)]="pdfDialogVisible" [modal]="true"
     [style]="{ width: '90vw', height: '90vh' }" [draggable]="false" [resizable]="false">

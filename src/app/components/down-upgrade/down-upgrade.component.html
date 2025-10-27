@@ -34,6 +34,7 @@
                     <ng-template #content let-activateCallBack="activateCallback">
                         <div class="step step1">
                             <div class="step-content">
+
                                 <div class="info-item">
                                     <span class="label">Plano Atual</span>
                                     <div class="value">
@@ -81,49 +82,54 @@
                                     </span>
                                 </div>
 
+                                <hr style="margin: 1.5rem 0;">
+
                                 <div class="select-wrapper">
-                                    <p-select
-                                        [(ngModel)]="selectedPlan"  
-                                        [options]="typesofplans"
-                                        optionLabel="nome"        
-                                        placeholder="Selecione o novo Plano"
-                                        [showClear]="true"
-
-                                        [filter]="true"
-                                        filterBy="nome,codePlanRBX" 
-
-                                        [virtualScroll]="true" 
-                                        [virtualScrollItemSize]="40"
-                                    ></p-select>
+                                     <span class="p-float-label">
+                                        <label for="newPlanSelect">Selecione o novo Plano</label>
+                                        <p-select
+                                            inputId="newPlanSelect"
+                                            [(ngModel)]="selectedPlan"
+                                            [options]="typesofplans"
+                                            optionLabel="nome"
+                                            placeholder="Selecione o novo Plano"
+                                            [showClear]="true"
+                                            [filter]="true"
+                                            filterBy="nome,codePlanRBX"
+                                            [virtualScroll]="true"
+                                            [virtualScrollItemSize]="40"
+                                            styleClass="w-full"
+                                            appendTo="body"
+                                        ></p-select>
+                                     </span>
                                 </div>
 
-                                <div class="selected-info">
+                                 <div class="select-wrapper" style="margin-top: 1.5rem;">
+                                    <span class="p-float-label">
+                                        <p-inputNumber
+                                            inputId="descountFixe"
+                                            [(ngModel)]="newDiscount"
+                                            mode="currency"
+                                            currency="BRL"
+                                            locale="pt-BR"
+                                            placeholder="Novo Desconto Fixo (R$)"
+                                            [style]="{'width': '100%'}"
+                                            styleClass="w-full"
+                                        ></p-inputNumber>
+                                        <label for="descountFixe">Novo Desconto Fixo (R$)</label>
+                                    </span>
+                                </div>
+
+                                 <div class="selected-info">
                                     <i class="pi pi-calendar"></i>
                                     <span>
                                         Novo Plano selecionado:
                                         {{ selectedPlan?.nome || "Nenhum" }}
                                     </span>
                                 </div>
-
-                                <div class="proportional-explanation">
-                                    <p>
-                                        O valor abaixo é calculado proporcionalmente ao período
-                                        restante do mês atual. Considera-se o valor líquido do
-                                        contrato dividido pela quantidade de dias [30], multiplicado
-                                        pelo número de dias até o novo dia base escolhido.
-                                    </p>
-                                </div>
-
-                                <div class="proportional-info" *ngIf="proportionalBoleto !== null">
-                                    <i class="pi pi-dollar"></i>
-                                    <span>
-                                        Valor Proporcional:
-                                        {{ proportionalBoleto | currency : "BRL" : "symbol" : "1.2-2" }}
-                                    </span>
-                                </div>
                             </div>
                         </div>
-
+                        <!-- BOTÃO PARA A PROXIMA STEP -->
                         <div class="btn-actions">
                             <p-button
                                 severity="success"
@@ -134,85 +140,155 @@
                                 iconPos="right"
                                 label="Próximo"
                                 (onClick)="activateCallBack(2)"
-                                [disabled]="!selectedPlan"
+                                [disabled]="!selectedPlan || selectedBillingCycle === null || newDiscount === null"
                             ></p-button>
                         </div>
                     </ng-template>
                 </p-step-panel>
 
 
+                <p-step-panel [value]="2">
+                    <ng-template #content let-activateCallBack="activateCallback">
+                        <div *ngIf="selectedBillingCycle; else noDateSelected">
+                            <div class="fluxo-container">
+                                <!-- CARD 1 - ONLINE -->
+                                <div class="fluxo-card online">
+                                    <div class="fluxo-header">
+                                        🖥️
+                                        <h3>Atendimento Online</h3>
+                                    </div>
+                                    <div class="fluxo-body">
+                                        <p>
+                                            Envie o termo diretamente ára assinatura online via Autentique.
+                                            Ideal para clientes atendidos por WhatsApp ou Telefone!
+                                        </p>
+                                    </div>
+                                    <div class="fluxo-footer">
+                                        <p-button
+                                            label="Enviar Contrato"
+                                            icon="pi pi-send"
+                                            severity="warn"
+                                            [raised]="true"
+                                            (onClick)="abrirModal()"
+                                            [style]="{ 'padding': '2rem 4rem' }"
+                                        ></p-button>
+                                    </div>
+                                </div>
+                                
+                                <!-- CARD 2 - PRESENCIAL -->
+                                <div class="fluxo-card presencial">
+                                    <div class="fluxo-header">
+                                        🤝
+                                        <h3>Atendimento Presencial</h3>
+                                    </div>
+                                    <div class="fluxo-body">
+                                        <p>
+                                            Gere o termo para assinatura manual presencial. A
+                                            assinatura será inserida automaticamente no documento.
+                                        </p>
+                                    </div>
+                                    <div class="fluxo-footer">
+                                        <p-button
+                                            label="Assinatura Manual"
+                                            icon="pi pi-file-edit"
+                                            severity="success"
+                                            [raised]="true"
+                                            [style]="{ 'padding': '2rem 4rem' }"
+                                            (onClick)="activateCallBack(3)"
+                                            [disabled]="false"
+                                        ></p-button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <ng-template #noDateSelected>
+                            <div class="alert-warning">
+                                ⚠️ Para acessar este passo, volte ao passo anterior e selecione
+                                a nova data de vencimento.
+                            </div>
+                        </ng-template>
+                    </ng-template>
+                </p-step-panel>
+                <p-step-panel [value]="3" >
+                    <h3>STEP 3</h3>
+                </p-step-panel>     
+                <p-step-panel [value]="4" >
+                    
+                </p-step-panel>     
             </p-step-panels>
         </p-stepper>
     </app-card-base>
-</div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!-- <form [formGroup]="upgradeForm" (ngSubmit)="submitUpgrade()">
-    <div class="dialog-container">
-        <div class="p-fluid form-grid">
-            <div class="grid">
-                <div class="col-6">
-                    <div class="form-group-contract">
-                        <label for="contract">Nº do Contrato: </label>
-                        <span class="contract-code">{{ selectedContractForUpgrade?.codeContractRbx }}</span>
-                    </div>
+    <p-dialog
+        header="Enviar Via WhatsApp"
+        [(visible)]="modalVisible"
+        [modal]="true"
+        [closable]="true"
+        resizable="false"
+        [draggable]="false"
+        (onHide)="onHide()"
+    >
+        <div class="dialog-content">
+                <div class="icon-container">
+                    <i class="pi pi-whatsapp whatsapp-icon"></i>
                 </div>
-                <div class="col-6">
-                    <div class="form-group">
-                        <label for="codePlan">Código do Plano:</label>
-                        <p-inputNumber inputId="codePlan" formControlName="codePlan"></p-inputNumber>
-                    </div>
-                </div>
+
+            <div class="alert-box">
+                <div class="alert-icon-circle">!</div>
+                <p class="alert-text">
+                    Após a assinatura do documento pelo cliente via Autentique,<br />
+                    o sistema processará automaticamente a atualização dos dados<br />
+                    do contrato no RBX, vinculará um atendimento ao cliente<br />
+                    e anexará o documento assinado.<br /><br />
+                    O cliente tem 4 dias úteis para poder assinar e o processo ser feito,<br />
+                    caso contrário o documento será bloqueado e cancelado.<br />
+                    Você será notificado assim que a assinatura for concluída<br />
+                    e poderá consultar o atendimento diretamente no cadastro do cliente.
+                </p>
             </div>
 
-            <div class="form-group">
-                <label for="descountFixe">Desconto Fixo (R$)</label>
-                <p-inputNumber inputId="descountFixe" formControlName="descountFixe" mode="currency" currency="BRL"
-                    locale="pt-BR"></p-inputNumber>
-            </div>
+            <p class="info-text">
+                Certifique-se de que o número está correto, caso contrário, poderá ser
+                enviado para outra pessoa!<br />
+                O termo será enviado pela Autentique para o cliente assinar via WhatsApp
+                📄✅ <br />
+                Digite o número no formato <strong>+55</strong> (DDD + Número).<br />
+            </p>
 
-            <div class="grid">
-                <div class="col-6">
-                    <div class="form-group">
-                        <label for="cicleFatId">Ciclo de Faturamento:</label>
-                        <p-select id="expirationCycle" formControlName="expirationCycle"
-                            placeholder="Selecionar ciclo de vencimento" [options]="typesOfDateExpirationCicle"
-                            optionLabel="descricao" appendTo="body">
-                        </p-select>
-                    </div>
-                </div>
-            </div>
+            <p-inputgroup>
+                <p-inputgroup-addon>
+                    <i class="pi pi-whatsapp"></i>
+                </p-inputgroup-addon>
+
+                <input 
+                    pInputText
+                    id="telefone"
+                    name="telefone"
+                    placeholder="+55 (DDD) 00000-0000"
+                    [(ngModel)]="phone"
+                    required
+                    [style]="{ height: '40px', 'font-size': '20px'}"
+                    mask="(00) 00000-0000"
+                    prefix="+55"
+                    #phoneModel="ngModel"
+                    >
+            </p-inputgroup>
         </div>
-    </div>
-</form>
-<ng-template pTemplate="footer">
-    <p-button label="Cancelar" icon="pi pi-times" (click)="onHide()" severity="danger">
-    </p-button>
 
-    <p-button label="Confirmar Alteração" icon="pi pi-check" type="submit" [disabled]="upgradeForm.invalid"
-        (click)="submitUpgrade()" severity="success">
-    </p-button>
-</ng-template> -->
+        <ng-template pTemplate="footer">
+            <p-button
+                label="Cancelar"
+                icon="pi pi-times"
+                severity="secondary"
+                (onClick)="onHide()"
+            ></p-button>
+            <p-button
+                label="Enviar"
+                icon="pi pi-send"
+                severity="success"
+                [disabled]="!phone || phone.trim().length < 10"
+                (onClick)="sendTransferSubmit()"
+            ></p-button>
+        </ng-template>
+    </p-dialog>
+</div>

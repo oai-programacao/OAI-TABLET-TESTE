@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CardBaseComponent } from '../../shared/components/card-base/card-base.component';
 import { ButtonModule } from 'primeng/button';
-import { Divider, DividerModule } from 'primeng/divider';
+import { DividerModule } from 'primeng/divider';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DialogModule } from 'primeng/dialog';
 import { SelectModule } from 'primeng/select';
@@ -21,30 +21,18 @@ import { ContractsService } from '../../services/contracts/contracts.service';
 import { CalendarModule } from 'primeng/calendar';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { AuthService } from '../../core/auth.service';
-import { ConfirmDialog, ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { Popover, PopoverModule } from 'primeng/popover';
 import { TooltipModule } from 'primeng/tooltip';
 import { InputMaskModule } from 'primeng/inputmask';
 import { ClientService } from '../../services/clients/client.service';
-import { SearchclientService } from '../../services/searchclient/searchclient.service';
 import { Cliente as ClientData } from '../../models/cliente/cliente.dto';
-import { IftaLabel } from "primeng/iftalabel";
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { CheckboxModule } from 'primeng/checkbox';
-import { Stepper, StepperModule } from "primeng/stepper";
+import { StepperModule } from "primeng/stepper";
 import { InputGroupModule } from "primeng/inputgroup";
 import { InputGroupAddonModule } from "primeng/inputgroupaddon";
 import { InputTextModule } from 'primeng/inputtext';
-
-export interface Seller {
-  name: string;
-}
-
-export interface Plan {
-  plan: string;
-}
-
 
 
 @Component({
@@ -90,11 +78,9 @@ export class ClientContractComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly contractService = inject(ContractsService);
-  private readonly searchclientService = inject(SearchclientService)
   private readonly clientService = inject(ClientService)
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
-  private readonly sanitizer = inject(DomSanitizer);
 
   private currentClient: ClientData | null = null;
   contracts: Contract[] = [];
@@ -110,21 +96,7 @@ export class ClientContractComponent implements OnInit {
   upgradeForm!: FormGroup;
   selectedContractForUpgrade: Contract | null = null;
 
-  // --- Estado para Dialog de Transferência de Titularidade (NOVA VERSÃO COM STEPPER) ---
-  transferDialogVisible: boolean = false;
-  selectedContractForTransfer: Contract | null = null;
-  isLoadingTransfer: boolean = false;
-  loadingMessage: string = '';
-  documento: string = '';
-  foundClient: { id: string, name: string } | null = null;
 
-  // Propriedades do Stepper
-  activeStepIndex: number = 0;
-  pdfSrc: SafeResourceUrl | null = null;
-  isLoadingPdf: boolean = false;
-  consentAgreed: boolean = false;
-  autentiqueModalVisible: boolean = false;
-  phone: string = '';
 
   typesOfDateExpirationCicle = [
     { dia: '1', vencimento: '1', descricao: '01 a 31 / 01 ', value: '1' },
@@ -168,25 +140,6 @@ export class ClientContractComponent implements OnInit {
       this.loadContracts(this.clientId);
       this.loadCurrentClientData(this.clientId);
     }
-
-    this.upgradeForm = this.fb.group({
-      codePlan: [null, Validators.required],
-      descountFixe: [0, Validators.required],
-      expirationCycle: [null, Validators.required],
-      cicleFatId: [null],
-      cicleBillingDayBase: [null],
-      cicleBillingExpired: [null],
-    });
-
-    this.upgradeForm.get('expirationCycle')?.valueChanges.subscribe(selectedCycle => {
-      if (selectedCycle) {
-        this.upgradeForm.patchValue({
-          cicleFatId: selectedCycle.value,
-          cicleBillingDayBase: selectedCycle.dia,
-          cicleBillingExpired: selectedCycle.vencimento
-        }, { emitEvent: false });
-      }
-    });
   }
 
   // --- MÉTODOS DE CARREGAMENTO DE DADOS (Originais) ---
@@ -271,117 +224,6 @@ export class ClientContractComponent implements OnInit {
   }
 
 
-  // --- MÉTODOS PARA TRANSFERÊNCIA DE TITULARIDADE (FLUXO COM STEPPER) ---
-  closeTransferDialog(): void {
-    this.transferDialogVisible = false;
-  }
-
-  onSearchNewOwner(): void {
-    const documentoParaBuscar = this.documento.replace(/\D/g, '');
-    if (documentoParaBuscar.length < 11) {
-      this.messageService.add({ severity: 'warn', summary: 'Atenção', detail: 'Por favor, preencha o documento completo.' });
-      return;
-    }
-    if (this.isTransferringToSameOwner(documentoParaBuscar)) {
-      this.messageService.add({ severity: 'warn', summary: 'Operação Inválida', detail: 'Não é possível transferir um contrato para o mesmo titular.' });
-      return;
-    }
-    this.isLoadingTransfer = true;
-    this.loadingMessage = 'A procurar e a sincronizar o cliente...';
-    this.searchclientService.searchAndRegisterClient(documentoParaBuscar).subscribe({
-      next: (response) => {
-        this.isLoadingTransfer = false;
-        if (response?.client?.id && response?.client?.name) {
-          this.foundClient = { id: response.client.id, name: response.client.name };
-          this.messageService.add({ severity: 'info', summary: 'Cliente Localizado', detail: `O cliente ${response.client.name} está pronto para a transferência.` });
-        } else {
-          this.foundClient = null; // Garante que o botão 'Próximo' fique desabilitado.
-          this.messageService.add({ severity: 'warn', summary: 'Cliente não encontrado', detail: response.message || 'Nenhum cliente encontrado com este documento.' });
-        }
-      },
-      error: (err) => {
-        this.isLoadingTransfer = false;
-        this.messageService.add({ severity: 'error', summary: 'Erro na Procura', detail: err.error?.message || 'Não foi possível procurar o cliente.' });
-      },
-    });
-  }
-
-  goToConsentStep(): void {
-    this.activeStepIndex = 1;
-    this.isLoadingPdf = true;
-    this.pdfSrc = null;
-    this.consentAgreed = false;
-
-    const oldContractId = this.selectedContractForTransfer?.id;
-    const newClientId = this.foundClient?.id;
-
-    if (!oldContractId || !newClientId) {
-      this.messageService.add({ severity: 'error', summary: 'Erro de Dados', detail: 'Dados do contrato ou do novo cliente não foram encontrados.' });
-      this.isLoadingPdf = false;
-      return;
-    }
-
-    this.contractService.getTransferConsentPdf(oldContractId, newClientId).subscribe({
-      next: (pdfBlob: Blob) => {
-        const objectUrl = URL.createObjectURL(pdfBlob);
-        this.pdfSrc = this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl);
-        this.isLoadingPdf = false;
-      },
-      error: (err) => {
-        this.messageService.add({ severity: 'error', summary: 'Erro ao Gerar PDF', detail: err.error?.message || 'Não foi possível carregar o termo de consentimento.' });
-        this.isLoadingPdf = false;
-      }
-    });
-  }
-
-  onConfirmTransfer(): void {
-    if (!this.selectedContractForTransfer || !this.foundClient) return;
-
-    this.isLoadingTransfer = true;
-    this.loadingMessage = 'Efetivando transferência, por favor aguarde...';
-    const oldContractId = this.selectedContractForTransfer.id;
-    const newClientId = this.foundClient.id;
-
-    this.contractService.transferOwnership(oldContractId, newClientId).subscribe({
-      next: () => {
-        this.messageService.add({ severity: 'success', summary: 'Sucesso!', detail: 'A transferência de titularidade foi concluída.' });
-        this.isLoadingTransfer = false;
-        setTimeout(() => {
-          this.closeTransferDialog();
-          this.loadContracts(this.clientId);
-        }, 1500);
-      },
-      error: (err) => {
-        this.messageService.add({ severity: 'error', summary: 'Erro na Transferência', detail: err.error?.message || 'Não foi possível concluir a transferência.' });
-        this.isLoadingTransfer = false;
-        this.activeStepIndex = 0;
-      },
-    });
-  }
-
-  goBackStep(stepIndex: number): void {
-    this.activeStepIndex = stepIndex;
-  }
-
-  // --- MÉTODOS DE UPGRADE/DOWNGRADE E OUTROS DIALOGS (Originais) ---
- 
-
-  openDowngradeDialog() {
-    this.downgradeDialog = true;
-  }
-
-  openBillingDialog(contract: Contract) {
-    this.selectedContract = contract;
-    this.dialogBilling = true;
-  }
-
-  onHideUpgradeDialog() {
-    this.upgradeDialog = false;
-    this.upgradeForm.reset();
-    this.selectedContractForUpgrade = null;
-  }
-
-
   // --- MÉTODOS DIVERSOS (Originais) ---
   confirmTransferDate(contract: Contract) {
     this.confirmationService.confirm({
@@ -429,21 +271,7 @@ export class ClientContractComponent implements OnInit {
     }
   }
 
-  abrirModalAutentique(): void {
-    this.autentiqueModalVisible = true;
-    this.phone = '';
-  }
 
-  fecharModalAutentique(): void {
-    this.autentiqueModalVisible = false;
-  }
-
-  sendToAutentiqueSubmit(): void {
-    console.log('Enviando para o Autentique com o telefone:', this.phone);
-    this.messageService.add({ severity: 'info', summary: 'Processo Iniciado', detail: 'O termo foi enviado para assinatura via Autentique.' });
-    this.fecharModalAutentique();
-    this.closeTransferDialog();
-  }
 
   // --- MÉTODOS DE NAVEGAÇÃO E UTILITÁRIOS (Originais) ---
   navigateToCreatContract() { this.router.navigate(['add-contract']); }
@@ -455,57 +283,14 @@ export class ClientContractComponent implements OnInit {
   
   openUpgradeDialog(contract: Contract, isUpgrade: boolean) {
     const action = isUpgrade ? 'upgrade' : 'downgrade';
-    this.router.navigate([`/contract-change`, this.clientId, action, contract.id]);
+    this.router.navigate([`/upgrade-downgrade`, this.clientId, action, contract.id]);
   }
 
-  navigateToCreateClient(): void {
-    this.router.navigate(['/register']);
-    this.closeTransferDialog();
-  }
+
   goToAlterDateExpired(contract: Contract) {
     this.router.navigate(['/alter-dateexpired'], {
       queryParams: { clientId: this.clientId, contractId: contract.id },
     });
-  }
-
-  private isTransferringToSameOwner(documentoParaBuscar: string): boolean {
-    if (!this.currentClient) return false;
-    const isInputCpf = documentoParaBuscar.length === 11;
-    const cpfAtual = this.currentClient.cpf?.replace(/\D/g, '');
-    const cnpjAtual = this.currentClient.cnpj?.replace(/\D/g, '');
-    return (isInputCpf && cpfAtual === documentoParaBuscar) || (!isInputCpf && cnpjAtual === documentoParaBuscar);
-  }
-
-  allowOnlyNumbers(event: KeyboardEvent): void {
-    if (!/^\d$/.test(event.key) && !['Backspace', 'ArrowLeft', 'ArrowRight', 'Delete', 'Tab', 'Enter'].includes(event.key)) {
-      event.preventDefault();
-    }
-  }
-
-  formatarDocumento(value: string): void {
-    if (!value) {
-      this.documento = '';
-      return;
-    }
-    const unformattedValue = value.replace(/\D/g, '').substring(0, 14);
-    if (unformattedValue.length <= 11) {
-      this.documento = unformattedValue
-        .replace(/(\d{3})(\d)/, '$1.$2')
-        .replace(/(\d{3})(\d)/, '$1.$2')
-        .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
-    } else {
-      this.documento = unformattedValue
-        .replace(/(\d{2})(\d)/, '$1.$2')
-        .replace(/(\d{3})(\d)/, '$1.$2')
-        .replace(/(\d{3})(\d)/, '$1/$2')
-        .replace(/(\d{4})(\d{1,2})$/, '$1-$2');
-    }
-  }
-
-  onPaste(event: ClipboardEvent): void {
-    event.preventDefault();
-    const pastedText = event.clipboardData?.getData('text/plain') || '';
-    setTimeout(() => this.formatarDocumento(pastedText), 0);
   }
 
   onHide() {
