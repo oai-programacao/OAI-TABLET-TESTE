@@ -112,15 +112,18 @@ export class PdfViewerDialogComponent implements OnChanges {
     this.visibleChange.emit(this.visible);
   }
 
-  async downloadPdf() {
+  downloadPdf() {
     if (!this.pdfUrl) return;
-    const response = await fetch(this.pdfUrl);
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
+
+    // Cria link temporário
     const link = document.createElement('a');
-    link.href = url;
-    link.download = 'document.pdf';
+    link.href = this.pdfUrl;
+
+    // Nome do arquivo pode vir da URL ou ser fixo
+    const fileName = this.pdfUrl.split('/').pop() || 'document.pdf';
+    link.download = fileName;
+
+    // Dispara o download
     link.click();
-    window.URL.revokeObjectURL(url);
   }
 }
