@@ -635,30 +635,27 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     { label: 'Boleto', value: 'Boleto' },
   ];
 
-  savePdf(): void {
-    if (!this.pdfPreviewUrl) {
-      console.error('URL do PDF não disponível para salvar.');
-      return;
-    }
+ savePdf() {
+  if (!this.pdfPreviewUrl) {
+    console.error('URL do PDF não disponível para salvar.');
+    return;
+  }
 
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+  if (isIOS) {
+    // ✅ iOS (Safari / PWA) → abre o PDF no visualizador nativo
+    window.open(this.pdfPreviewUrl, '_blank');
+  } else {
+    // ✅ Desktop → tenta download direto
     const link = document.createElement('a');
-
     link.href = this.pdfPreviewUrl;
-
     link.download = 'termo_de_consentimento.pdf';
-
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   }
-
-  printPdf(): void {
-    if (!this.pdfIframe || !this.pdfIframe.nativeElement.contentWindow) {
-      console.error('Iframe do PDF não está pronto para impressão.');
-      return;
-    }
-    this.pdfIframe.nativeElement.contentWindow.print();
-  }
+}
 
   isPdfViewerLoaded: boolean = false;
 
