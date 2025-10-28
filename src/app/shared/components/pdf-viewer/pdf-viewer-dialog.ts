@@ -44,7 +44,7 @@ GlobalWorkerOptions.workerSrc = 'assets/pdfjs/pdf.worker.js';
           pButton
           label="Baixar"
           icon="pi pi-download"
-          (click)="downloadPdf()"
+          (click)="openPdf()"
           class="p-button-success"
         ></button>
       </ng-template>
@@ -112,18 +112,19 @@ export class PdfViewerDialogComponent implements OnChanges {
     this.visibleChange.emit(this.visible);
   }
 
-  downloadPdf() {
+  openPdf() {
     if (!this.pdfUrl) return;
 
-    // Cria link temporário
-    const link = document.createElement('a');
-    link.href = this.pdfUrl;
-
-    // Nome do arquivo pode vir da URL ou ser fixo
-    const fileName = this.pdfUrl.split('/').pop() || 'document.pdf';
-    link.download = fileName;
-
-    // Dispara o download
-    link.click();
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    if (isIOS) {
+      // Abrir no Safari / PWA
+      window.open(this.pdfUrl, '_blank');
+    } else {
+      // Desktop: tenta download direto
+      const link = document.createElement('a');
+      link.href = this.pdfUrl;
+      link.download = this.pdfUrl.split('/').pop() || 'document.pdf';
+      link.click();
+    }
   }
 }
