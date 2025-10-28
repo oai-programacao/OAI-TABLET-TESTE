@@ -1,8 +1,8 @@
 <div class="page-container">
   <p-toast></p-toast>
-
+  
   <app-card-base header="Buscar Cliente" width="auto" height="110%">
-    <!-- Botões de ação no topo -->
+    <!-- Added action buttons at the top -->
     <div class="btn-to-back-leads-content">
       <div class="btn-to-leads">
         <p-button
@@ -44,22 +44,31 @@
         </h2>
         <div class="datetime-badge">
           <i class="pi pi-calendar"></i>
-          {{ dataAtual | date : "EEEE, d 'de' MMMM 'de' yyyy" : "" : "pt-BR" }}
+          {{ dataAtual | date : "EEEE, d 'de' MMMM 'de' yyyy" : '' : 'pt-BR' }}
           <span class="time-separator">•</span>
           <i class="pi pi-clock"></i>
           {{ horaAtual | date : "HH:mm:ss" }}
         </div>
       </div>
 
+      <!-- Enhanced motivational messages section with icon and dots -->
       <div class="motivational-section">
         <div class="motivational-message">
+          <i class="pi pi-star-fill message-icon"></i>
           {{ getCurrentMessage() }}
+        </div>
+        <div class="message-dots">
+          <span 
+            class="dot" 
+            *ngFor="let message of motivationalMessages; let i = index"
+            [class.active]="i === currentMessageIndex"
+          ></span>
         </div>
       </div>
 
-      <!-- Cards de métricas com ícones -->
+      <!-- Added metric cards with staggered animation -->
       <div class="infotoseller">
-        <div class="info-card" *ngFor="let info of infoVendas; let i = index">
+        <div class="info-card" *ngFor="let info of infoVendas; let i = index" [style.animation-delay]="(i * 0.1) + 's'">
           <div class="metric-icon" [class]="'metric-icon-' + i">
             <i [class]="getMetricIcon(i)"></i>
           </div>
@@ -70,59 +79,61 @@
         </div>
       </div>
 
-      <!-- Formulário de busca -->
-      <form #searchClientForm="ngForm">
-        <div class="cpf-section">
-          <p-iftalabel variant="on" style="width: 100%">
-            <input
-              pInputText
-              [(ngModel)]="documento"
-              name="documento"
-              required
-              minlength="11"
-              maxlength="18"
-              placeholder="000.000.000-00"
-              (ngModelChange)="formatarDocumento($event)"
-              (keypress)="allowOnlyNumbers($event)"
-              (paste)="onPaste($event)"
-              inputmode="numeric"
-              autocomplete="off"
-              #docModel="ngModel"
-              class="cpf-input"
-            />
-            <label for="documento">CPF/CNPJ (Somente Números)</label>
-          </p-iftalabel>
+      <!-- Wrapped form in centered container with reduced width -->
+      <div class="form-container">
+        <form #searchClientForm="ngForm">
+          <div class="cpf-section">
+            <p-iftalabel variant="on" style="width: 100%">
+              <input
+                pInputText
+                [(ngModel)]="documento"
+                name="documento"
+                required
+                minlength="11"
+                maxlength="18"
+                placeholder="000.000.000-00"
+                (ngModelChange)="formatarDocumento($event)"
+                (keypress)="allowOnlyNumbers($event)"
+                (paste)="onPaste($event)"
+                inputmode="numeric"
+                autocomplete="off"
+                #docModel="ngModel"
+                class="cpf-input"
+              />
+              <label for="documento">CPF/CNPJ (Somente Números)</label>
+            </p-iftalabel>
 
-          <app-message-valid-forms
-            [control]="docModel"
-            error="required"
-            text="Para pesquisar um cliente é necessário colocar um documento | CPF/CNPJ |"
-          ></app-message-valid-forms>
-        </div>
+            <app-message-valid-forms
+              [control]="docModel"
+              error="required"
+              text="Para pesquisar um cliente é necessário colocar um documento | CPF/CNPJ |"
+            ></app-message-valid-forms>
+          </div>
 
-        <div class="actions">
-          <p-button
-            type="button"
-            label="Consultar Cliente"
-            icon="pi pi-search"
-            severity="info"
-            [raised]="true"
-            [loading]="isLoading"
-            [disabled]="waitApiInsert"
-            (onClick)="consultarCliente()"
-            styleClass="primary-action-btn"
-          ></p-button>
+          <div class="actions">
+            <p-button
+              type="button"
+              label="Consultar Cliente"
+              icon="pi pi-search"
+              severity="info"
+              [raised]="true"
+              [loading]="isLoading"
+              [disabled]="waitApiInsert"
+              (onClick)="consultarCliente()"
+              styleClass="primary-action-btn"
+            ></p-button>
 
-          <p-button
-            label="Ver Planos"
-            icon="pi pi-list"
-            severity="secondary"
-            [outlined]="true"
-            (onClick)="verPlanos()"
-            styleClass="secondary-action-btn"
-          ></p-button>
-        </div>
-      </form>
+            <p-button
+              label="Ver Planos"
+              icon="pi pi-list"
+              severity="secondary"
+              [outlined]="true"
+              (onClick)="verPlanos()"
+              styleClass="secondary-action-btn"
+            ></p-button>
+          </div>
+        </form>
+      </div>
     </div>
   </app-card-base>
 </div>
