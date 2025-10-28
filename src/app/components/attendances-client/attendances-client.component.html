@@ -281,39 +281,7 @@
   </div>
 </p-dialog>
 
-<p-dialog
-  header="Visualizador de PDF"
+<app-pdf-viewer-dialog
   [(visible)]="pdfDialogVisible"
-  [modal]="true"
-  [closable]="true"
-  [draggable]="false"
-  [resizable]="false"
-  [style]="{
-    width: '95vw',
-    height: '95vh',
-    maxWidth: '95vw',
-    maxHeight: '95vh',
-    padding: '0'
-  }"
->
-  <div style="height: 100%; overflow-y: auto">
-    <iframe
-      *ngIf="pdfUrl"
-      [src]="pdfUrl"
-      width="100%"
-      style="min-height: 100%; border: none"
-      frameborder="0"
-    ></iframe>
-  </div>
-
-  <ng-template pTemplate="footer">
-    <button
-      pButton
-      type="button"
-      label="Salvar PDF"
-      icon="pi pi-download"
-      (click)="downloadPdf(currentFilePath!)"
-      class="p-button-sm p-button-text"
-    ></button>
-  </ng-template>
-</p-dialog>
+  [pdfUrl]="pdfUrl"
+></app-pdf-viewer-dialog>

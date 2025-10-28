@@ -7,9 +7,10 @@ import { CardBaseComponent } from '../../shared/components/card-base/card-base.c
 import { Attendance } from '../../models/attendance/attendance.dto';
 import { DialogModule } from 'primeng/dialog';
 import { AttendancesService } from '../../services/attendances/attendance.service';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { DomSanitizer } from '@angular/platform-browser';
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
+import { PdfViewerDialogComponent } from '../../shared/components/pdf-viewer/pdf-viewer-dialog';
 
 @Component({
   selector: 'app-attendances-client',
@@ -20,6 +21,7 @@ import { HttpClient } from '@angular/common/http';
     ButtonModule,
     TableModule,
     DialogModule,
+    PdfViewerDialogComponent,
   ],
   templateUrl: './attendances-client.component.html',
   styleUrl: './attendances-client.component.scss',
@@ -123,34 +125,14 @@ export class AttendancesClientComponent implements OnInit {
 
   // Variáveis para o dialog do PDF
   pdfDialogVisible = false;
-  pdfUrl: SafeResourceUrl | null = null;
-
-  currentFilePath: string | null = null;
+  pdfUrl: string | null = null;
 
   openPdf(filePath: string) {
-    this.currentFilePath = filePath; // salva o caminho atual
     const fileName = filePath.split(
       '/home/oai/imagesDocuments/contratosassinados/'
     )[1];
-    const apiUrl = environment.apiUrl + `/pdf/${fileName}`;
-    this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(apiUrl);
+    this.pdfUrl = `${environment.apiUrl}/pdf/${fileName}`;
     this.pdfDialogVisible = true;
   }
 
-  // Botão de download usando Blob
-  downloadPdf(filePath: string) {
-    const fileName = filePath.split(
-      '/home/oai/imagesDocuments/contratosassinados/'
-    )[1];
-    const apiUrl = environment.apiUrl + `/pdf/${fileName}`;
-
-    this.http.get(apiUrl, { responseType: 'blob' }).subscribe((blob) => {
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = fileName;
-      a.click();
-      window.URL.revokeObjectURL(url);
-    });
-  }
 }
