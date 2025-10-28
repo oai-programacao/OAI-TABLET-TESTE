@@ -7,9 +7,7 @@ import { CardBaseComponent } from '../../shared/components/card-base/card-base.c
 import { Attendance } from '../../models/attendance/attendance.dto';
 import { DialogModule } from 'primeng/dialog';
 import { AttendancesService } from '../../services/attendances/attendance.service';
-import { DomSanitizer } from '@angular/platform-browser';
 import { environment } from '../../../environments/environment';
-import { HttpClient } from '@angular/common/http';
 import { PdfViewerDialogComponent } from '../../shared/components/pdf-viewer/pdf-viewer-dialog';
 
 @Component({
@@ -30,8 +28,7 @@ export class AttendancesClientComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private attendancesService = inject(AttendancesService);
-  private sanitizer = inject(DomSanitizer);
-  private http = inject(HttpClient);
+
 
   clientId!: string;
   attendances: Attendance[] = [];
@@ -89,9 +86,8 @@ export class AttendancesClientComponent implements OnInit {
       });
   }
 
-  // Evento chamado pelo paginator do PrimeNG
   onPageChange(event: any) {
-    const page = event.first / event.rows; // calcula o número da página
+    const page = event.first / event.rows; 
     const size = event.rows;
     this.loadAttendances(page, size);
   }

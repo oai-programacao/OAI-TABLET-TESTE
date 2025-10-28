@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnChanges,
+  SimpleChanges,
+  Output,
+  EventEmitter,
+} from '@angular/core';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 
@@ -17,6 +24,7 @@ GlobalWorkerOptions.workerSrc = 'assets/pdfjs/pdf.worker.js';
       header="Visualizador de PDF"
       [(visible)]="visible"
       [modal]="true"
+      (onHide)="close()"
       [closable]="true"
       [draggable]="false"
       [resizable]="false"
@@ -34,35 +42,42 @@ GlobalWorkerOptions.workerSrc = 'assets/pdfjs/pdf.worker.js';
       <ng-template pTemplate="footer">
         <button
           pButton
-          label="Fechar"
-          icon="pi pi-times"
-          (click)="visible = false"
+          label="Baixar"
+          icon="pi pi-download"
+          (click)="downloadPdf()"
+          class="p-button-success"
         ></button>
       </ng-template>
     </p-dialog>
   `,
-  styles: [`
-    .pdf-container {
-      height: 100%;
-      overflow-y: auto;
-    }
-    canvas {
-      display: block;
-      margin: 10px auto;
-      border: 1px solid #ccc;
-    }
-  `],
+  styles: [
+    `
+      .pdf-container {
+        height: 100%;
+        overflow-y: auto;
+      }
+      canvas {
+        display: block;
+        margin: 10px auto;
+        border: 1px solid #ccc;
+      }
+    `,
+  ],
 })
 export class PdfViewerDialogComponent implements OnChanges {
-   @Input() visible = false;
+  @Input() visible = false;
   @Output() visibleChange = new EventEmitter<boolean>();
   @Input() pdfUrl: string | null = null;
-  
+
   pages: { height: number; pageNum: number }[] = [];
   viewportWidth = 800;
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['pdfUrl'] && this.pdfUrl) {
+    if (
+      (changes['pdfUrl'] || changes['visible']) &&
+      this.visible &&
+      this.pdfUrl
+    ) {
       this.loadPdf(this.pdfUrl);
     }
   }
@@ -82,12 +97,30 @@ export class PdfViewerDialogComponent implements OnChanges {
   }
 
   async renderPage(page: any, viewport: any, pageNum: number) {
-    const canvas: HTMLCanvasElement | null = document.querySelectorAll('canvas')[pageNum - 1];
+    const canvas: HTMLCanvasElement | null =
+      document.querySelectorAll('canvas')[pageNum - 1];
     if (!canvas) return;
     const context = canvas.getContext('2d');
     canvas.width = viewport.width;
     canvas.height = viewport.height;
 
     await page.render({ canvasContext: context!, viewport }).promise;
+  }
+
+  close() {
+    this.visible = false;
+    this.visibleChange.emit(this.visible);
+  }
+
+  async downloadPdf() {
+    if (!this.pdfUrl) return;
+    const response = await fetch(this.pdfUrl);
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'document.pdf';
+    link.click();
+    window.URL.revokeObjectURL(url);
   }
 }
