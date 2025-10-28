@@ -93,7 +93,4 @@ export class ActionsContractsService {
     const url = `${this.apiUrl}/create-consent-document-update-address/${clientId}/${contractId}`;
     return this.http.post(url, finalPayload, { responseType: 'text' });
   }
-
-
-
 }

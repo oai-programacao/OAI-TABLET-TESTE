@@ -5,13 +5,15 @@
             <p-button icon="pi pi-arrow-left" [rounded]="true" severity="danger" raised="true" size="large"
                 (onClick)="voltarParaCliente()" />
         </div>
+
         <div class="transfer-dialog__header">
             <label>Contrato a ser transferido:</label>
             <span>#{{ selectedContractForTransfer?.codeContractRbx }}</span>
         </div>
 
+        <!-- Mudança de [value]="activeStepIndex + 1" para [(value)]="activeStep" -->
         <div class="step-numbers">
-            <p-stepper [value]="activeStepIndex + 1">
+            <p-stepper [(value)]="activeStep">
                 <p-step-list>
                     <p-step [value]="1">Buscar Cliente</p-step>
                     <p-step [value]="2">Método de Assinatura</p-step>
@@ -22,12 +24,14 @@
         </div>
 
         <div class="step-panels-container">
+            <!-- Adicionado overlay de loading com mensagem dinâmica -->
             <div *ngIf="isLoadingTransfer" class="transfer-dialog__loading-overlay">
                 <p-progressSpinner strokeWidth="4"></p-progressSpinner>
                 <span class="loading-message">{{ loadingMessage }}</span>
             </div>
 
-            <div *ngIf="activeStepIndex === 0" class="step-panel-content">
+            <!-- Mudança de activeStepIndex === 0 para activeStep === 1 -->
+            <div *ngIf="activeStep === 1" class="step-panel-content">
                 <div class="step-content">
                     <p class="step-instruction">Digite o documento do novo titular para iniciar a transferência.</p>
                     <div class="form-group-input">
@@ -40,17 +44,30 @@
                         </p-iftalabel>
                     </div>
                 </div>
-                <div class="step-footer">
-                    <p-button [rounded]="true" severity="help" label="Buscar" icon="pi pi-search"
-                        (onClick)="onSearchNewOwner()"></p-button>
-                    <p-button [rounded]="true" label="Próximo" icon="pi pi-arrow-right" (onClick)="activeStepIndex = 1"
-                        [disabled]="!foundClient"> </p-button>
+                <div class="step-footer-step1">
+                    <p-button 
+                        [rounded]="true" 
+                        severity="warn" 
+                        label="Buscar" 
+                        icon="pi pi-search"
+                        (onClick)="onSearchNewOwner()">
+                    </p-button>
+                    <!-- Mudança para activeStep = 2 -->
+                    <p-button 
+                        [rounded]="true" 
+                        label="Próximo" 
+                        icon="pi pi-arrow-right" 
+                        (onClick)="activeStep = 2"
+                        [disabled]="!foundClient">
+                    </p-button>
                 </div>
             </div>
 
-            <div *ngIf="activeStepIndex === 1" class="step-panel-content">
+            <!-- Mudança para activeStep === 2 -->
+            <div *ngIf="activeStep === 2" class="step-panel-content">
                 <div class="step-content">
                     <div class="fluxo-container">
+                        <!-- CARD 1 - ONLINE -->
                         <div class="fluxo-card online">
                             <div class="fluxo-header">
                                 🖥️
@@ -60,19 +77,13 @@
                                 <p>Envie o termo para assinatura online via Autentique. Ideal para clientes atendidos
                                     remotamente.</p>
                             </div>
-
                             <div class="fluxo-footer">
-                                <!-- Este botão agora abre o modal, que é uma ação final deste fluxo -->
-                                <p-button 
-                                label="Enviar via Autentique" 
-                                icon="pi pi-send" 
-                                severity="warn"
-                                [raised]="true" 
-                                (onClick)="abrirModalAutentique()"></p-button>
+                                <p-button label="Enviar via Autentique" icon="pi pi-send" severity="warn"
+                                    [raised]="true" (onClick)="abrirModalAutentique()"></p-button>
                             </div>
-
                         </div>
-                        <!-- CARD 2 - PRESENCIAL (MANUAL) -->
+
+                        <!-- CARD 2 - PRESENCIAL -->
                         <div class="fluxo-card presencial">
                             <div class="fluxo-header">
                                 🤝
@@ -84,56 +95,113 @@
                             </div>
                             <div class="fluxo-footer">
                                 <p-button 
-                                label="Assinatura Manual" 
-                                icon="pi pi-file-pdf" 
-                                severity="success"
-                                [raised]="true" 
-                                (onClick)="goToPdfViewerStep()"></p-button>
+                                    label="Assinatura Manual" 
+                                    icon="pi pi-file-pdf" 
+                                    severity="success"
+                                    [raised]="true" 
+                                    (onClick)="goToPdfViewerStep()">
+                                </p-button>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="step-footer">
-                    <p-button [rounded]="true" label="Voltar" icon="pi pi-arrow-left" (onClick)="goBackStep(0)"
-                        [text]="true"></p-button>
+                    <p-button 
+                        [rounded]="true" 
+                        severity="help"
+                        label="Voltar" 
+                        icon="pi pi-arrow-left" 
+                        (onClick)="goToStep(1)">
+                    </p-button>
                 </div>
             </div>
 
-            <!-- PAINEL 3: TERMO DE CONSENTIMENTO (FLUXO MANUAL) -->
-            <div *ngIf="activeStepIndex === 2" class="step-panel-content">
-                <div class="step-content">
-                    <div *ngIf="isLoadingPdf" class="pdf-loading">
-                        <p-progressSpinner></p-progressSpinner>
-                        <span>A gerar termo de consentimento...</span>
-                    </div>
-                    <div *ngIf="!isLoadingPdf" class="signature-container">
-                        <p-button label="Visualizar Termo de Transferência" icon="pi pi-file-pdf" severity="help"
-                            (onClick)="pdfDialogVisible = true" [rounded]="true">
-                        </p-button>
-                        <div class="signature-box">
-                            <label>Assinatura do Cedente (Titular Antigo)</label>
-                            <canvas #signaturePadOld class="signature-canvas"></canvas>
-                            <p-button label="Limpar" icon="pi pi-refresh" [text]="true"
-                                (onClick)="clearSignatureOld()"></p-button>
-                        </div>
-                        <div class="signature-box">
-                            <label>Assinatura do Cessionário (Novo Titular)</label>
-                            <canvas #signaturePadNew class="signature-canvas"></canvas>
-                            <p-button label="Limpar" icon="pi pi-refresh" [text]="true"
-                                (onClick)="clearSignatureNew()"></p-button>
+            <!-- Mudança para activeStep === 3 -->
+            <div *ngIf="activeStep === 3" class="step-panel-content">
+                <div *ngIf="isLoadingPdf" class="loading-pdf-overlay">
+                    <p-progressSpinner strokeWidth="4"></p-progressSpinner>
+                    <span class="loading-message">A gerar o Termo de Transferência...</span>
+                </div>
+
+                <div *ngIf="previewLoadFailed && !isLoadingPdf" class="p-mt-2 text-center p-text-danger">
+                    <p>
+                        <i class="pi pi-exclamation-triangle p-mr-1"></i> Falha ao carregar o preview.
+                    </p>
+                    <p-button label="Tentar Novamente" icon="pi pi-refresh"
+                        styleClass="p-button-sm p-button-danger p-button-outlined"
+                        (click)="loadPdfPreview()"></p-button>
+                </div>
+
+                <div *ngIf="safePdfPreviewUrl && !isLoadingPdf" class="pdf-preview-section p-mb-3">
+                    <div class="pdf-viewer p-mt-2">
+                        <iframe [src]="safePdfPreviewUrl" width="100%" height="600px"
+                            style="border: 1px solid #ccc">
+                        </iframe>
+
+                        <div class="btn-signature">
+                            <p-button 
+                                label="Assinaturas" 
+                                icon="pi pi-pencil" 
+                                severity="info" 
+                                rounded="true"                                
+                                raised="true" 
+                                (click)="abrirAssinatura()">
+                            </p-button>
+
+                            <p-button 
+                                label="Capturar Foto" 
+                                icon="pi pi-camera" 
+                                (click)="triggerCameraInput()"
+                                severity="info" 
+                                rounded="true" 
+                                raised="true">
+                            </p-button>
+
+                            <p-button 
+                                label="Salvar PDF" 
+                                icon="pi pi-download" 
+                                styleClass="p-button-sm p-button-success"
+                                (click)="savePdf()" 
+                                [disabled]="!safePdfPreviewUrl" rounded="true"
+                                raised="true">
+                            </p-button>
                         </div>
                     </div>
                 </div>
-                <div class="step-footer">
-                    <p-button [rounded]="true" label="Voltar" icon="pi pi-arrow-left" (onClick)="goBackStep(1)"
-                        [text]="true"></p-button>
-                    <p-button [rounded]="true" label="Efetivar Transferência" icon="pi pi-check"
-                        (onClick)="onConfirmTransfer()" [disabled]="isConfirmDisabled()"></p-button>
+                        <div class="camera-section">
+                            <input
+                            type="file"
+                            accept="image/*"
+                            capture="environment"
+                            (change)="onFotoCapturada($event)"
+                            style="display: none"
+                            #cameraInput
+                            />
+                        </div>
+                <div class="btn-to-navigate">
+                    <p-button 
+                        label="Voltar" 
+                        icon="pi pi-arrow-left" 
+                        severity="help" 
+                        rounded="true" 
+                        size="large"
+                        [raised]="true" 
+                        (onClick)="goToStep(2)" />
+                    <p-button 
+                        severity="success" 
+                        rounded="true" 
+                        raised="true" 
+                        size="large" 
+                        icon="pi pi-arrow-right"
+                        iconPos="right" 
+                        label="Confirmar Transferência" 
+                        (onClick)="onConfirmTransfer()"
+                        [disabled]="!signatureOldBase64 || !signatureNewBase64" />
                 </div>
             </div>
 
-            <!-- PAINEL 4: TERMO DE CONSENTIMENTO (FLUXO MANUAL) -->
-            <div *ngIf="activeStepIndex === 3" class="step-panel-content">
+            <!-- Mudança para activeStep === 4 -->
+            <div *ngIf="activeStep === 4" class="step-panel-content">
                 <div class="step-content confirmation-step">
                     <i class="pi pi-check-circle success-icon"></i>
                     <h3>Processo Concluído!</h3>
@@ -147,92 +215,190 @@
                 </div>
 
                 <div class="step-footer">
-                    <p-button [rounded]="true" label="Voltar para o Início" icon="pi pi-home"
-                        (onClick)="navigateToInfoClient()"></p-button>
+                    <p-button 
+                        severity="help"
+                        [rounded]="true" 
+                        label="Voltar para o Início" 
+                        icon="pi pi-home"
+                        (onClick)="navigateToInfoClient()">
+                    </p-button>
                 </div>
             </div>
         </div>
     </app-card-base>
-</div>
 
-<!-- MODAL PARA O AUTENTIQUE (continua a ser um dialog) -->
-<p-dialog 
-header="Enviar Via WhatsApp ⚙️" 
-[(visible)]="autentiqueModalVisible" 
-[modal]="true" [closable]="true"
-[style]="{ width: '50rem' }" 
-(onHide)="fecharModalAutentique()">
-    <div class="dialog-content">
-        <div class="icon-container">
-            <i class="pi pi-whatsapp whatsapp-icon"></i>
-        </div>
-        <div class="alert-box">
-            <div class="alert-icon-circle">!</div>
-            <p class="alert-text">
-                Após a assinatura do documento pelo cliente via Autentique,<br />
-                o sistema processará automaticamente a atualização dos dados<br />
-                do contrato no RBX, vinculará um atendimento ao cliente<br />
-                e anexará o documento assinado.<br /><br />
-                Você será notificado assim que a assinatura for concluída<br />
-                e poderá consultar o atendimento diretamente no cadastro do cliente.
+    <!-- Adicionada estrutura de alert-box melhorada no modal -->
+    <p-dialog header="Enviar Via WhatsApp ⚙️" [(visible)]="autentiqueModalVisible" [modal]="true" [closable]="true"
+        [style]="{ width: '50rem' }" (onHide)="fecharModalAutentique()">
+        <div class="dialog-content">
+            <div class="icon-container">
+                <i class="pi pi-whatsapp whatsapp-icon"></i>
+            </div>
+
+            <!-- Estrutura de alert-box melhorada -->
+            <div class="alert-box">
+                <div class="alert-icon-circle">!</div>
+                <p class="alert-text">
+                    Após a assinatura do documento pelo cliente via Autentique,<br />
+                    o sistema processará automaticamente a atualização dos dados<br />
+                    do contrato no RBX, vinculará um atendimento ao cliente<br />
+                    e anexará o documento assinado.<br /><br />
+                    O cliente tem 4 dias úteis para poder assinar e o processo ser feito,<br />
+                    caso contrário o documento será bloqueado e cancelado.<br />
+                    Você será notificado assim que a assinatura for concluída<br />
+                    e poderá consultar o atendimento diretamente no cadastro do cliente.
+                </p>
+            </div>
+
+            <p class="info-text">
+                Certifique-se de que o número está correto, caso contrário, poderá ser
+                enviado para outra pessoa!<br />
+                O termo será enviado pela Autentique para o cliente assinar via WhatsApp
+                📄✅ <br />
+                Digite o número no formato <strong>+55</strong> (DDD + Número).<br />
             </p>
+
+            <p>Insira o número do <strong>Titular Atual</strong></p>
+            <p-inputgroup>
+                <p-inputgroup-addon>
+                    <i class="pi pi-whatsapp"></i>
+                </p-inputgroup-addon>
+                <input pInputText id="telefone-antigo" name="telefone-antigo" mask="(00) 00000-0000" prefix="+55"
+                    placeholder="+55 (DDD) 00000-0000" [(ngModel)]="phoneOldOwner" required
+                    [style]="{ height: '40px', 'font-size': '20px' }" />
+            </p-inputgroup>
+
+            <p>Insira o número do <strong>Novo Titular</strong></p>
+            <p-inputgroup>
+                <p-inputgroup-addon>
+                    <i class="pi pi-whatsapp"></i>
+                </p-inputgroup-addon>
+                <input pInputText id="telefone-novo" name="telefone-novo" mask="(00) 00000-0000" prefix="+55"
+                    placeholder="+55 (DDD) 00000-0000" [(ngModel)]="phoneNewOwner" required
+                    [style]="{ height: '40px', 'font-size': '20px' }" />
+            </p-inputgroup>
         </div>
-        <p class="info-text">
-            Certifique-se de que o número está correto, caso contrário, poderá ser
-            enviado para outra pessoa!<br />
-            O termo será enviado pela Autentique para o cliente assinar via WhatsApp
-            📄✅ <br />
-            Digite o número no formato <strong>+55</strong> (DDD + Número).<br />
-        </p>
-        <p>Insira o número do <strong>Titular Atual</strong></p>
-        <p-inputgroup>
-            <p-inputgroup-addon>
-                <i class="pi pi-whatsapp"></i>
-            </p-inputgroup-addon>
-            <input pInputText id="telefone-antigo" name="telefone-antigo" mask="(00) 00000-0000" prefix="+55"
-                placeholder="+55 (DDD) 00000-0000" [(ngModel)]="phoneOldOwner" required
-                [style]="{ height: '40px', 'font-size': '20px' }" />
-        </p-inputgroup>
 
-        <p>Insira o número do <strong>Novo Titular</strong></p>
-        <p-inputgroup>
-            <p-inputgroup-addon>
-                <i class="pi pi-whatsapp"></i>
-            </p-inputgroup-addon>
-            <input pInputText id="telefone-novo" name="telefone-novo" mask="(00) 00000-0000" prefix="+55"
-                placeholder="+55 (DDD) 00000-0000" [(ngModel)]="phoneNewOwner" required
-                [style]="{ height: '40px', 'font-size': '20px' }" />
-        </p-inputgroup>
-    </div>
-    <ng-template pTemplate="footer">
-        <p-button 
-        label="Cancelar" 
-        icon="pi pi-times" 
-        severity="secondary"
-        (onClick)="fecharModalAutentique()"></p-button>
+        <ng-template pTemplate="footer">
+            <p-button label="Cancelar" icon="pi pi-times" severity="secondary"
+                (onClick)="fecharModalAutentique()"></p-button>
 
-        <p-button 
-        label="Enviar" 
-        icon="pi pi-send" 
-        severity="success" 
-        [disabled]="arePhonesInvalid"
-        (onClick)="sendToAutentiqueSubmit()"></p-button>
-    </ng-template>
-</p-dialog>
+            <p-button label="Enviar" icon="pi pi-send" severity="success" [disabled]="arePhonesInvalid"
+                (onClick)="sendToAutentiqueSubmit()"></p-button>
+        </ng-template>
+    </p-dialog>
 
+    <p-dialog header="Termo de Transferência de Titularidade" [(visible)]="pdfDialogVisible" [modal]="true"
+        [style]="{ width: '90vw', height: '90vh' }" [draggable]="false" [resizable]="false">
 
+        <div *ngIf="pdfSrc" class="pdf-viewer-dialog">
+            <iframe [src]="pdfSrc" width="100%" height="100%"></iframe>
+        </div>
 
+        <ng-template pTemplate="footer">
+            <p-button label="Fechar" icon="pi pi-times" (onClick)="pdfDialogVisible = false" styleClass="p-button-text">
+            </p-button>
+        </ng-template>
+    </p-dialog>
 
+    <!-- DIALOG ASSINATURA CEDENTE -->
+    <p-dialog 
+            header="Assinatura do Cedente (Titular Atual)" 
+            [(visible)]="dialogAssinaturaCedente" 
+            [modal]="true"
+            [closable]="true"
+            [style]="{ width: '70vw', maxWidth: '900px' }"
+            [draggable]="false"
+            [resizable]="false"
+            styleClass="signature-dialog"
+            (onShow)="forceSignatureRedraw()"
+            (onHide)="resetSignaturePad()">
+        <div class="signature-pad-container">
+            <div class="signature-input">
+                <p-iftalabel>
+                    <label for="signature-old">
+                        <i class="pi pi-user"></i> 
+                        Por favor, solicite a assinatura do titular atual no campo abaixo:
+                    </label>
+                    <ng-container *ngIf="signatureVisibleFlag">
+                        <app-signature-pad #signaturePadOld> </app-signature-pad>
+                    </ng-container>
+                </p-iftalabel>
+            </div>
+        </div>
 
-<p-dialog header="Termo de Transferência de Titularidade" [(visible)]="pdfDialogVisible" [modal]="true"
-    [style]="{ width: '90vw', height: '90vh' }" [draggable]="false" [resizable]="false">
+            <p-divider layout="horizontal"></p-divider>
 
-    <div *ngIf="pdfSrc" class="pdf-viewer-dialog">
-        <iframe [src]="pdfSrc" width="100%" height="100%"></iframe>
-    </div>
+            <ng-template pTemplate="footer">
+                <div class="btn-dialog">
+                    <p-button 
+                        label="Cancelar"
+                        icon="pi pi-times"
+                        severity="warn"
+                        rounded="true"
+                        (onClick)="dialogAssinaturaCedente = false">
+                    </p-button>
+                    
+                    <p-button 
+                        label="Próximo"
+                        icon="pi pi-arrow-right"
+                        iconPos="right"
+                        severity="info"
+                        rounded="true"
+                        (onClick)="confirmOldSignature()">
+                    </p-button>
+                </div>
+            </ng-template>
+    </p-dialog>
 
-    <ng-template pTemplate="footer">
-        <p-button label="Fechar" icon="pi pi-times" (onClick)="pdfDialogVisible = false" styleClass="p-button-text">
-        </p-button>
-    </ng-template>
-</p-dialog>
+    <!-- DIALOG ASSINATURA CESSIONÁRIO -->
+     <p-dialog 
+        header="Assinatura do Cessionário (Novo Titular)" 
+        [(visible)]="dialogAssinaturaCessionario" 
+        [modal]="true"
+        [closable]="true"
+        [style]="{ width: '80vw', maxWidth: '900px' }"
+        [draggable]="false"
+        [resizable]="false"
+        styleClass="signature-dialog"
+        (onShow)="forceSignatureRedraw()"
+        (onHide)="resetSignaturePad()">
+        
+        <div class="signature-pad-container">
+            <div class="signature-input">
+                <p-iftalabel>
+                    <label for="signature-new">
+                        <i class="pi pi-user-plus"></i> 
+                        Por favor, solicite a assinatura do novo titular no campo abaixo:
+                    </label>
+                    <ng-container *ngIf="signatureVisibleFlag">
+                        <app-signature-pad #signaturePadNew></app-signature-pad>
+                    </ng-container>
+                </p-iftalabel>
+            </div>
+        </div>
+
+        <p-divider layout="horizontal"></p-divider>
+
+        <ng-template pTemplate="footer">
+            <div class="btn-dialog">
+                <p-button 
+                    label="Voltar"
+                    icon="pi pi-arrow-left"
+                    severity="help"
+                    rounded="true"
+                    (onClick)="dialogAssinaturaCessionario = false; dialogAssinaturaCedente = true">
+                </p-button>
+                
+                <p-button 
+                    label="Gerar Termo Final"
+                    icon="pi pi-file-pdf"
+                    severity="success"
+                    rounded="true"
+                    [loading]="isLoadingPreview"
+                    (onClick)="captureAndGenerate()">
+                </p-button>
+            </div>
+        </ng-template>
+    </p-dialog>
+</div>

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ToastModule } from "primeng/toast";
 import { CardBaseComponent } from "../../shared/components/card-base/card-base.component";
@@ -30,6 +30,11 @@ import { DividerModule } from 'primeng/divider';
 import { PopoverModule } from 'primeng/popover';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TooltipModule } from 'primeng/tooltip';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { ReportsService } from '../../services/reports/reports.service';
+import { SignaturePadComponent } from '../signature-pad/signature-pad.component';
+import { MidiaService } from '../../services/midia/midia.service';
+import { IftaLabelModule } from "primeng/iftalabel";
 
 export interface ContractUpdate {
   seller: string;
@@ -49,7 +54,6 @@ export interface ContractUpdate {
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-
     // 🔹 PrimeNG
     ToastModule,
     ButtonModule,
@@ -67,21 +71,26 @@ export interface ContractUpdate {
     PopoverModule,
     ProgressSpinnerModule,
     TooltipModule,
-
     // 🔹 Máscara de input
     NgxMaskDirective,
-
     // 🔹 Componente customizado
-    CardBaseComponent
+    CardBaseComponent,
+    SignaturePadComponent,
+    IftaLabelModule
   ],
   providers: [MessageService],
   templateUrl: './down-upgrade.component.html',
   styleUrl: './down-upgrade.component.scss'
 })
 export class DownUpgradeComponent implements OnInit {
+  @ViewChild('cameraInput') cameraInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('signaturePadInDialog') signaturePadInDialog!: SignaturePadComponent;
 
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly sanitizer = inject(DomSanitizer);
+  private readonly reportsService = inject(ReportsService);
+  private readonly midiaService = inject(MidiaService);
 
   private planService = inject(PlanService);
   private contractService = inject(ContractsService);
@@ -90,6 +99,8 @@ export class DownUpgradeComponent implements OnInit {
 
   private actionsContractsService = inject(ActionsContractsService);
   private readonly authService = inject(AuthService);
+
+  public activeStep: number = 1;
 
   clientId!: string;
   contractId!: string;
@@ -110,7 +121,20 @@ export class DownUpgradeComponent implements OnInit {
   isLoadingTransfer: boolean = false;
   loadingMessage: string = '';
 
-  activeStepIndex: number = 0;
+  avisoInvalido: boolean = true;
+
+  safePdfPreviewUrl: SafeResourceUrl | null = null;
+  pdfPreviewUrl: string | null = null;
+  isLoadingPreview = false;
+  previewLoadFailed = false;
+
+  signDialogVisible = false;
+  capturedSignature: string | null = null;
+
+  signatureVisibleFlag = false;
+  isPreviewDialogVisible: boolean = false;
+  thumbnailPreview: string | ArrayBuffer | null = null;
+  fotoCapturadaFile: File | null = null;
 
   typesOfDateExpirationCicle = [
     { descricao: 'Nenhum', value: null },
@@ -146,7 +170,7 @@ export class DownUpgradeComponent implements OnInit {
     { descricao: '30 a 29 / 30', value: 30 },
     { descricao: '31 a 30 / 31', value: 31 },
   ];
-  
+
 
   fluxo!: boolean | 'upgrade' | 'downgrade';
 
@@ -157,7 +181,7 @@ export class DownUpgradeComponent implements OnInit {
       if (!this.clientId || !this.contractId) return this.backToHome();
       this.loadContractAndClient(this.contractId, this.clientId);
       this.loadPlans();
-      this.fluxo = params['action']; 
+      this.fluxo = params['action'];
     });
 
     this.clientId = this.route.snapshot.paramMap.get('clientId')!;
@@ -323,7 +347,7 @@ export class DownUpgradeComponent implements OnInit {
         {
           name: this.client.name || '',
           phone: '+55' + (this.phone || '').replace(/\D/g, '')
-        } 
+        }
       ]
     };
     console.log('Payload enviado:', payload);
@@ -344,7 +368,6 @@ export class DownUpgradeComponent implements OnInit {
         next: (res: string) => {
           this.isLoadingTransfer = false;
           this.showSuccess('Sucesso!', res, 10000);
-          this.activeStepIndex = 3;
         },
         error: (err) => {
           this.isLoadingTransfer = false;
@@ -360,7 +383,210 @@ export class DownUpgradeComponent implements OnInit {
   private showSuccess(summary: string, detail: string, life: number = 3000) { this.messageService.add({ severity: 'success', summary, detail, life }); }
   private showError(summary: string, detail: string) { this.messageService.add({ severity: 'error', summary, detail }); }
 
-  //  fim dos metodos de atendimento online
+
+  loadPdfPreview(): void {
+    if (this.isLoadingPreview) return;
+
+    if (!this.selectedPlan) {
+      this.showError('Erro', 'Nenhum plano foi selecionado no passo anterior.');
+      this.previewLoadFailed = true;
+      return;
+    }
+
+    console.log('Gerando preview do termo de upgrade...');
+    this.isLoadingPreview = true;
+    this.previewLoadFailed = false;
+    this.safePdfPreviewUrl = null;
+
+    if (this.pdfPreviewUrl) {
+      URL.revokeObjectURL(this.pdfPreviewUrl);
+      this.pdfPreviewUrl = null;
+    }
+
+    // 1. Crie o 'body' EXATAMENTE como no Postman
+    const requestBody = {
+      contractId: this.contract.id,
+      newPlanId: this.selectedPlan.id
+    };
+
+    // 2. CHAME O SERVIÇO ENVIANDO O 'requestBody'
+    this.reportsService.getPlanChange(requestBody)
+      .subscribe({
+        next: (blob) => {
+          this.pdfPreviewUrl = window.URL.createObjectURL(blob);
+          this.safePdfPreviewUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfPreviewUrl);
+          this.isLoadingPreview = false;
+        },
+        error: (err) => {
+          console.error('Erro ao carregar preview do PDF:', err);
+          this.showError('Erro no Preview', 'Não foi possível carregar o termo. Tente novamente.');
+          this.previewLoadFailed = true;
+          this.isLoadingPreview = false;
+        },
+      });
+  }
+
+  abrirAssinatura(): void {
+    this.signDialogVisible = true;
+    this.signatureVisibleFlag = true; // Força o redesenho
+  }
+
+  forceSignatureRedraw() {
+    setTimeout(() => {
+      this.signatureVisibleFlag = false;
+      setTimeout(() => {
+        this.signatureVisibleFlag = true;
+      });
+    }, 30);
+  }
+
+  resetSignaturePad() {
+    this.capturedSignature = null;
+  }
+
+  captureAndGenerate(): void {
+    if (this.isLoadingPreview) return;
+
+    const signatureBase64 = this.signaturePadInDialog.getSignatureAsBase64();
+
+    if (!signatureBase64 || signatureBase64.length <= 22) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Atenção',
+        detail: 'Não foi possível capturar a assinatura. Tente novamente.',
+      });
+      return;
+    }
+
+    this.capturedSignature = signatureBase64;
+    this.generateConsentTermWithSignature();
+  }
+
+  generateConsentTermWithSignature() {
+    if (!this.capturedSignature) {
+      this.showError('Atenção', 'Capture a assinatura antes de gerar o termo.');
+      return;
+    }
+    if (this.isLoadingPreview) return;
+
+    console.log('Gerando termo com assinatura...');
+    this.isLoadingPreview = true;
+    this.previewLoadFailed = false;
+    this.safePdfPreviewUrl = null;
+
+    if (this.pdfPreviewUrl) {
+      URL.revokeObjectURL(this.pdfPreviewUrl);
+      this.pdfPreviewUrl = null;
+    }
+
+    const rawBase64 = this.capturedSignature.split(',')[1];
+ 
+    const requestBody = {
+      contractId: this.contract.id,
+      newPlanId: this.selectedPlan!.id,
+      signatureBase64: rawBase64
+    };
+
+    this.reportsService.getPlanChange(requestBody)
+      .subscribe({
+        next: (blob) => {
+          this.pdfPreviewUrl = window.URL.createObjectURL(blob);
+          this.safePdfPreviewUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfPreviewUrl);
+          this.isLoadingPreview = false;
+          this.showSuccess('Sucesso', 'Termo com assinatura gerado!');
+          this.signDialogVisible = false;
+        },
+        error: (err) => {
+          console.error('Erro ao gerar termo com assinatura:', err);
+          this.showError('Erro', 'Falha ao gerar o termo final com assinatura.');
+          this.previewLoadFailed = true;
+          this.isLoadingPreview = false;
+        },
+      });
+  }
+
+  onFotoCapturada(event: Event): void {
+    const input = event.target as HTMLInputElement;
+
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      this.fotoCapturadaFile = file;
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        this.thumbnailPreview = e.target?.result ?? null;
+        this.isPreviewDialogVisible = true;
+      };
+
+      reader.readAsDataURL(file);
+    }
+  }
+
+  limparPreview(): void {
+    this.thumbnailPreview = null;
+    this.fotoCapturadaFile = null;
+    this.isPreviewDialogVisible = false;
+  }
+
+  salvarFotoCapturada() {
+    if (!this.fotoCapturadaFile) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Nenhuma foto',
+        detail: 'Tire uma foto antes de salvar.',
+      });
+      return;
+    }
+
+    if (!this.clientId) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erro',
+        detail: 'ID do cliente não encontrado para associar a foto.',
+      });
+      return;
+    }
+
+    const filesToUpload: File[] = [this.fotoCapturadaFile];
+    this.midiaService.saveMidias(filesToUpload, this.clientId).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Foto salva com sucesso!',
+        });
+        this.limparPreview(); // Fecha o dialog de preview
+      },
+      error: (err) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro ao salvar a foto',
+        });
+        console.error(err);
+      },
+    });
+  }
+
+  goToStep(stepNumber: number): void {
+    this.activeStep = stepNumber;
+
+    if (stepNumber === 3 && !this.safePdfPreviewUrl) {
+      this.loadPdfPreview();
+    }
+  }
+
+  meuMetodoExtra(): void {
+    this.avisoInvalido = false;
+  }
+
+  savePdf(): void {
+    if (!this.pdfPreviewUrl) return;
+    const a = document.createElement('a');
+    a.href = this.pdfPreviewUrl;
+    a.download = `Termo_Upgrade_Contrato_${this.contract.codeContractRbx || this.contractId}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
 
   voltarParaCliente() {
     this.router.navigate(['/client-contracts', this.clientId])
