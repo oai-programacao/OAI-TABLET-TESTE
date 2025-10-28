@@ -132,10 +132,12 @@
         </div>
 
         <div class="contract-actions">
+
           <p-button icon="pi pi-arrow-up" (onClick)="openUpgradeDialog(contract, true)" severity="success"
             [rounded]="true" [text]="true" pTooltip="Fazer Upgrade" tooltipPosition="top" />
-          <p-button icon="pi pi-arrow-down" (onClick)="openUpgradeDialog(contract, true)" severity="danger"
+          <p-button icon="pi pi-arrow-down" (onClick)="openUpgradeDialog(contract, false)" severity="danger"
             [rounded]="true" [text]="true" pTooltip="Fazer Downgrade" tooltipPosition="top" />
+
           <p-button icon="pi pi-home" (onClick)="navigateToAddressTransfer(contract)" severity="warn" [rounded]="true"
             [text]="true" pTooltip="Transferir Endereço" tooltipPosition="top" />
           <p-button icon="pi pi-calendar" (onClick)="goToAlterDateExpired(contract)" severity="success" [rounded]="true"
@@ -149,43 +151,4 @@
       } }
     </div>
   </app-card-base>
-</div>
-
-<p-dialog header="Alterar Data de Vencimento" [(visible)]="dialogBilling" [modal]="true" [resizable]="false"
-  [draggable]="false">
-  <div class="dialog-content">
-    <!-- Container para ícone acima do select -->
-    <div class="select-with-icon">
-      <div class="warn-icon-container">
-        <span class="warn-icon" (click)="toggle(pop3, $event)" role="button" aria-label="Informação importante">
-          !
-        </span>
-        <p-popover #pop3 [dismissable]="true">
-          <div class="warn-popup">
-            Exemplo:<br />
-            <strong>01 a 31 / 01</strong><br /><br />
-            <strong>01</strong> — Início do ciclo<br />
-            <strong>31</strong> — Vencimento<br />
-            <strong>01</strong> — Data de pagamento
-          </div>
-        </p-popover>
-      </div>
-
-      <p-select [options]="typesOfDateExpirationCicle" [appendTo]="'body'" optionLabel="descricao" optionValue="value"
-        placeholder="Selecione um Ciclo" [(ngModel)]="selectedBillingCycle"></p-select>
-    </div>
-
-    <div>
-      <button pButton label="Trocar" class="p-button-warning" (click)="confirmTransferDate(selectedContract)"></button>
-    </div>
-  </div>
-</p-dialog>
-
-<!-- Overlay Global -->
-<div class="global-overlay" *ngIf="loadingBillingDialog">
-  <p-progressSpinner strokeWidth="4" animationDuration=".5s"
-    [style]="{ width: '200px', height: '200px' }"></p-progressSpinner>
-  <span class="global-overlay-message">
-    [⚙️] Aguarde enquanto a automação altera os dados.
-  </span>
 </div>
