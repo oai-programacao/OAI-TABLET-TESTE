@@ -107,4 +107,11 @@ export class ContractsService {
     payload
   );
 }
+
+updateAddressContract(contractId: string, payload: any): Observable<any> {
+  return this.http.patch<any>(
+    `${this.urlApi}/contract/${contractId}/update-address`,
+    payload
+  );
+}
 }

@@ -58,7 +58,7 @@ export interface AddressForm {
   city: string;
   observation: string;
   adesionValue: number | null;
-  paymentMethod: string | null;
+ paymentForm: string | null;
 }
 
 @Component({
@@ -155,7 +155,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     city: '',
     observation: '',
     adesionValue: null,
-    paymentMethod: null,
+    paymentForm: null,
   };
 
   public paymentForm = {
@@ -201,7 +201,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
         neighborhood: this.currentContract.neighborhood || '',
         observation: this.currentContract.observation || '',
         adesionValue: null,
-        paymentMethod: null,
+        paymentForm: null,
       };
       this.originalAddressForm = { ...this.addressNewForm };
       return;
@@ -264,7 +264,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       complement: this.addressNewForm.complement,
       observation: this.addressNewForm.observation,
       adesionValue: this.addressNewForm.adesionValue ?? 0,
-      paymentMethod: this.addressNewForm.paymentMethod,
+      paymentForm: this.addressNewForm.paymentForm,
     };
 
     this.reportsService
@@ -351,7 +351,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       complement: this.addressNewForm.complement,
       observation: this.addressNewForm.observation,
       adesionValue: this.addressNewForm.adesionValue,
-      paymentMethod: this.addressNewForm.paymentMethod,
+      paymentForm: this.addressNewForm.paymentForm,
     };
 
     this.isLoading = true;
@@ -397,7 +397,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       complement: this.addressNewForm.complement,
       observation: this.addressNewForm.observation,
       adesionValue: this.addressNewForm.adesionValue,
-      paymentMethod: this.addressNewForm.paymentMethod,
+      paymentForm: this.addressNewForm.paymentForm,
     };
 
     const mappedSigners = [
@@ -485,7 +485,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       observation: this.addressNewForm.observation,
       adesionValue: this.addressNewForm.adesionValue ?? 0,
       signatureBase64: this.capturedSignature,
-      paymentMethod: this.addressNewForm.paymentMethod,
+      paymentForm: this.addressNewForm.paymentForm,
     };
 
     this.reportsService
@@ -629,10 +629,10 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   }
 
   paymentMethods = [
-    { label: 'Dinheiro', value: 'cash' },
-    { label: 'Cartão de Crédito', value: 'credit_card' },
-    { label: 'Pix', value: 'pix' },
-    { label: 'Boleto', value: 'boleto' },
+    { label: 'Dinheiro', value: 'Dinheiro' },
+    { label: 'Cartão de Crédito', value: 'Cartão de Crédito' },
+    { label: 'Pix', value: 'Pix' },
+    { label: 'Boleto', value: 'Boleto' },
   ];
 
   savePdf(): void {
@@ -686,63 +686,57 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   }
 
   sendToAutomation(): void {
-    if (!this.currentContract) {
+  if (!this.currentContract) {
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Erro',
+      detail: 'Dados do contrato original não encontrados!',
+    });
+    return;
+  }
+
+  this.isLoading = true;
+
+  const payload = {
+    clientId: this.currentContract.clientId,
+    contractId: this.currentContract.id, 
+    address: {
+      cep: this.addressNewForm.zipCode,
+      uf: this.addressNewForm.uf,
+      cidade: this.addressNewForm.city,
+      rua: this.addressNewForm.street,
+      numero: this.addressNewForm.numberFromHome,
+      bairro: this.addressNewForm.neighborhood,
+      complemento: this.addressNewForm.complement,
+      // codmunicipio: ... // se necessário, inclua aqui!
+    }
+  };
+
+  this.contractsService.updateAddressContract(this.currentContract.id, payload).subscribe({
+    next: () => {
+      this.isLoading = false;
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Sucesso!',
+        detail: 'Endereço atualizado!',
+      });
+      this.router.navigate([
+        '/client-contracts',
+        this.currentContract?.clientId,
+      ]);
+    },
+    error: (err) => {
+      this.isLoading = false;
+      const detailMessage =
+        err?.error?.message || 'Falha ao atualizar o endereço.';
       this.messageService.add({
         severity: 'error',
         summary: 'Erro',
-        detail: 'Dados do contrato original não encontrados!',
+        detail: detailMessage,
       });
-      return;
-    }
-
-    this.isLoading = true;
-
-    const sellerIdFromAuth = this.authService.getSellerId();
-
-    const payload = {
-      clientId: this.currentContract.clientId,
-      sellerId: sellerIdFromAuth!.toString(),
-      contractNumber: this.currentContract.codeContractRbx,
-      newZip: this.addressNewForm.zipCode,
-      newNumber: this.addressNewForm.numberFromHome,
-      newComplement: this.addressNewForm.complement,
-      newState: this.ufToNome(this.addressNewForm.uf),
-      newCity: this.addressNewForm.city,
-      newStreet: this.addressNewForm.street,
-      newNeighborhood: this.addressNewForm.neighborhood,
-      observation: this.addressNewForm.observation || null,
-    };
-
-    console.log('Payload enviado:', payload);
-
-    console.log('UF digitado:', this.addressNewForm.uf);
-    console.log('Nome convertido:', this.ufToNome(this.addressNewForm.uf));
-    this.contractsService.changeAddressContract(payload).subscribe({
-      next: () => {
-        this.isLoading = false;
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Sucesso!',
-          detail: 'Automação iniciada!',
-        });
-        this.router.navigate([
-          '/client-contracts',
-          this.currentContract?.clientId,
-        ]);
-      },
-      error: (err) => {
-        this.isLoading = false;
-        const detailMessage =
-          err?.error?.message || 'Falha ao iniciar a automação.';
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro',
-          detail: detailMessage,
-        });
-      },
-    });
-  }
-
+    },
+  });
+}
   ufToNome(uf: string): string {
     const mapa: Record<string, string> = {
       AC: 'Acre',
