@@ -245,7 +245,7 @@ export class AlterDateExpiredComponent {
             detail: `${res}.
             Aguarde o cliente assinar, todo o processo será feito de forma automática.
             Consulte nos atendimentos do cliente se foi feito de fato.`,
-            life: 10000,
+            life: 15000,
           });
           this.modalVisible = false;
         },
@@ -260,7 +260,7 @@ export class AlterDateExpiredComponent {
             severity: 'error',
             summary: 'Erro',
             detail: backendMessage,
-            life: 10000,
+            life: 15000,
           });
         },
       });
