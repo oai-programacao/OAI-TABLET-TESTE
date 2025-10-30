@@ -148,6 +148,14 @@ export class AlterDateExpiredComponent {
   selectedBillingCycle: number | null = null;
   proportionalBoleto: number | null = null;
 
+  selectedTypeOfPaymentMethod: string | null = null;
+  typesOfPaymentMethod = [
+    { descricao: 'Boleto Bancário', value: 'Boleto' },
+    { descricao: 'Débito Automático', value: 'CartaoDebito' },
+    { descricao: 'Cartão de Crédito', value: 'CartaoCredito' },
+    { descricao: 'Pix', value: 'Pix' },
+  ];
+
   typesOfDateExpirationCicle = [
     { descricao: 'Nenhum' },
     { descricao: '01 a 31 / 01', value: 1 },
@@ -227,6 +235,7 @@ export class AlterDateExpiredComponent {
         this.typesOfDateExpirationCicle.find(
           (t) => t.value === this.selectedBillingCycle
         )?.descricao || '',
+      paymentMethod: this.selectedTypeOfPaymentMethod || '',
     };
 
     const mappedSigners = [
@@ -242,10 +251,8 @@ export class AlterDateExpiredComponent {
           this.messageService.add({
             severity: 'success',
             summary: 'Sucesso',
-            detail: `${res}.
-            Aguarde o cliente assinar, todo o processo será feito de forma automática.
-            Consulte nos atendimentos do cliente se foi feito de fato.`,
-            life: 10000,
+            detail: res,
+            life: 15000,
           });
           this.modalVisible = false;
         },
@@ -260,7 +267,7 @@ export class AlterDateExpiredComponent {
             severity: 'error',
             summary: 'Erro',
             detail: backendMessage,
-            life: 10000,
+            life: 15000,
           });
         },
       });

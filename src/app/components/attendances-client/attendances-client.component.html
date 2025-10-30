@@ -44,6 +44,43 @@
           </p>
         </div>
       </div>
+      <div class="reversals-button-container">
+        <p-button
+          (click)="popover.toggle($event)"
+          label="🔍 Filtros"
+          [badge]="selectedStatus ? '1' : ''"
+          styleClass="filter-button"
+        />
+
+        <p-popover #popover>
+          <div class="filter-panel">
+            <h3 class="filter-title">Filtrar por Status</h3>
+
+            <div class="filter-section">
+              <p-select
+                [options]="statusOptions"
+                [(ngModel)]="selectedStatus"
+                placeholder="Selecione o status"
+                [style]="{ width: '100%' }"
+              />
+            </div>
+
+            <div class="filter-actions">
+              <p-button
+                label="Limpar"
+                icon="pi pi-times"
+                (click)="clearFilters()"
+                styleClass="p-button-text"
+              />
+              <p-button
+                label="Aplicar"
+                icon="pi pi-check"
+                (click)="applyFilters(); popover.hide()"
+              />
+            </div>
+          </div>
+        </p-popover>
+      </div>
 
       <!-- Tabela com headers horizontais tradicionais -->
       <div class="table-wrapper" *ngIf="attendances!.length > 0">
@@ -65,12 +102,20 @@
                 RBX
               </th>
               <th>
+                <i class="pi pi-calendar"></i>
+                Status
+              </th>
+              <th>
                 <i class="pi pi-random"></i>
                 Fluxo
               </th>
               <th>
                 <i class="pi pi-users"></i>
                 Topico
+              </th>
+              <th>
+                <i class="pi pi-users"></i>
+                Tipo
               </th>
               <th>🙍‍♂️ Vendedor</th>
               <th>
@@ -94,6 +139,35 @@
               </td>
               <td>
                 <div class="cell-content">
+                  <span
+                    class="status-badge {{
+                      att.status === 'OPEN'
+                        ? 'open'
+                        : att.status === 'COMPLETED'
+                        ? 'completed'
+                        : att.status === 'PENDING'
+                        ? 'pending'
+                        : att.status === 'CANCELLED'
+                        ? 'cancelled'
+                        : ''
+                    }}"
+                  >
+                    {{
+                      att.status === "OPEN"
+                        ? "Aberto"
+                        : att.status === "COMPLETED"
+                        ? "Finalizado"
+                        : att.status === "PENDING"
+                        ? "Pendente"
+                        : att.status === "CANCELLED"
+                        ? "Cancelado"
+                        : att.status
+                    }}
+                  </span>
+                </div>
+              </td>
+              <td>
+                <div class="cell-content">
                   <span>{{
                     att.flow === "26" ? "26 • Mudança de DV" : att.flow
                   }}</span>
@@ -110,6 +184,21 @@
                         : att.topic === "88"
                         ? "88 • Downgrade"
                         : att.topic
+                    }}
+                  </span>
+                </div>
+              </td>
+              <td>
+                <div class="cell-content">
+                  <span>
+                    {{
+                      att.type === "T"
+                        ? "Técnico"
+                        : att.type === "A"
+                        ? "Admin/Finan"
+                        : att.type === "C"
+                        ? "Comercial"
+                        : att.type
                     }}
                   </span>
                 </div>
@@ -207,6 +296,9 @@
           {{ selectedAttendance.openHour }}</span
         >
       </div>
+      <div class="info-badge">
+        <p-button [severity]="'danger'"  [raised]="true">❌ CANCELAR</p-button>
+      </div>
     </div>
 
     <div class="dialog-section">
@@ -225,7 +317,10 @@
         Arquivos Anexados
       </h3>
 
-      <div *ngIf="selectedAttendance.medias!.length > 0; else noMedia" class="media-list">
+      <div
+        *ngIf="selectedAttendance.medias!.length > 0; else noMedia"
+        class="media-list"
+      >
         <div *ngFor="let file of selectedAttendance.medias" class="media-item">
           <div class="media-icon">
             <i class="pi pi-file-pdf"></i>
@@ -259,9 +354,7 @@
   </div>
 </p-dialog>
 
-<p-dialog header="Visualizador de PDF" [(visible)]="pdfDialogVisible" [modal]="true" [closable]="true"
-          [draggable]="false" resizable="false" [style]="{ width: '90%', height: '80vh' }">
-
-  <iframe *ngIf="pdfUrl" [src]="pdfUrl" width="100%" height="100%" frameborder="0"></iframe>
-
-</p-dialog>
+<app-pdf-viewer-dialog
+  [(visible)]="pdfDialogVisible"
+  [pdfUrl]="pdfUrl"
+></app-pdf-viewer-dialog>

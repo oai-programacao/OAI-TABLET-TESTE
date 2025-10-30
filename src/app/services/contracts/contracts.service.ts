@@ -62,30 +62,30 @@ export class ContractsService {
     );
   }
 
-   transferOwnership(oldContractId: string, newClientId: string): Observable<any> {
+  transferOwnership(oldContractId: string, newClientId: string): Observable<any> {
     const url = `${this.urlApi}/contract/${oldContractId}/transfer-ownership`;
     const payload = { newClientId };
 
     return this.http.post<any>(url, payload);
   }
 
- getTransferConsentPdf(oldContractId: string, newClientId: string): Observable<Blob> {
-    const payload = { 
-      oldContractId: oldContractId, 
-      newClientId: newClientId 
+  getTransferConsentPdf(oldContractId: string, newClientId: string): Observable<Blob> {
+    const payload = {
+      oldContractId: oldContractId,
+      newClientId: newClientId
     };
 
     const endpoint = `${this.urlApi}/consent-term/generate-transfer-term`;
-    return this.http.post(endpoint, payload, { 
-      responseType: 'blob' 
+    return this.http.post(endpoint, payload, {
+      responseType: 'blob'
     });
   }
 
   finalizeAndSignTransfer(payload: any): Observable<Blob> {
     const endpoint = `${this.urlApi}/consent-term/finalize-transfer`;
 
-    return this.http.post(endpoint, payload, { 
-      responseType: 'blob' 
+    return this.http.post(endpoint, payload, {
+      responseType: 'blob'
     });
   }
 

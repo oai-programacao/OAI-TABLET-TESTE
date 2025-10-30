@@ -91,10 +91,21 @@
                     [options]="typesOfDateExpirationCicle"
                     optionLabel="descricao"
                     optionValue="value"
-                    placeholder="Selecione nova data de vencimento"
+                    placeholder="Selecione a nova data de vencimento"
                     styleClass="custom-select"
                     [(ngModel)]="selectedBillingCycle"
                     (onChange)="onBillingCycleChange()"
+                  ></p-select>
+                </div>
+
+                <div class="select-wrapper">
+                  <p-select
+                    [options]="typesOfPaymentMethod"
+                    optionLabel="descricao"
+                    optionValue="value"
+                    placeholder="Forma de Pagamento"
+                    styleClass="custom-select"
+                    [(ngModel)]="selectedTypeOfPaymentMethod"
                   ></p-select>
                 </div>
 
@@ -141,7 +152,7 @@
                 iconPos="right"
                 label="Próximo"
                 (onClick)="activateCallback(2)"
-                [disabled]="!selectedBillingCycle"
+                [disabled]="!selectedBillingCycle || !selectedTypeOfPaymentMethod"
               ></p-button>
             </div>
           </ng-template>

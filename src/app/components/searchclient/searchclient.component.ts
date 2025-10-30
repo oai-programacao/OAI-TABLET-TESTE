@@ -65,6 +65,20 @@ export class SearchclientComponent implements OnInit {
     setInterval(() => {
       this.horaAtual = new Date();
     }, 1000);
+
+    this.messageInterval = setInterval(() => {
+      this.currentMessageIndex = (this.currentMessageIndex + 1) % this.motivationalMessages.length
+    }, 5000)
+  }
+
+  ngOnDestroy() {
+    if (this.messageInterval) {
+      clearInterval(this.messageInterval)
+    }
+  }
+
+  getCurrentMessage(): string {
+    return this.motivationalMessages[this.currentMessageIndex]
   }
 
   infoVendas = [
@@ -72,6 +86,19 @@ export class SearchclientComponent implements OnInit {
     { label: 'Novos contratos fechados', value: 5 },
     { label: 'Faturamento do dia', value: 'R$ 2.350,00' },
     { label: 'Meta mensal', value: '24 / 50' },
+  ];
+
+  private messageInterval: any;
+  currentMessageIndex = 0;
+  motivationalMessages: string[] = [
+    '💪 Cada cliente é uma oportunidade de fazer a diferença!',
+    '🎯 Foco e determinação levam ao sucesso!',
+    '⭐ Você está construindo algo incrível hoje!',
+    '🚀 Grandes vendas começam com grandes atitudes!',
+    '✨ Sua dedicação transforma metas em conquistas!',
+    '🏆 Acredite no seu potencial e vá além!',
+    '💼 Profissionalismo e empatia são suas melhores ferramentas!',
+    '🌟 Cada "sim" começa com um sorriso e confiança!',
   ];
 
   sleep(ms: number) {
@@ -155,7 +182,7 @@ export class SearchclientComponent implements OnInit {
     this.router.navigate(['waiting-leads']);
   }
 
-  navigateToConcludeSale(){
+  navigateToConcludeSale() {
     this.router.navigate(['conclude']);
   }
 
@@ -239,5 +266,15 @@ export class SearchclientComponent implements OnInit {
     setTimeout(() => {
       this.router.navigate(['/login']);
     }, 500);
+  }
+
+  getMetricIcon(index: number): string {
+    const icons = [
+      'pi pi-users', // Clientes atendidos hoje
+      'pi pi-check', // Novos contratos fechados
+      'pi pi-dollar', // Faturamento do dia
+      'pi pi-chart-line', // Meta mensal
+    ];
+    return icons[index] || 'pi pi-info-circle';
   }
 }

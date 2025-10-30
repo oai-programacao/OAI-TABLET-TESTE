@@ -23,6 +23,11 @@ export interface ConsentTermAddressRequest {
   paymentForm: null | string;
 }
 
+export interface ConsentTermPlanChangeRequest {
+  currentPlan: string;
+  newPlan: string;
+  signatureBase64?: string;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -31,11 +36,8 @@ export class ReportsService {
 
   private baseUrl = environment.apiUrl + "/consent-term";
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
-  /**
-   * Visualizar / baixar PDF do Termo de Consentimento
-   */
   getConsentTermPdf(
     clientId: string,
     contractId: string,
@@ -44,7 +46,7 @@ export class ReportsService {
     const url = `${this.baseUrl}/alter-date-expired/${clientId}/${contractId}`;
     return this.http.post(url, requestBody, { responseType: 'blob' });
   }
-  
+
   getConsentTermAddressPdf(
     clientId: string,
     contractId: string,
@@ -63,7 +65,23 @@ export class ReportsService {
     const requestBody = { signature: signatureDataUrl };
     return this.http.post(url, requestBody, { responseType: 'blob' });
   }
+
+  getPlanChange(body: any): Observable<Blob> {
+    return this.http.post<Blob>(
+      `${this.baseUrl}/plan-change`,
+      body,
+      { responseType: 'blob' as 'json' }
+    );
+  }
+
+  finalizeTransferAndSign(requestBody: any): Observable<Blob> {
+    return this.http.post(`${this.baseUrl}/finalize-transfer`, requestBody, {
+      responseType: 'blob'
+    });
+  }
+
+
 }
 
 
-  
+
