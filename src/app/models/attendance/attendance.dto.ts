@@ -8,6 +8,7 @@ export interface Media {
 
 export interface Attendance {
   id: string;
+  status: string;
   clientName: string;
   sellerName: string;
   openDate: string;        

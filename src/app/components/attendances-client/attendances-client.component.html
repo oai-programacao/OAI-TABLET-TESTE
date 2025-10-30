@@ -44,6 +44,43 @@
           </p>
         </div>
       </div>
+      <div class="reversals-button-container">
+        <p-button
+          (click)="popover.toggle($event)"
+          label="🔍 Filtros"
+          [badge]="selectedStatus ? '1' : ''"
+          styleClass="filter-button"
+        />
+
+        <p-popover #popover>
+          <div class="filter-panel">
+            <h3 class="filter-title">Filtrar por Status</h3>
+
+            <div class="filter-section">
+              <p-select
+                [options]="statusOptions"
+                [(ngModel)]="selectedStatus"
+                placeholder="Selecione o status"
+                [style]="{ width: '100%' }"
+              />
+            </div>
+
+            <div class="filter-actions">
+              <p-button
+                label="Limpar"
+                icon="pi pi-times"
+                (click)="clearFilters()"
+                styleClass="p-button-text"
+              />
+              <p-button
+                label="Aplicar"
+                icon="pi pi-check"
+                (click)="applyFilters(); popover.hide()"
+              />
+            </div>
+          </div>
+        </p-popover>
+      </div>
 
       <!-- Tabela com headers horizontais tradicionais -->
       <div class="table-wrapper" *ngIf="attendances!.length > 0">
@@ -63,6 +100,10 @@
               <th>
                 <i class="pi pi-hashtag"></i>
                 RBX
+              </th>
+              <th>
+                <i class="pi pi-calendar"></i>
+                Status
               </th>
               <th>
                 <i class="pi pi-random"></i>
@@ -95,6 +136,35 @@
             <tr class="table-row">
               <td>
                 <span class="code-badge">#{{ att.codeAttendanceRbx }}</span>
+              </td>
+              <td>
+                <div class="cell-content">
+                  <span
+                    class="status-badge {{
+                      att.status === 'OPEN'
+                        ? 'open'
+                        : att.status === 'COMPLETED'
+                        ? 'completed'
+                        : att.status === 'PENDING'
+                        ? 'pending'
+                        : att.status === 'CANCELLED'
+                        ? 'cancelled'
+                        : ''
+                    }}"
+                  >
+                    {{
+                      att.status === "OPEN"
+                        ? "Aberto"
+                        : att.status === "COMPLETED"
+                        ? "Finalizado"
+                        : att.status === "PENDING"
+                        ? "Pendente"
+                        : att.status === "CANCELLED"
+                        ? "Cancelado"
+                        : att.status
+                    }}
+                  </span>
+                </div>
               </td>
               <td>
                 <div class="cell-content">
@@ -225,6 +295,9 @@
           >{{ selectedAttendance.openDate | date : "dd/MM/yyyy" }}
           {{ selectedAttendance.openHour }}</span
         >
+      </div>
+      <div class="info-badge">
+        <p-button [severity]="'danger'"  [raised]="true">❌ CANCELAR</p-button>
       </div>
     </div>
 
