@@ -192,25 +192,28 @@ export class AlterDateExpiredComponent {
   ];
 
   // Cálculo proporcional do boleto
-  calculateProportionalBoleto(contractLiquidPrice: number, newBillingDay: number): number {
-  const today = new Date();
-  const currentDay = today.getDate();
+  calculateProportionalBoleto(
+    contractLiquidPrice: number,
+    newBillingDay: number
+  ): number {
+    const today = new Date();
+    const currentDay = today.getDate();
 
-  // Número de dias reais do mês atual
-  const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+    // Número de dias reais do mês atual
+    const daysInMonth = new Date(
+      today.getFullYear(),
+      today.getMonth() + 1,
+      0
+    ).getDate();
 
-  // Valor diário proporcional
-  const dailyPrice = contractLiquidPrice / daysInMonth;
+    const dailyPrice = contractLiquidPrice / daysInMonth;
 
-  // Calcula diferença de dias
-  let daysDifference = newBillingDay - currentDay;
-  if (daysDifference < 0) {
-    daysDifference += daysInMonth; // Usa o total real de dias do mês
+    let daysDifference = newBillingDay - currentDay;
+    if (daysDifference < 0) {
+      daysDifference += daysInMonth; // Usa o total real de dias do mês
+    }
+    return Number((dailyPrice * daysDifference).toFixed(2));
   }
-
-  // Valor proporcional arredondado a 2 casas
-  return Number((dailyPrice * daysDifference).toFixed(2));
-}
 
   // Atualiza o valor proporcional quando o usuário muda a data
   onBillingCycleChange(): void {

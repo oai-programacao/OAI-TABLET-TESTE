@@ -291,7 +291,7 @@
         >
       </div>
       <div class="info-badge">
-        <p-button [severity]="'danger'"  [raised]="true">❌ CANCELAR</p-button>
+        <p-button [severity]="'danger'" [raised]="true">❌ CANCELAR</p-button>
       </div>
     </div>
 
@@ -301,7 +301,9 @@
         Descrição
       </h3>
       <div class="description-box">
-        <p>{{ selectedAttendance.subject || "Sem descrição disponível" }}</p>
+        <p style="white-space: pre-line">
+          {{ selectedAttendance.subject || "Sem descrição disponível" }}
+        </p>
       </div>
     </div>
 

@@ -10,23 +10,30 @@ export class AuthGuard implements CanActivate {
   constructor(private authService: AuthService, private router: Router) {}
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
-    if (!this.authService.isAuthenticated()) {
-      this.router.navigate(['/login']);
+    const isAuth = this.authService.isAuthenticated();
+
+    if (isAuth && state.url === '/login') {
+    this.router.navigate(['/home']);
+    return of(false);
+  }
+  
+    if (!isAuth && state.url !== '/login') {
+    this.router.navigate(['/login']);
+    return of(false);
+  }
+
+  const allowedRoles = route.data['roles'] as string[] | undefined;
+
+  if (allowedRoles && allowedRoles.length > 0) {
+    const userRoles = this.authService.getUserRoles();
+
+    const hasAccess = allowedRoles.some(role => userRoles.includes(role));
+
+    if (!hasAccess) {
+      this.router.navigate(['/acessonegado']);
       return of(false);
     }
-
-    const allowedRoles = route.data['roles'] as string[] | undefined;
-
-    if (allowedRoles && allowedRoles.length > 0) {
-      const userRoles = this.authService.getUserRoles();
-
-      const hasAccess = allowedRoles.some(role => userRoles.includes(role));
-
-      if (!hasAccess) {
-        this.router.navigate(['/acessonegado']);
-        return of(false);
-      }
-    }
+  }
 
     return of(true);
   }
