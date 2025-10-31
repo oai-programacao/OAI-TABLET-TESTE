@@ -2,10 +2,19 @@
 import { LoginSeller } from './../models/login/login-seller.dto';
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { Observable, throwError, BehaviorSubject, timer, Subscription, of } from 'rxjs';
+import { tap, catchError, switchMap, filter, take, finalize, shareReplay } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { environment } from '../../environments/environment';
+import { jwtDecode } from 'jwt-decode';
+
+
+export interface AuthenticatedUser {
+  id: number | null;
+  name?: string;
+  roles: string[];
+  email?: string;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -13,7 +22,29 @@ import { environment } from '../../environments/environment';
 export class AuthService {
   private apiUrl = `${environment.apiUrl}/auth`;
 
-  constructor(private http: HttpClient, private router: Router) {}
+  private isRefreshingToken = false;
+  private refreshTokenSubject = new BehaviorSubject<string | null>(null);
+  private refreshSub?: Subscription;
+  private tokenExpirationTimer?: any;
+
+  //Reativo
+  public currentUserSubject = new BehaviorSubject<AuthenticatedUser | null>(
+    this.getUserFromToken()
+  );
+
+  public currentUser$ = this.currentUserSubject.asObservable();
+  public isLoggedIn$ = this.currentUser$.pipe(
+    switchMap(user => of(!!user))
+  );
+
+  constructor(private http: HttpClient, private router: Router) {
+    const user = this.currentUserSubject.getValue();
+    if (user) this.initAutoRefresh();
+  }
+
+   /** ===========================
+   * LOGIN
+   ============================ */
 
   login(loginSeller: LoginSeller): Observable<any> {
     const headers = new HttpHeaders({
@@ -24,60 +55,174 @@ export class AuthService {
       .post<any>(`${this.apiUrl}/login`, loginSeller, { headers })
       .pipe(
         tap((response) => {
-          localStorage.setItem('accessToken', response.accessToken);
-          localStorage.setItem('refreshToken', response.refreshToken);
+          this.storeTokens(response.accessToken, response.refreshToken);
           localStorage.setItem('name', response.name);
+          this.currentUserSubject.next(this.getUserFromToken());
+          this.initAutoRefresh();
           this.router.navigate(['/search']);
         })
       );
   }
-
+  
+  /** ===========================
+   * LOGOUT
+   ============================ */
   logout(): void {
+    this.clearRefreshTimer();
+    if (this.tokenExpirationTimer) {
+      clearTimeout(this.tokenExpirationTimer);
+      this.tokenExpirationTimer = 1000;
+    }
+
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('name');
+    this.currentUserSubject.next(null);
+    this.router.navigate(['/login']);
   }
 
-  isAuthenticated(): boolean {
-    const token = localStorage.getItem('accessToken');
-    if (!token) return false;
-
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1])); // decodifica o payload do JWT
-      const expiry = payload.exp; // tempo de expiração em segundos
-      const now = Math.floor(new Date().getTime() / 1000);
-
-      return now < expiry; // true se ainda não expirou
-    } catch (error) {
-      console.error('Erro ao verificar token JWT', error);
-      return false;
-    }
+  /** ===========================
+   * TOKEN HELPERS
+   ============================ */
+   getAccessToken(): string | null {
+    return localStorage.getItem('accessToken');
   }
 
-  getUserRoles(): string[] {
-    const token = localStorage.getItem('accessToken');
-    if (!token) return [];
-
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.roles || []; // assuming your JWT has a "roles" array
-    } catch (error) {
-      console.error('Erro ao decodificar roles do token', error);
-      return [];
-    }
+  getRefreshToken(): string | null {
+    return localStorage.getItem('refreshToken');
   }
 
-  getSellerId(): number | null {
-    const token = localStorage.getItem('accessToken');
+  private storeTokens(accessToken: string, refreshToken: string): void {
+    localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('refreshToken', refreshToken);
+  }
+
+  getUserFromToken(): AuthenticatedUser | null {
+    const token = this.getAccessToken();
     if (!token) return null;
 
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.id || null;
+      const decoded: any = jwtDecode(token);
+
+      // verifica expiração
+      if (decoded.exp * 1000 < Date.now()) {
+        this.clearTokens();
+        return null;
+      }
+
+      return {
+        id: decoded.id || null,
+        name: decoded.name,
+        roles: decoded.roles || [],
+        email: decoded.email,
+      };
     } catch (error) {
-      console.error('Erro ao decodificar sellerId do token', error);
+      this.clearTokens();
       return null;
     }
   }
 
+  private clearTokens(): void {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+  }
+
+  /** ===========================
+   * REFRESH TOKEN (race condition protegido)
+   ============================ */
+  refreshToken(): Observable<string> {
+    const refreshToken = this.getRefreshToken();
+    if (!refreshToken) {
+      this.logout();
+      return throwError(() => new Error('Nenhum refresh token disponível'));
+    }
+
+    if (this.isRefreshingToken) {
+      return this.refreshTokenSubject.pipe(
+        filter(token => token !== null),
+        take(1)
+      ) as Observable<string>;
+    }
+
+    this.isRefreshingToken = true;
+    this.refreshTokenSubject.next(null);
+
+    return this.http.post<any>(`${this.apiUrl}/refresh`, { refreshToken }).pipe(
+      tap(response => {
+        this.storeTokens(response.accessToken, response.refreshToken);
+        this.currentUserSubject.next(this.getUserFromToken());
+        this.refreshTokenSubject.next(response.accessToken);
+      }),
+      switchMap(response => of(response.accessToken)),
+      catchError(err => {
+        this.logout();
+        return throwError(() => err);
+      }),
+      finalize(() => {
+        this.isRefreshingToken = false;
+      }),
+      shareReplay(1)
+    );
+  }
+
+  /** ===========================
+   * AUTO REFRESH PROATIVO
+   ============================ */
+  initAutoRefresh(): void {
+    this.clearRefreshTimer();
+
+    const token = this.getAccessToken();
+    if (!token) return;
+
+    let exp: number;
+    try {
+      const decoded: any = jwtDecode(token);
+      exp = decoded.exp * 1000;
+    } catch (e) {
+      this.logout();
+      return;
+    }
+
+    const now = Date.now();
+    const timeUntilExpiry = exp - now;
+
+    if (timeUntilExpiry <= 0) {
+      this.refreshSub = timer(1000).pipe(switchMap(() => this.refreshToken())).subscribe();
+      return;
+    }
+
+    const refreshTime = Math.max(timeUntilExpiry - 60_000, 5_000);
+
+    this.tokenExpirationTimer = setTimeout(() => {
+      this.refreshToken().subscribe();
+    }, refreshTime);
+  }
+
+  clearRefreshTimer(): void {
+    if (this.refreshSub) {
+      this.refreshSub.unsubscribe();
+      this.refreshSub = undefined;
+    }
+    if (this.tokenExpirationTimer) {
+      clearTimeout(this.tokenExpirationTimer);
+      this.tokenExpirationTimer = undefined;
+    }
+  }
+
+  /** ===========================
+   * AUXILIARES
+   ============================ */
+  isAuthenticated(): boolean {
+    return !!this.getUserFromToken();
+  }
+
+  getUserRoles(): string[] {
+    const user = this.getUserFromToken();
+    return user?.roles || [];
+  }
+
+  getSellerId(): number | null {
+    const user = this.getUserFromToken();
+    return user?.id || null;
+  }
 }
