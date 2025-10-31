@@ -3,6 +3,7 @@ import { Injectable, NgZone } from '@angular/core';
 import { RxStompService } from '@stomp/ng2-stompjs';
 import { wsStompConfig } from './wsStompConfig';
 import { ToastService } from '../toastService/toast.service';
+import { AuthService } from '../../core/auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class WebSocketService {
@@ -13,8 +14,17 @@ export class WebSocketService {
   constructor(
     private rxStompService: RxStompService,
     private ngZone: NgZone,
-    private toastService: ToastService
-  ) {}
+    private toastService: ToastService,
+    private authService: AuthService
+  ) { 
+     this.authService.currentUser$.subscribe(user => {
+    if (this.activated && user) {
+      console.log("Reconectando WS com token atualizado...");
+      this.rxStompService.deactivate();
+      setTimeout(() => this.initWebSocket(), 500);
+    }
+  });
+  }
 
   initWebSocket() {
     if (this.activated) return;
@@ -24,9 +34,7 @@ export class WebSocketService {
     if (!token) return;
 
     const payload = JSON.parse(atob(token.split('.')[1]));
-    this.email = payload.sub; // usar sub como canal do seller
-
-    // Configura o RxStompService
+    this.email = payload.sub; 
     this.rxStompService.configure({
       ...wsStompConfig,
       connectHeaders: {
