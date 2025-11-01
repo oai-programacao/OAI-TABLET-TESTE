@@ -16,15 +16,7 @@ export class WebSocketService {
     private ngZone: NgZone,
     private toastService: ToastService,
     private authService: AuthService
-  ) { 
-     this.authService.currentUser$.subscribe(user => {
-    if (this.activated && user) {
-      console.log("Reconectando WS com token atualizado...");
-      this.rxStompService.deactivate();
-      setTimeout(() => this.initWebSocket(), 500);
-    }
-  });
-  }
+  ) {  }
 
   initWebSocket() {
     if (this.activated) return;
