@@ -46,6 +46,7 @@ import SignaturePad from "signature_pad"
 import { concatMap } from "rxjs/internal/operators/concatMap"
 import { SignaturePadComponent } from "../signature-pad/signature-pad.component";
 import { ReportsService } from "../../services/reports/reports.service"
+import { AttendancesService } from "../../services/attendances/attendances.service"
 
 @Component({
   selector: "app-transfer-ownership",
@@ -96,6 +97,7 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
   private readonly contractService = inject(ContractsService)
   private readonly searchclientService = inject(SearchclientService)
   private readonly clientService = inject(ClientService)
+  private readonly attendancesService = inject(AttendancesService)
   private readonly fb = inject(FormBuilder)
   private readonly actionsContractsService = inject(ActionsContractsService)
   private readonly sanitizer = inject(DomSanitizer)
@@ -143,6 +145,7 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
   fotoCapturadaFile: File | null = null;
   isPreviewDialogVisible: boolean = false;
   thumbnailPreview: string | ArrayBuffer | null = null;
+  event: string = "transfer_contract";
 
   ngOnInit() {
     const clientId = this.route.snapshot.paramMap.get("clientId")
@@ -221,6 +224,34 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
     })
   }
 
+  private registerAttendance(pdfBlob: Blob): void {
+    if (!this.clientId || !this.contractId) {
+      console.error("registerAttendance: ClientID ou ContractID estão ausentes.");
+      return; 
+    }
+    const data = {
+      event: this.event,
+      cliente: this.clientId,
+      contrato: this.contractId
+    };
+    const jsonBlob = new Blob([JSON.stringify(data)], { type: "application/json" });
+
+    const formData = new FormData();
+    formData.append('data', jsonBlob, 'data.json');
+    formData.append('arquivo', pdfBlob, 'termo_transferencia_assinado.pdf');
+
+    this.attendancesService.registerAttendance(formData).subscribe({
+      next: (response) => {
+        console.log("Atendimento registrado com sucesso:", response);
+        this.showInfo("Registro de Atendimento", "Atendimento registrado com sucesso no sistema.");
+      },
+      error: (err) => {
+        console.error("Falha ao registrar atendimento:", err);
+        this.showWarning("Aviso", "A transferência foi concluída, mas houve um erro ao registrar o atendimento no histórico.");
+      }
+    });
+  }
+
   onConfirmTransfer(): void {
     const signatureOldData = this.signatureOldBase64
     const signatureNewData = this.signatureNewBase64
@@ -280,6 +311,8 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
 
           this.signatureOldBase64 = null
           this.signatureNewBase64 = null
+
+          this.registerAttendance(signedPdfBlob);
         },
         error: (err) => {
           const backendMessage =

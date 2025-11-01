@@ -24,8 +24,7 @@
                 <p-step [value]="1">Selecionar Planos</p-step>
                 <p-step [value]="2">Termo de Consentimento</p-step>
                 <p-step [value]="3">Assinatura</p-step>
-                <p-step [value]="4">Pagamento</p-step>
-                <p-step [value]="5">Finalização</p-step>
+                <p-step [value]="4">Finalização</p-step>
             </p-step-list>
         
 
@@ -149,9 +148,8 @@
 
                 <p-step-panel [value]="2">
                     <ng-template #content let-activateCallBack="activateCallback">
-                        <div *ngIf="selectedBillingCycle; else noDateSelected">
+                        <div *ngIf="selectedPlan; else avisoInvalido1">
                             <div class="fluxo-container">
-                                <!-- CARD 1 - ONLINE -->
                                 <div class="fluxo-card online">
                                     <div class="fluxo-header">
                                         🖥️
@@ -201,7 +199,7 @@
                                 </div>
                             </div>
                         </div>
-                        <ng-template #noDateSelected>
+                        <ng-template #avisoInvalido1>
                             <div class="alert-warning">
                                 ⚠️ Para acessar este passo, volte ao passo anterior e selecione
                                 a nova data de vencimento.
@@ -270,9 +268,7 @@
                                 </div>
                             </div>
                             </div>
-                        </div>
-
-                        <div class="camera-section p-mt-4 p-mb-3">
+                             <div class="camera-section p-mt-4 p-mb-3">
                             <input
                             type="file"
                             accept="image/*"
@@ -300,9 +296,10 @@
                             size="large"
                             icon="pi pi-arrow-right"
                             iconPos="right"
-                            label="Próximo"
-                            (onClick)="activateCallback(4)"
+                            label="Atualizar Contrato"
+                            (onClick)="submitUpgrade(); activateCallback(4)"
                             />
+                        </div>
                         </div>
                         <ng-template #avisoInvalido>
                             <div class="alert-warning">
@@ -311,9 +308,41 @@
                         </ng-template>
                     </ng-template>
                 </p-step-panel>     
-                <p-step-panel [value]="4" >
-                    
-                </p-step-panel>     
+                    <p-step-panel [value]="4" >
+	                    <ng-template #content>
+	                        <div *ngIf="selectedPlan; else avisoInvalido">
+	                                <div class="step-content confirmation-step">
+	                                    <i class="pi pi-check-circle success-icon"></i>
+	                                    <h3>Processo Concluído!</h3>
+	                                    <p>
+	                                        A alteração de plano foi concluída com sucesso.
+	                                    </p>
+	                                </div>
+	
+	                                 <iframe
+                                    [src]="safePdfPreviewUrl"
+                                    width="100%"
+                                    height="600px"
+                                    style="border: 1px solid #ccc"
+                                    ></iframe>
+	
+	                                <div class="step-footer">
+	                                    <p-button 
+	                                        severity="help"
+	                                        [rounded]="true" 
+	                                        label="Voltar para o Início" 
+	                                        icon="pi pi-home"
+	                                        (onClick)="navigateToInfoClient()">
+	                                    </p-button>
+	                                </div>
+	                            </div>
+	                            <ng-template #avisoInvalido>
+	                                <div class="alert-warning">
+	                                    ⚠️ Você precisa preencher os dados no passo 1 para continuar.
+	                                </div>
+	                            </ng-template>
+	                    </ng-template>
+	                </p-step-panel>    
             </p-step-panels>
         </p-stepper>
     </app-card-base>

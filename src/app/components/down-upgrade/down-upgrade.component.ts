@@ -35,6 +35,7 @@ import { ReportsService } from '../../services/reports/reports.service';
 import { SignaturePadComponent } from '../signature-pad/signature-pad.component';
 import { MidiaService } from '../../services/midia/midia.service';
 import { IftaLabelModule } from "primeng/iftalabel";
+import { AttendancesService } from '../../services/attendances/attendances.service';
 
 export interface ContractUpdate {
   seller: string;
@@ -96,9 +97,11 @@ export class DownUpgradeComponent implements OnInit {
   private contractService = inject(ContractsService);
   private clienteService = inject(ClientService);
   private messageService = inject(MessageService);
+  private attendancesService = inject(AttendancesService);
 
   private actionsContractsService = inject(ActionsContractsService);
   private readonly authService = inject(AuthService);
+  private signedPdfBlob: Blob | null = null;
 
   public activeStep: number = 1;
 
@@ -196,6 +199,14 @@ export class DownUpgradeComponent implements OnInit {
     this.loadContract();
   }
 
+  navigateToInfoClient() {
+    if (this.clientId) {
+      this.router.navigate(["info", this.clientId])
+    } else {
+      this.router.navigate(["/"])
+    }
+  }
+
   loadContractAndClient(contractId: string, clientId: string) {
     forkJoin({
       contract: this.contractService.getContractById(contractId),
@@ -243,13 +254,57 @@ export class DownUpgradeComponent implements OnInit {
     });
   }
 
+  private showWarning(summary: string, detail: string, life: number = 5000) {
+    this.messageService.add({ severity: 'warn', summary, detail, life });
+  }
+
+  private showInfo(summary: string, detail: string, life: number = 3000) {
+    this.messageService.add({ severity: 'info', summary, detail, life });
+  }
+
+  private registerAttendance(pdfBlob: Blob): void {
+    if (!this.clientId || !this.contractId) {
+      console.error("registerAttendance: ClientID ou ContractID estão ausentes.");
+      return;
+    }
+    const data = {
+      event: this.fluxo as string,
+      cliente: this.clientId,
+      contrato: this.contractId
+    };
+    const jsonBlob = new Blob([JSON.stringify(data)], { type: "application/json" });
+
+    const formData = new FormData();
+    formData.append('data', jsonBlob, 'data.json');
+    formData.append('arquivo', pdfBlob, 'termo_transferencia_assinado.pdf');
+
+    this.attendancesService.registerAttendance(formData).subscribe({
+      next: (response) => {
+        console.log("Atendimento registrado com sucesso:", response);
+        this.showInfo("Registro de Atendimento", "Atendimento registrado com sucesso no sistema.");
+      },
+      error: (err) => {
+        console.error("Falha ao registrar atendimento:", err);
+        this.showWarning("Aviso", "A transferência foi concluída, mas houve um erro ao registrar o atendimento no histórico.");
+      }
+    });
+  }
+
   submitUpgrade() {
-    console.log('Iniciando submitUpgrade (Fluxo RBX)');
+    console.log('Iniciando submitUpgrade (Fluxo Presencial Assinado)');
+
+    if (!this.signedPdfBlob) {
+      this.messageService.add({ severity: 'warn', summary: 'Atenção', detail: 'Você precisa gerar o termo assinado antes de atualizar o contrato.' });
+      return;
+    }
 
     if (!this.selectedPlan || this.newDiscount === null || !this.contract) {
       this.messageService.add({ severity: 'warn', summary: 'Atenção', detail: 'Selecione um plano e defina um desconto.' });
       return;
     }
+
+    const pdfParaRegistrar: Blob = this.signedPdfBlob;
+    this.signedPdfBlob = null;
 
     const sellerIdNumber = this.authService.getSellerId();
     if (sellerIdNumber === null || sellerIdNumber === undefined) {
@@ -266,10 +321,7 @@ export class DownUpgradeComponent implements OnInit {
     }
     const cicleBillingDayBaseToSend = this.contract.cicleBillingDayBase;
     const cicleBillingExpiredToSend = this.contract.cicleBillingExpired;
-
-    let cicleFatIdParaEnviar: number;
-    cicleFatIdParaEnviar = cicleBillingExpiredToSend;
-    console.warn("ATENÇÃO: cicleFatId está sendo definido como:", cicleFatIdParaEnviar, ". Verifique a lógica correta!");
+    const cicleFatIdParaEnviar = cicleBillingExpiredToSend;
 
     const upgradeDto: ContractUpdate = {
       seller: sellerIdString,
@@ -282,19 +334,29 @@ export class DownUpgradeComponent implements OnInit {
 
     console.log('Enviando DTO de Upgrade:', upgradeDto);
 
+    this.isLoadingTransfer = true;
+    this.loadingMessage = "Atualizando contrato e registrando atendimento...";
+
+    // --- 5. CHAMADA DE UPGRADE (Seu código original) ---
     this.contractService.upgradeContract(this.contractId, upgradeDto)
       .subscribe({
         next: (newContractResponse) => {
           this.messageService.add({
             severity: 'success',
             summary: 'Sucesso',
-            detail: `Contrato transferido! O novo contrato é: ${newContractResponse.codeContractRbx}`,
+            detail: `Contrato atualizado! O novo contrato é: ${newContractResponse.codeContractRbx}`,
             life: 10000,
           });
+
+          // A chamada agora é segura
+          this.registerAttendance(pdfParaRegistrar);
+
+          this.isLoadingTransfer = false;
           this.modalVisible = false;
           this.voltarParaCliente();
         },
         error: (err) => {
+          this.isLoadingTransfer = false;
           console.error('Erro ao fazer upgrade do contrato:', err);
           const backendMessage =
             typeof err.error === 'string'
@@ -310,8 +372,9 @@ export class DownUpgradeComponent implements OnInit {
         },
       });
   }
-  // Dialog de atendimento Online:
 
+
+  // Dialog de atendimento Online:
   public get arePhonesInvalid(): boolean {
     const cleanPhoneOld = (this.phone || '').replace(/\D/g, '');
     return cleanPhoneOld.length < 10;
@@ -480,7 +543,7 @@ export class DownUpgradeComponent implements OnInit {
     }
 
     const rawBase64 = this.capturedSignature.split(',')[1];
- 
+
     const requestBody = {
       contractId: this.contract.id,
       newPlanId: this.selectedPlan!.id,
@@ -495,6 +558,7 @@ export class DownUpgradeComponent implements OnInit {
           this.isLoadingPreview = false;
           this.showSuccess('Sucesso', 'Termo com assinatura gerado!');
           this.signDialogVisible = false;
+          this.signedPdfBlob = blob;
         },
         error: (err) => {
           console.error('Erro ao gerar termo com assinatura:', err);
@@ -600,3 +664,5 @@ export class DownUpgradeComponent implements OnInit {
     console.log('getConsentTermPdf clicado. (Implementar lógica de PDF se necessário)');
   }
 }
+
+
