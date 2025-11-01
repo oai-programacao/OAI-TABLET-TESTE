@@ -24,7 +24,9 @@
 
       <div class="stats-badge" *ngIf="attendances!.length > 0">
         <i class="pi pi-chart-line"></i>
-        <span>{{ attendances.length }} atendimento{{ attendances.length !== 1 ? 's' : '' }}</span>
+        <span>
+          {{ totalElements }} atendimento{{ totalElements !== 1 ? "s" : "" }}
+        </span>
       </div>
     </div>
 
@@ -37,8 +39,47 @@
             <i class="pi pi-check-circle"></i>
             Atendimentos Realizados
           </h1>
-          <p class="page-subtitle">Histórico completo de interações com os contratos do cliente em loja</p>
+          <p class="page-subtitle">
+            Histórico completo de interações com os contratos do cliente em loja
+          </p>
         </div>
+      </div>
+      <div class="reversals-button-container">
+        <p-button
+          (click)="popover.toggle($event)"
+          label="🔍 Filtros"
+          [badge]="selectedStatus ? '1' : ''"
+          styleClass="filter-button"
+        />
+
+        <p-popover #popover>
+          <div class="filter-panel">
+            <h3 class="filter-title">Filtrar por Status</h3>
+
+            <div class="filter-section">
+              <p-select
+                [options]="statusOptions"
+                [(ngModel)]="selectedStatus"
+                placeholder="Selecione o status"
+                [style]="{ width: '100%' }"
+              />
+            </div>
+
+            <div class="filter-actions">
+              <p-button
+                label="Limpar"
+                icon="pi pi-times"
+                (click)="clearFilters()"
+                styleClass="p-button-text"
+              />
+              <p-button
+                label="Aplicar"
+                icon="pi pi-check"
+                (click)="applyFilters(); popover.hide()"
+              />
+            </div>
+          </div>
+        </p-popover>
       </div>
 
       <!-- Tabela com headers horizontais tradicionais -->
@@ -47,10 +88,12 @@
           [value]="attendances"
           [paginator]="true"
           [rows]="5"
+          [lazy]="true"
           [paginatorDropdownAppendTo]="'body'"
-          [rowsPerPageOptions]="[5]"
           styleClass="p-datatable-striped custom-table"
-          [tableStyle]="{'min-width': '100%'}"
+          [tableStyle]="{ 'min-width': '100%' }"
+          (onLazyLoad)="onPageChange($event)"
+          [totalRecords]="totalElements"
         >
           <ng-template pTemplate="header">
             <tr>
@@ -59,31 +102,32 @@
                 RBX
               </th>
               <th>
+                <i class="pi pi-calendar"></i>
+                Status
+              </th>
+              <th>
                 <i class="pi pi-random"></i>
                 Fluxo
               </th>
               <th>
-                <i class="pi pi-file"></i>
-                Assunto
+                <i class="pi pi-users"></i>
+                Topico
               </th>
+              <th>
+                <i class="pi pi-users"></i>
+                Tipo
+              </th>
+              <th>🙍‍♂️ Vendedor</th>
               <th>
                 <i class="pi pi-lightbulb"></i>
                 Iniciativa
               </th>
-              <th>
-                <i class="pi pi-cog"></i>
-                Modo
-              </th>
-              <th>
-                <i class="pi pi-users"></i>
-                Tipo Cliente
-              </th>
+
               <th>
                 <i class="pi pi-calendar"></i>
-                Data
+                Data/Hora Ab.
               </th>
-              <th>
-              </th>
+              <th></th>
             </tr>
           </ng-template>
 
@@ -94,37 +138,89 @@
               </td>
               <td>
                 <div class="cell-content">
-                  <i class="pi pi-random cell-icon flow-icon"></i>
-                  <span>{{ att.flow }}</span>
+                  <span
+                    class="status-badge {{
+                      att.status === 'OPEN'
+                        ? 'open'
+                        : att.status === 'COMPLETED'
+                        ? 'completed'
+                        : att.status === 'PENDING'
+                        ? 'pending'
+                        : att.status === 'CANCELLED'
+                        ? 'cancelled'
+                        : ''
+                    }}"
+                  >
+                    {{
+                      att.status === "OPEN"
+                        ? "Aberto"
+                        : att.status === "COMPLETED"
+                        ? "Finalizado"
+                        : att.status === "PENDING"
+                        ? "Pendente"
+                        : att.status === "CANCELLED"
+                        ? "Cancelado"
+                        : att.status
+                    }}
+                  </span>
+                </div>
+              </td>
+              <td>
+                <div class="cell-content">
+                  <span>{{
+                    att.flow === "26" ? "26 • Mudança de DV" : att.flow
+                  }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="cell-content">
+                  <span>
+                    {{
+                      att.topic === "16"
+                        ? "16 • Mudança End. Fibra"
+                        : att.topic === "78"
+                        ? "78 • Upgrade"
+                        : att.topic === "88"
+                        ? "88 • Downgrade"
+                        : att.topic
+                    }}
+                  </span>
+                </div>
+              </td>
+              <td>
+                <div class="cell-content">
+                  <span>
+                    {{
+                      att.type === "T"
+                        ? "Técnico"
+                        : att.type === "A"
+                        ? "Admin/Finan"
+                        : att.type === "C"
+                        ? "Comercial"
+                        : att.type
+                    }}
+                  </span>
                 </div>
               </td>
               <td>
                 <div class="cell-content">
                   <i class="pi pi-file cell-icon subject-icon"></i>
-                  <span class="text-truncate">{{ att.subject }}</span>
+                  <span class="text-truncate">{{ att.clientName }}</span>
                 </div>
               </td>
               <td>
                 <div class="cell-content">
                   <i class="pi pi-lightbulb cell-icon initiative-icon"></i>
-                  <span>{{ att.initiative }}</span>
-                </div>
-              </td>
-              <td>
-                <div class="cell-content">
-                  <i class="pi pi-cog cell-icon mode-icon"></i>
-                  <span>{{ att.mode }}</span>
-                </div>
-              </td>
-              <td>
-                <div class="cell-content">
-                  <i class="pi pi-users cell-icon client-icon"></i>
-                  <span>{{ att.typeClient }}</span>
+                  <span>{{
+                    att.initiative === "C" ? "Cliente" : att.initiative
+                  }}</span>
                 </div>
               </td>
               <td>
                 <div class="date-cell">
-                  <span class="date-text">{{ att.openDate | date : "dd/MM/yyyy" }}</span>
+                  <span class="date-text">{{
+                    att.openDate | date : "dd/MM/yyyy"
+                  }}</span>
                   <span class="time-text">{{ att.openHour }}</span>
                 </div>
               </td>
@@ -145,12 +241,6 @@
 
       <!-- Estado vazio -->
       <div *ngIf="attendances?.length === 0" class="empty-state">
-        <div class="empty-illustration">
-          <img 
-            src="/placeholder.svg?height=300&width=400" 
-            alt="Nenhum atendimento"
-          />
-        </div>
         <div class="empty-content">
           <h2 class="empty-title">
             <i class="pi pi-inbox"></i>
@@ -161,7 +251,7 @@
           </p>
           <p-button
             icon="pi pi-arrow-left"
-            label="Voltar para Clientes"
+            label="Voltar para Cliente"
             severity="info"
             [rounded]="true"
             (onClick)="backToClient()"
@@ -180,7 +270,7 @@
   [closable]="true"
   [draggable]="false"
   resizable="false"
-  [style]="{ width: '700px', maxWidth: '90vw' }"
+  [style]="{ width: '900px', maxWidth: '90vw' }"
   styleClass="custom-dialog"
 >
   <div *ngIf="selectedAttendance" class="dialog-content">
@@ -190,8 +280,18 @@
         <span>RBX: {{ selectedAttendance.codeAttendanceRbx }}</span>
       </div>
       <div class="info-badge">
+        <i class="pi pi-hashtag"></i>
+        <span>Vendedor Responsável: {{ selectedAttendance.sellerName }}</span>
+      </div>
+      <div class="info-badge">
         <i class="pi pi-calendar"></i>
-        <span>{{ selectedAttendance.openDate | date : "dd/MM/yyyy" }} {{ selectedAttendance.openHour }}</span>
+        <span
+          >{{ selectedAttendance.openDate | date : "dd/MM/yyyy" }}
+          {{ selectedAttendance.openHour }}</span
+        >
+      </div>
+      <div class="info-badge">
+        <p-button [severity]="'danger'" [raised]="true">❌ CANCELAR</p-button>
       </div>
     </div>
 
@@ -201,7 +301,9 @@
         Descrição
       </h3>
       <div class="description-box">
-        <p>{{ selectedAttendance.description || 'Sem descrição disponível' }}</p>
+        <p style="white-space: pre-line">
+          {{ selectedAttendance.subject || "Sem descrição disponível" }}
+        </p>
       </div>
     </div>
 
@@ -210,21 +312,34 @@
         <i class="pi pi-paperclip"></i>
         Arquivos Anexados
       </h3>
-      <div *ngIf="selectedAttendance.medias?.length > 0; else noMedia" class="media-list">
+
+      <div
+        *ngIf="selectedAttendance.medias!.length > 0; else noMedia"
+        class="media-list"
+      >
         <div *ngFor="let file of selectedAttendance.medias" class="media-item">
           <div class="media-icon">
             <i class="pi pi-file-pdf"></i>
           </div>
+
+          <!-- Nome do arquivo -->
           <div class="media-info">
-            <a [href]="file.url" target="_blank" class="media-link">
-              {{ file.name }}
-            </a>
+            {{ file.nameFile }}
           </div>
+
+          <!-- Botão azul para abrir PDF -->
           <div class="media-action">
-            <i class="pi pi-external-link"></i>
+            <button
+              pButton
+              type="button"
+              icon="pi pi-external-link"
+              (click)="openPdf(file.urlFile)"
+              class="p-button-rounded p-button-info"
+            ></button>
           </div>
         </div>
       </div>
+
       <ng-template #noMedia>
         <div class="no-media">
           <i class="pi pi-inbox"></i>
@@ -234,3 +349,8 @@
     </div>
   </div>
 </p-dialog>
+
+<app-pdf-viewer-dialog
+  [(visible)]="pdfDialogVisible"
+  [pdfUrl]="pdfUrl"
+></app-pdf-viewer-dialog>

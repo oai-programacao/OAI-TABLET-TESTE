@@ -21,7 +21,18 @@
             "assets": [
               {
                 "glob": "**/*",
-                "input": "public"
+                "input": "public",
+                "output": "/"
+              },
+              {
+                "glob": "**/*",
+                "input": "src/assets",
+                "output": "/assets"
+              },
+              {
+                "glob": "pdfjs/pdf.worker.js",
+                "input": "src/assets",
+                "output": "/assets/pdfjs"
               }
             ],
             "styles": ["src/styles.scss"],
@@ -105,7 +116,18 @@
             "assets": [
               {
                 "glob": "**/*",
-                "input": "public"
+                "input": "public",
+                "output": "/"
+              },
+              {
+                "glob": "**/*",
+                "input": "src/assets",
+                "output": "/assets"
+              },
+              {
+                "glob": "pdfjs/pdf.worker.js",
+                "input": "src/assets",
+                "output": "/assets/pdfjs"
               }
             ],
             "styles": ["src/styles.scss"],

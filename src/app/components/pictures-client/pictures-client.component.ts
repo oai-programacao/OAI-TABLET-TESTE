@@ -11,9 +11,11 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { DialogModule } from 'primeng/dialog';
 import { Cliente } from '../../models/cliente/cliente.dto';
 import { MidiaService } from '../../services/midia/midia.service';
+import { ConfirmPopupModule } from 'primeng/confirmpopup';
+import { ImageUtilsService } from '../../services/midia/image-utils.service';
 
 @Component({
-  selector: 'app-upload-pictures',
+  selector: 'app-pictures-client',
   standalone: true,
   imports: [
     CommonModule,
@@ -24,6 +26,7 @@ import { MidiaService } from '../../services/midia/midia.service';
     ToastModule,
     DividerModule,
     DialogModule,
+    ConfirmPopupModule,
   ],
   templateUrl: './pictures-client.component.html',
   styleUrl: './pictures-client.component.scss',
@@ -39,6 +42,7 @@ export class PicturesClientComponent {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly midiaService = inject(MidiaService);
+  private readonly imageUtils = inject(ImageUtilsService);
 
   clientId: string | undefined;
   cliente: Cliente | undefined;
@@ -138,28 +142,42 @@ export class PicturesClientComponent {
   removeImage(index: number) {
     const midiaId = this.images[index].midiaId;
 
-    // Sempre reseta o preview
-    this.images[index].src = '/OAILogo.png';
-    this.images[index].midiaId = undefined;
+    this.confirmationService.confirm({
+      message: 'Deseja realmente remover esta imagem?',
+      header: 'Confirmação',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        // Sempre reseta o preview local
+        this.images[index].src = '/OAILogo.png';
+        this.images[index].midiaId = undefined;
 
-    if (!midiaId) {
-      // Imagem só estava local, nada a excluir no backend
-      return;
-    }
+        if (!midiaId) {
+          // Imagem só estava local, nada a excluir no backend
+          this.selectedFiles[index] = undefined!;
+          return;
+        }
 
-    // Se existe no backend, chama o serviço para remover
-    this.midiaService.removeMidias(midiaId).subscribe({
-      next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Imagem removida do servidor',
+        // Se existe no backend, chama o serviço para remover
+        this.midiaService.removeMidias(midiaId).subscribe({
+          next: () => {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Imagem removida do servidor',
+            });
+            // também limpa o arquivo local
+            this.selectedFiles[index] = undefined!;
+          },
+          error: () => {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Erro ao excluir imagem do servidor',
+            });
+          },
         });
       },
-      error: () =>
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro ao excluir imagem do servidor',
-        }),
+      reject: () => {
+        // Usuário cancelou, nada acontece
+      },
     });
   }
 
@@ -178,12 +196,10 @@ export class PicturesClientComponent {
     this.selectedFiles[index] = file;
   }
 
-  saveImages() {
+  async saveImages() {
     if (!this.clientId) return;
 
-    // filtra apenas os arquivos selecionados
     const filesToUpload = this.selectedFiles.filter((f) => !!f);
-
     if (!filesToUpload.length) {
       this.messageService.add({
         severity: 'warn',
@@ -193,21 +209,111 @@ export class PicturesClientComponent {
       return;
     }
 
-    this.midiaService.saveMidias(filesToUpload, this.clientId).subscribe({
-      next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Upload concluído',
-        });
-        this.selectedFiles = [];
-        this.loadImages();
-      },
-      error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro ao enviar',
-        });
-      },
+    try {
+      // Redimensiona/comprime todas as imagens usando o serviço
+      const resizedFiles = await Promise.all(
+        filesToUpload.map((file) => this.imageUtils.resizeImage(file))
+      );
+
+      this.midiaService.saveMidias(resizedFiles, this.clientId).subscribe({
+        next: () => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Upload concluído',
+          });
+          this.selectedFiles = [];
+          this.loadImages();
+        },
+        error: () => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erro ao enviar',
+          });
+        },
+      });
+    } catch (err) {
+      console.error(err);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erro ao processar imagens',
+      });
+    }
+  }
+
+  isFrenteEnabled(): boolean {
+    return true; // sempre habilitado
+  }
+
+  isVersoEnabled(): boolean {
+    return this.images[0].src !== this.defaultImage.src;
+  }
+
+  isExtraEnabled(index: number): boolean {
+    if (index <= 1) return false; // não é extra
+    // index 2 (primeiro extra) precisa de Frente e Verso
+    if (index === 2) {
+      return (
+        this.images[0].src !== this.defaultImage.src &&
+        this.images[1].src !== this.defaultImage.src
+      );
+    }
+    // index 3 (segundo extra) precisa do slot extra 1
+    if (index === 3) {
+      return this.images[2].src !== this.defaultImage.src;
+    }
+    return true; // qualquer extra depois disso (se houver)
+  }
+
+  resizeImage(
+    file: File,
+    maxWidth = 1920,
+    maxHeight = 1080,
+    quality = 0.7
+  ): Promise<File> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const reader = new FileReader();
+
+      reader.onload = (e: any) => {
+        img.src = e.target.result;
+      };
+
+      reader.onerror = reject;
+      
+      img.onerror = reject;
+
+      img.onload = () => {
+
+        let { width, height } = img;
+
+        if (width > maxWidth || height > maxHeight) {
+          const ratio = Math.min(maxWidth / width, maxHeight / height);
+          width *= ratio;
+          height *= ratio;
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+        ctx!.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) return reject('Erro ao criar blob');
+            const resizedFile = new File([blob], file.name, {
+              type: file.type,
+            });
+            resolve(resizedFile);
+          },
+          file.type,
+          quality
+        );
+      };
+
+      reader.readAsDataURL(file);
     });
   }
+
 }

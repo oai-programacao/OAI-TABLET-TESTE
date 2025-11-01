@@ -1,8 +1,9 @@
+import { SignaturePadComponent } from './../../shared/components/signature-pad/signature-pad.component';
 import { CommonModule } from "@angular/common"
 import { type AfterViewInit, Component, type ElementRef, inject, type OnInit, ViewChild } from "@angular/core"
 import { DomSanitizer, type SafeResourceUrl } from "@angular/platform-browser"
 import { ActivatedRoute, Router } from "@angular/router"
-import { FormBuilder, type FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms"
+import { FormBuilder, FormsModule, ReactiveFormsModule } from "@angular/forms"
 
 // 🔹 PrimeNG
 import { ButtonModule } from "primeng/button"
@@ -44,7 +45,6 @@ import { NgxMaskDirective } from "ngx-mask"
 // 🔹 Biblioteca de assinatura
 import SignaturePad from "signature_pad"
 import { concatMap } from "rxjs/internal/operators/concatMap"
-import { SignaturePadComponent } from "../signature-pad/signature-pad.component";
 import { ReportsService } from "../../services/reports/reports.service"
 import { AttendancesService } from "../../services/attendances/attendances.service"
 

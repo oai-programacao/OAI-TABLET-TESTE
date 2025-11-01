@@ -1,3 +1,4 @@
+import { SignaturePadComponent } from './../../shared/components/signature-pad/signature-pad.component';
 import { Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ToastModule } from "primeng/toast";
@@ -32,7 +33,6 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TooltipModule } from 'primeng/tooltip';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ReportsService } from '../../services/reports/reports.service';
-import { SignaturePadComponent } from '../signature-pad/signature-pad.component';
 import { MidiaService } from '../../services/midia/midia.service';
 import { IftaLabelModule } from "primeng/iftalabel";
 import { AttendancesService } from '../../services/attendances/attendances.service';

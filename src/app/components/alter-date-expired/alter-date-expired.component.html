@@ -91,10 +91,21 @@
                     [options]="typesOfDateExpirationCicle"
                     optionLabel="descricao"
                     optionValue="value"
-                    placeholder="Selecione nova data de vencimento"
+                    placeholder="Selecione a nova data de vencimento"
                     styleClass="custom-select"
                     [(ngModel)]="selectedBillingCycle"
                     (onChange)="onBillingCycleChange()"
+                  ></p-select>
+                </div>
+
+                <div class="select-wrapper">
+                  <p-select
+                    [options]="typesOfPaymentMethod"
+                    optionLabel="descricao"
+                    optionValue="value"
+                    placeholder="Forma de Pagamento"
+                    styleClass="custom-select"
+                    [(ngModel)]="selectedTypeOfPaymentMethod"
                   ></p-select>
                 </div>
 
@@ -109,8 +120,8 @@
                 <div class="proportional-explanation">
                   <p>
                     O valor abaixo é calculado proporcionalmente ao período
-                    restante do mês atual. Considera-se o valor líquido do
-                    contrato dividido pela quantidade de dias [30], multiplicado
+                    restante do MÊS ATUAL. Considera-se o valor líquido do
+                    contrato dividido pela quantidade de dias , multiplicado
                     pelo número de dias até o novo dia base escolhido.
                   </p>
                 </div>
@@ -141,7 +152,7 @@
                 iconPos="right"
                 label="Próximo"
                 (onClick)="activateCallback(2)"
-                [disabled]="!selectedBillingCycle"
+                [disabled]="!selectedBillingCycle || !selectedTypeOfPaymentMethod"
               ></p-button>
             </div>
           </ng-template>

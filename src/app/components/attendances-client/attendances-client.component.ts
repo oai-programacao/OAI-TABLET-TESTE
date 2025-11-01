@@ -6,6 +6,12 @@ import { TableModule } from 'primeng/table';
 import { CardBaseComponent } from '../../shared/components/card-base/card-base.component';
 import { Attendance } from '../../models/attendance/attendance.dto';
 import { DialogModule } from 'primeng/dialog';
+import { AttendancesService } from '../../services/attendances/attendance.service';
+import { environment } from '../../../environments/environment';
+import { PdfViewerDialogComponent } from '../../shared/components/pdf-viewer/pdf-viewer-dialog';
+import { FormsModule } from '@angular/forms';
+import { PopoverModule } from 'primeng/popover';
+import { SelectModule } from 'primeng/select';
 
 @Component({
   selector: 'app-attendances-client',
@@ -16,75 +22,80 @@ import { DialogModule } from 'primeng/dialog';
     ButtonModule,
     TableModule,
     DialogModule,
+    PdfViewerDialogComponent,
+    PopoverModule,
+    FormsModule,
+    SelectModule,
   ],
   templateUrl: './attendances-client.component.html',
   styleUrl: './attendances-client.component.scss',
 })
 export class AttendancesClientComponent implements OnInit {
-  private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private attendancesService = inject(AttendancesService);
 
   clientId!: string;
   attendances: Attendance[] = [];
-
   client: any;
+  displayDialog = false;
+
+  totalElements = 0;
+
+  selectedAttendance: Attendance = {
+    id: '',
+    status: '',
+    clientName: '',
+    sellerName: '',
+    openDate: '',
+    openHour: '',
+    initiative: '',
+    mode: '',
+    typeClient: '',
+    contract: '',
+    flow: '',
+    type: '',
+    topic: '',
+    subject: '',
+    codeAttendanceRbx: 0,
+    medias: [], // array vazio garante que não será undefined
+  };
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('clientId');
     if (id) {
       this.clientId = id;
+      this.loadAttendances(0, 5);
     }
+  }
 
-    // Mock de dados
-    this.attendances = [
-      {
-        id: '1',
-        seller: { id: 's1', name: 'João Vendedor' },
-        client: {
-          id: this.clientId,
-          name: 'Maria Silva',
-          codigoRbx: 'RBX-3322',
-        },
-        openDate: '2025-10-22',
-        openHour: '14:35',
-        initiative: 'Cliente',
-        mode: 'WhatsApp',
-        typeClient: 'Titular',
-        contract: 'CT-90876',
-        flow: 'Financeiro',
-        subject: '2ª via de boleto',
-        codeAttendanceRbx: 5001,
-      },
-      {
-        id: '2',
-        seller: { id: 's2', name: 'Ana Vendedora' },
-        client: {
-          id: this.clientId,
-          name: 'Maria Silva',
-          codigoRbx: 'RBX-3322',
-        },
-        openDate: '2025-10-20',
-        openHour: '09:12',
-        initiative: 'Loja',
-        mode: 'Telefone',
-        typeClient: 'Dependente',
-        contract: 'CT-90876',
-        flow: 'Comercial',
-        subject: 'Alteração de plano',
-        codeAttendanceRbx: 5002,
-      },
-    ];
+  loadAttendances(page = 0, size = 5) {
+    this.attendancesService
+      .getAttendances(this.clientId, page, size)
+      .subscribe({
+        next: (res) => {
+          this.attendances = res.content;
+          this.totalElements = res.totalElements;
 
-    // Dados para o header
-    if (this.attendances.length > 0) {
-      this.client = {
-        name: this.attendances[0].client.name,
-        contract: this.attendances[0].contract,
-        openDate: this.attendances[0].openDate,
-        openHour: this.attendances[0].openHour,
-        codeAttendanceRbx: this.attendances[0].codeAttendanceRbx,
-      };
-    }
+          if (this.attendances.length > 0) {
+            const first = this.attendances[0];
+            this.client = {
+              name: first.sellerName,
+              contract: first.contract,
+              openDate: first.openDate,
+              openHour: first.openHour,
+              codeAttendanceRbx: first.codeAttendanceRbx,
+            };
+          }
+        },
+        error: (err) => console.error('Erro ao carregar atendimentos', err),
+      });
+  }
+
+  onPageChange(event: any) {
+    const page = event.first / event.rows;
+    const size = event.rows;
+    this.loadAttendances(page, size);
   }
 
   backToClient() {
@@ -95,20 +106,51 @@ export class AttendancesClientComponent implements OnInit {
     this.router.navigate(['home']);
   }
 
+  verDetalhes(att: Attendance) {
+    // Chamar API para pegar detalhes completos, incluindo mídias
+    this.attendancesService.getAttendanceDetails(att.id).subscribe({
+      next: (res) => {
+        console.log('Detalhes do atendimento:', res.medias);
+        this.selectedAttendance = res;
 
-  selectedAttendance: any; // Atendimento selecionado para o Dialog
-  displayDialog: boolean = false;
+        if (!this.selectedAttendance.medias) {
+          this.selectedAttendance.medias = [];
+        }
 
-  verDetalhes(att: any) {
-    // Aqui você pode buscar informações adicionais se precisar
-    // Por exemplo, chamar API para pegar descrição completa e PDFs
-    this.selectedAttendance = att;
-    
-    // Se seu atendimento tiver PDFs, garanta que seja um array:
-    if (!this.selectedAttendance.medias) {
-      this.selectedAttendance.medias = []; // exemplo: [{name: 'doc.pdf', url: '/files/doc.pdf'}]
-    }
+        this.displayDialog = true;
+      },
+      error: (err) => {
+        console.error('Erro ao carregar detalhes do atendimento', err);
+      },
+    });
+  }
 
-    this.displayDialog = true;
+  // Variáveis para o dialog do PDF
+  pdfDialogVisible = false;
+  pdfUrl: string | null = null;
+
+  openPdf(filePath: string) {
+    const fileName = filePath.split(
+      '/home/oai/imagesDocuments/contratosassinados/'
+    )[1];
+    this.pdfUrl = `${environment.apiUrl}/pdf/${fileName}`;
+    this.pdfDialogVisible = true;
+  }
+
+
+  selectedStatus: string | null = null;
+  statusOptions = [
+    { label: 'TODOS', value: null },
+    { label: 'ABERTO', value: 'active' },
+    { label: 'CANCELADO', value: 'inactive' },
+    { label: 'PENDENTE', value: 'pending' }
+  ];
+
+  clearFilters(): void {
+    this.selectedStatus = null;
+  }
+
+  applyFilters(): void {
+    console.log('Status selecionado:', this.selectedStatus);
   }
 }

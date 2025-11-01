@@ -10,6 +10,9 @@ import { DividerModule } from 'primeng/divider';
 import { Router, ActivatedRoute } from '@angular/router';
 import { DialogModule } from 'primeng/dialog';
 import { Cliente } from '../../models/cliente/cliente.dto';
+import { MidiaService } from '../../services/midia/midia.service';
+import { ConfirmPopupModule } from 'primeng/confirmpopup';
+import { ImageUtilsService } from '../../services/midia/image-utils.service';
 
 @Component({
   selector: 'app-upload-pictures',
@@ -23,6 +26,7 @@ import { Cliente } from '../../models/cliente/cliente.dto';
     ToastModule,
     DividerModule,
     DialogModule,
+    ConfirmPopupModule,
   ],
   templateUrl: './upload-pictures.component.html',
   styleUrl: './upload-pictures.component.scss',
@@ -33,23 +37,31 @@ export class UploadPicturesComponent {
   defaultImage = { src: '/OAILogo.png', alt: 'Imagem padrão' };
 
   //Injeções
-  messageService = inject(MessageService);
-  confirmationService = inject(ConfirmationService);
-  router = inject(Router);
+  private readonly messageService = inject(MessageService);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly midiaService = inject(MidiaService);
+  private readonly imageUtils = inject(ImageUtilsService);
 
-  clientId: string | null = null;
+  clientId: string | undefined;
   cliente: Cliente | undefined;
 
-  images: { src: string; alt: string; type?: 'frente' | 'verso' }[] = [
-    { ...this.defaultImage }, // 1º quadrado -> Frente
-    { ...this.defaultImage }, // 2º quadrado -> Verso
-    { ...this.defaultImage }, // 3º quadrado -> Extra
-    { ...this.defaultImage }, // 4º quadrado -> Extra
+  images: {
+    src: string;
+    alt: string;
+    type?: 'frente' | 'verso';
+    midiaId?: string;
+  }[] = [
+    { ...this.defaultImage },
+    { ...this.defaultImage },
+    { ...this.defaultImage },
+    { ...this.defaultImage },
   ];
 
   selectedType?: 'frente' | 'verso';
   selectedIndex: number | null = null;
+  selectedFiles: File[] = []; // arquivos ainda não enviados
 
   previewVisible = false;
   previewImage: string | null = null;
@@ -62,8 +74,12 @@ export class UploadPicturesComponent {
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
-      this.clientId = params.get('clientId');
+      this.clientId = params.get('clientId') ?? undefined;
     });
+
+    if (this.clientId) {
+      this.loadImages();
+    }
   }
 
   // Slots extras (index > 1)
@@ -89,41 +105,6 @@ export class UploadPicturesComponent {
     this.fileInput.nativeElement.click();
   }
 
-  onFileSelected(event: Event) {
-    const input = event.target as HTMLInputElement;
-    if (!input.files || !input.files[0]) return;
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      const newImage = {
-        src: reader.result as string,
-        alt: this.selectedType
-          ? this.selectedType === 'frente'
-            ? 'Frente'
-            : 'Verso'
-          : 'Extra',
-        type: this.selectedType,
-      };
-
-      if (this.selectedIndex !== null) {
-        this.images[this.selectedIndex] = newImage;
-      }
-
-      // força update da view
-      this.images = [...this.images];
-
-      // reset
-      this.selectedType = undefined;
-      this.selectedIndex = null;
-    };
-    reader.readAsDataURL(input.files[0]);
-
-    input.value = '';
-  }
-  removeImage(index: number) {
-    this.images[index] = { ...this.defaultImage };
-  }
-
   viewImage(image: { src: string; alt: string }) {
     if (image.src !== this.defaultImage.src) {
       this.previewImage = image.src;
@@ -139,31 +120,195 @@ export class UploadPicturesComponent {
     this.router.navigate(['/search']);
   }
 
-  confirm1(event: Event) {
+  allSlotsOccupied(): boolean {
+    return this.images
+      .slice(0, 2) // pega apenas os índices 0 e 1
+      .every((img) => img.src !== this.defaultImage.src);
+  }
+
+  loadImages() {
+    this.midiaService.listMidias(this.clientId).subscribe({
+      next: (midias) => {
+        midias.forEach((m, i) => {
+          if (i < this.images.length) {
+            this.images[i] = { src: m.urlFile, alt: m.nameFile, midiaId: m.id };
+          }
+        });
+      },
+      error: (err) => console.error(err),
+    });
+  }
+
+  removeImage(index: number) {
+    const midiaId = this.images[index].midiaId;
+
     this.confirmationService.confirm({
-      target: event.target as EventTarget,
-      message: 'Deseja ir para a parte de contrato deste novo cliente?',
+      message: 'Deseja realmente remover esta imagem?',
       header: 'Confirmação',
-      closable: true,
-      closeOnEscape: true,
       icon: 'pi pi-exclamation-triangle',
-      rejectButtonProps: { label: 'Cancelar', severity: 'danger' },
-      acceptButtonProps: { label: 'Confirmar' },
       accept: () => {
-        this.messageService.add({
-          severity: 'info',
-          summary: 'Confirmado',
-          detail: 'Você aceitou',
+        // Sempre reseta o preview local
+        this.images[index].src = '/OAILogo.png';
+        this.images[index].midiaId = undefined;
+
+        if (!midiaId) {
+          // Imagem só estava local, nada a excluir no backend
+          this.selectedFiles[index] = undefined!;
+          return;
+        }
+
+        // Se existe no backend, chama o serviço para remover
+        this.midiaService.removeMidias(midiaId).subscribe({
+          next: () => {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Imagem removida do servidor',
+            });
+            // também limpa o arquivo local
+            this.selectedFiles[index] = undefined!;
+          },
+          error: () => {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Erro ao excluir imagem do servidor',
+            });
+          },
         });
       },
       reject: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Cancelar',
-          detail: 'Você rejeitou',
-          life: 3000,
-        });
+        // Usuário cancelou, nada acontece
       },
+    });
+  }
+
+  onFileSelected(event: Event, index: number) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) return;
+
+    const file = input.files[0];
+
+    // salvar preview local
+    const reader = new FileReader();
+    reader.onload = () => (this.images[index].src = reader.result as string);
+    reader.readAsDataURL(file);
+
+    // guardar arquivo localmente
+    this.selectedFiles[index] = file;
+  }
+
+  async saveImages() {
+    if (!this.clientId) return;
+
+    const filesToUpload = this.selectedFiles.filter((f) => !!f);
+    if (!filesToUpload.length) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Nenhum arquivo',
+        detail: 'Selecione pelo menos uma imagem antes de salvar',
+      });
+      return;
+    }
+
+    try {
+      // Redimensiona/comprime todas as imagens usando o serviço
+      const resizedFiles = await Promise.all(
+        filesToUpload.map((file) => this.imageUtils.resizeImage(file))
+      );
+
+      this.midiaService.saveMidias(resizedFiles, this.clientId).subscribe({
+        next: () => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Upload concluído',
+          });
+          this.selectedFiles = [];
+          this.loadImages();
+        },
+        error: () => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erro ao enviar',
+          });
+        },
+      });
+    } catch (err) {
+      console.error(err);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erro ao processar imagens',
+      });
+    }
+  }
+
+  isFrenteEnabled(): boolean {
+    return true; // sempre habilitado
+  }
+
+  isVersoEnabled(): boolean {
+    return this.images[0].src !== this.defaultImage.src;
+  }
+
+  isExtraEnabled(index: number): boolean {
+    if (index <= 1) return false; // não é extra
+    // index 2 (primeiro extra) precisa de Frente e Verso
+    if (index === 2) {
+      return (
+        this.images[0].src !== this.defaultImage.src &&
+        this.images[1].src !== this.defaultImage.src
+      );
+    }
+    // index 3 (segundo extra) precisa do slot extra 1
+    if (index === 3) {
+      return this.images[2].src !== this.defaultImage.src;
+    }
+    return true; // qualquer extra depois disso (se houver)
+  }
+
+  resizeImage(
+    file: File,
+    maxWidth = 1920,
+    maxHeight = 1080,
+    quality = 0.7
+  ): Promise<File> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const reader = new FileReader();
+
+      reader.onload = (e: any) => {
+        img.src = e.target.result;
+      };
+      reader.onerror = reject;
+      img.onerror = reject;
+
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxWidth || height > maxHeight) {
+          const ratio = Math.min(maxWidth / width, maxHeight / height);
+          width *= ratio;
+          height *= ratio;
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+        ctx!.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) return reject('Erro ao criar blob');
+            const resizedFile = new File([blob], file.name, {
+              type: file.type,
+            });
+            resolve(resizedFile);
+          },
+          file.type,
+          quality
+        );
+      };
+
+      reader.readAsDataURL(file);
     });
   }
 }

@@ -17,7 +17,7 @@ import { DialogModule } from 'primeng/dialog';
 import { NgxMaskDirective } from 'ngx-mask';
 import { TextareaModule } from 'primeng/textarea';
 import { GoogleMapsComponent } from '../../shared/components/google-maps/google-maps.component';
-import { SignaturePadComponent } from '../signature-pad/signature-pad.component';
+import { SignaturePadComponent } from '../../shared/components/signature-pad/signature-pad.component';
 import { MessageService } from 'primeng/api';
 import { Router } from '@angular/router';
 

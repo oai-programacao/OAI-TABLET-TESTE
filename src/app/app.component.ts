@@ -6,17 +6,20 @@ import { WebSocketService } from './services/webSocket/websocket.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ButtonModule, TableModule],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
+  imports: [
+    RouterOutlet,
+    ButtonModule,
+    TableModule,
+  ],
 })
 export class AppComponent implements OnInit {
 
-  constructor(private wsService: WebSocketService) { }
-
-
   notificationCount: number = 10;
-  
+
+  constructor(private wsService: WebSocketService) {}
+
   ngOnInit() {
     const token = localStorage.getItem('accessToken');
     if (token) {

@@ -90,21 +90,28 @@ export class ContractsService {
   }
 
   changeAddressContract(payload: {
-    clientId: string;
-    contractNumber: string;
-    sellerId: string;
-    newZip: string | null;
-    newNumber: string | null;
-    newComplement: string | null;
-    newState: string;
-    newCity: string;
-    newStreet: string;
-    newNeighborhood: string;
-    // observation?: string | null; // Só inclua se o backend realmente espera!
-  }): Observable<any> {
-    return this.http.post<any>(
-      `${this.urlApi}/automation/address-update`,
-      payload
-    );
-  }
+  clientId: string;
+  contractNumber: string;
+  sellerId: string;
+  newZip: string | null;
+  newNumber: string | null;
+  newComplement: string | null;
+  newState: string;
+  newCity: string;
+  newStreet: string;
+  newNeighborhood: string;
+  // observation?: string | null; // Só inclua se o backend realmente espera!
+}): Observable<any> {
+  return this.http.post<any>(
+    `${this.urlApi}/automation/address-update`,
+    payload
+  );
+}
+
+updateAddressContract(contractId: string, payload: any): Observable<any> {
+  return this.http.patch<any>(
+    `${this.urlApi}/contract/${contractId}/update-address`,
+    payload
+  );
+}
 }
