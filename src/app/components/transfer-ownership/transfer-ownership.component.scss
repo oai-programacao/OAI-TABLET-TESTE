@@ -509,3 +509,20 @@ p-inputgroup {
   width: 100%;
   max-width: 900px;
 }
+
+.alert-warning {
+  padding: 1rem;
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+  border-radius: 0.5rem;
+  font-weight: 400; // Unificado
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.alert-warning i {
+  font-size: 1.2rem;
+}
