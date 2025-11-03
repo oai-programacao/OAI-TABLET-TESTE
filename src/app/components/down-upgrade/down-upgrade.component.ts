@@ -353,7 +353,7 @@ export class DownUpgradeComponent implements OnInit {
 
           this.isLoadingTransfer = false;
           this.modalVisible = false;
-          this.voltarParaCliente();
+          this.goToStep(4);
         },
         error: (err) => {
           this.isLoadingTransfer = false;
