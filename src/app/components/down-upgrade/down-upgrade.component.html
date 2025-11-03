@@ -90,7 +90,6 @@
                                             inputId="newPlanSelect"
                                             [(ngModel)]="selectedPlan"
                                             [options]="typesofplans"
-                                            optionLabel="nome"
                                             placeholder="Selecione o novo Plano"
                                             [showClear]="true"
                                             [filter]="true"
@@ -98,12 +97,29 @@
                                             [virtualScroll]="true"
                                             [virtualScrollItemSize]="40"
                                             styleClass="w-full"
-                                            appendTo="body"
-                                        ></p-select>
+                                            appendTo="body">
+                                            <ng-template pTemplate="selectedItem" let-plan>
+                                                <div *ngIf="plan" class="select-item-layout">
+                                                    <span class="select-item-nome">{{plan.nome}}</span>
+                                                    <small class="select-item-codigo">({{plan.codePlanRBX}})</small>
+                                                </div>
+                                            </ng-template>
+                                        
+                                            <ng-template pTemplate="item" let-plan>
+                                                <div class="select-item-layout">
+                                                    <span class="select-item-nome">{{plan.nome}}</span>
+                                                    <small class="select-item-codigo">
+                                                    
+                                                        <i class="pi pi-tag"></i>
+                                                        <span>{{plan.codePlanRBX}}</span>
+                                                    </small>
+                                                </div>
+                                            </ng-template>
+                                        </p-select>
                                      </span>
                                 </div>
 
-                                 <div class="select-wrapper" style="margin-top: 1.5rem;">
+                                <div class="select-wrapper" style="margin-top: 1.5rem;">
                                     <span class="p-float-label">
                                         <p-inputNumber
                                             inputId="descountFixe"
@@ -297,7 +313,7 @@
                             icon="pi pi-arrow-right"
                             iconPos="right"
                             label="Atualizar Contrato"
-                            (onClick)="submitUpgrade(); activateCallback(4)"
+                            (onClick)="submitUpgrade()"
                             />
                         </div>
                         </div>
