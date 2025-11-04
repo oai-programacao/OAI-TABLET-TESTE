@@ -24,7 +24,8 @@ import { PlanService, Plan } from '../../services/plan/plan.service';
 import { CepService, CepResponse } from '../../services/cep/cep.service';
 import { SalesService } from '../../services/sales/sales.service';
 import { MidiaService } from '../../services/midia/midia.service';
-import { from } from 'rxjs';
+import { AuthService } from '../../core/auth.service';
+
 
 export interface ContractFormData {
   salesId?: number;
@@ -65,9 +66,8 @@ export interface Address {
   number: string;
   complement?: string;
   neighborhood: string;
-  codMunicipio?: string;
+  type?: string;
 }
-
 @Component({
   selector: 'app-add-contract',
   standalone: true,
@@ -98,13 +98,14 @@ export interface Address {
 })
 export class AddContractComponent implements OnInit {
   @ViewChild('pop') pop!: Popover;
-
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly planService = inject(PlanService);
   private readonly cepService = inject(CepService);
   private readonly salesService = inject(SalesService);
   private readonly midiaService = inject(MidiaService);
+  private readonly authService = inject(AuthService);
+ 
 
   public contractFormData: ContractFormData = {
     sellerId: '',
@@ -124,7 +125,6 @@ export class AddContractComponent implements OnInit {
       number: '',
       complement: '',
       neighborhood: '',
-      codMunicipio: '',
     },
     discount: 0,
     signature: '',
@@ -153,7 +153,7 @@ export class AddContractComponent implements OnInit {
   selectedPlan: string | null = null;
   selectedInstallment: string | null = null;
   selectDateOfExpirationCicle: string | null = null;
-  selectedResidence: string | null = null;
+  selectedResidence: Address | null = null;
   typeOfResidenceOptions = [
     { label: 'Urbana', value: 'urbana' },
     { label: 'Rural', value: 'rural' },
@@ -191,7 +191,9 @@ export class AddContractComponent implements OnInit {
   previewVisible = false;
   previewImage: string | null = null;
 
-  constructor(public messageService: MessageService) {}
+  constructor(private messageService: MessageService) {
+     this.clientId = this.route.snapshot.queryParamMap.get('clientId') ?? '';
+  }
 
   ngOnInit(): void {
   this.loadPlans();
@@ -359,138 +361,117 @@ export class AddContractComponent implements OnInit {
 
   formatToLocalDateString(date: Date | string | null | undefined): string | null {
     if (!date) return null;
-    if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) return date;
     const d = new Date(date);
     if (Number.isNaN(d.getTime())) return null;
-    const yyyy = d.getFullYear();
+     const dd = String(d.getDate()).padStart(2, '0');
     const mm = String(d.getMonth() + 1).padStart(2, '0');
-    const dd = String(d.getDate()).padStart(2, '0');
-    return `${yyyy}-${mm}-${dd}`;
+    const yyyy = d.getFullYear();
+    return `${dd}/${mm}/${yyyy}`;
   }
 
   submitContract(): void {
-    // Debug rápido do estado antes das validações
-    console.log('[submitContract] estado atual:', {
-      selectedPlan: this.selectedPlan,
-      selectedInstallment: this.selectedInstallment,
-      selectDateOfExpirationCicle: this.selectDateOfExpirationCicle,
-      clientIdFromRoute: this.clientId,
-      clientIdFromForm: this.contractFormData.clientId,
-      selectedResidence: this.selectedResidence,
-      dateOfStart: this.dateOfStart,
-      dateOfAssignment: this.dateOfAssignment,
-      dateSignature: this.dateSignature,
-      dateOfMemberShipExpiration: this.dateOfMemberShipExpiration,
+  if (!this.clientId) {
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Erro',
+      detail: 'ClientId ausente na URL.',
     });
-
-    // 1) Validações
-    const selectedCycle = this.typesOfDateExpirationCicle.find(
-      (c) => c.value === this.selectDateOfExpirationCicle
-    );
-    if (!selectedCycle) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Atenção',
-        detail: 'Selecione o ciclo de faturamento.',
-      });
-      return;
-    }
-
-    if (!this.selectedPlan) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Atenção',
-        detail: 'Selecione o plano.',
-      });
-      return;
-    }
-
-    if (!this.selectedInstallment) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Atenção',
-        detail: 'Selecione o número de parcelas.',
-      });
-      return;
-    }
-
-    if (!this.clientId && !this.contractFormData.clientId) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Erro',
-        detail: 'ClientId ausente.',
-      });
-      return;
-    }
-
-    // 2) sellerId (ajuste conforme AuthService real)
-    const sellerIdFromAuth =
-      this.contractFormData.sellerId && this.contractFormData.sellerId.length > 0
-        ? this.contractFormData.sellerId
-        : '';
-
-    // 3) Converter datas
-    const dateStartLocal = this.formatToLocalDateString(
-      this.dateOfStart ?? this.contractFormData.dateStart
-    );
-    const dateAssignmentLocal = this.formatToLocalDateString(
-      this.dateOfAssignment ?? this.contractFormData.dateOfAssignment
-    );
-    const dateSignatureLocal = this.formatToLocalDateString(
-      this.dateSignature ?? this.contractFormData.dateSignature
-    );
-    const dateExpiredLocal = this.formatToLocalDateString(
-      this.dateOfMemberShipExpiration ?? this.contractFormData.dateExpired
-    );
-
-    // 4) Montar payload
-    const salePayload: any = {
-      ...this.contractFormData,
-      sellerId: sellerIdFromAuth ?? '',
-      clientId: this.contractFormData.clientId || this.clientId || '',
-      codePlan: Number(this.selectedPlan),
-      numberParcels: Number(this.selectedInstallment),
-      dateStart: dateStartLocal ?? null,
-      dateOfAssignment: dateAssignmentLocal ?? null,
-      dateSignature: dateSignatureLocal ?? null,
-      dateExpired: dateExpiredLocal ?? null,
-      cicleFatId: Number(selectedCycle.id),
-      cicleBillingDayBase: Number(selectedCycle.dia),
-      cicleBillingExpired: Number(selectedCycle.vencimento),
-      typeResidence: this.selectedResidence,
-      signatureBase64: this.formData.signaturePad || null,
-      images: [],
-    };
-
-    console.log('[submitContract] payload montado:', salePayload);
-
-    // 5) Upload de imagens (se houver) e criação da venda
-    const filesToUpload = this.images.filter((i): i is File => !!i);
-    if (filesToUpload.length > 0) {
-      this.midiaService
-        .saveMidias(filesToUpload, salePayload.clientId)
-        .subscribe({
-          next: (res: any) => {
-            const mediaIdsOrUrls = Array.isArray(res)
-              ? res.map((r: any) => r.id ?? r.url ?? r)
-              : [];
-            salePayload.images = mediaIdsOrUrls;
-
-            this.createSaleRequest(salePayload);
-          },
-          error: (err) => {
-            console.error('Erro ao fazer upload das imagens', err);
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Erro',
-              detail: 'Falha ao enviar imagens.',
-            });
-          },
-        });
-    } else {
-      this.createSaleRequest(salePayload);
-    }
+    return;
   }
+
+  const sellerId = this.authService.getSellerId();
+  if (!sellerId) {
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Erro',
+      detail: 'SellerId não encontrado para o usuário logado.',
+    });
+    return;
+  }
+
+  // Validar ciclo e plano
+  const selectedCycle = this.typesOfDateExpirationCicle.find(
+    (c) => c.value === this.selectDateOfExpirationCicle
+  );
+  if (!selectedCycle) {
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Atenção',
+      detail: 'Selecione o ciclo de faturamento.',
+    });
+    return;
+  }
+
+  if (!this.selectedPlan) {
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Atenção',
+      detail: 'Selecione o plano.',
+    });
+    return;
+  }
+
+  if (!this.selectedInstallment) {
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Atenção',
+      detail: 'Selecione o número de parcelas.',
+    });
+    return;
+  }
+
+  // Montar payload exatamente como o backend espera
+  const payload = {
+  sellerId,
+  clientId: this.clientId,
+  codePlan: Number(this.selectedPlan),
+  dateStart: this.formatToLocalDateString(this.dateOfStart) || '',
+  dateSignature: this.formatToLocalDateString(this.dateSignature) || this.formatToLocalDateString(this.dateOfStart) || '',
+  dateExpired: this.formatToLocalDateString(this.dateOfMemberShipExpiration) || '',
+  numberParcels: Number(this.selectedInstallment),
+  adesion: Number(this.contractFormData.adesion) || 100.00,
+  discount: 900.00,
+  descountFixe: "35.00",
+  address: {
+    street: this.contractFormData.address.street || '',
+    number: this.contractFormData.address.number || '',
+    neighborhood: this.contractFormData.address.neighborhood || '',
+    city: this.contractFormData.address.city || '',
+    state: this.contractFormData.address.state || '',
+    zipCode: this.contractFormData.address.zipCode || '',
+    complement: this.contractFormData.address.complement || ''
+  },
+  signature: this.formData.signaturePad || '',
+  imagesOne: this.images[0] ? URL.createObjectURL(this.images[0]) : '',
+  observation: this.contractFormData.observation || '',
+  vigencia: String(this.contractFormData.vigencia || 12),
+  cicleFatId: Number(selectedCycle.id),
+  cicleBillingDayBase: Number(selectedCycle.dia),
+  cicleBillingExpired: Number(selectedCycle.vencimento)
+};
+
+  console.log(JSON.stringify(payload, null, 2));
+
+
+  console.log('Payload final para envio:', payload);
+
+  this.salesService.createSale(payload).subscribe({
+    next: (res) => {
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Contrato Criado',
+        detail: 'O contrato foi criado com sucesso.',
+      });
+      console.log('Resposta createSale:', res);
+    },
+    error: (err) => {
+      console.error('Erro na criação da venda:', err);
+      const detail = err?.error?.message ?? 'Erro ao criar a venda.';
+      this.messageService.add({ severity: 'error', summary: 'Erro', detail });
+    },
+  });
+}
+
 
   // extrai pra função para reutilizar e logar payload antes de enviar
   private createSaleRequest(payload: any) {
