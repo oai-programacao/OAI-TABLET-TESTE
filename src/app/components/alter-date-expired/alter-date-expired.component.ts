@@ -151,8 +151,6 @@ export class AlterDateExpiredComponent {
   selectedTypeOfPaymentMethod: string | null = null;
   typesOfPaymentMethod = [
     { descricao: 'Boleto Bancário', value: 'Boleto' },
-    { descricao: 'Débito Automático', value: 'CartaoDebito' },
-    { descricao: 'Cartão de Crédito', value: 'CartaoCredito' },
     { descricao: 'Pix', value: 'Pix' },
   ];
 
