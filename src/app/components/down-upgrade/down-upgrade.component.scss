@@ -1,11 +1,5 @@
-// ============================================
-// IMPORTS
-// ============================================
 @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap");
 
-// ============================================
-// VARIÁVEIS (mantendo cores originais)
-// ============================================
 $border-radius-sm: 6px;
 $border-radius-md: 10px;
 $border-radius-lg: 12px;
@@ -32,30 +26,22 @@ $font-size-emoji: 5rem;
 $transition-fast: 0.2s ease-in-out;
 $transition-base: 0.3s ease;
 
-// ============================================
-// LAYOUT PRINCIPAL
-// ============================================
 .page-container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 88vh;
-  padding: $spacing-lg;
 }
 
-// ============================================
-// STEPPER (PrimeNG)
-// ============================================
 .p-stepper {
-  --p-stepper-step-number-font-size: #{$font-size-3xl};
+  --p-stepper-step-number-font-size: 2rem;
   --p-stepper-step-number-background: #fff;
   --p-stepper-step-number-color: #004e9b;
   --p-stepper-step-number-active-background: #004e9b;
   --p-stepper-step-number-active-color: #fff;
   --p-stepper-separator-background: #375ca4;
   --p-stepper-separator-active-background: #000;
-
-  border-radius: $border-radius-md;
+  border-radius: 0.75rem;
   overflow: hidden;
   background: transparent;
 }
@@ -77,9 +63,6 @@ $transition-base: 0.3s ease;
   font-weight: 600 !important;
 }
 
-// ============================================
-// BOTÕES DE NAVEGAÇÃO
-// ============================================
 .btn-to-back {
   display: flex;
   justify-content: space-between;
@@ -103,9 +86,6 @@ $transition-base: 0.3s ease;
   margin-top: $spacing-lg;
 }
 
-// ============================================
-// STEP CONTAINER
-// ============================================
 .step {
   width: 100%;
   max-width: 700px;
@@ -116,6 +96,7 @@ $transition-base: 0.3s ease;
   border: 1px solid #e5e7eb;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   transition: all $transition-fast;
+  box-sizing: border-box;
 
   &.active {
     border-color: #3b82f6;
@@ -135,9 +116,6 @@ $transition-base: 0.3s ease;
   }
 }
 
-// ============================================
-// INFO ITEM
-// ============================================
 .info-item {
   display: flex;
   justify-content: space-between;
@@ -183,9 +161,6 @@ $transition-base: 0.3s ease;
   }
 }
 
-// ============================================
-// SELECT E INPUT WRAPPERS
-// ============================================
 .select-wrapper {
   display: flex;
   flex-direction: column;
@@ -202,14 +177,11 @@ $transition-base: 0.3s ease;
     }
   }
 
-  & + & {
+  &+& {
     margin-top: 0;
   }
 }
 
-// ============================================
-// INFO SELECIONADA
-// ============================================
 .selected-info {
   margin-top: $spacing-xl;
   text-align: center;
@@ -236,9 +208,6 @@ $transition-base: 0.3s ease;
   }
 }
 
-// ============================================
-// CUSTOMIZAÇÃO PRIMENG
-// ============================================
 :host ::ng-deep {
   .p-select {
     --p-select-option-selected-background: #4da3ff;
@@ -264,15 +233,15 @@ $transition-base: 0.3s ease;
     }
   }
 
-  .p-float-label > label {
+  .p-float-label>label {
     left: $spacing-md;
     color: #64748b;
     transition: all $transition-fast;
   }
 
-  .p-float-label:has(.p-focus) > label,
-  .p-float-label:has(input:not(:placeholder-shown)) > label,
-  .p-float-label:has(.p-inputwrapper-filled) > label {
+  .p-float-label:has(.p-focus)>label,
+  .p-float-label:has(input:not(:placeholder-shown))>label,
+  .p-float-label:has(.p-inputwrapper-filled)>label {
     top: -0.5rem;
     font-size: $font-size-sm;
     color: #1976d2;
@@ -303,11 +272,27 @@ $transition-base: 0.3s ease;
     transform: translate(-50%, -50%);
     z-index: 10;
   }
+
+  .select-item-layout {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
+  .select-item-codigo {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: #6c757d;
+    font-size: 0.9rem;
+
+    .pi-tag {
+      font-size: 0.75rem;
+    }
+  }
 }
 
-// ============================================
-// ALERTAS
-// ============================================
 .alert-warning {
   padding: $spacing-xl;
   background-color: #fff3cd;
@@ -343,9 +328,6 @@ $transition-base: 0.3s ease;
   }
 }
 
-// ============================================
-// DIALOG WHATSAPP
-// ============================================
 .dialog-content {
   display: flex;
   flex-direction: column;
@@ -408,30 +390,25 @@ $transition-base: 0.3s ease;
   margin: 0;
 }
 
-// ============================================
-// CARDS DE FLUXO (ONLINE/PRESENCIAL)
-// ============================================
 .fluxo-container {
   display: flex;
   gap: 25px;
-  margin-top: $spacing-2xl;
+  margin-top: 25px;
   flex-wrap: wrap;
   justify-content: center;
-  padding: $spacing-lg;
 }
 
 .fluxo-card {
   width: 320px;
-  min-height: 550px;
+  min-height: 600px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  border-radius: $border-radius-lg;
-  padding: $spacing-2xl;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  transition: transform $transition-base, box-shadow $transition-base;
-  cursor: default;
-  background: rgba(255, 255, 255, 0.95);
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
   border: 1px solid rgba(255, 255, 255, 0.3);
@@ -440,74 +417,62 @@ $transition-base: 0.3s ease;
     transform: translateY(-5px);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
   }
+}
 
-  &.online {
-    background: linear-gradient(
-      135deg,
-      rgba(255, 230, 0, 0.08) 0%,
-      rgba(255, 255, 255, 0.95) 100%
-    );
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border-top: 5px solid #fbc02d;
-  }
+.fluxo-card.online {
+  background: rgba(255, 230, 0, 0.05);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-top: 5px solid #fbc02d;
+}
 
-  &.presencial {
-    background: linear-gradient(
-      135deg,
-      rgba(13, 197, 243, 0.08) 0%,
-      rgba(255, 255, 255, 0.95) 100%
-    );
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border-top: 5px solid #19cefc;
-  }
+.fluxo-card.presencial {
+  background: rgba(13, 197, 243, 0.05);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-top: 5px solid #19cefc;
 }
 
 .fluxo-header {
-  font-size: $font-size-emoji;
+  font-size: 5rem;
   text-align: center;
-  margin-bottom: $spacing-xl;
+  margin-bottom: 15px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: $spacing-sm;
+}
 
-  h3 {
-    margin: 0;
-    font-size: $font-size-2xl;
-    font-weight: 600;
-    color: #1a3b73;
-  }
+.fluxo-header h3 {
+  margin-top: 10px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1a3b73;
 }
 
 .fluxo-body {
   flex: 1;
   text-align: center;
   color: #333;
-  font-size: $font-size-base;
-  padding: $spacing-lg;
+  font-size: 0.9rem;
+  padding: 0 10px;
   display: flex;
   align-items: center;
   justify-content: center;
+}
 
-  p {
-    line-height: 1.6;
-    margin: 0;
-  }
+.fluxo-body p {
+  line-height: 1.4;
+  margin: 0;
 }
 
 .fluxo-footer {
   display: flex;
   justify-content: center;
-  margin-top: $spacing-xl;
+  margin-top: 20px;
 }
 
-// ============================================
-// PDF PREVIEW
-// ============================================
 .pdf-preview-section {
-  padding: $spacing-lg;
+  padding: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -516,7 +481,6 @@ $transition-base: 0.3s ease;
 
 .pdf-viewer {
   width: 100%;
-  max-width: 800px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -527,25 +491,27 @@ $transition-base: 0.3s ease;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     margin-bottom: $spacing-xl;
     width: 100%;
-    height: 600px;
+    height: 550px;
+    max-height: 70vh;
   }
 }
 
 .btn-signature {
   display: flex;
   justify-content: center;
-  gap: $spacing-lg;
-  flex-wrap: wrap;
-  margin-bottom: $spacing-2xl;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 
   .p-button-sm {
     padding: 0.6rem 1.2rem;
   }
 }
 
-// ============================================
-// LOADING STATE
-// ============================================
 .loading-overlay {
   position: fixed;
   top: 0;
@@ -574,11 +540,6 @@ $transition-base: 0.3s ease;
   }
 }
 
-// ============================================
-// RESPONSIVIDADE
-// ============================================
-
-// Tablet
 @media (max-width: 1024px) {
   .page-container {
     min-height: 100vh;
@@ -650,5 +611,24 @@ $transition-base: 0.3s ease;
 
   .btn-to-navigate {
     padding: 0.8rem 0;
+  }
+}
+
+.select-item-layout {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.select-item-codigo {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #6c757d;
+  font-size: 0.9rem;
+
+  .pi-tag {
+    font-size: 0.75rem;
   }
 }

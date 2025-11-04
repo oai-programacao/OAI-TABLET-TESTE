@@ -122,7 +122,6 @@
                 <i class="pi pi-lightbulb"></i>
                 Iniciativa
               </th>
-              <th>📞/🌐</th>
 
               <th>
                 <i class="pi pi-calendar"></i>
@@ -218,11 +217,6 @@
                 </div>
               </td>
               <td>
-                <div class="cell-content">
-                  <span>{{ att.mode === "T" ? "📞" : att.mode }}</span>
-                </div>
-              </td>
-              <td>
                 <div class="date-cell">
                   <span class="date-text">{{
                     att.openDate | date : "dd/MM/yyyy"
@@ -297,7 +291,7 @@
         >
       </div>
       <div class="info-badge">
-        <p-button [severity]="'danger'"  [raised]="true">❌ CANCELAR</p-button>
+        <p-button [severity]="'danger'" [raised]="true">❌ CANCELAR</p-button>
       </div>
     </div>
 
@@ -307,7 +301,9 @@
         Descrição
       </h3>
       <div class="description-box">
-        <p>{{ selectedAttendance.subject || "Sem descrição disponível" }}</p>
+        <p style="white-space: pre-line">
+          {{ selectedAttendance.subject || "Sem descrição disponível" }}
+        </p>
       </div>
     </div>
 

@@ -196,15 +196,23 @@ export class AlterDateExpiredComponent {
     contractLiquidPrice: number,
     newBillingDay: number
   ): number {
-    const currentDay = this.today.getDate();
-    const dailyPrice = contractLiquidPrice / 30;
+    const today = new Date();
+    const currentDay = today.getDate();
+
+    // Número de dias reais do mês atual
+    const daysInMonth = new Date(
+      today.getFullYear(),
+      today.getMonth() + 1,
+      0
+    ).getDate();
+
+    const dailyPrice = contractLiquidPrice / daysInMonth;
 
     let daysDifference = newBillingDay - currentDay;
     if (daysDifference < 0) {
-      daysDifference += 30; // Assume ciclo mensal fixo de 30 dias
+      daysDifference += daysInMonth; // Usa o total real de dias do mês
     }
-
-    return dailyPrice * daysDifference;
+    return Number((dailyPrice * daysDifference).toFixed(2));
   }
 
   // Atualiza o valor proporcional quando o usuário muda a data

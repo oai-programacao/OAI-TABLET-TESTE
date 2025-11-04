@@ -36,10 +36,15 @@
                     <p class="step-instruction">Digite o documento do novo titular para iniciar a transferência.</p>
                     <div class="form-group-input">
                         <p-iftalabel variant="on">
-                            <input pInputText id="documento" [(ngModel)]="documento" name="documento" required
+                            <input 
+                                pInputText id="documento" 
+                                [(ngModel)]="documento" 
+                                name="documento" required
                                 minlength="14" maxlength="18" placeholder="CPF/CNPJ"
-                                (ngModelChange)="formatarDocumento($event)" (keypress)="allowOnlyNumbers($event)"
-                                (paste)="onPaste($event)" autocomplete="off" />
+                                (ngModelChange)="formatarDocumento($event)" 
+                                (keypress)="allowOnlyNumbers($event)"
+                                (paste)="onPaste($event)" 
+                                autocomplete="off" />
                             <label for="documento"></label>
                         </p-iftalabel>
                     </div>
@@ -65,46 +70,56 @@
 
             <!-- Mudança para activeStep === 2 -->
             <div *ngIf="activeStep === 2" class="step-panel-content">
-                <div class="step-content">
-                    <div class="fluxo-container">
-                        <!-- CARD 1 - ONLINE -->
-                        <div class="fluxo-card online">
-                            <div class="fluxo-header">
-                                🖥️
-                                <h3>Atendimento Online</h3>
+                <ng-container *ngIf="foundClient; else erro"> 
+                        <div class="fluxo-container">
+                            <div class="fluxo-card online">
+                                <div class="fluxo-header">
+                                    🖥️
+                                    <h3>Atendimento Online</h3>
+                                </div>
+                                <div class="fluxo-body">
+                                    <p>Envie o termo para assinatura online via Autentique. Ideal para clientes atendidos
+                                        remotamente.</p>
+                                </div>
+                                <div class="fluxo-footer">
+                                    <p-button 
+                                        label="Enviar via Autentique" 
+                                        icon="pi pi-send" 
+                                        severity="warn"
+                                        [raised]="true" 
+                                        (onClick)="abrirModalAutentique()">
+                                    </p-button>
+                                </div>
                             </div>
-                            <div class="fluxo-body">
-                                <p>Envie o termo para assinatura online via Autentique. Ideal para clientes atendidos
-                                    remotamente.</p>
-                            </div>
-                            <div class="fluxo-footer">
-                                <p-button label="Enviar via Autentique" icon="pi pi-send" severity="warn"
-                                    [raised]="true" (onClick)="abrirModalAutentique()"></p-button>
-                            </div>
-                        </div>
 
-                        <!-- CARD 2 - PRESENCIAL -->
-                        <div class="fluxo-card presencial">
-                            <div class="fluxo-header">
-                                🤝
-                                <h3>Atendimento Presencial</h3>
-                            </div>
-                            <div class="fluxo-body">
-                                <p>O cliente assinará o documento manualmente. A transferência será efetivada após a
-                                    visualização do termo.</p>
-                            </div>
-                            <div class="fluxo-footer">
-                                <p-button 
-                                    label="Assinatura Manual" 
-                                    icon="pi pi-file-pdf" 
-                                    severity="success"
-                                    [raised]="true" 
-                                    (onClick)="goToPdfViewerStep()">
-                                </p-button>
+                            <!-- CARD 2 - PRESENCIAL -->
+                            <div class="fluxo-card presencial">
+                                <div class="fluxo-header">
+                                    🤝
+                                    <h3>Atendimento Presencial</h3>
+                                </div>
+                                <div class="fluxo-body">
+                                    <p>O cliente assinará o documento manualmente. A transferência será efetivada após a
+                                        visualização do termo.</p>
+                                </div>
+                                <div class="fluxo-footer">
+                                     <p-button 
+                                        label="Assinatura Manual" 
+                                        icon="pi pi-file-pdf" 
+                                        severity="success"
+                                        [raised]="true" 
+                                        (onClick)="goToPdfViewerStep()">
+                                    </p-button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
+                </ng-container> 
+                        <ng-template #erro>
+                            <div class="alert-warning">
+                                ⚠️ Para acessar este passo, volte e busque um cliente válido no Passo 1.
+                            </div>
+                        </ng-template>
+               
                 <div class="step-footer">
                     <p-button 
                         [rounded]="true" 
@@ -118,111 +133,125 @@
 
             <!-- Mudança para activeStep === 3 -->
             <div *ngIf="activeStep === 3" class="step-panel-content">
-                <div *ngIf="isLoadingPdf" class="loading-pdf-overlay">
-                    <p-progressSpinner strokeWidth="4"></p-progressSpinner>
-                    <span class="loading-message">A gerar o Termo de Transferência...</span>
-                </div>
+                <ng-container *ngIf="foundClient; else erroStep3">
+                    <div *ngIf="isLoadingPdf" class="loading-pdf-overlay">
+                        <p-progressSpinner strokeWidth="4"></p-progressSpinner>
+                        <span class="loading-message">A gerar o Termo de Transferência...</span>
+                    </div>
 
-                <div *ngIf="previewLoadFailed && !isLoadingPdf" class="p-mt-2 text-center p-text-danger">
-                    <p>
-                        <i class="pi pi-exclamation-triangle p-mr-1"></i> Falha ao carregar o preview.
-                    </p>
-                    <p-button label="Tentar Novamente" icon="pi pi-refresh"
-                        styleClass="p-button-sm p-button-danger p-button-outlined"
-                        (click)="loadPdfPreview()"></p-button>
-                </div>
+                    <div *ngIf="previewLoadFailed && !isLoadingPdf" class="p-mt-2 text-center p-text-danger">
+                        <p>
+                            <i class="pi pi-exclamation-triangle p-mr-1"></i> Falha ao carregar o preview.
+                        </p>
+                        <p-button label="Tentar Novamente" icon="pi pi-refresh"
+                            styleClass="p-button-sm p-button-danger p-button-outlined"
+                            (click)="loadPdfPreview()"></p-button>
+                    </div>
 
-                <div *ngIf="safePdfPreviewUrl && !isLoadingPdf" class="pdf-preview-section p-mb-3">
-                    <div class="pdf-viewer p-mt-2">
-                        <iframe [src]="safePdfPreviewUrl" width="100%" height="600px"
-                            style="border: 1px solid #ccc">
-                        </iframe>
+                    <div *ngIf="safePdfPreviewUrl && !isLoadingPdf" class="pdf-preview-section p-mb-3">
+                        <div class="pdf-viewer p-mt-2">
+                            <iframe [src]="safePdfPreviewUrl" width="100%" height="600px"
+                                style="border: 1px solid #ccc">
+                            </iframe>
 
-                        <div class="btn-signature">
-                            <p-button 
-                                label="Assinaturas" 
-                                icon="pi pi-pencil" 
-                                severity="info" 
-                                rounded="true"                                
-                                raised="true" 
-                                (click)="abrirAssinatura()">
-                            </p-button>
+                            <div class="btn-signature">
+                                <p-button 
+                                    label="Assinaturas" 
+                                    icon="pi pi-pencil" 
+                                    severity="info" 
+                                    rounded="true"                                
+                                    raised="true" 
+                                    (click)="abrirAssinatura()">
+                                </p-button>
 
-                            <p-button 
-                                label="Capturar Foto" 
-                                icon="pi pi-camera" 
-                                (click)="triggerCameraInput()"
-                                severity="info" 
-                                rounded="true" 
-                                raised="true">
-                            </p-button>
+                                <p-button 
+                                    label="Capturar Foto" 
+                                    icon="pi pi-camera" 
+                                    (click)="triggerCameraInput()"
+                                    severity="info" 
+                                    rounded="true" 
+                                    raised="true">
+                                </p-button>
 
-                            <p-button 
-                                label="Salvar PDF" 
-                                icon="pi pi-download" 
-                                styleClass="p-button-sm p-button-success"
-                                (click)="savePdf()" 
-                                [disabled]="!safePdfPreviewUrl" rounded="true"
-                                raised="true">
-                            </p-button>
+                                <p-button 
+                                    label="Salvar PDF" 
+                                    icon="pi pi-download" 
+                                    styleClass="p-button-sm p-button-success"
+                                    (click)="savePdf()" 
+                                    [disabled]="!safePdfPreviewUrl" rounded="true"
+                                    raised="true">
+                                </p-button>
+                            </div>
                         </div>
                     </div>
-                </div>
-                        <div class="camera-section">
-                            <input
-                            type="file"
-                            accept="image/*"
-                            capture="environment"
-                            (change)="onFotoCapturada($event)"
-                            style="display: none"
-                            #cameraInput
-                            />
-                        </div>
-                <div class="btn-to-navigate">
-                    <p-button 
-                        label="Voltar" 
-                        icon="pi pi-arrow-left" 
-                        severity="help" 
-                        rounded="true" 
-                        size="large"
-                        [raised]="true" 
-                        (onClick)="goToStep(2)" />
-                    <p-button 
-                        severity="success" 
-                        rounded="true" 
-                        raised="true" 
-                        size="large" 
-                        icon="pi pi-arrow-right"
-                        iconPos="right" 
-                        label="Confirmar Transferência" 
-                        (onClick)="onConfirmTransfer()"
-                        [disabled]="!signatureOldBase64 || !signatureNewBase64" />
-                </div>
+                            <div class="camera-section">
+                                <input
+                                type="file"
+                                accept="image/*"
+                                capture="environment"
+                                (change)="onFotoCapturada($event)"
+                                style="display: none"
+                                #cameraInput
+                                />
+                            </div>
+                    <div class="btn-to-navigate">
+                        <p-button 
+                            label="Voltar" 
+                            icon="pi pi-arrow-left" 
+                            severity="help" 
+                            rounded="true" 
+                            size="large"
+                            [raised]="true" 
+                            (onClick)="goToStep(2)" />
+                        <p-button 
+                            severity="success" 
+                            rounded="true" 
+                            raised="true" 
+                            size="large" 
+                            icon="pi pi-arrow-right"
+                            iconPos="right" 
+                            label="Confirmar Transferência" 
+                            (onClick)="onConfirmTransfer()"
+                            [disabled]="!signatureOldBase64 || !signatureNewBase64" />
+                    </div>
+                </ng-container>
+                <ng-template #erroStep3>
+                    <div class="alert-warning">
+                        ⚠️ Para acessar este passo, volte e busque um cliente válido no Passo 1.
+                    </div>
+                </ng-template>
             </div>
 
             <!-- Mudança para activeStep === 4 -->
             <div *ngIf="activeStep === 4" class="step-panel-content">
-                <div class="step-content confirmation-step">
-                    <i class="pi pi-check-circle success-icon"></i>
-                    <h3>Processo Concluído!</h3>
-                    <p>
-                        A transferência de titularidade foi concluída com sucesso.
-                    </p>
-                </div>
+                <ng-container *ngIf="foundClient; else erroStep4">
+                    <div class="step-content confirmation-step">
+                        <i class="pi pi-check-circle success-icon"></i>
+                        <h3>Processo Concluído!</h3>
+                        <p>
+                            A transferência de titularidade foi concluída com sucesso.
+                        </p>
+                    </div>
 
-                <div *ngIf="pdfSrc" class="pdf-viewer final-pdf-viewer">
-                    <iframe [src]="pdfSrc" width="100%" height="600px"></iframe>
-                </div>
+                    <div *ngIf="pdfSrc" class="pdf-viewer final-pdf-viewer">
+                        <iframe [src]="pdfSrc" width="100%" height="600px"></iframe>
+                    </div>
 
-                <div class="step-footer">
-                    <p-button 
-                        severity="help"
-                        [rounded]="true" 
-                        label="Voltar para o Início" 
-                        icon="pi pi-home"
-                        (onClick)="navigateToInfoClient()">
-                    </p-button>
-                </div>
+                    <div class="step-footer">
+                        <p-button 
+                            severity="help"
+                            [rounded]="true" 
+                            label="Voltar para o Início" 
+                            icon="pi pi-home"
+                            (onClick)="navigateToInfoClient()">
+                        </p-button>
+                    </div>
+                </ng-container>
+                <ng-template #erroStep4>
+                    <div class="alert-warning">
+                        ⚠️ A transferência não foi concluída. Volte para o Passo 1 para iniciar o processo.
+                    </div>
+                </ng-template>
             </div>
         </div>
     </app-card-base>
