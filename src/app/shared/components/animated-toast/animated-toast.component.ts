@@ -162,13 +162,6 @@ export class AnimatedToastComponent implements AfterViewInit {
   }
 
   ngAfterViewInit() {
-    player.loadAnimation({
-      container: this.lottieContainer.nativeElement,
-      path: '/contrato.json',
-      renderer: 'svg',
-      loop: false,
-      autoplay: true,
-    });
   }
 
   hideAfter(ms: number) {
