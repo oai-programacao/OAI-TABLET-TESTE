@@ -27,6 +27,7 @@
                       optionValue="value"
                       placeholder="Selecione"
                       name="planos"
+                      [(ngModel)]="selectedPlan"
                       required
                     >
                     </p-select>
@@ -58,6 +59,7 @@
                         pattern="[0-9]*"
                         placeholder="R$ 0,00"
                         [maxLength]="7"
+                        [(ngModel)]="contractFormData.discount"
                       />
                       <label for="descount">Desconto de Adesão*</label>
                     </p-iftalabel>
@@ -70,7 +72,7 @@
                   <p-datepicker
                     name="dateOfStart"
                     [(ngModel)]="dateOfStart"
-                    inputId="date"
+                    inputId="dateOfStart"
                     showIcon
                     iconDisplay="input"
                     appendTo="body"
@@ -78,7 +80,7 @@
                     placeholder="dd/mm/aaaa"
                     required
                   />
-                  <label for="date">Data de Início*</label>
+                  <label for="dateOfStart">Data de Início*</label>
                 </p-iftalabel>
 
                 <p-iftalabel>
@@ -93,7 +95,7 @@
                     placeholder="dd/mm/aaaa"
                     required
                   />
-                  <label for="date">Data de Assinatura*</label>
+                  <label for="dateOfAssignment">Data de Assinatura*</label>
                 </p-iftalabel>
 
                 <div class="numbersOfInstallments">
@@ -108,11 +110,11 @@
                         optionLabel="label"
                         optionValue="value"
                         placeholder="Selecione 1x a 24x"
-                        name="planos"
+                        name="parcelas"
                         required
                       >
                       </p-select>
-                      <label for="planos">Número de Parcelas Adesão</label>
+                      <label for="parcelas">Número de Parcelas Adesão</label>
                     </p-iftalabel>
                   </p-inputgroup>
                 </div>
@@ -139,12 +141,12 @@
                 <p-iftalabel>
                   <p-iftalabel>
                     <p-select
-                      name="dateOfExpirationCicle"
-                      [(ngModel)]="selectDateOfExpirationCicle"
                       [options]="typesOfDateExpirationCicle"
+                      [(ngModel)]="selectDateOfExpirationCicle"
                       optionLabel="descricao"
-                      placeholder="Selecione Vencimento"
-                      inputId="dateOfExpirationCicle"
+                      optionValue="value"
+                      placeholder="Selecione o dia do vencimento"
+                      name="cicloFaturamento"
                       required
                     ></p-select>
                     <label for="dateofExpirationCicle"
@@ -250,9 +252,9 @@
 
                   <div *ngIf="images[slot]" class="image-preview">
                     <img
-                      [src]="images[slot]"
+                      [src]="imagePreviews[slot]"
                       alt="Imagem {{ slot + 1 }}"
-                      (dblclick)="viewImage(images[slot]!)"
+                      (dblclick)="viewImage(imagePreviews[slot]!)"
                     />
 
                     <button
@@ -305,6 +307,7 @@
                   </p-inputgroup-addon>
                   <p-iftalabel variant="on">
                     <input
+                      (blur)="searchCEP()"
                       size="large"
                       pInputText
                       id="cep"
@@ -314,6 +317,7 @@
                       required
                       placeholder="00000-000"
                       [mask]="'00000-000'"
+                      [(ngModel)]="contractFormData.address.zipCode"
                     />
                     <label for="cep">Código de Endereço Postal (CEP)*</label>
                   </p-iftalabel>
@@ -332,8 +336,9 @@
                       maxlength="60"
                       name="street"
                       required
+                      [(ngModel)]="contractFormData.address.street"
                     />
-                    <label for="cep">Logradouro (Rua)*</label>
+                    <label for="street">Logradouro (Rua)*</label>
                   </p-iftalabel>
                 </p-inputgroup>
 
@@ -346,13 +351,14 @@
                       size="large"
                       pInputText
                       type="number"
-                      id="street"
+                      id="streetNumber"
                       autocomplete="off"
                       maxlength="60"
-                      name="street"
+                      name="streetNumber"
                       required
+                      [(ngModel)]="contractFormData.address.number"
                     />
-                    <label for="cep">Número do Prédio*</label>
+                    <label for="streetNumber">Número do Prédio*</label>
                   </p-iftalabel>
                 </p-inputgroup>
               </div>
@@ -388,6 +394,7 @@
                       maxlength="60"
                       name="neighborhood"
                       required
+                      [(ngModel)]="contractFormData.address.neighborhood"
                     />
                     <label for="neighborhood">Bairro*</label>
                   </p-iftalabel>
@@ -406,6 +413,7 @@
                       maxlength="60"
                       name="cityaddress"
                       required
+                      [(ngModel)]="contractFormData.address.city"
                     />
                     <label for="cityaddress">Cidade*</label>
                   </p-iftalabel>
@@ -425,9 +433,9 @@
                       autocomplete="off"
                       maxlength="60"
                       name="complementaddress"
-                      required
+                      [(ngModel)]="contractFormData.address.complement"
                     />
-                    <label for="complementaddress">Complemento*</label>
+                    <label for="complementaddress">Complemento</label>
                   </p-iftalabel>
                 </p-inputgroup>
               </div>
@@ -451,6 +459,8 @@
                     rows="5"
                     cols="100"
                     style="resize: none"
+                    name="observation"
+                    [(ngModel)]="contractFormData.observation"
                   ></textarea>
                   <label for="description">Observação</label>
                 </p-iftalabel>
@@ -556,6 +566,12 @@
                   severity="secondary"
                   icon="pi pi-arrow-left"
                   (onClick)="activateCallback(3)"
+                />
+                <p-button
+                  label="Finalizar Contrato"
+                  severity="success"
+                  icon="pi pi-check"
+                  (onClick)="submitContract()"
                 />
               </div>
             </ng-template>

@@ -23,6 +23,12 @@ export interface ConsentTermAddressRequest {
   paymentForm: null | string;
 }
 
+export interface ConsentTermPermanentRequest{
+
+}
+
+export interface ConsentTermAdesionRequest{}
+
 export interface ConsentTermPlanChangeRequest {
   currentPlan: string;
   newPlan: string;

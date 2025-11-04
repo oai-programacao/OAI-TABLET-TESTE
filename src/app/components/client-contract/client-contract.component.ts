@@ -271,10 +271,12 @@ export class ClientContractComponent implements OnInit {
     }
   }
 
-
-
   // --- MÉTODOS DE NAVEGAÇÃO E UTILITÁRIOS (Originais) ---
-  navigateToCreatContract() { this.router.navigate(['add-contract']); }
+  navigateToCreatContract() { 
+    const clientId = this.route.snapshot.paramMap.get('clientId');
+    this.router.navigate(['add-contract'], { queryParams: { clientId }});
+  }
+
   navigateToInfoClient() { this.router.navigate(['info', this.clientId]); }
   
   navigateToTransferOwnership(contract: Contract): void {
