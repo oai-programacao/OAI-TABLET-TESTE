@@ -40,7 +40,7 @@ import player from 'lottie-web';
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        background: rgba(255, 255, 0, 0.9);
+        background: rgba(30, 197, 248, 0.9);
         border-radius: 5px;
         min-width: 400px;
         max-width: 600px;

@@ -12,32 +12,54 @@ export class ToastService {
     this.createContainer();
   }
 
+  /** Cria o container fixo no topo da tela */
   private createContainer() {
     this.containerEl = document.createElement('div');
-    this.containerEl.style.position = 'fixed';
-    this.containerEl.style.top = '20px';
-    this.containerEl.style.left = '50%';
-    this.containerEl.style.transform = 'translateX(-50%)';
-    this.containerEl.style.zIndex = '9999';
-    this.containerEl.style.display = 'flex';
-    this.containerEl.style.flexDirection = 'column';
-    this.containerEl.style.alignItems = 'center';
+    Object.assign(this.containerEl.style, {
+      position: 'fixed',
+      top: '20px',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      zIndex: '9999',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      pointerEvents: 'none', // não bloqueia cliques
+    });
     document.body.appendChild(this.containerEl);
   }
 
+  /** Exibe um toast simples */
   show(message: string) {
+    this.createToastComponent(message);
+  }
+
+  /** Exibe um toast com animação Lottie personalizada */
+  showWithAnimation(message: string, animationPath: string) {
+    this.createToastComponent(message, animationPath);
+  }
+
+  /** Cria e gerencia o ciclo de vida de um toast */
+  private createToastComponent(message: string, animationPath?: string) {
     const componentRef: ComponentRef<AnimatedToastComponent> = createComponent(AnimatedToastComponent, {
-      environmentInjector: this.environmentInjector
+      environmentInjector: this.environmentInjector,
     });
 
     componentRef.instance.message = message;
 
+    // Define a animação, se houver
+    if (animationPath) {
+      componentRef.instance.animationPath = animationPath;
+    }
+
+    // Anexa ao ciclo de vida da aplicação
     this.appRef.attachView(componentRef.hostView);
     this.containerEl.appendChild(componentRef.location.nativeElement);
 
-    // Duração fixa de 4 segundos
+    // Define duração do toast
     componentRef.instance.hideAfter(4000);
 
+    // Remove o componente após o tempo
     setTimeout(() => {
       this.appRef.detachView(componentRef.hostView);
       componentRef.destroy();
