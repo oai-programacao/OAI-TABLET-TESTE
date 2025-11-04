@@ -57,7 +57,7 @@ export class ToastService {
     this.containerEl.appendChild(componentRef.location.nativeElement);
 
     // Define duração do toast
-    componentRef.instance.hideAfter(4000);
+    componentRef.instance.hideAfter(10000);
 
     // Remove o componente após o tempo
     setTimeout(() => {
