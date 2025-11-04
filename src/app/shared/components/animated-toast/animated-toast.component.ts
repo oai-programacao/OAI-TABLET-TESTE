@@ -90,7 +90,7 @@ import player from 'lottie-web';
         height: 4px;
         background: #ffb547ff;
         width: 100%;
-        animation: life-bar 4s linear forwards;
+        animation: life-bar 15s linear forwards;
       }
 
       @keyframes life-bar {
