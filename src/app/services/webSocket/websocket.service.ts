@@ -48,7 +48,7 @@ export class WebSocketService {
       .subscribe((msg) => {
         this.ngZone.run(() => {
           const payload = JSON.parse(msg.body);
-          const event = payload.event;
+          const event = payload.eventName;
           const data = payload.data;
 
           switch (event) {

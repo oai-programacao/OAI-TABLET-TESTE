@@ -40,7 +40,7 @@ import player from 'lottie-web';
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        background: rgba(30, 197, 248, 0.9);
+        background: rgba(92, 212, 248, 0.9);
         border-radius: 5px;
         min-width: 400px;
         max-width: 600px;
@@ -88,7 +88,7 @@ import player from 'lottie-web';
         bottom: 0;
         left: 0;
         height: 4px;
-        background: #ff5252;
+        background: #ffb547ff;
         width: 100%;
         animation: life-bar 4s linear forwards;
       }
