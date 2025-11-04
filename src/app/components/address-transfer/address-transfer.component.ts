@@ -23,6 +23,8 @@ import { InputGroupAddon } from 'primeng/inputgroupaddon';
 import { IftaLabel } from 'primeng/iftalabel';
 import { MessageService } from 'primeng/api';
 
+import { AttendancesService } from '../../services/attendances/attendances.service';
+
 import { MessageModule } from 'primeng/message';
 
 import { NgxMaskDirective } from 'ngx-mask';
@@ -47,6 +49,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
+import { firstValueFrom, Observable } from 'rxjs';
 
 export interface AddressForm {
   zipCode: string | null;
@@ -89,8 +92,9 @@ export interface AddressForm {
     DropdownModule,
     SelectModule,
     TooltipModule,
+
   ],
-  providers: [MessageService],
+  providers: [MessageService, AttendancesService],
   templateUrl: './address-transfer.component.html',
   styleUrls: ['./address-transfer.component.scss'],
 })
@@ -122,7 +126,10 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   private readonly actionsContractsService = inject(ActionsContractsService);
   private readonly reportsService = inject(ReportsService);
   private readonly midiaService = inject(MidiaService);
+  private readonly attendancesService = inject(AttendancesService);
   public pdfPreviewUrl: string | null = null;
+  public pdfBlobFinal: Blob | null = null;
+
 
   safePdfPreviewUrl: SafeResourceUrl | null = null;
   isLoadingPreview = false;
@@ -144,6 +151,17 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
 
   public isEditingAddress = false;
   private originalAddressForm: AddressForm | null = null;
+
+  
+  public loadingMessage: string | null = null;
+
+  private showWarning(summary: string, detail: string, life?: number): void {
+    this.messageService.add({ severity: 'warn', summary, detail, life });
+  }
+
+  private showInfo(summary: string, detail: string, life: number = 3000) {
+    this.messageService.add({ severity: 'info', summary, detail, life });
+  }
 
   public addressNewForm: AddressForm = {
     zipCode: null,
@@ -178,6 +196,8 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       }
     }
   }
+
+  event: string = "update_address";
 
   ngOnInit(): void {
     if (!this.currentContract) {
@@ -492,6 +512,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       .getConsentTermAddressPdf(this.clientId, this.contractId, requestBody)
       .subscribe({
         next: (blob) => {
+           this.pdfBlobFinal = blob;
           this.pdfPreviewUrl = window.URL.createObjectURL(blob);
           this.safePdfPreviewUrl =
             this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfPreviewUrl);
@@ -644,10 +665,8 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
   if (isIOS) {
-    // ✅ iOS (Safari / PWA) → abre o PDF no visualizador nativo
     window.open(this.pdfPreviewUrl, '_blank');
   } else {
-    // ✅ Desktop → tenta download direto
     const link = document.createElement('a');
     link.href = this.pdfPreviewUrl;
     link.download = 'termo_de_consentimento.pdf';
@@ -682,88 +701,100 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     );
   }
 
-  sendToAutomation(): void {
-  if (!this.currentContract) {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Erro',
-      detail: 'Dados do contrato original não encontrados!',
-    });
-    return;
-  }
-
-  this.isLoading = true;
-
-  const payload = {
-    clientId: this.currentContract.clientId,
-    contractId: this.currentContract.id, 
-    address: {
-      cep: this.addressNewForm.zipCode,
-      uf: this.addressNewForm.uf,
-      cidade: this.addressNewForm.city,
-      rua: this.addressNewForm.street,
-      numero: this.addressNewForm.numberFromHome,
-      bairro: this.addressNewForm.neighborhood,
-      complemento: this.addressNewForm.complement,
-      // codmunicipio: ... // se necessário, inclua aqui!
-    }
-  };
-
-  this.contractsService.updateAddressContract(this.currentContract.id, payload).subscribe({
-    next: () => {
-      this.isLoading = false;
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Sucesso!',
-        detail: 'Endereço atualizado!',
-      });
-      this.router.navigate([
-        '/client-contracts',
-        this.currentContract?.clientId,
-      ]);
-    },
-    error: (err) => {
-      this.isLoading = false;
-      const detailMessage =
-        err?.error?.message || 'Falha ao atualizar o endereço.';
+ onConfirmAddressChange(): void {
+    if (!this.currentContract) {
       this.messageService.add({
         severity: 'error',
         summary: 'Erro',
-        detail: detailMessage,
+        detail: 'Dados do contrato original não encontrados!',
       });
-    },
-  });
-}
-  ufToNome(uf: string): string {
-    const mapa: Record<string, string> = {
-      AC: 'Acre',
-      AL: 'Alagoas',
-      AP: 'Amapá',
-      AM: 'Amazonas',
-      BA: 'Bahia',
-      CE: 'Ceará',
-      DF: 'Distrito Federal',
-      ES: 'Espírito Santo',
-      GO: 'Goiás',
-      MA: 'Maranhão',
-      MT: 'Mato Grosso',
-      MS: 'Mato Grosso do Sul',
-      MG: 'Minas Gerais',
-      PA: 'Pará',
-      PB: 'Paraíba',
-      PR: 'Paraná',
-      PE: 'Pernambuco',
-      PI: 'Piauí',
-      RJ: 'Rio de Janeiro',
-      RN: 'Rio Grande do Norte',
-      RS: 'Rio Grande do Sul',
-      RO: 'Rondônia',
-      RR: 'Roraima',
-      SC: 'Santa Catarina',
-      SP: 'São Paulo',
-      SE: 'Sergipe',
-      TO: 'Tocantins',
+      return;
+    }
+    if (!this.pdfBlobFinal) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erro',
+        detail: 'O termo de transferência precisa ser gerado e assinado antes de continuar!',
+      });
+      return;
+    }
+
+    this.isLoading = true;
+     const payload = {
+      clientId: this.currentContract.clientId,
+      contractId: this.currentContract.id,
+      address: {
+        cep: this.addressNewForm.zipCode,
+        uf: this.addressNewForm.uf,
+        cidade: this.addressNewForm.city,
+        rua: this.addressNewForm.street,
+        numero: this.addressNewForm.numberFromHome,
+        bairro: this.addressNewForm.neighborhood,
+        complemento: this.addressNewForm.complement,
+      }
     };
-    return mapa[uf] || uf;
+
+    this.contractsService.updateAddressContract(this.currentContract.id, payload).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Sucesso!',
+          detail: 'Endereço atualizado!',
+        });
+        if (this.pdfBlobFinal) {
+          this.registerAttendance(this.pdfBlobFinal);
+        } else {
+          console.warn("PDF não encontrado, o atendimento não será registrado.");
+        }
+
+        setTimeout(() => {
+          this.router.navigate([
+          '/client-contracts',
+          this.currentContract?.clientId,
+        ]);
+      }, 2500);
+      },
+      error: (err) => {
+        this.isLoading = false;
+        const detailMessage =
+          err?.error?.message || 'Falha ao atualizar o endereço.';
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: detailMessage,
+        });
+      },
+    });
   }
+
+
+private registerAttendance(pdfBlob: Blob): void {
+    if (!this.clientId || !this.contractId) {
+      console.error("registerAttendance: ClientID ou ContractID estão ausentes.");
+      return;
+    }
+    const data = {
+      event: this.event as string,
+      cliente: this.clientId,
+      contrato: this.contractId
+    };
+    const jsonBlob = new Blob([JSON.stringify(data)], { type: "application/json" });
+
+    const formData = new FormData();
+    formData.append('data', jsonBlob, 'data.json');
+    formData.append('arquivo', pdfBlob, 'termo_transferencia_assinado.pdf');
+
+    this.attendancesService.registerAttendance(formData).subscribe({
+      next: (response) => {
+        console.log("Atendimento registrado com sucesso:", response);
+        this.showInfo("Registro de Atendimento", "Atendimento registrado com sucesso no sistema.");
+      },
+      error: (err) => {
+        console.error("Falha ao registrar atendimento:", err);
+        this.showWarning("Aviso", "A transferência foi concluída, mas houve um erro ao registrar o atendimento no histórico.");
+      }
+    });
+  }
+
 }
