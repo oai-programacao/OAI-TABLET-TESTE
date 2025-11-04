@@ -47,6 +47,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
+import { AttendancesService } from '../../services/attendances/attendances.service';
 
 export interface AddressForm {
   zipCode: string | null;
@@ -58,7 +59,7 @@ export interface AddressForm {
   city: string;
   observation: string;
   adesionValue: number | null;
- paymentForm: string | null;
+  paymentForm: string | null;
 }
 
 @Component({
@@ -125,6 +126,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   public pdfPreviewUrl: string | null = null;
 
   safePdfPreviewUrl: SafeResourceUrl | null = null;
+  pdfBlobFinal: Blob | null = null;
   isLoadingPreview = false;
   previewLoadFailed = false;
 
@@ -273,13 +275,13 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
         next: (blob) => {
           this.pdfPreviewUrl = window.URL.createObjectURL(blob);
           this.safePdfPreviewUrl =
-            this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfPreviewUrl); 
+            this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfPreviewUrl);
 
           const duration = Date.now() - startTime;
           const delay = Math.max(0, MINIMUM_SPINNER_TIME - duration);
 
           setTimeout(() => {
-            this.isLoadingPreview = false; 
+            this.isLoadingPreview = false;
           }, delay);
         },
         error: (err) => {
@@ -289,7 +291,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
             summary: 'Erro no Preview',
             detail: 'Não foi possível carregar o termo. Tente novamente.',
           });
-          this.previewLoadFailed = true; 
+          this.previewLoadFailed = true;
           const duration = Date.now() - startTime;
           const delay = Math.max(0, MINIMUM_SPINNER_TIME - duration);
 
@@ -384,6 +386,45 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   meuMetodoExtra(): void {
     this.formIsValid = true;
     this.avisoInvalido = false;
+  }
+
+  private attendancesService = inject(AttendancesService);
+  fluxo: 'update_address' = 'update_address';
+
+  private showWarning(summary: string, detail: string, life: number = 5000) {
+    this.messageService.add({ severity: 'warn', summary, detail, life });
+  }
+
+  private showInfo(summary: string, detail: string, life: number = 3000) {
+    this.messageService.add({ severity: 'info', summary, detail, life });
+  }
+
+  private registerAttendance(pdfBlob: Blob): void {
+    if (!this.clientId || !this.contractId) {
+      console.error("registerAttendance: ClientID ou ContractID estão ausentes.");
+      return;
+    }
+    const data = {
+      event: this.fluxo as string,
+      cliente: this.clientId,
+      contrato: this.contractId
+    };
+    const jsonBlob = new Blob([JSON.stringify(data)], { type: "application/json" });
+
+    const formData = new FormData();
+    formData.append('data', jsonBlob, 'data.json');
+    formData.append('arquivo', pdfBlob, 'termo_transferencia_assinado.pdf');
+
+    this.attendancesService.registerAttendance(formData).subscribe({
+      next: (response) => {
+        console.log("Atendimento registrado com sucesso:", response);
+        this.showInfo("Registro de Atendimento", "Atendimento registrado com sucesso no sistema.");
+      },
+      error: (err) => {
+        console.error("Falha ao registrar atendimento:", err);
+        this.showWarning("Aviso", "A transferência foi concluída, mas houve um erro ao registrar o atendimento no histórico.");
+      }
+    });
   }
 
   sendToAutentiqueSubmit() {
@@ -492,6 +533,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       .getConsentTermAddressPdf(this.clientId, this.contractId, requestBody)
       .subscribe({
         next: (blob) => {
+          this.pdfBlobFinal = blob;
           this.pdfPreviewUrl = window.URL.createObjectURL(blob);
           this.safePdfPreviewUrl =
             this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfPreviewUrl);
@@ -635,27 +677,27 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     { label: 'Boleto', value: 'Boleto' },
   ];
 
- savePdf() {
-  if (!this.pdfPreviewUrl) {
-    console.error('URL do PDF não disponível para salvar.');
-    return;
-  }
+  savePdf() {
+    if (!this.pdfPreviewUrl) {
+      console.error('URL do PDF não disponível para salvar.');
+      return;
+    }
 
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
-  if (isIOS) {
-    // ✅ iOS (Safari / PWA) → abre o PDF no visualizador nativo
-    window.open(this.pdfPreviewUrl, '_blank');
-  } else {
-    // ✅ Desktop → tenta download direto
-    const link = document.createElement('a');
-    link.href = this.pdfPreviewUrl;
-    link.download = 'termo_de_consentimento.pdf';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    if (isIOS) {
+      // ✅ iOS (Safari / PWA) → abre o PDF no visualizador nativo
+      window.open(this.pdfPreviewUrl, '_blank');
+    } else {
+      // ✅ Desktop → tenta download direto
+      const link = document.createElement('a');
+      link.href = this.pdfPreviewUrl;
+      link.download = 'termo_de_consentimento.pdf';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   }
-}
 
   isPdfViewerLoaded: boolean = false;
 
@@ -672,68 +714,81 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       this.addressNewForm.zipCode !== this.originalAddressForm.zipCode ||
       this.addressNewForm.street !== this.originalAddressForm.street ||
       this.addressNewForm.numberFromHome !==
-        this.originalAddressForm.numberFromHome ||
+      this.originalAddressForm.numberFromHome ||
       this.addressNewForm.complement !== this.originalAddressForm.complement ||
       this.addressNewForm.uf !== this.originalAddressForm.uf ||
       this.addressNewForm.neighborhood !==
-        this.originalAddressForm.neighborhood ||
+      this.originalAddressForm.neighborhood ||
       this.addressNewForm.city !== this.originalAddressForm.city ||
       this.addressNewForm.observation !== this.originalAddressForm.observation
     );
   }
 
   sendToAutomation(): void {
-  if (!this.currentContract) {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Erro',
-      detail: 'Dados do contrato original não encontrados!',
-    });
-    return;
-  }
-
-  this.isLoading = true;
-
-  const payload = {
-    clientId: this.currentContract.clientId,
-    contractId: this.currentContract.id, 
-    address: {
-      cep: this.addressNewForm.zipCode,
-      uf: this.addressNewForm.uf,
-      cidade: this.addressNewForm.city,
-      rua: this.addressNewForm.street,
-      numero: this.addressNewForm.numberFromHome,
-      bairro: this.addressNewForm.neighborhood,
-      complemento: this.addressNewForm.complement,
-      // codmunicipio: ... // se necessário, inclua aqui!
-    }
-  };
-
-  this.contractsService.updateAddressContract(this.currentContract.id, payload).subscribe({
-    next: () => {
-      this.isLoading = false;
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Sucesso!',
-        detail: 'Endereço atualizado!',
-      });
-      this.router.navigate([
-        '/client-contracts',
-        this.currentContract?.clientId,
-      ]);
-    },
-    error: (err) => {
-      this.isLoading = false;
-      const detailMessage =
-        err?.error?.message || 'Falha ao atualizar o endereço.';
+    if (!this.currentContract) {
       this.messageService.add({
         severity: 'error',
         summary: 'Erro',
-        detail: detailMessage,
+        detail: 'Dados do contrato original não encontrados!',
       });
-    },
-  });
-}
+      return;
+    }
+    if (!this.pdfBlobFinal) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erro',
+        detail: 'O termo de transferência precisa ser gerado e assinado antes de continuar!',
+      });
+      return;
+    }
+
+    this.isLoading = true;
+
+    const payload = {
+      clientId: this.currentContract.clientId,
+      contractId: this.currentContract.id,
+      address: {
+        cep: this.addressNewForm.zipCode,
+        uf: this.addressNewForm.uf,
+        cidade: this.addressNewForm.city,
+        rua: this.addressNewForm.street,
+        numero: this.addressNewForm.numberFromHome,
+        bairro: this.addressNewForm.neighborhood,
+        complemento: this.addressNewForm.complement,
+      }
+    };
+
+    this.contractsService.updateAddressContract(this.currentContract.id, payload).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Sucesso!',
+          detail: 'Endereço atualizado!',
+        });
+        if (this.pdfBlobFinal) {
+          this.registerAttendance(this.pdfBlobFinal);
+        } else {
+          console.warn("PDF não encontrado, o atendimento não será registrado.");
+        }
+        this.router.navigate([
+          '/client-contracts',
+          this.currentContract?.clientId,
+        ]);
+      },
+      error: (err) => {
+        this.isLoading = false;
+        const detailMessage =
+          err?.error?.message || 'Falha ao atualizar o endereço.';
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: detailMessage,
+        });
+      },
+    });
+  }
+
   ufToNome(uf: string): string {
     const mapa: Record<string, string> = {
       AC: 'Acre',
