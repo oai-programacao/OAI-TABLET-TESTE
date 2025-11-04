@@ -51,6 +51,8 @@ export class WebSocketService {
           const event = payload.eventName;
           const data = payload.data;
 
+          console.log('📨 Payload recebido:', payload);
+
           switch (event) {
             case 'DOCUMENT_SIGNED':
               this.toastService.showWithAnimation(
