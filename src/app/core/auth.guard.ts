@@ -3,37 +3,34 @@ import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from
 import { AuthService } from './auth.service';
 import { Observable, of } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class AuthGuard implements CanActivate {
   constructor(private authService: AuthService, private router: Router) {}
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
     const isAuth = this.authService.isAuthenticated();
 
-    if (isAuth && state.url === '/login') {
-    this.router.navigate(['/search']);
-    return of(false);
-  }
-  
-    if (!isAuth && state.url !== '/login') {
-    this.router.navigate(['/login']);
-    return of(false);
-  }
-
-  const allowedRoles = route.data['roles'] as string[] | undefined;
-
-  if (allowedRoles && allowedRoles.length > 0) {
-    const userRoles = this.authService.getUserRoles();
-
-    const hasAccess = allowedRoles.some(role => userRoles.includes(role));
-
-    if (!hasAccess) {
-      this.router.navigate(['/acessonegado']);
+    // Se não autenticado, manda pro login
+    if (!isAuth) {
+      this.router.navigate(['/login']);
       return of(false);
     }
-  }
+
+    // Se autenticado e tentando acessar /login, manda pro search
+    if (isAuth && state.url === '/login') {
+      this.router.navigate(['/search']);
+      return of(false);
+    }
+
+    const allowedRoles = route.data['roles'] as string[] | undefined;
+    if (allowedRoles && allowedRoles.length > 0) {
+      const userRoles = this.authService.getUserRoles();
+      const hasAccess = allowedRoles.some(role => userRoles.includes(role));
+      if (!hasAccess) {
+        this.router.navigate(['/acessonegado']);
+        return of(false);
+      }
+    }
 
     return of(true);
   }

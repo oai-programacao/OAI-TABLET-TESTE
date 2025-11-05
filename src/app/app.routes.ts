@@ -5,10 +5,8 @@ import { AuthGuard } from './core/auth.guard';
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () =>
-      import('./components/login/login.component').then(
-        (m) => m.LoginComponent
-      ),
+    redirectTo: 'login',
+    pathMatch: 'full',
   },
   {
     path: 'login',
@@ -100,37 +98,41 @@ export const routes: Routes = [
   {
     path: 'alter-dateexpired',
     loadComponent: () =>
-      import('./components/alter-date-expired/alter-date-expired.component').then(
-        (m) => m.AlterDateExpiredComponent
-      )
+      import(
+        './components/alter-date-expired/alter-date-expired.component'
+      ).then((m) => m.AlterDateExpiredComponent),
+    canActivate: [AuthGuard],
   },
   {
     path: 'attendances/:clientId',
     loadComponent: () =>
-      import('./components/attendances-client/attendances-client.component').then(
-        (m) => m.AttendancesClientComponent
-      )
+      import(
+        './components/attendances-client/attendances-client.component'
+      ).then((m) => m.AttendancesClientComponent),
+    canActivate: [AuthGuard],
   },
   {
     path: 'transfer-ownership/:clientId/:contractId',
     loadComponent: () =>
-      import('./components/transfer-ownership/transfer-ownership.component').then(
-        (m) => m.TransferOwnershipComponent
-      )
+      import(
+        './components/transfer-ownership/transfer-ownership.component'
+      ).then((m) => m.TransferOwnershipComponent),
+    canActivate: [AuthGuard],
   },
   {
     path: 'upgrade-downgrade/:clientId/:action/:contractId',
     loadComponent: () =>
       import('./components/down-upgrade/down-upgrade.component').then(
         (m) => m.DownUpgradeComponent
-      )
+      ),
+    canActivate: [AuthGuard],
   },
   {
-  path: 'conclude',
+    path: 'conclude',
     loadComponent: () =>
       import('./components/sales-panel/sales-panel.component').then(
         (m) => m.ConcludeSaleComponent
       ),
-    // canActivate: [AuthGuard],
+    canActivate: [AuthGuard],
   },
 ];

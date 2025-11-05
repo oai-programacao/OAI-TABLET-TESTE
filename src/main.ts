@@ -38,6 +38,7 @@ bootstrapApplication(AppComponent, {
       useClass: AuthInterceptor,
       multi: true,
     },
+    
 
     {
       provide: RxStompService,

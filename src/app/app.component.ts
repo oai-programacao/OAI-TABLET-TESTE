@@ -1,29 +1,50 @@
 import { Component, OnInit } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
+import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
+import { filter, take } from 'rxjs/operators';
 import { WebSocketService } from './services/webSocket/websocket.service';
+import { AuthService } from './core/auth.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
-  imports: [
-    RouterOutlet,
-    ButtonModule,
-    TableModule,
-  ],
+  standalone: true,
+  imports: [RouterOutlet] // <-- ADICIONE ESTA LINHA
 })
 export class AppComponent implements OnInit {
-
-  notificationCount: number = 10;
-
-  constructor(private wsService: WebSocketService) {}
+  constructor(
+    private wsService: WebSocketService,
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
     const token = localStorage.getItem('accessToken');
-    if (token) {
+
+    if (this.authService.isAuthenticated()) {
       this.wsService.initWebSocket();
+    }
+
+    this.tryRedirectAtStartup();
+
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd), take(1))
+      .subscribe((ev: NavigationEnd) => {
+        this.tryRedirectAtStartup();
+      });
+  }
+
+  private tryRedirectAtStartup() {
+    const isAuth = this.authService.isAuthenticated();
+    const currentUrl = this.router.url;
+
+    if (isAuth && (currentUrl === '/login' || currentUrl === '' || currentUrl === '/')) {
+      this.router.navigate(['/search']).catch(err => console.error('[router.navigate]', err));
+      return;
+    }
+
+    if (!isAuth && currentUrl !== '/login') {
+      this.router.navigate(['/login']).catch(err => console.error('[router.navigate]', err));
     }
   }
 }
