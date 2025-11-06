@@ -1,8 +1,9 @@
 import { Component, inject, ViewChild, OnInit } from '@angular/core';
+import { SafeResourceUrl, DomSanitizer } from '@angular/platform-browser';
 import { CardBaseComponent } from '../../shared/components/card-base/card-base.component';
 import { StepperModule } from 'primeng/stepper';
 import { ButtonModule } from 'primeng/button';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm,  NgModelGroup } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { IftaLabelModule } from 'primeng/iftalabel';
@@ -25,6 +26,7 @@ import { CepService, CepResponse } from '../../services/cep/cep.service';
 import { SalesService } from '../../services/sales/sales.service';
 import { MidiaService } from '../../services/midia/midia.service';
 import { AuthService } from '../../core/auth.service';
+import { ConsentTermAdesionRequest, ReportsService } from '../../services/reports/reports.service';
 
 
 export interface ContractFormData {
@@ -98,6 +100,13 @@ export interface Address {
 })
 export class AddContractComponent implements OnInit {
   @ViewChild('pop') pop!: Popover;
+
+
+
+ @ViewChild('contractForm') contractForm!: NgForm;
+  @ViewChild('step1Group') step1Group!: NgModelGroup;
+  @ViewChild('step2Group') step2Group!: NgModelGroup;
+
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly planService = inject(PlanService);
@@ -105,7 +114,22 @@ export class AddContractComponent implements OnInit {
   private readonly salesService = inject(SalesService);
   private readonly midiaService = inject(MidiaService);
   private readonly authService = inject(AuthService);
+  private readonly reportsService = inject(ReportsService);
+  private readonly sanitizer = inject(DomSanitizer);
  
+
+   modalVisible: boolean = false;
+  phone: string = '';
+
+  onHide(): void {
+    this.modalVisible = false;
+    this.phone = '';
+  }
+
+  pdfUrl: SafeResourceUrl | null = null;
+  isLoading = false;
+
+  public activeStep: number = 1;
 
   public contractFormData: ContractFormData = {
     sellerId: '',
@@ -130,6 +154,24 @@ export class AddContractComponent implements OnInit {
     signature: '',
     observation: '',
   };
+
+  // Flags para controlar se cada step foi completado
+step1Completed: boolean = false;
+step2Completed: boolean = false;
+
+
+ // ✅ Getters de validação
+  get isStep1Valid(): boolean {
+    return this.step1Group?.valid ?? false;
+  }
+
+  get isStep2Valid(): boolean {
+    return this.step2Group?.valid ?? false;
+  }
+
+  get areSteps1And2Valid(): boolean {
+    return this.isStep1Valid && this.isStep2Valid;
+  }
 
   clientId: string | null = null;
 
@@ -168,6 +210,7 @@ export class AddContractComponent implements OnInit {
     label: `${i + 1}x`,
     value: `${i + 1}`,
   }));
+
   typesOfDateExpirationCicle = Array.from({ length: 31 }, (_, i) => ({
     id: `${i + 1}`,
     dia: `${i + 1}`,
@@ -191,7 +234,7 @@ export class AddContractComponent implements OnInit {
   previewVisible = false;
   previewImage: string | null = null;
 
-  constructor(private messageService: MessageService) {
+  constructor(public messageService: MessageService) {
      this.clientId = this.route.snapshot.queryParamMap.get('clientId') ?? '';
   }
 
@@ -205,6 +248,7 @@ export class AddContractComponent implements OnInit {
     this.contractFormData.clientId = this.clientId;
   }
 }
+
   loadPlans() {
     this.planService.getPlans().subscribe({
       next: (data: Plan[]) => {
@@ -220,7 +264,6 @@ export class AddContractComponent implements OnInit {
   }
 
   toggle(popover: Popover, event: Event) {
-    // Popover do PrimeNG possui toggle/show/hide
     popover.toggle(event);
   }
 
@@ -229,8 +272,6 @@ export class AddContractComponent implements OnInit {
     if (!input.files || input.files.length === 0) return;
 
     const file = input.files[0];
-
-    // Encontrar primeiro slot vazio; caso não exista, criar um novo slot
     let targetIndex = this.images.findIndex((img) => img === null);
     if (targetIndex === -1) {
       targetIndex = this.images.length;
@@ -240,25 +281,23 @@ export class AddContractComponent implements OnInit {
 
     this.images[targetIndex] = file;
 
-    // Gerar preview
     const reader = new FileReader();
     reader.onload = () => {
       this.imagePreviews[targetIndex] = reader.result as string;
     };
     reader.readAsDataURL(file);
 
-    // limpar input file (com try/catch dentro do callback)
     setTimeout(() => {
       try {
         if (input && input instanceof HTMLInputElement) {
-          // apenas se tiver algo
+
           if (input.value) {
-            // somente string vazia é permitida
+
             input.value = '';
           }
         }
       } catch (err) {
-        // fallback: substitui o nó do input para resetar
+
         try {
           const newInput = input.cloneNode() as HTMLInputElement;
           input.parentNode?.replaceChild(newInput, input);
@@ -319,7 +358,7 @@ export class AddContractComponent implements OnInit {
 
   onSignatureData(signatureData: string): void {
     this.formData.signaturePad = signatureData;
-    // opcional: capturar data de assinatura digital
+
     this.dateSignature = new Date();
 
     this.messageService.add({
@@ -359,7 +398,9 @@ export class AddContractComponent implements OnInit {
     });
   }
 
-  formatToLocalDateString(date: Date | string | null | undefined): string | null {
+  formatToLocalDateString(
+    date: Date | string | null | undefined
+    ): string | null {
     if (!date) return null;
     const d = new Date(date);
     if (Number.isNaN(d.getTime())) return null;
@@ -370,6 +411,11 @@ export class AddContractComponent implements OnInit {
   }
 
   submitContract(): void {
+    if(!this.contractForm.valid) {
+      alert('⚠️ Preencha todos os campos obrigatórios do formulário.');
+      return;
+    }
+
   if (!this.clientId) {
     this.messageService.add({
       severity: 'error',
@@ -420,7 +466,7 @@ export class AddContractComponent implements OnInit {
     return;
   }
 
-  // Montar payload exatamente como o backend espera
+
   const payload = {
   sellerId,
   clientId: this.clientId,
@@ -473,7 +519,7 @@ export class AddContractComponent implements OnInit {
 }
 
 
-  // extrai pra função para reutilizar e logar payload antes de enviar
+
   private createSaleRequest(payload: any) {
     console.log('Payload pra enviar:', payload);
     this.salesService.createSale(payload).subscribe({
@@ -492,4 +538,104 @@ export class AddContractComponent implements OnInit {
       },
     });
   }
+
+  avisoInvalido: boolean = true;
+
+  abrirModal(): void {
+   this.modalVisible = true;
+  }
+
+  goToStep(nextStep: number){
+    let currentGroup: NgModelGroup | null = null;
+
+    if(this.activeStep === 1) {
+      currentGroup = this.step1Group;
+    } else if (this.activeStep === 2) {
+      currentGroup = this.step2Group;
+  }
+
+  if(currentGroup){
+    Object.values(currentGroup.control.controls).forEach(control => {
+      control.markAsTouched();
+    });
+
+     // Aguarda ciclo de detecção
+    setTimeout(() => {
+      if (currentGroup!.valid) {
+        // Marca step como completo
+        if (this.activeStep === 1) {
+          this.step1Completed = true;
+        } else if (this.activeStep === 2) {
+          this.step2Completed = true;
+        }
+        
+        // Navega
+        this.activeStep = nextStep;
+      } else {
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Campos obrigatórios',
+          detail: 'Preencha corretamente antes de avançar.',
+        });
+      }
+    });
+  } else {
+    // Steps sem validação (como step 3) navegam diretamente
+    this.activeStep = nextStep;
+  }
+  }
+
+
+  sendToAutentiqueSubmit() {
+    //   const term: ConsentTermAddressRequest = {
+    //     zipCode: this.addressNewForm.zipCode,
+    //     state: this.addressNewForm.uf,
+    //     city: this.addressNewForm.city,
+    //     street: this.addressNewForm.street,
+    //     number: this.addressNewForm.numberFromHome,
+    //     neighborhood: this.addressNewForm.neighborhood,
+    //     complement: this.addressNewForm.complement,
+    //     observation: this.addressNewForm.observation,
+    //     adesionValue: this.addressNewForm.adesionValue,
+    //     paymentForm: this.addressNewForm.paymentForm,
+    //   };
+  
+    //   const mappedSigners = [
+    //     {
+    //       name: this.client?.name || 'Cliente',
+    //       phone: '+55' + (this.phone || ''),
+    //     },
+    //   ];
+  
+    //   const payload = { term, signers: mappedSigners };
+  
+    //   this.actionsContractsService
+    //     .sendAddressChangeAutentique(payload, this.clientId, this.contractId)
+    //     .subscribe({
+    //       next: (res: string) => {
+    //         this.messageService.add({
+    //           severity: 'success',
+    //           summary: 'Sucesso!',
+    //           detail: `${res}.
+    //           Aguarde o cliente assinar, todo o processo será feito de forma automática.
+    //           Consulte nos atendimentos do cliente se foi feito de fato.`,
+    //           life: 10000,
+    //         });
+    //         this.modalVisible = false;
+    //       },
+    //       error: (err) => {
+    //         const backendMessage =
+    //           (typeof err.error === 'string' ? err.error : err?.error?.message) ||
+    //           'Erro ao tentar enviar para o número, verifique com o Suporte!';
+    //         if (backendMessage.includes('Aguarde 4 minutos antes')) {
+    //           this.messageService.add({
+    //             severity: 'error',
+    //             summary: 'Atenção',
+    //             detail: backendMessage,
+    //           });
+    //         }
+    //       },
+    //     });
+    // }
+}
 }

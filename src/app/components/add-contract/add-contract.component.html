@@ -1,7 +1,8 @@
 <div class="page-container">
   <app-card-base>
     <div class="card">
-      <p-stepper [value]="1">
+       <form #contractForm="ngForm" novalidate>
+      <p-stepper [(value)]="activeStep">
         <div class="btn-to-back">
           <p-button
             label="Voltar"
@@ -11,548 +12,564 @@
           />
         </div>
 
-        <p-step-item [value]="1">
-          <p-step>• Dados do Contrato </p-step>
-          <p-step-panel>
-            <ng-template #content let-activateCallback="activateCallback">
-              <div class="space-stepper1">
-                <p-inputgroup>
-                  <p-inputgroup-addon>
-                    <i class="pi pi-ticket"></i>
-                  </p-inputgroup-addon>
-                  <p-iftalabel>
-                    <p-select
-                      [options]="plans"
-                      optionLabel="label"
-                      optionValue="value"
-                      placeholder="Selecione"
-                      name="planos"
-                      [(ngModel)]="selectedPlan"
-                      required
-                    >
-                    </p-select>
-                    <label for="planos">Plano de Internet*</label>
-                  </p-iftalabel>
-                </p-inputgroup>
+        <!-- Aviso Global -->
+        <div class="content">
+          <ng-template #avisoInvalido>
+            <div class="alert-warning">
+              ⚠️ Para prosseguir, volte ao passo anterior e preencha todos os campos obrigatórios.
+            </div>
+          </ng-template>
+        </div>
 
-                <div>
-                  <p-inputgroup>
-                    <p-inputgroup-addon>
-                      <i class="pi pi-dollar"></i>
-                    </p-inputgroup-addon>
-                    <p-iftalabel variant="on">
-                      <input
-                        size="large"
-                        pInputText
-                        id="descount"
-                        name="descount"
-                        type="text"
+         <!-- STEP 1 -->
+          <p-step-item [value]="1">
+            <p-step>• Dados do Contrato </p-step>
+            <p-step-panel>
+              <ng-template #content let-activateCallback="activateCallback">
+                <div ngModelGroup="step1Group" #step1Group="ngModelGroup">
+                  <div class="space-stepper1">
+                    <p-inputgroup>
+                      <p-inputgroup-addon>
+                        <i class="pi pi-ticket"></i>
+                      </p-inputgroup-addon>
+                      <p-iftalabel>
+                        <p-select
+                          [options]="plans"
+                          optionLabel="label"
+                          optionValue="value"
+                          placeholder="Selecione"
+                          name="planos"
+                          [(ngModel)]="selectedPlan"
+                          required
+                        >
+                        </p-select>
+                        <label for="planos">Plano de Internet*</label>
+                      </p-iftalabel>
+                    </p-inputgroup>
+
+                    <div>
+                      <p-inputgroup>
+                        <p-inputgroup-addon>
+                          <i class="pi pi-dollar"></i>
+                        </p-inputgroup-addon>
+                        <p-iftalabel variant="on">
+                          <input
+                            size="large"
+                            pInputText
+                            id="descount"
+                            name="descount"
+                            type="text"
+                            required
+                            maxlength="18"
+                            [currencyMask]="{
+                              prefix: 'R$ ',
+                              thousands: '.',
+                              decimal: ',',
+                              align: 'left'
+                            }"
+                            inputmode="numeric"
+                            pattern="[0-9]*"
+                            placeholder="R$ 0,00"
+                            [maxLength]="7"
+                            [(ngModel)]="contractFormData.adesion"
+                          />
+                          <label for="descount">Desconto de Adesão*</label>
+                        </p-iftalabel>
+                      </p-inputgroup>
+                    </div>
+                  </div>
+
+                  <div class="space-stepper1">
+                    <p-iftalabel>
+                      <p-datepicker
+                        name="dateOfStart"
+                        [(ngModel)]="dateOfStart"
+                        inputId="dateOfStart"
+                        showIcon
+                        iconDisplay="input"
+                        appendTo="body"
+                        #dateofStart="ngModel"
+                        placeholder="dd/mm/aaaa"
                         required
-                        maxlength="18"
-                        [currencyMask]="{
-                          prefix: 'R$ ',
-                          thousands: '.',
-                          decimal: ',',
-                          align: 'left'
-                        }"
-                        inputmode="numeric"
-                        pattern="[0-9]*"
-                        placeholder="R$ 0,00"
-                        [maxLength]="7"
-                        [(ngModel)]="contractFormData.adesion"
                       />
-                      <label for="descount">Desconto de Adesão*</label>
+                      <label for="dateOfStart">Data de Início*</label>
                     </p-iftalabel>
-                  </p-inputgroup>
+
+                    <p-iftalabel>
+                      <p-datepicker
+                        name="dateOfAssignment"
+                        [(ngModel)]="dateOfAssignment"
+                        inputId="dateOfAssignment"
+                        showIcon
+                        iconDisplay="input"
+                        appendTo="body"
+                        #dateofAssignment="ngModel"
+                        placeholder="dd/mm/aaaa"
+                        required
+                      />
+                      <label for="dateOfAssignment">Data de Assinatura*</label>
+                    </p-iftalabel>
+
+                    <div class="numbersOfInstallments">
+                      <p-inputgroup>
+                        <p-inputgroup-addon>
+                          <i class="pi pi-sort-numeric-up"></i>
+                        </p-inputgroup-addon>
+                        <p-iftalabel>
+                          <p-select
+                            [options]="numbersOfInstallments"
+                            [(ngModel)]="selectedInstallment"
+                            optionLabel="label"
+                            optionValue="value"
+                            placeholder="Selecione 1x a 24x"
+                            name="parcelas"
+                            required
+                          >
+                          </p-select>
+                          <label for="parcelas">Número de Parcelas Adesão</label>
+                        </p-iftalabel>
+                      </p-inputgroup>
+                    </div>
+                  </div>
+                  <div class="warn-icon-container">
+                  <span
+                    class="warn-icon"
+                    (click)="toggle(pop3, $event)"
+                    role="button"
+                    aria-label="Informação importante"
+                  >
+                    !
+                  </span>
+                  <p-popover #pop3 [dismissable]="true">
+                    <div class="warn-popup">
+                      Selecione a data optada pelo cliente para vencimento do boleto
+                    </div>
+                  </p-popover>
                 </div>
-              </div>
 
-              <div class="space-stepper1">
-                <p-iftalabel>
-                  <p-datepicker
-                    name="dateOfStart"
-                    [(ngModel)]="dateOfStart"
-                    inputId="dateOfStart"
-                    showIcon
-                    iconDisplay="input"
-                    appendTo="body"
-                    #dateofStart="ngModel"
-                    placeholder="dd/mm/aaaa"
-                    required
-                  />
-                  <label for="dateOfStart">Data de Início*</label>
-                </p-iftalabel>
-
-                <p-iftalabel>
-                  <p-datepicker
-                    name="dateOfAssignment"
-                    [(ngModel)]="dateOfAssignment"
-                    inputId="dateOfAssignment"
-                    showIcon
-                    iconDisplay="input"
-                    appendTo="body"
-                    #dateofAssignment="ngModel"
-                    placeholder="dd/mm/aaaa"
-                    required
-                  />
-                  <label for="dateOfAssignment">Data de Assinatura*</label>
-                </p-iftalabel>
-
-                <div class="numbersOfInstallments">
-                  <p-inputgroup>
-                    <p-inputgroup-addon>
-                      <i class="pi pi-sort-numeric-up"></i>
-                    </p-inputgroup-addon>
+                  <div class="space-stepper2">
                     <p-iftalabel>
                       <p-select
-                        [options]="numbersOfInstallments"
-                        [(ngModel)]="selectedInstallment"
-                        optionLabel="label"
+                        [options]="typesOfDateExpirationCicle"
+                        [(ngModel)]="selectDateOfExpirationCicle"
+                        optionLabel="descricao"
                         optionValue="value"
-                        placeholder="Selecione 1x a 24x"
-                        name="parcelas"
+                        placeholder="Selecione o dia do vencimento"
+                        name="cicloFaturamento"
                         required
-                      >
-                      </p-select>
-                      <label for="parcelas">Número de Parcelas Adesão</label>
+                      ></p-select>
+                      <label for="dateofExpirationCicle">Dia de Vencimento*</label>
                     </p-iftalabel>
-                  </p-inputgroup>
-                </div>
-              </div>
 
-              <div class="warn-icon-container">
-                <span
-                  class="warn-icon"
-                  (click)="toggle(pop3, $event)"
-                  role="button"
-                  aria-label="Informação importante"
-                >
-                  !
-                </span>
-
-                <p-popover #pop3 [dismissable]="true">
-                  <div class="warn-popup">
-                    Selecione a data optada pelo cliente para vencimento do boleto
+                    <p-inputgroup>
+                      <p-inputgroup-addon>
+                        <i class="pi pi-file"></i>
+                      </p-inputgroup-addon>
+                      <p-iftalabel>
+                        <p-select
+                          name="typesOfContractOptions"
+                          [(ngModel)]="selectContract"
+                          [options]="typesOfContractOptions"
+                          placeholder="Selecione o tipo de contrato"
+                          inputId="tipoContrato"
+                          required
+                        ></p-select>
+                        <label for="tipoContrato">Tipo de Contrato*</label>
+                      </p-iftalabel>
+                    </p-inputgroup>
                   </div>
-                </p-popover>
-              </div>
 
-              <div class="space-stepper2">
-                <p-iftalabel>
-                  <p-iftalabel>
-                    <p-select
-                      [options]="typesOfDateExpirationCicle"
-                      [(ngModel)]="selectDateOfExpirationCicle"
-                      optionLabel="descricao"
-                      optionValue="value"
-                      placeholder="Selecione o dia do vencimento"
-                      name="cicloFaturamento"
-                      required
-                    ></p-select>
-                    <label for="dateofExpirationCicle"
-                      >Dia de Vencimento*</label
-                    >
-                  </p-iftalabel>
-                </p-iftalabel>
-
-                <p-inputgroup>
-                  <p-inputgroup-addon>
-                    <i class="pi pi-file"></i>
-                  </p-inputgroup-addon>
-                  <p-iftalabel>
-                    <p-select
-                      name="typesOfContractOptions"
-                      [(ngModel)]="selectContract"
-                      [options]="typesOfContractOptions"
-                      placeholder="Selecione o tipo de contrato"
-                      inputId="tipoContrato"
-                      required
-                    ></p-select>
-                    <label for="tipoContrato">Tipo de Contrato*</label>
-                  </p-iftalabel>
-                </p-inputgroup>
-              </div>
-
-              <div class="warn-icon-container">
-                <span
-                  class="warn-icon"
-                  (click)="toggle(pop, $event)"
-                  role="button"
-                  aria-label="Informação importante"
-                >
-                  !
-                </span>
-
-                <p-popover #pop [dismissable]="true">
-                  <div class="warn-popup">
-                    Este campo indica o dia selecionado pelo cliente para o
-                    vencimento da taxa de adesão
+                  <div class="space-stepper3">
+                    <p-iftalabel>
+                      <p-datepicker
+                        name="dateOfMemberShipExpiration"
+                        [(ngModel)]="dateOfMemberShipExpiration"
+                        inputId="dateOfMemberShipExpiration"
+                        showIcon
+                        iconDisplay="input"
+                        appendTo="body"
+                        #dateofExpiration="ngModel"
+                        placeholder="dd/mm/aaaa"
+                        required
+                      ></p-datepicker>
+                      <label for="dateOfMemberShipExpiration"
+                        >Data de Vencimento da Adesão*</label
+                      >
+                    </p-iftalabel>
                   </div>
-                </p-popover>
-              </div>
 
-              <div class="space-stepper3">
-                <p-iftalabel>
-                  <p-datepicker
-                    name="dateOfMemberShipExpiration"
-                    [(ngModel)]="dateOfMemberShipExpiration"
-                    inputId="dateOfMemberShipExpiration"
-                    showIcon
-                    iconDisplay="input"
-                    appendTo="body"
-                    #dateofExpiration="ngModel"
-                    placeholder="dd/mm/aaaa"
-                    required
-                  ></p-datepicker>
-                  <label for="dateOfMemberShipExpiration"
-                    >Data de Vencimento da Adesão*</label
+                  <p-divider></p-divider>
+
+                  <p class="header-title">Upload de Imagens do Contrato</p>
+                  <div class="title-image-upload">
+                    <input
+                      type="file"
+                      #fileInput
+                      accept="image/*"
+                      (change)="onFileSelected($event)"
+                      hidden
+                    />
+                  </div>
+
+                  <div class="image-upload-row">
+                    <div class="image-slot" *ngFor="let slot of [0, 1, 2, 3, 4]">
+                      <span
+                        *ngIf="!images[slot]"
+                        class="plus-icon"
+                        (click)="fileInput.click()"
+                        >+</span
+                      >
+                      <div *ngIf="images[slot]" class="image-preview">
+                        <img
+                          [src]="imagePreviews[slot]"
+                          alt="Imagem {{ slot + 1 }}"
+                          (dblclick)="viewImage(imagePreviews[slot]!)"
+                        />
+                        <button
+                          type="button"
+                          class="remove-btn"
+                          (click)="removeImage(slot)"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <p-dialog
+                    [(visible)]="previewVisible"
+                    [modal]="true"
+                    [style]="{ width: '90vw' }"
                   >
-                </p-iftalabel>
-              </div>
-
-              <p-divider></p-divider>
-              <div class="warn-icon-container">
-                <span
-                  class="warn-icon"
-                  (click)="toggle(pop2, $event)"
-                  role="button"
-                  aria-label="Informação importante"
-                >
-                  !
-                </span>
-
-                <p-popover #pop2 [dismissable]="true">
-                  <div class="warn-popup">
-                    Escolha fotos de sua galeria, tire novas fotos e lembre-se
-                    de que as imagens devem ser nítidas, legíveis e realmente
-                    necessárias!
-                  </div>
-                </p-popover>
-              </div>
-              <p class="header-title">Upload de Imagens do Contrato</p>
-
-              <div class="title-image-upload">
-                <input
-                  type="file"
-                  #fileInput
-                  accept="image/*"
-                  (change)="onFileSelected($event)"
-                  hidden
-                />
-              </div>
-
-              <div class="image-upload-row">
-                <div class="image-slot" *ngFor="let slot of [0, 1, 2, 3, 4]">
-                  <span
-                    *ngIf="!images[slot]"
-                    class="plus-icon"
-                    (click)="fileInput.click()"
-                    >+</span
-                  >
-
-                  <div *ngIf="images[slot]" class="image-preview">
                     <img
-                      [src]="imagePreviews[slot]"
-                      alt="Imagem {{ slot + 1 }}"
-                      (dblclick)="viewImage(imagePreviews[slot]!)"
+                      *ngIf="previewImage"
+                      [src]="previewImage"
+                      alt="Preview"
+                      class="preview-dialog-img"
                     />
+                  </p-dialog>
 
-                    <button
-                      type="button"
-                      class="remove-btn"
-                      (click)="removeImage(slot)"
-                    >
-                      ✕
-                    </button>
+                  <div class="button-content">
+                    <p-button
+                      label="Próximo"
+                      icon="pi pi-arrow-down"
+                      iconPos="right"
+                      (onClick)="goToStep(2)"
+                      [raised]="true"
+                      [disabled]="!isStep1Valid"
+                    />
                   </div>
                 </div>
-              </div>
+              </ng-template>
+            </p-step-panel>
+          </p-step-item>
 
-              <!-- Dialog para visualização de imagem -->
-              <p-dialog
-                [(visible)]="previewVisible"
-                [modal]="true"
-                [style]="{ width: '90vw' }"
-              >
-                <img
-                  *ngIf="previewImage"
-                  [src]="previewImage"
-                  alt="Preview"
-                  class="preview-dialog-img"
-                />
-              </p-dialog>
+          <!-- STEP 2 -->
+          <p-step-item [value]="2">
+            <p-step>• Endereço do Contrato</p-step>
+            <p-step-panel>
+              <ng-template #content let-activateCallback="activateCallback">
+                <div *ngIf="step1Completed; else avisoInvalido">
+                  <div ngModelGroup="step2Group" #step2Group="ngModelGroup">
+                    <div class="space-stepper1">
+                      <p-inputgroup>
+                        <p-inputgroup-addon>
+                          <i class="pi pi-map-marker"></i>
+                        </p-inputgroup-addon>
+                        <p-iftalabel variant="on">
+                          <input
+                            (blur)="searchCEP()"
+                            size="large"
+                            pInputText
+                            id="cep"
+                            autocomplete="off"
+                            maxlength="9"
+                            name="cep"
+                            required
+                            placeholder="00000-000"
+                            [mask]="'00000-000'"
+                            [(ngModel)]="contractFormData.address.zipCode"
+                          />
+                          <label for="cep">Código de Endereço Postal (CEP)*</label>
+                        </p-iftalabel>
+                      </p-inputgroup>
 
-              <div class="button-content">
-                <p-button
-                  label="Próximo"
-                  icon="pi pi-arrow-down"
-                  iconPos="right"
-                  (onClick)="activateCallback(2)"
-                  [severity]="'secondary'"
-                  [raised]="true"
-                />
-              </div>
-            </ng-template>
-          </p-step-panel>
-        </p-step-item>
+                      <p-inputgroup>
+                        <p-inputgroup-addon>
+                          <i class="pi pi-map-marker"></i>
+                        </p-inputgroup-addon>
+                        <p-iftalabel variant="on">
+                          <input
+                            size="large"
+                            pInputText
+                            id="street"
+                            autocomplete="off"
+                            maxlength="60"
+                            name="street"
+                            required
+                            [(ngModel)]="contractFormData.address.street"
+                          />
+                          <label for="street">Logradouro (Rua)*</label>
+                        </p-iftalabel>
+                      </p-inputgroup>
 
-        <p-step-item [value]="2">
-          <p-step>• Endereço do Contrato </p-step>
-          <p-step-panel>
-            <ng-template #content let-activateCallback="activateCallback">
-              <div class="space-stepper1">
-                <p-inputgroup>
-                  <p-inputgroup-addon>
-                    <i class="pi pi-map-marker"></i>
-                  </p-inputgroup-addon>
-                  <p-iftalabel variant="on">
-                    <input
-                      (blur)="searchCEP()"
-                      size="large"
-                      pInputText
-                      id="cep"
-                      autocomplete="off"
-                      maxlength="9"
-                      name="cep"
-                      required
-                      placeholder="00000-000"
-                      [mask]="'00000-000'"
-                      [(ngModel)]="contractFormData.address.zipCode"
-                    />
-                    <label for="cep">Código de Endereço Postal (CEP)*</label>
-                  </p-iftalabel>
-                </p-inputgroup>
+                      <p-inputgroup>
+                        <p-inputgroup-addon>
+                          <i class="pi pi-sort-numeric-up-alt"></i>
+                        </p-inputgroup-addon>
+                        <p-iftalabel variant="on">
+                          <input
+                            size="large"
+                            pInputText
+                            type="number"
+                            id="streetNumber"
+                            autocomplete="off"
+                            maxlength="60"
+                            name="streetNumber"
+                            required
+                            [(ngModel)]="contractFormData.address.number"
+                          />
+                          <label for="streetNumber">Número do Prédio*</label>
+                        </p-iftalabel>
+                      </p-inputgroup>
+                    </div>
 
-                <p-inputgroup>
-                  <p-inputgroup-addon>
-                    <i class="pi pi-map-marker"></i>
-                  </p-inputgroup-addon>
-                  <p-iftalabel variant="on">
-                    <input
-                      size="large"
-                      pInputText
-                      id="street"
-                      autocomplete="off"
-                      maxlength="60"
-                      name="street"
-                      required
-                      [(ngModel)]="contractFormData.address.street"
-                    />
-                    <label for="street">Logradouro (Rua)*</label>
-                  </p-iftalabel>
-                </p-inputgroup>
+                    <div class="space-stepper1">
+                      <p-inputgroup>
+                        <p-inputgroup-addon>
+                          <i class="pi pi-building"></i>
+                        </p-inputgroup-addon>
+                        <p-iftalabel>
+                          <p-select
+                            name="typeOfResidenceOptions"
+                            [(ngModel)]="selectedResidence"
+                            [options]="typeOfResidenceOptions"
+                            placeholder="Selecione o tipo de residência"
+                            inputId="typeResidence"
+                            required
+                          ></p-select>
+                          <label for="typeResidence">Tipo de Residência*</label>
+                        </p-iftalabel>
+                      </p-inputgroup>
 
-                <p-inputgroup>
-                  <p-inputgroup-addon>
-                    <i class="pi pi-sort-numeric-up-alt"></i>
-                  </p-inputgroup-addon>
-                  <p-iftalabel variant="on">
-                    <input
-                      size="large"
-                      pInputText
-                      type="number"
-                      id="streetNumber"
-                      autocomplete="off"
-                      maxlength="60"
-                      name="streetNumber"
-                      required
-                      [(ngModel)]="contractFormData.address.number"
-                    />
-                    <label for="streetNumber">Número do Prédio*</label>
-                  </p-iftalabel>
-                </p-inputgroup>
-              </div>
+                      <p-inputgroup>
+                        <p-inputgroup-addon>
+                          <i class="pi pi-map-marker"></i>
+                        </p-inputgroup-addon>
+                        <p-iftalabel variant="on">
+                          <input
+                            size="large"
+                            pInputText
+                            id="neighborhood"
+                            autocomplete="off"
+                            maxlength="60"
+                            name="neighborhood"
+                            required
+                            [(ngModel)]="contractFormData.address.neighborhood"
+                          />
+                          <label for="neighborhood">Bairro*</label>
+                        </p-iftalabel>
+                      </p-inputgroup>
 
-              <div class="space-stepper1">
-                <p-inputgroup>
-                  <p-inputgroup-addon>
-                    <i class="pi pi-building"></i>
-                  </p-inputgroup-addon>
-                  <p-iftalabel>
-                    <p-select
-                      name="typeOfResidenceOptions"
-                      [(ngModel)]="selectedResidence"
-                      [options]="typeOfResidenceOptions"
-                      placeholder="Selecione o tipo de residência"
-                      inputId="typeResidence"
-                      required
-                    ></p-select>
-                    <label for="typeResidence">Tipo de Residência*</label>
-                  </p-iftalabel>
-                </p-inputgroup>
+                      <p-inputgroup>
+                        <p-inputgroup-addon>
+                          <i class="pi pi-map-marker"></i>
+                        </p-inputgroup-addon>
+                        <p-iftalabel variant="on">
+                          <input
+                            size="large"
+                            pInputText
+                            id="cityaddress"
+                            autocomplete="off"
+                            maxlength="60"
+                            name="cityaddress"
+                            required
+                            [(ngModel)]="contractFormData.address.city"
+                          />
+                          <label for="cityaddress">Cidade*</label>
+                        </p-iftalabel>
+                      </p-inputgroup>
+                    </div>
 
-                <p-inputgroup>
-                  <p-inputgroup-addon>
-                    <i class="pi pi-map-marker"></i>
-                  </p-inputgroup-addon>
-                  <p-iftalabel variant="on">
-                    <input
-                      size="large"
-                      pInputText
-                      id="neighborhood"
-                      autocomplete="off"
-                      maxlength="60"
-                      name="neighborhood"
-                      required
-                      [(ngModel)]="contractFormData.address.neighborhood"
-                    />
-                    <label for="neighborhood">Bairro*</label>
-                  </p-iftalabel>
-                </p-inputgroup>
+                    <div class="space-stepper1">
+                      <p-inputgroup>
+                        <p-inputgroup-addon>
+                          <i class="pi pi-map-marker"></i>
+                        </p-inputgroup-addon>
+                        <p-iftalabel variant="on">
+                          <input
+                            size="large"
+                            pInputText
+                            id="complementaddress"
+                            autocomplete="off"
+                            maxlength="60"
+                            name="complementaddress"
+                            [(ngModel)]="contractFormData.address.complement"
+                          />
+                          <label for="complementaddress">Complemento</label>
+                        </p-iftalabel>
+                      </p-inputgroup>
+                    </div>
 
-                <p-inputgroup>
-                  <p-inputgroup-addon>
-                    <i class="pi pi-map-marker"></i>
-                  </p-inputgroup-addon>
-                  <p-iftalabel variant="on">
-                    <input
-                      size="large"
-                      pInputText
-                      id="cityaddress"
-                      autocomplete="off"
-                      maxlength="60"
-                      name="cityaddress"
-                      required
-                      [(ngModel)]="contractFormData.address.city"
-                    />
-                    <label for="cityaddress">Cidade*</label>
-                  </p-iftalabel>
-                </p-inputgroup>
-              </div>
+                    <div class="space-stepper1">
+                      <p-button
+                        [size]="'large'"
+                        label="Validar Cabeamento"
+                        raised="true"
+                        severity="warn"
+                        icon="pi pi-sliders-h"
+                        (onClick)="showMapDialog = true"
+                      />
+                    </div>
 
-              <div class="space-stepper1">
-                <p-inputgroup>
-                  <p-inputgroup-addon>
-                    <i class="pi pi-map-marker"></i>
-                  </p-inputgroup-addon>
-                  <p-iftalabel variant="on">
-                    <input
-                      size="large"
-                      pInputText
-                      id="complementaddress"
-                      autocomplete="off"
-                      maxlength="60"
-                      name="complementaddress"
-                      [(ngModel)]="contractFormData.address.complement"
-                    />
-                    <label for="complementaddress">Complemento</label>
-                  </p-iftalabel>
-                </p-inputgroup>
-              </div>
+                    <div class="space2-stepper">
+                      <p-iftalabel>
+                        <textarea
+                          pTextarea
+                          id="description"
+                          rows="5"
+                          cols="100"
+                          style="resize: none"
+                          name="observation"
+                          [(ngModel)]="contractFormData.observation"
+                        ></textarea>
+                        <label for="description">Observação</label>
+                      </p-iftalabel>
+                    </div>
 
-              <div class="space-stepper1">
-                <p-button
-                  [size]="'large'"
-                  label="Validar Cabeamento"
-                  raised="true"
-                  severity="warn"
-                  icon="pi pi-sliders-h"
-                  (onClick)="showMapDialog = true"
-                />
-              </div>
+                    <p-dialog
+                      [(visible)]="showMapDialog"
+                      [modal]="true"
+                      [style]="{ width: '90vh', height: '65vh' }"
+                    >
+                      <app-google-maps [address]="fullAddress"></app-google-maps>
+                    </p-dialog>
 
-              <div class="space2-stepper">
-                <p-iftalabel>
-                  <textarea
-                    pTextarea
-                    id="description"
-                    rows="5"
-                    cols="100"
-                    style="resize: none"
-                    name="observation"
-                    [(ngModel)]="contractFormData.observation"
-                  ></textarea>
-                  <label for="description">Observação</label>
-                </p-iftalabel>
-              </div>
+                    <div class="button-content">
+                      <p-button
+                        [size]="'large'"
+                        label="Visualizar O.S"
+                        raised="true"
+                        severity="warn"
+                        icon="pi pi-bell"
+                        (onClick)="showMapDialog = true"
+                      />
+                      <p-button
+                        [size]="'large'"
+                        label="Solicitar O.S"
+                        raised="true"
+                        severity="warn"
+                        icon="pi pi-bell"
+                        (onClick)="showMapDialog = true"
+                      />
+                      <p-button
+                        [size]="'large'"
+                        label="Google Maps"
+                        raised="true"
+                        severity="info"
+                        icon="pi pi-globe"
+                        (onClick)="showMapDialog = true"
+                      />
+                      <p-button
+                        [size]="'large'"
+                        label="Voltar"
+                        raised="true"
+                        severity="secondary"
+                        icon="pi pi-arrow-up"
+                        (onClick)="activateCallback(1)"
+                      />
+                      <p-button
+                        [size]="'large'"
+                        raised="true"
+                        label="Próximo"
+                        icon="pi pi-arrow-down"
+                        iconPos="right"
+                        [disabled]="!isStep2Valid"
+                       (onClick)="goToStep(3)"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </ng-template>
+            </p-step-panel>
+          </p-step-item>
 
-              <p-dialog
-                [(visible)]="showMapDialog"
-                [modal]="true"
-                [style]="{ width: '90vh', height: '65vh' }"
-              >
-                <app-google-maps [address]="fullAddress"></app-google-maps>
-              </p-dialog>
 
-              <div class="button-content">
-                <p-button
-                  [size]="'large'"
-                  label="Visualizar O.S"
-                  raised="true"
-                  severity="warn"
-                  icon="pi pi-bell"
-                  (onClick)="showMapDialog = true"
-                />
-                <p-button
-                  [size]="'large'"
-                  label="Solicitar O.S"
-                  raised="true"
-                  severity="warn"
-                  icon="pi pi-bell"
-                  (onClick)="showMapDialog = true"
-                />
-                <p-button
-                  [size]="'large'"
-                  label="Google Maps"
-                  raised="true"
-                  severity="info"
-                  icon="pi pi-globe"
-                  (onClick)="showMapDialog = true"
-                />
-                <p-button
-                  [size]="'large'"
-                  label="Voltar"
-                  raised="true"
-                  severity="secondary"
-                  icon="pi pi-arrow-up"
-                  (onClick)="activateCallback(1)"
-                />
-                <p-button
-                  [size]="'large'"
-                  raised="true"
-                  label="Próximo"
-                  icon="pi pi-arrow-down"
-                  iconPos="right"
-                  (onClick)="activateCallback(3)"
-                />
-              </div>
-            </ng-template>
-          </p-step-panel>
-        </p-step-item>
-
+          <!-- STEP 3 -->
         <p-step-item [value]="3">
-          <p-step>• Assinatura Digital </p-step>
+          <p-step>• Assinatura Digital</p-step>
           <p-step-panel>
             <ng-template #content let-activateCallback="activateCallback">
-              <div class="space-stepper1">
-                <div class="signature-container">
-                  <app-signature-pad
-                    (signatureData)="onSignatureData($event)"
-                  ></app-signature-pad>
+              <div *ngIf="step1Completed && step2Completed; else avisoInvalido">
+                <div class="space-stepper1">
+                  <div class="fluxo-container">
+                    <!-- CARD 1 -->
+                    <div class="fluxo-card online">
+                      <div class="fluxo-header">🖥️ <h3>Atendimento Online</h3></div>
+                      <div class="fluxo-body">
+                        <p>
+                          Envie o termo diretamente para assinatura online via Autentique.
+                        </p>
+                      </div>
+                      <div class="fluxo-footer">
+                        <p-button
+                          label="Enviar Contrato"
+                          icon="pi pi-send"
+                          severity="warn"
+                          [raised]="true"
+                          [style]="{ padding: '2rem 4rem' }"
+                        ></p-button>
+                      </div>
+                    </div>
+
+                    <!-- CARD 2 -->
+                    <div class="fluxo-card presencial">
+                      <div class="fluxo-header">🤝 <h3>Atendimento Presencial</h3></div>
+                      <div class="fluxo-body">
+                        <p>
+                          Gere o termo para assinatura manual presencial.
+                        </p>
+                      </div>
+                      <div class="fluxo-footer">
+                        <p-button
+                          label="Assinatura Manual"
+                          icon="pi pi-file-edit"
+                          severity="success"
+                          [raised]="true"
+                          [style]="{ padding: '2rem 4rem' }"
+                          (onClick)="activateCallback(4)"
+                        ></p-button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="btn-to-actions">
+                  <p-button
+                    label="Voltar"
+                    severity="secondary"
+                    icon="pi pi-arrow-up"
+                    (onClick)="activateCallback(2)"
+                  />
+                  <p-button
+                    label="Próximo"
+                    icon="pi pi-arrow-down"
+                    iconPos="right"
+          
+                     (onClick)="goToStep(4)"
+                  />
                 </div>
               </div>
-              <div class="btn-to-actions">
-                <p-button
-                  label="Voltar"
-                  severity="secondary"
-                  icon="pi pi-arrow-up"
-                  (onClick)="activateCallback(2)"
-                />
-                <p-button
-                  label="Próximo"
-                  icon="pi pi-arrow-down"
-                  iconPos="right"
-                  (onClick)="activateCallback(4)"
-                />
-              </div>
             </ng-template>
           </p-step-panel>
         </p-step-item>
 
+        <!-- STEP 4 -->
         <p-step-item [value]="4">
           <p-step>• Visualização do Contrato </p-step>
           <p-step-panel>
             <ng-template #content let-activateCallback="activateCallback">
+              <div *ngIf="step1Completed && step2Completed; else avisoInvalido">
               <div class="flex flex-col h-48">
                 <div
                   class="border-2 border-dashed rounded flex-auto flex justify-center items-center"
@@ -574,10 +591,59 @@
                   (onClick)="submitContract()"
                 />
               </div>
+              </div>
             </ng-template>
           </p-step-panel>
         </p-step-item>
       </p-stepper>
+        </form>
     </div>
   </app-card-base>
+
+  <!-- MODAL -->
+  <p-dialog
+    header="Enviar Via WhatsApp ⚙️"
+    [(visible)]="modalVisible"
+    [modal]="true"
+    [closable]="true"
+    resizable="false"
+    [draggable]="false"
+    (onHide)="onHide()"
+  >
+    <div class="dialog-content">
+      <div class="icon-container">
+        <i class="pi pi-whatsapp whatsapp-icon"></i>
+      </div>
+      <div class="alert-box">
+        <div class="alert-icon-circle">!</div>
+        <p class="alert-text">
+          Após a assinatura do documento...
+        </p>
+      </div>
+      <p-inputgroup>
+        <p-inputgroup-addon>
+          <i class="pi pi-whatsapp"></i>
+        </p-inputgroup-addon>
+        <input
+          pInputText
+          id="telefone"
+          name="telefone"
+          placeholder="+55 (DDD) 00000-0000"
+          [(ngModel)]="phone"
+          required
+          mask="00000000000"
+        />
+      </p-inputgroup>
+    </div>
+    <ng-template pTemplate="footer">
+      <p-button label="Cancelar" icon="pi pi-times" severity="secondary" (onClick)="onHide()"></p-button>
+      <p-button
+        label="Enviar"
+        icon="pi pi-send"
+        severity="success"
+        [disabled]="!phone || phone.trim().length < 10"
+        (onClick)="sendToAutentiqueSubmit()"
+      ></p-button>
+    </ng-template>
+  </p-dialog>
 </div>
