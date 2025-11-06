@@ -9,7 +9,7 @@ import { AuthService } from './core/auth.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
   standalone: true,
-  imports: [RouterOutlet] // <-- ADICIONE ESTA LINHA
+  imports: [RouterOutlet] 
 })
 export class AppComponent implements OnInit {
   constructor(

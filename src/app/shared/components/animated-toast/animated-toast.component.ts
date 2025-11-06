@@ -166,5 +166,6 @@ export class AnimatedToastComponent implements AfterViewInit {
 
   close() {
     this.show = false;
+    this.closed.emit(); 
   }
 }
