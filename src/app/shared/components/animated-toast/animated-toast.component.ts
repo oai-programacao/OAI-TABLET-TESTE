@@ -1,11 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  Input,
-  AfterViewInit,
-  ElementRef,
-  ViewChild,
-} from '@angular/core';
+import { Component, Input, AfterViewInit, ElementRef, ViewChild, Output, EventEmitter } from '@angular/core';
 import player from 'lottie-web';
 
 @Component({
@@ -40,7 +34,7 @@ import player from 'lottie-web';
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        background: rgba(255, 255, 0, 0.9);
+        background: rgba(92, 212, 248, 0.9);
         border-radius: 5px;
         min-width: 400px;
         max-width: 600px;
@@ -50,6 +44,7 @@ import player from 'lottie-web';
         animation: slide-in 0.5s ease forwards;
         overflow: hidden;
         position: relative;
+        pointer-events: auto;
       }
 
       .lottie {
@@ -88,9 +83,9 @@ import player from 'lottie-web';
         bottom: 0;
         left: 0;
         height: 4px;
-        background: #ff5252;
+        background: #ffb547ff;
         width: 100%;
-        animation: life-bar 4s linear forwards;
+        animation: life-bar 15s linear forwards;
       }
 
       @keyframes life-bar {
@@ -135,6 +130,8 @@ export class AnimatedToastComponent implements AfterViewInit {
 
   @ViewChild('lottieContainer', { static: true })
   lottieContainer!: ElementRef<HTMLDivElement>;
+  @Output() closed = new EventEmitter<void>();
+  
 
   @Input()
   set message(value: string) {
@@ -162,13 +159,6 @@ export class AnimatedToastComponent implements AfterViewInit {
   }
 
   ngAfterViewInit() {
-    player.loadAnimation({
-      container: this.lottieContainer.nativeElement,
-      path: '/contrato.json',
-      renderer: 'svg',
-      loop: false,
-      autoplay: true,
-    });
   }
 
   hideAfter(ms: number) {
@@ -177,5 +167,6 @@ export class AnimatedToastComponent implements AfterViewInit {
 
   close() {
     this.show = false;
+    this.closed.emit(); 
   }
 }
