@@ -1,4 +1,10 @@
-import { Injectable, ApplicationRef, ComponentRef, createComponent, EnvironmentInjector } from '@angular/core';
+import {
+  Injectable,
+  ApplicationRef,
+  ComponentRef,
+  createComponent,
+  EnvironmentInjector,
+} from '@angular/core';
 import { AnimatedToastComponent } from '../../shared/components/animated-toast/animated-toast.component';
 
 @Injectable({ providedIn: 'root' })
@@ -41,9 +47,12 @@ export class ToastService {
 
   /** Cria e gerencia o ciclo de vida de um toast */
   private createToastComponent(message: string, animationPath?: string) {
-    const componentRef: ComponentRef<AnimatedToastComponent> = createComponent(AnimatedToastComponent, {
-      environmentInjector: this.environmentInjector,
-    });
+    const componentRef: ComponentRef<AnimatedToastComponent> = createComponent(
+      AnimatedToastComponent,
+      {
+        environmentInjector: this.environmentInjector,
+      }
+    );
 
     componentRef.instance.message = message;
 
@@ -59,10 +68,19 @@ export class ToastService {
     // Define duração do toast
     componentRef.instance.hideAfter(15000);
 
+    componentRef.instance.closed.subscribe(() => {
+      this.destroyToast(componentRef);
+    });
+
     // Remove o componente após o tempo
     setTimeout(() => {
       this.appRef.detachView(componentRef.hostView);
       componentRef.destroy();
     }, 15000);
+  }
+
+  private destroyToast(componentRef: ComponentRef<AnimatedToastComponent>) {
+    this.appRef.detachView(componentRef.hostView);
+    componentRef.destroy();
   }
 }

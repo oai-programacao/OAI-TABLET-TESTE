@@ -1,11 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  Input,
-  AfterViewInit,
-  ElementRef,
-  ViewChild,
-} from '@angular/core';
+import { Component, Input, AfterViewInit, ElementRef, ViewChild, Output, EventEmitter } from '@angular/core';
 import player from 'lottie-web';
 
 @Component({
@@ -135,6 +129,8 @@ export class AnimatedToastComponent implements AfterViewInit {
 
   @ViewChild('lottieContainer', { static: true })
   lottieContainer!: ElementRef<HTMLDivElement>;
+  @Output() closed = new EventEmitter<void>();
+  
 
   @Input()
   set message(value: string) {
