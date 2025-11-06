@@ -44,6 +44,7 @@ import player from 'lottie-web';
         animation: slide-in 0.5s ease forwards;
         overflow: hidden;
         position: relative;
+        pointer-events: auto;
       }
 
       .lottie {
