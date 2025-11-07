@@ -14,9 +14,8 @@ export class WebSocketService {
   constructor(
     private rxStompService: RxStompService,
     private ngZone: NgZone,
-    private toastService: ToastService,
-    private authService: AuthService
-  ) {  }
+    private toastService: ToastService
+  ) {}
 
   initWebSocket() {
     if (this.activated) return;
@@ -26,7 +25,7 @@ export class WebSocketService {
     if (!token) return;
 
     const payload = JSON.parse(atob(token.split('.')[1]));
-    this.email = payload.sub; 
+    this.email = payload.sub;
     this.rxStompService.configure({
       ...wsStompConfig,
       connectHeaders: {
@@ -37,24 +36,59 @@ export class WebSocketService {
     this.rxStompService.activate();
 
     this.rxStompService.connected$.subscribe(() => {
-      console.log('WS conectado para: ' + this.email);
+      console.log('🟢 WS conectado para: ' + this.email);
     });
 
     this.rxStompService.connectionState$.subscribe((state) => {
-      console.log('Estado da conexão: ', state);
+      console.log('🔁 Estado da conexão: ', state);
     });
 
     this.rxStompService
       .watch(`/user/${this.email}/topic/seller-notifications`)
       .subscribe((msg) => {
         this.ngZone.run(() => {
+          console.log('Mensagem completa:', msg);
+          console.log('Body:', msg.body);
+          
           const payload = JSON.parse(msg.body);
-          // Mostra no toast
-          this.toastService.show(
-            `O documento foi assinado com sucesso. ✔️<br>
-             Cliente: <b>${payload.data.clientName}</b><br>
-             CPF: <b>${this.formatCPF(payload.data.clientCpf)}</b>`
-          );
+          const event = payload.eventName;
+          const data = payload.data;
+
+          console.log('📨 Payload recebido:', payload);
+
+          switch (event) {
+            case 'DOCUMENT_SIGNED':
+              this.toastService.showWithAnimation(
+                `📄 O termo de consentimento foi assinado com sucesso!<br>
+             ✅ Um novo atendimento foi criado automaticamente para esta ação.<br>  
+             Cliente: <b>${data.clientName}</b><br>
+             CPF: <b>${this.formatCPF(data.clientCpf)}</b>`,
+                '/contrato.json'
+              );
+              break;
+
+            case 'BILL_PAID_ALTER_DATE':
+              this.toastService.showWithAnimation(
+                `💰 Pagamento compensado para <b>${data.clientName}</b>!
+                Referente ao contrato: <b>#${data.numberContractRbx}</b>
+                <br> O vencimento foi alterado com sucesso para <b>${data.newDate}</b>.`,
+                '/money.json'
+              );
+              break;
+
+            case 'ALTER_DATE_EXPIRED':
+              this.toastService.showWithAnimation(
+                `📆 Vencimento do contrato foi alterado.<br>
+             Cliente: <b>${data.clientName}</b>`,
+                '/calendario.json'
+              );
+              break;
+
+            default:
+              this.toastService.show(
+                `🔔 Notificação recebida: <b>${event}</b>`
+              );
+          }
         });
       });
   }

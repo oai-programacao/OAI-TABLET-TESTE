@@ -151,9 +151,6 @@ export class AlterDateExpiredComponent {
   selectedTypeOfPaymentMethod: string | null = null;
   typesOfPaymentMethod = [
     { descricao: 'Boleto Bancário', value: 'Boleto' },
-    { descricao: 'Débito Automático', value: 'CartaoDebito' },
-    { descricao: 'Cartão de Crédito', value: 'CartaoCredito' },
-    { descricao: 'Pix', value: 'Pix' },
   ];
 
   typesOfDateExpirationCicle = [
@@ -206,8 +203,10 @@ export class AlterDateExpiredComponent {
       0
     ).getDate();
 
+    // Valor diário proporcional
     const dailyPrice = contractLiquidPrice / daysInMonth;
 
+    // Calcula diferença de dias
     let daysDifference = newBillingDay - currentDay;
     if (daysDifference < 0) {
       daysDifference += daysInMonth; // Usa o total real de dias do mês
