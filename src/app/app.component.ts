@@ -38,7 +38,7 @@ export class AppComponent implements OnInit {
     const isAuth = this.authService.isAuthenticated();
     const currentUrl = this.router.url;
 
-    if (isAuth && (currentUrl === '/login' || currentUrl === '' || currentUrl === '/')) {
+    if (isAuth && (currentUrl === '/login')) {
       this.router.navigate(['/search']).catch(err => console.error('[router.navigate]', err));
       return;
     }

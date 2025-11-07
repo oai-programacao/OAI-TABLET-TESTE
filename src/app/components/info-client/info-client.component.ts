@@ -90,15 +90,15 @@ export class InfoClientComponent implements OnInit {
           },
         ],
       },
-      // {
-      //   label: 'Extras',
-      //   items: [
-      //     {
-      //       label: 'Settings',
-      //       icon: 'pi pi-cog',
-      //     },
-      //   ],
-      // },
+      {
+        label: 'Suporte',
+        items: [
+          {
+            label: 'Abrir Ticket',
+            icon: 'pi pi-flag',
+          },
+        ],
+      },
     ];
   }
 
