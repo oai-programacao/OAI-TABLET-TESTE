@@ -469,3 +469,150 @@
   height: auto;
   flex-wrap: wrap;
 }
+
+// --- STEP 4: VISUALIZAÇÃO DO CONTRATO ---
+.btn-ctr{
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+// Container principal do PDF
+.pdf-preview-section {
+  margin-bottom: 1rem;
+}
+
+// Viewer do PDF
+.pdf-viewer {
+  margin-top: 0.5rem;
+  
+  iframe {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+}
+
+// Botões de assinatura
+.btn-signature {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  justify-content: start;
+  flex-wrap: wrap;
+}
+
+// Seção da câmera
+.camera-section {
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+// Mensagem de erro no preview
+.p-text-danger {
+  color: #e24c4c;
+  
+  i {
+    margin-right: 0.25rem;
+  }
+  
+  p {
+    margin: 0.5rem 0;
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .btn-signature {
+    flex-direction: column;
+    align-items: stretch;
+    
+    :host ::ng-deep .p-button {
+      width: 100%;
+    }
+  }
+  
+  .pdf-viewer iframe {
+    height: 400px;
+  }
+}
+
+// --- OVERLAY DE LOADING ---
+:host ::ng-deep .loading-overlay {
+  // Posição
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  // Aparência
+  background-color: rgba(255, 255, 255, 0.7);
+  z-index: 9999;
+  // Alinhamento
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  // Animação
+  animation: fadeIn 0.3s ease-out;
+}
+
+:host ::ng-deep .loading-overlay .p-progressspinner {
+  z-index: 10000;
+}
+
+:host ::ng-deep .loading-overlay .loading-text {
+  color: #2d11c9; // <-- Cor do texto
+  margin-top: 1rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  z-index: 10000;
+}
+
+// --- ASSINATURA ---
+.signature-pad-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  max-width: 60rem;
+  width: 100%;
+  height: auto;
+}
+
+.signature-input {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+
+  label {
+    width: 100%;
+    text-align: start;
+  }
+}
+.btn-to-capture {
+  padding: 1rem 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1rem;
+}
+
+.btn-to-signature {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  width: 50%;
+  gap: 1rem;
+}
+
+.btn-to-generate-contract {
+  display: flex;
+  align-items: center;
+  width: 50%;
+  gap: 1rem;
+}

@@ -15,5 +15,8 @@ export class SalesService{
 
     createSale(payload: any): Observable<any> {
         return this.http.post<any>(`${this.urlApi}/sales/newsale`, payload);
-}
+} 
+
+
+
 }

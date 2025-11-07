@@ -537,7 +537,7 @@
                           severity="success"
                           [raised]="true"
                           [style]="{ padding: '2rem 4rem' }"
-                          (onClick)="activateCallback(4)"
+                          (onClick)="goToStep(4)"
                         ></p-button>
                       </div>
                     </div>
@@ -551,54 +551,237 @@
                     icon="pi pi-arrow-up"
                     (onClick)="activateCallback(2)"
                   />
-                  <p-button
-                    label="Próximo"
-                    icon="pi pi-arrow-down"
-                    iconPos="right"
-          
-                     (onClick)="goToStep(4)"
-                  />
                 </div>
               </div>
             </ng-template>
           </p-step-panel>
         </p-step-item>
 
-        <!-- STEP 4 -->
-        <p-step-item [value]="4">
-          <p-step>• Visualização do Contrato </p-step>
-          <p-step-panel>
-            <ng-template #content let-activateCallback="activateCallback">
-              <div *ngIf="step1Completed && step2Completed; else avisoInvalido">
-              <div class="flex flex-col h-48">
-                <div
-                  class="border-2 border-dashed rounded flex-auto flex justify-center items-center"
-                >
-                  Conteúdo: Visualização do Contrato
-                </div>
-              </div>
-              <div class="py-6 flex justify-start">
-                <p-button
-                  label="Voltar"
-                  severity="secondary"
-                  icon="pi pi-arrow-left"
-                  (onClick)="activateCallback(3)"
-                />
-                <p-button
-                  label="Finalizar Contrato"
-                  severity="success"
-                  icon="pi pi-check"
-                  (onClick)="submitContract()"
-                />
-              </div>
-              </div>
-            </ng-template>
-          </p-step-panel>
-        </p-step-item>
+  
+       
+       <!-- STEP 4: Visualização do Contrato -->
+<p-step-item [value]="4">
+  <p-step>• Visualização do Contrato</p-step>
+  <p-step-panel>
+    <ng-template #content let-activateCallback="activateCallback">
+
+      <div *ngIf="isLoadingPreview" class="loading-overlay">
+    <p-progressSpinner
+        styleClass="w-6rem h-6rem"
+        strokeWidth="6"
+        animationDuration=".5s"
+    ></p-progressSpinner>
+    <span class="loading-text">
+        Aguarde enquanto o PDF é gerado...
+    </span>
+</div>
+      <!-- Validação: só mostra se steps anteriores completados -->
+      <div *ngIf="step1Completed && step2Completed; else avisoInvalido">
+
+        <!-- Erro ao carregar -->
+        <div *ngIf="previewLoadFailed && !isLoadingPreview" 
+             class="p-mt-2 text-center p-text-danger">
+          <p>
+            <i class="pi pi-exclamation-triangle p-mr-1"></i>
+            Falha ao carregar o preview do contrato.
+          </p>
+          <p-button
+            label="Tentar Novamente"
+            icon="pi pi-refresh"
+            severity="danger"
+            [outlined]="true"
+            size="small"
+            (click)="loadPdfPreview()">
+          </p-button>
+        </div>
+
+        <!-- Visualizador PDF -->
+        <div  class="pdf-preview-section">
+          <!-- Alternância entre os contratos -->
+  <div class="btn-ctr">
+    <p-button 
+      label="Contrato de Adesão"
+      [outlined]="activeContractType !== 'adesion'"
+      severity="info"
+      size="small"
+      raised="true"
+      (click)="setActiveContract('adesion')">
+    </p-button>
+
+    <p-button 
+      label="Contrato de Permanência"
+      [outlined]="activeContractType !== 'permanence'"
+      severity="info"
+      size="small"
+      raised="true"
+       (click)="setActiveContract('permanence')">
+    </p-button>
+  </div>
+          <!-- PDF Viewer -->
+  <div class="pdf-viewer p-mt-2">
+    <iframe
+      [src]="activeContractType === 'adesion' ? safePdfAdesionUrl : safePdfPermanentUrl"
+      width="100%"
+      height="600px"
+      title="Visualização do Contrato">
+    </iframe>
+
+          <!-- Botões de Ação -->
+          <div class="btn-signature">
+            <p-button
+              label="Assinar"
+              icon="pi pi-pencil"
+              severity="info"
+              [rounded]="true"
+              [raised]="true"
+              size="small"
+              (click)="abrirAssinatura()">
+            </p-button>
+            
+            <p-button
+              label="Capturar Foto"
+              icon="pi pi-camera"
+              severity="info"
+              [rounded]="true"
+              [raised]="true"
+              size="small"
+              (click)="cameraInput.click()">
+            </p-button>
+            
+            <p-button
+              label="Salvar PDF"
+              icon="pi pi-download"
+              severity="success"
+              [rounded]="true"
+              [raised]="true"
+              size="small"
+              [disabled]="!capturedSignature"
+              (click)="savePdf()">
+            </p-button>
+          </div>
+        </div>
+        </div>
+
+        <!-- Input Hidden para Câmera -->
+        <div class="camera-section">
+          <input
+            type="file"
+            accept="image/*"
+            capture="environment"
+            (change)="onFotoCapturada($event)"
+            style="display: none"
+            #cameraInput />
+        </div>
+
+        <!-- Botões de Navegação -->
+        <div class="py-6">
+          <p-button
+            label="Voltar"
+            icon="pi pi-arrow-left"
+            severity="secondary"
+            (onClick)="activateCallback(3)">
+          </p-button>
+          
+          <p-button
+            label="Finalizar Contrato"
+            icon="pi pi-check"
+            severity="success"
+            [disabled]="!capturedSignatureAdesion || !capturedSignaturePermanence"
+            (onClick)="submitContract()">
+          </p-button>
+        </div>
+      </div>
+
+      <!-- Aviso de steps incompletos -->
+      <ng-template #avisoInvalido>
+        <div class="alert-warning">
+          <i class="pi pi-exclamation-triangle"></i>
+          <span>Complete os passos anteriores para visualizar o contrato.</span>
+        </div>
+      </ng-template>
+
+    </ng-template>
+  </p-step-panel>
+</p-step-item>
       </p-stepper>
         </form>
     </div>
   </app-card-base>
+
+  <p-dialog
+    header="Confirmar Foto Capturada"
+    [(visible)]="isPreviewDialogVisible"
+    [modal]="true"
+    [style]="{ width: '90vw', 'max-width': '600px' }"
+    (onHide)="limparPreview()"
+  >
+    <div *ngIf="thumbnailPreview" class="text-center">
+      <img
+        [src]="thumbnailPreview"
+        alt="Preview da foto capturada"
+        style="
+          width: 100%;
+          height: auto;
+          max-height: 60vh;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          margin-bottom: 1rem;
+        "
+      />
+    </div>
+
+    <ng-template pTemplate="footer">
+      <p-button
+        label="Descartar"
+        icon="pi pi-times"
+        (click)="limparPreview()"
+        styleClass="p-button-danger p-button-text"
+      ></p-button>
+
+      <p-button
+        label="Salvar Foto"
+        icon="pi pi-save"
+       (click)="salvarFotoCapturada()"
+        styleClass="p-button-success"
+        [disabled]="!fotoCapturadaFile"
+      ></p-button>
+    </ng-template>
+  </p-dialog>
+
+  <p-dialog
+    header="Assinatura Online 🖋️"
+    [(visible)]="signDialogVisible"
+     (onShow)="forceSignatureRedraw()"
+    
+  >
+    <div class="signature-pad-container">
+      <div class="signature-input">
+        <p-iftalabel>
+          <label for="signature">Assinatura Online (Opcional):</label>
+          <ng-container *ngIf="signatureVisibleFlag">
+            <app-signature-pad #signaturePadInDialog> </app-signature-pad>
+          </ng-container>
+        </p-iftalabel>
+      </div>
+    </div>
+
+    <p-divider layout="horizontal" styleClass="p-my-3"></p-divider>
+
+    <div class="btn-to-capture">
+      <div class="btn-to-generate-contract">
+        <p-button
+          label="Gerar Termo Final com Assinatura"
+          icon="pi pi-file-pdf"
+          [outlined]="true"
+          size="large"
+          severity="info"
+          variant="outlined"
+          [loading]="isLoadingPreview"
+          (onClick)="captureAndGenerate()"
+        ></p-button>
+      </div>
+    </div>
+  </p-dialog>
 
   <!-- MODAL -->
   <p-dialog
