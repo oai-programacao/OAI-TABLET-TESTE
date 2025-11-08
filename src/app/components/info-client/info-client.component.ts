@@ -88,14 +88,20 @@ export class InfoClientComponent implements OnInit {
             icon: 'pi pi-paperclip',
             command: () => this.navigateToAttendances()
           },
+          {
+            label: 'Central do Assinante',
+            icon: 'pi pi-paperclip',
+            command: () => this.navigateToAttendances()
+          },
         ],
       },
       {
-        label: 'Suporte',
+        label: 'Outros',
         items: [
           {
             label: 'Abrir Ticket',
             icon: 'pi pi-flag',
+            command: () => this.navigateToOpenTicket()
           },
         ],
       },
@@ -129,6 +135,10 @@ export class InfoClientComponent implements OnInit {
 
   navigateToAttendances() {
     this.router.navigate([`/attendances/${this.cliente.id}`]);
+  }
+  
+  navigateToOpenTicket() {
+    this.router.navigate([`/ticket-callcenter/${this.cliente.id}`]);
   }
 
   toggleEditing() {

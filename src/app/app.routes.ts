@@ -1,3 +1,4 @@
+import { TicketCallcenterComponent } from './components/ticket-callcenter/ticket-callcenter.component';
 import { UploadPicturesComponent } from './components/upload-pictures/upload-pictures.component';
 import { Routes } from '@angular/router';
 import { AuthGuard } from './core/auth.guard';
@@ -132,6 +133,15 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./components/sales-panel/sales-panel.component').then(
         (m) => m.ConcludeSaleComponent
+      ),
+    canActivate: [AuthGuard],
+    
+  },
+  {
+    path: 'ticket-callcenter/:clientId',
+    loadComponent: () =>
+      import('./components/ticket-callcenter/ticket-callcenter.component').then(
+        (m) => m.TicketCallcenterComponent
       ),
     canActivate: [AuthGuard],
   },

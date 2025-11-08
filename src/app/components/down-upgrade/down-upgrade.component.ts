@@ -35,7 +35,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ReportsService } from '../../services/reports/reports.service';
 import { MidiaService } from '../../services/midia/midia.service';
 import { IftaLabelModule } from "primeng/iftalabel";
-import { AttendancesService } from '../../services/attendances/attendances.service';
+import { AttendancesService } from '../../services/attendances/attendance.service';
 
 export interface ContractUpdate {
   seller: string;
@@ -278,7 +278,7 @@ export class DownUpgradeComponent implements OnInit {
     formData.append('data', jsonBlob, 'data.json');
     formData.append('arquivo', pdfBlob, 'termo_transferencia_assinado.pdf');
 
-    this.attendancesService.registerAttendance(formData).subscribe({
+    this.attendancesService.registerAttendanceDropDownUpgrade(formData).subscribe({
       next: (response) => {
         console.log("Atendimento registrado com sucesso:", response);
         this.showInfo("Registro de Atendimento", "Atendimento registrado com sucesso no sistema.");
