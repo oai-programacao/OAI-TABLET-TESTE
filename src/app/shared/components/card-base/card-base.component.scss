@@ -14,7 +14,7 @@
 
 .header-title {
   font-size: 1.4rem;
-  font-weight: 1000; 
+  font-weight: 1000;
   text-align: center;
 }
 
@@ -45,7 +45,99 @@
 }
 
 .cardbase ::ng-deep .p-card {
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5); 
-  border-radius: 1rem; 
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+  border-radius: 1rem;
   border: 1px solid rgb(89, 87, 87);
+}
+
+.notification-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: right;
+  background: transparent;
+  cursor: pointer;
+  user-select: none;
+  margin-right: 2rem;
+}
+
+.bell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  line-height: 1;
+  transition: transform 0.2s ease, text-shadow 0.3s ease;
+  text-shadow: 0 0 10px rgba(252, 201, 0, 0.6);
+  transform-origin: top center; /* faz o sino balançar como um sino real */
+
+  &:hover {
+    transform: scale(1.15) rotate(-5deg);
+    text-shadow: 0 0 15px rgba(255, 230, 0, 0.9);
+  }
+
+  .badge {
+    position: absolute;
+    top: -8px;
+    right: -12px;
+    background-color: #ff4d4d;
+    color: white;
+    font-size: 0.9rem;
+    font-weight: bold;
+    border-radius: 50%;
+    padding: 0.3rem 0.5rem;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+    animation: pulse 1.5s infinite;
+  }
+
+  /* 👇 só toca o sino se tiver notificações */
+  &.ringing {
+    animation: ring 1.8s cubic-bezier(0.36, 0.07, 0.19, 0.97) infinite;
+  }
+}
+
+/* ✨ Animação do badge */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* 🔔 animação do sino */
+@keyframes ring {
+  0% {
+    transform: rotate(0);
+  }
+  10% {
+    transform: rotate(15deg);
+  }
+  20% {
+    transform: rotate(-15deg);
+  }
+  30% {
+    transform: rotate(10deg);
+  }
+  40% {
+    transform: rotate(-10deg);
+  }
+  50% {
+    transform: rotate(5deg);
+  }
+  60% {
+    transform: rotate(-5deg);
+  }
+  70%,
+  100% {
+    transform: rotate(0);
+  }
 }
