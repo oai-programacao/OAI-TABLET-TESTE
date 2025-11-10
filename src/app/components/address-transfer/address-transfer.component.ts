@@ -47,7 +47,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
-import { AttendancesService } from '../../services/attendances/attendances.service';
+import { AttendancesService } from '../../services/attendances/attendance.service';
 
 export interface AddressForm {
   zipCode: string | null;
@@ -415,12 +415,12 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     formData.append('data', jsonBlob, 'data.json');
     formData.append('arquivo', pdfBlob, 'termo_transferencia_assinado.pdf');
 
-    this.attendancesService.registerAttendance(formData).subscribe({
-      next: (response) => {
+    this.attendancesService.registerAttendanceDropDownUpgrade(formData).subscribe({
+      next: (response:  any) => {
         console.log("Atendimento registrado com sucesso:", response);
         this.showInfo("Registro de Atendimento", "Atendimento registrado com sucesso no sistema.");
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error("Falha ao registrar atendimento:", err);
         this.showWarning("Aviso", "A transferência foi concluída, mas houve um erro ao registrar o atendimento no histórico.");
       }

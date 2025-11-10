@@ -16,7 +16,6 @@ export class AuthGuard implements CanActivate {
       return of(false);
     }
 
-    // Se autenticado e tentando acessar /login, manda pro search
     if (isAuth && state.url === '/login') {
       this.router.navigate(['/search']);
       return of(false);

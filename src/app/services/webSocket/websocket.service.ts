@@ -47,9 +47,6 @@ export class WebSocketService {
       .watch(`/user/${this.email}/topic/seller-notifications`)
       .subscribe((msg) => {
         this.ngZone.run(() => {
-          console.log('Mensagem completa:', msg);
-          console.log('Body:', msg.body);
-          
           const payload = JSON.parse(msg.body);
           const event = payload.eventName;
           const data = payload.data;

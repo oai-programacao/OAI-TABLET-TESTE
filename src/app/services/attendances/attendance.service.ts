@@ -28,8 +28,25 @@ export class AttendancesService {
   }
 
   getAttendanceDetails(attendanceId: string) {
-    return this.http.get<Attendance>(
-      `${this.baseUrl}/${attendanceId}/details`
+    return this.http.get<Attendance>(`${this.baseUrl}/${attendanceId}/details`);
+  }
+
+  registerAttendanceDropDownUpgrade(payload: FormData): Observable<any> {
+    return this.http.post<any>(
+      `${this.baseUrl}/attendances/register_attendance`,
+      payload,
+      { responseType: 'text' as 'json' }
     );
   }
+
+  createAttendance(any: any): Observable<string> {
+    return this.http.post<string>(
+      `${this.baseUrl}/create-attendance`,
+      any,
+      { responseType: 'text' as 'json' }
+    );
+  }
+
+
+
 }

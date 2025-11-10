@@ -1,0 +1,12 @@
+<div class="page-container">
+    <app-card-base width="auto" height="auto" header="Notificações">
+      <div class="notification-content">
+        <h2>Notificações Recentes</h2>
+        <ul>
+          <li *ngFor="let notification of notifications">
+            {{ notification.message }} - <em>{{ notification.date }}</em>
+          </li>
+        </ul>
+      </div>
+    </app-card-base>
+</div>

@@ -30,4 +30,12 @@ export class CardBaseComponent {
   @Input() width: string = '';
   @Input() height: string = '';
   @Input() overflow: string = '';
+
+  temNotificacao = true;
+  qtdNotificacoes = 3;
+
+  onNovaNotificacao(qtd: number) {
+    this.qtdNotificacoes = qtd;
+    this.temNotificacao = qtd > 0;
+  }
 }
