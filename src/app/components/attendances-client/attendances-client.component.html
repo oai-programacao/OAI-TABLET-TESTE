@@ -168,7 +168,11 @@
               <td>
                 <div class="cell-content">
                   <span>{{
-                    att.flow === "26" ? "26 • Mudança de DV" : att.flow
+                    att.flow === "26"
+                      ? "26 • Mudança de DV"
+                      : att.flow
+                      ? "37 • Venda"
+                      : att.flow
                   }}</span>
                 </div>
               </td>
@@ -182,8 +186,6 @@
                         ? "78 • Upgrade"
                         : att.topic === "88"
                         ? "88 • Downgrade"
-                        : att.topic
-                        ? "37 • Venda"
                         : att.topic
                     }}
                   </span>
