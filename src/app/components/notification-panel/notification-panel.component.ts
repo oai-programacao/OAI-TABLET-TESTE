@@ -1,17 +1,22 @@
 import { Component } from '@angular/core';
-import { CardBaseComponent } from '../../shared/components/card-base/card-base.component';
 import { CommonModule } from '@angular/common';
+import { DialogModule } from 'primeng/dialog';
 
 @Component({
   selector: 'app-notification-panel',
-  imports: [CardBaseComponent, CommonModule],
+  standalone: true,
+  imports: [CommonModule, DialogModule],
   templateUrl: './notification-panel.component.html',
-  styleUrl: './notification-panel.component.scss'
+  styleUrl: './notification-panel.component.scss',
 })
 export class NotificationPanelComponent {
-  notifications = [
-    { message: 'Sua fatura de novembro fechou.', date: 'Hoje' },
-    { message: 'Uma nova atualização de segurança foi aplicada.', date: 'Ontem' },
-    { message: 'Manutenção programada para 12/11.', date: '08/11/2025' }
+  visivel = false;
+
+  notificacoes = [
+    { titulo: 'Pedido confirmado', mensagem: 'Seu pedido #123 foi confirmado.' },
+    { titulo: 'Novo cliente', mensagem: 'Um novo cliente se cadastrou.' },
   ];
+
+  abrir() { this.visivel = true; }
+  fechar() { this.visivel = false; }
 }

@@ -146,12 +146,4 @@ export const routes: Routes = [
       ),
     canActivate: [AuthGuard],
   },
-  {
-    path: 'notification-panel/:sellerId',
-    loadComponent: () =>
-      import('./components/notification-panel/notification-panel.component').then(
-        (m) => m.NotificationPanelComponent
-      ),
-    canActivate: [AuthGuard],
-  },
 ];

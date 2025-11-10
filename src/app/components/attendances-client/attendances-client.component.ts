@@ -41,6 +41,7 @@ export class AttendancesClientComponent implements OnInit {
   displayDialog = false;
 
   totalElements = 0;
+  selectedStatus: string | null = null;
 
   selectedAttendance: Attendance = {
     id: '',
@@ -58,20 +59,28 @@ export class AttendancesClientComponent implements OnInit {
     topic: '',
     subject: '',
     codeAttendanceRbx: 0,
-    medias: [], // array vazio garante que não será undefined
+    medias: [],
   };
+
+  statusOptions = [
+    { label: 'TODOS', value: null },
+    { label: 'ABERTO', value: 'OPEN' },
+    { label: 'CANCELADO', value: 'CANCELLED' },
+    { label: 'FINALIZADO', value: 'COMPLETED' },
+  ];
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('clientId');
     if (id) {
       this.clientId = id;
-      this.loadAttendances(0, 5);
+      this.loadAttendances(0, 5, this.selectedStatus);
     }
   }
 
-  loadAttendances(page = 0, size = 5) {
+  // Método unificado para carregar atendimentos com paginação e filtro
+  loadAttendances(page = 0, size = 5, status: string | null = null) {
     this.attendancesService
-      .getAttendances(this.clientId, page, size)
+      .getFilteredAttendances(this.clientId, status, page, size)
       .subscribe({
         next: (res) => {
           this.attendances = res.content;
@@ -92,40 +101,38 @@ export class AttendancesClientComponent implements OnInit {
       });
   }
 
+  // Paginação da tabela respeitando o filtro atual
   onPageChange(event: any) {
     const page = event.first / event.rows;
     const size = event.rows;
-    this.loadAttendances(page, size);
+    this.loadAttendances(page, size, this.selectedStatus);
   }
 
-  backToClient() {
-    this.router.navigate(['info', this.clientId]);
+  applyFilters(): void {
+    // Sempre carrega a primeira página com o filtro selecionado
+    this.loadAttendances(0, 5, this.selectedStatus);
   }
 
-  backToHome() {
-    this.router.navigate(['home']);
+  clearFilters(): void {
+    this.selectedStatus = null;
+    this.loadAttendances(0, 5, null);
   }
 
   verDetalhes(att: Attendance) {
-    // Chamar API para pegar detalhes completos, incluindo mídias
     this.attendancesService.getAttendanceDetails(att.id).subscribe({
       next: (res) => {
-        console.log('Detalhes do atendimento:', res.medias);
         this.selectedAttendance = res;
-
         if (!this.selectedAttendance.medias) {
           this.selectedAttendance.medias = [];
         }
-
         this.displayDialog = true;
       },
-      error: (err) => {
-        console.error('Erro ao carregar detalhes do atendimento', err);
-      },
+      error: (err) =>
+        console.error('Erro ao carregar detalhes do atendimento', err),
     });
   }
 
-  // Variáveis para o dialog do PDF
+  // Dialog PDF
   pdfDialogVisible = false;
   pdfUrl: string | null = null;
 
@@ -137,20 +144,11 @@ export class AttendancesClientComponent implements OnInit {
     this.pdfDialogVisible = true;
   }
 
-
-  selectedStatus: string | null = null;
-  statusOptions = [
-    { label: 'TODOS', value: null },
-    { label: 'ABERTO', value: 'active' },
-    { label: 'CANCELADO', value: 'inactive' },
-    { label: 'PENDENTE', value: 'pending' }
-  ];
-
-  clearFilters(): void {
-    this.selectedStatus = null;
+  backToClient() {
+    this.router.navigate(['info', this.clientId]);
   }
 
-  applyFilters(): void {
-    console.log('Status selecionado:', this.selectedStatus);
+  backToHome() {
+    this.router.navigate(['home']);
   }
 }
