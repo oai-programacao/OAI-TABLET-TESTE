@@ -1,3 +1,4 @@
+import { NotificationPanelComponent } from './components/notification-panel/notification-panel.component';
 import { TicketCallcenterComponent } from './components/ticket-callcenter/ticket-callcenter.component';
 import { UploadPicturesComponent } from './components/upload-pictures/upload-pictures.component';
 import { Routes } from '@angular/router';
@@ -142,6 +143,14 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./components/ticket-callcenter/ticket-callcenter.component').then(
         (m) => m.TicketCallcenterComponent
+      ),
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'notification-panel/:sellerId',
+    loadComponent: () =>
+      import('./components/notification-panel/notification-panel.component').then(
+        (m) => m.NotificationPanelComponent
       ),
     canActivate: [AuthGuard],
   },

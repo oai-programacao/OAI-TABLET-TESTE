@@ -1,10 +1,3 @@
-<div class="notification-container">
-  <div class="bell" [class.ringing]="temNotificacao">
-    🔔
-    <span *ngIf="temNotificacao" class="badge">{{ qtdNotificacoes }}</span>
-  </div>
-</div>
-
 <div class="cardbase">
   <p-card [style]="{ width: width, overflow: 'hidden', height: height }">
     <ng-template pTemplate="header">
@@ -13,6 +6,14 @@
           <span class="dot red"></span> <span class="dot yellow"></span>
           <span class="dot green"></span>
         </div>
+        <div class="notification-container">
+            <div class="bell" [class.ringing]="temNotificacao">
+              🔔
+              <span *ngIf="temNotificacao" class="badge">{{
+                qtdNotificacoes
+              }}</span>
+            </div>
+          </div>
         <div class="header-title">{{ header }}</div>
       </div>
     </ng-template>
