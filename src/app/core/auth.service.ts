@@ -10,7 +10,7 @@ import { jwtDecode } from 'jwt-decode';
 
 
 export interface AuthenticatedUser {
-  id: number | null;
+  id: string | null;
   name?: string;
   roles: string[];
   email?: string;
@@ -221,7 +221,7 @@ export class AuthService {
     return user?.roles || [];
   }
 
-  getSellerId(): number | null {
+  getSellerId(): string | null {
     const user = this.getUserFromToken();
     return user?.id || null;
   }

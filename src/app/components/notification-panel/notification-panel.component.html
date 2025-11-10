@@ -1,13 +1,25 @@
-<div class="page-container">
-    <app-card-base width="auto" height="auto" header="Notificações">
-      <div class="notification-content">
-        <h2>Notificações Recentes</h2>
-        <ul>
-          <li *ngFor="let notification of notifications">
-            {{ notification.message }} - <em>{{ notification.date }}</em>
-          </li>
-        </ul>
+<p-dialog
+  header="Notificações 🔔"
+  [(visible)]="visivel"
+  [modal]="true"
+  [style]="{ width: '400px' }"
+  [draggable]="false"
+  [resizable]="false"
+  (onHide)="fechar()"
+>
+  <ng-template pTemplate="content">
+    <div *ngIf="notificacoes.length > 0; else semNotificacoes">
+      <div *ngFor="let n of notificacoes" class="notificacao-item">
+        <h4>{{ n.titulo }}</h4>
+        <p>{{ n.mensagem }}</p>
+        <hr />
       </div>
+    </div>
 
-    </app-card-base>
-</div>
+    <ng-template #semNotificacoes>
+      <p style="text-align: center; padding: 1rem; color: gray">
+        Nenhuma notificação no momento.
+      </p>
+    </ng-template>
+  </ng-template>
+</p-dialog>
