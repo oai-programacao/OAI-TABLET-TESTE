@@ -40,13 +40,21 @@ export class AttendancesService {
   }
 
   createAttendance(any: any): Observable<string> {
-    return this.http.post<string>(
-      `${this.baseUrl}/create-attendance`,
-      any,
-      { responseType: 'text' as 'json' }
-    );
+    return this.http.post<string>(`${this.baseUrl}/create-attendance`, any, {
+      responseType: 'text' as 'json',
+    });
   }
 
-
-
+  getFilteredAttendances(
+    clientId: string,
+    status: string | null,
+    page = 0,
+    size = 5
+  ) {
+    let params = `?page=${page}&size=${size}`;
+    if (status) params += `&status=${status}`;
+    return this.http.get<PaginationDTO<Attendance>>(
+      `${environment.apiUrl}/attendances/${clientId}/filter${params}`
+    );
+  }
 }
