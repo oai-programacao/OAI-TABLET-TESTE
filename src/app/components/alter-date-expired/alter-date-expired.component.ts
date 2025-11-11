@@ -141,10 +141,6 @@ export class AlterDateExpiredComponent {
     return this.contract?.dateStart ? new Date(this.contract.dateStart) : null;
   }
 
-  //Calcular a diferença de dias e valores.
-  //==============================//
-  today: Date = new Date();
-
   selectedBillingCycle: number | null = null;
   proportionalBoleto: number | null = null;
 
@@ -188,10 +184,14 @@ export class AlterDateExpiredComponent {
     { descricao: '31 a 30 / 31', value: 31 },
   ];
 
+
+  
+  today: Date = new Date();
   // Cálculo proporcional do boleto
   calculateProportionalBoleto(
     contractLiquidPrice: number,
-    newBillingDay: number
+    newBillingDay: number,
+    oldBillingDay: number
   ): number {
     const today = new Date();
     const currentDay = today.getDate();
@@ -207,7 +207,7 @@ export class AlterDateExpiredComponent {
     const dailyPrice = contractLiquidPrice / daysInMonth;
 
     // Calcula diferença de dias
-    let daysDifference = newBillingDay - currentDay;
+    let daysDifference = newBillingDay - oldBillingDay;
     if (daysDifference < 0) {
       daysDifference += daysInMonth; // Usa o total real de dias do mês
     }
@@ -219,7 +219,8 @@ export class AlterDateExpiredComponent {
     if (this.selectedBillingCycle && this.contract) {
       this.proportionalBoleto = this.calculateProportionalBoleto(
         this.contract.liquidPrice!,
-        this.selectedBillingCycle
+        this.selectedBillingCycle,
+        this.contract.cicleBillingExpired!
       );
     } else {
       this.proportionalBoleto = null;
