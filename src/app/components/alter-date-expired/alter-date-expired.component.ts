@@ -193,15 +193,7 @@ export class AlterDateExpiredComponent {
     newBillingDay: number,
     oldBillingDay: number
   ): number {
-    const today = new Date();
-    const currentDay = today.getDate();
-
-    // Número de dias reais do mês atual
-    const daysInMonth = new Date(
-      today.getFullYear(),
-      today.getMonth() + 1,
-      0
-    ).getDate();
+    const daysInMonth = 30;
 
     // Valor diário proporcional
     const dailyPrice = contractLiquidPrice / daysInMonth;
@@ -211,6 +203,9 @@ export class AlterDateExpiredComponent {
     if (daysDifference < 0) {
       daysDifference += daysInMonth; // Usa o total real de dias do mês
     }
+
+    daysDifference += 1;
+    
     return Number((dailyPrice * daysDifference).toFixed(2));
   }
 
