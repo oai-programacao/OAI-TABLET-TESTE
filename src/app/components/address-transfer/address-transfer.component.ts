@@ -47,6 +47,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
+import { firstValueFrom, Observable } from 'rxjs';
 import { AttendancesService } from '../../services/attendances/attendance.service';
 
 export interface AddressForm {
@@ -90,8 +91,9 @@ export interface AddressForm {
     DropdownModule,
     SelectModule,
     TooltipModule,
+
   ],
-  providers: [MessageService],
+  providers: [MessageService, AttendancesService],
   templateUrl: './address-transfer.component.html',
   styleUrls: ['./address-transfer.component.scss'],
 })
@@ -123,10 +125,12 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   private readonly actionsContractsService = inject(ActionsContractsService);
   private readonly reportsService = inject(ReportsService);
   private readonly midiaService = inject(MidiaService);
+  private readonly attendancesService = inject(AttendancesService);
   public pdfPreviewUrl: string | null = null;
+  public pdfBlobFinal: Blob | null = null;
+
 
   safePdfPreviewUrl: SafeResourceUrl | null = null;
-  pdfBlobFinal: Blob | null = null;
   isLoadingPreview = false;
   previewLoadFailed = false;
 
@@ -146,6 +150,17 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
 
   public isEditingAddress = false;
   private originalAddressForm: AddressForm | null = null;
+
+  
+  public loadingMessage: string | null = null;
+
+  private showWarning(summary: string, detail: string, life?: number): void {
+    this.messageService.add({ severity: 'warn', summary, detail, life });
+  }
+
+  private showInfo(summary: string, detail: string, life: number = 3000) {
+    this.messageService.add({ severity: 'info', summary, detail, life });
+  }
 
   public addressNewForm: AddressForm = {
     zipCode: null,
@@ -180,6 +195,8 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       }
     }
   }
+
+  event: string = "update_address";
 
   ngOnInit(): void {
     if (!this.currentContract) {
@@ -386,45 +403,6 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   meuMetodoExtra(): void {
     this.formIsValid = true;
     this.avisoInvalido = false;
-  }
-
-  private attendancesService = inject(AttendancesService);
-  fluxo: 'update_address' = 'update_address';
-
-  private showWarning(summary: string, detail: string, life: number = 5000) {
-    this.messageService.add({ severity: 'warn', summary, detail, life });
-  }
-
-  private showInfo(summary: string, detail: string, life: number = 3000) {
-    this.messageService.add({ severity: 'info', summary, detail, life });
-  }
-
-  private registerAttendance(pdfBlob: Blob): void {
-    if (!this.clientId || !this.contractId) {
-      console.error("registerAttendance: ClientID ou ContractID estão ausentes.");
-      return;
-    }
-    const data = {
-      event: this.fluxo as string,
-      cliente: this.clientId,
-      contrato: this.contractId
-    };
-    const jsonBlob = new Blob([JSON.stringify(data)], { type: "application/json" });
-
-    const formData = new FormData();
-    formData.append('data', jsonBlob, 'data.json');
-    formData.append('arquivo', pdfBlob, 'termo_transferencia_assinado.pdf');
-
-    this.attendancesService.registerAttendance(formData).subscribe({
-      next: (response:  any) => {
-        console.log("Atendimento registrado com sucesso:", response);
-        this.showInfo("Registro de Atendimento", "Atendimento registrado com sucesso no sistema.");
-      },
-      error: (err: any) => {
-        console.error("Falha ao registrar atendimento:", err);
-        this.showWarning("Aviso", "A transferência foi concluída, mas houve um erro ao registrar o atendimento no histórico.");
-      }
-    });
   }
 
   sendToAutentiqueSubmit() {
@@ -685,19 +663,17 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
 
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
-    if (isIOS) {
-      // ✅ iOS (Safari / PWA) → abre o PDF no visualizador nativo
-      window.open(this.pdfPreviewUrl, '_blank');
-    } else {
-      // ✅ Desktop → tenta download direto
-      const link = document.createElement('a');
-      link.href = this.pdfPreviewUrl;
-      link.download = 'termo_de_consentimento.pdf';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
+  if (isIOS) {
+    window.open(this.pdfPreviewUrl, '_blank');
+  } else {
+    const link = document.createElement('a');
+    link.href = this.pdfPreviewUrl;
+    link.download = 'termo_de_consentimento.pdf';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
+}
 
   isPdfViewerLoaded: boolean = false;
 
@@ -724,7 +700,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     );
   }
 
-  sendToAutomation(): void {
+ onConfirmAddressChange(): void {
     if (!this.currentContract) {
       this.messageService.add({
         severity: 'error',
@@ -743,8 +719,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     }
 
     this.isLoading = true;
-
-    const payload = {
+     const payload = {
       clientId: this.currentContract.clientId,
       contractId: this.currentContract.id,
       address: {
@@ -771,10 +746,13 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
         } else {
           console.warn("PDF não encontrado, o atendimento não será registrado.");
         }
-        this.router.navigate([
+
+        setTimeout(() => {
+          this.router.navigate([
           '/client-contracts',
           this.currentContract?.clientId,
         ]);
+      }, 2500);
       },
       error: (err) => {
         this.isLoading = false;
@@ -789,36 +767,32 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     });
   }
 
-  ufToNome(uf: string): string {
-    const mapa: Record<string, string> = {
-      AC: 'Acre',
-      AL: 'Alagoas',
-      AP: 'Amapá',
-      AM: 'Amazonas',
-      BA: 'Bahia',
-      CE: 'Ceará',
-      DF: 'Distrito Federal',
-      ES: 'Espírito Santo',
-      GO: 'Goiás',
-      MA: 'Maranhão',
-      MT: 'Mato Grosso',
-      MS: 'Mato Grosso do Sul',
-      MG: 'Minas Gerais',
-      PA: 'Pará',
-      PB: 'Paraíba',
-      PR: 'Paraná',
-      PE: 'Pernambuco',
-      PI: 'Piauí',
-      RJ: 'Rio de Janeiro',
-      RN: 'Rio Grande do Norte',
-      RS: 'Rio Grande do Sul',
-      RO: 'Rondônia',
-      RR: 'Roraima',
-      SC: 'Santa Catarina',
-      SP: 'São Paulo',
-      SE: 'Sergipe',
-      TO: 'Tocantins',
+
+private registerAttendance(pdfBlob: Blob): void {
+    if (!this.clientId || !this.contractId) {
+      console.error("registerAttendance: ClientID ou ContractID estão ausentes.");
+      return;
+    }
+    const data = {
+      event: this.event as string,
+      cliente: this.clientId,
+      contrato: this.contractId
     };
-    return mapa[uf] || uf;
+    const jsonBlob = new Blob([JSON.stringify(data)], { type: "application/json" });
+
+    const formData = new FormData();
+    formData.append('data', jsonBlob, 'data.json');
+    formData.append('arquivo', pdfBlob, 'termo_transferencia_assinado.pdf');
+
+    this.attendancesService.registerAttendance(formData).subscribe({
+      next: (response) => {
+        console.log("Atendimento registrado com sucesso:", response);
+        this.showInfo("Registro de Atendimento", "Atendimento registrado com sucesso no sistema.");
+      },
+      error: (err) => {
+        console.error("Falha ao registrar atendimento:", err);
+        this.showWarning("Aviso", "A transferência foi concluída, mas houve um erro ao registrar o atendimento no histórico.");
+      }
+    });
   }
 }

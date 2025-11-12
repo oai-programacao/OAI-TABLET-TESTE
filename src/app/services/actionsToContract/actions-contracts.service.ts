@@ -93,4 +93,14 @@ export class ActionsContractsService {
     const url = `${this.apiUrl}/create-consent-document-update-address/${clientId}/${contractId}`;
     return this.http.post(url, finalPayload, { responseType: 'text' });
   }
+
+  sendContractSalesAutentique(
+    payload: any,
+    clientId: string,
+  ): Observable<any> {
+    const sellerId = this.authService.getSellerId();
+    const finalPayload = {...payload, sellerId };
+    const url = `${this.apiUrl}/create-contract-sale/${clientId}`;
+    return this.http.post(url, finalPayload, { responseType: 'text' });
+  }
 }

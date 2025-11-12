@@ -24,6 +24,38 @@ export interface ConsentTermAddressRequest {
   paymentForm: null | string;
 }
 
+export interface ConsentTermPermanentRequest{
+  clientId: string;
+  codePlanRBX: number;
+  street: string;
+  number: string;
+  complement?: string;  // opcional
+  neighborhood: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  discount: string;
+  discountFixed: string;
+  contractDueDay: string;
+  signatureBase64?: string;
+}
+
+export interface ConsentTermAdesionRequest{
+  clientId: string;
+  codePlanRBX: number;
+  street: string;
+  number: string;
+  complement?: string;  // opcional
+  neighborhood: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  discount: string;
+  discountFixed: string;
+  contractDueDay: string;
+  signatureBase64?: string;
+}
+
 export interface ConsentTermPlanChangeRequest {
   currentPlan: string;
   newPlan: string;
@@ -81,7 +113,21 @@ export class ReportsService {
     });
   }
 
+  getContractPermanencePdf(
+    clientId: string,
+    requestBody: ConsentTermPermanentRequest
+  ): Observable<Blob> {
+    const url = `${this.baseUrl}/permanence/${clientId}`;
+    return this.http.post(url, requestBody, { responseType: 'blob' });
+  }
 
+  getContractAdesionPdf(
+    clientId: string,
+    requestBody: ConsentTermAdesionRequest
+  ): Observable<Blob> {
+    const url = `${this.baseUrl}/adesion/${clientId}`;
+    return this.http.post(url, requestBody, { responseType: 'blob' });
+  }
 }
 
 
