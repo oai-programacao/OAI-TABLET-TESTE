@@ -1,9 +1,16 @@
 .page-container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  min-height: 88vh;
   padding: 0.5rem;
   position: relative;
+}
+
+@media screen and (orientation: portrait) {
+  .page-container {
+    justify-content: flex-start; /* mantém mais acima quando deitado */
+    padding-top: 15rem;
+  }
 }
 
 .btn-to-go-back {
@@ -93,9 +100,8 @@
   }
 }
 
-
 .btns {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
 }
