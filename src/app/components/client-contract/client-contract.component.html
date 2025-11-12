@@ -134,18 +134,16 @@
         <div class="contract-actions">
 
           <p-button icon="pi pi-arrow-up" (onClick)="openUpgradeDialog(contract, true)" severity="success"
-            [rounded]="true" [text]="true" pTooltip="Fazer Upgrade" tooltipPosition="top" />
+            [rounded]="true" [text]="true" pTooltip="Fazer Upgrade" tooltipPosition="top" [disabled]="contract.situationDescription !== 'ATIVO'"/>
           <p-button icon="pi pi-arrow-down" (onClick)="openUpgradeDialog(contract, false)" severity="danger"
-            [rounded]="true" [text]="true" pTooltip="Fazer Downgrade" tooltipPosition="top" />
+            [rounded]="true" [text]="true" pTooltip="Fazer Downgrade" tooltipPosition="top" [disabled]="contract.situationDescription !== 'ATIVO'"/>
 
           <p-button icon="pi pi-home" (onClick)="navigateToAddressTransfer(contract)" severity="warn" [rounded]="true"
-            [text]="true" pTooltip="Transferir Endereço" tooltipPosition="top" />
+            [text]="true" pTooltip="Transferir Endereço" tooltipPosition="top" [disabled]="contract.situationDescription !== 'ATIVO'"/>
           <p-button icon="pi pi-calendar" (onClick)="goToAlterDateExpired(contract)" severity="success" [rounded]="true"
-            [text]="true" pTooltip="Alterar Vencimento" tooltipPosition="top">
-          </p-button>
+            [text]="true" pTooltip="Alterar Vencimento" tooltipPosition="top" [disabled]="contract.situationDescription !== 'ATIVO'"/>
           <p-button icon="pi pi-users" (onClick)="navigateToTransferOwnership(contract)" severity="info" [rounded]="true"
-            [text]="true" pTooltip="Transferir Titularidade" tooltipPosition="top">
-          </p-button>
+            [text]="true" pTooltip="Transferir Titularidade" tooltipPosition="top" [disabled]="contract.situationDescription !== 'ATIVO'"/>
         </div>
       </div>
       } }
