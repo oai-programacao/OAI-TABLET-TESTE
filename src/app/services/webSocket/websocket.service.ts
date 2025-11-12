@@ -3,7 +3,6 @@ import { Injectable, NgZone } from '@angular/core';
 import { RxStompService } from '@stomp/ng2-stompjs';
 import { wsStompConfig } from './wsStompConfig';
 import { ToastService } from '../toastService/toast.service';
-import { AuthService } from '../../core/auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class WebSocketService {
@@ -68,7 +67,8 @@ export class WebSocketService {
               this.toastService.showWithAnimation(
                 `💰 Pagamento compensado para <b>${data.clientName}</b>!
                 Referente ao contrato: <b>#${data.numberContractRbx}</b>
-                <br> O vencimento foi alterado com sucesso para <b>${data.newDate}</b>.`,
+                <br> O vencimento foi alterado com sucesso para <b>${data.newDate}</b>
+                <br>Financeiro estornado e lançado novo carnê 12 meses.</b>.`,
                 '/money.json'
               );
               break;

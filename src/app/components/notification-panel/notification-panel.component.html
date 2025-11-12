@@ -8,18 +8,41 @@
   (onHide)="fechar()"
 >
   <ng-template pTemplate="content">
-    <div *ngIf="notificacoes.length > 0; else semNotificacoes">
-      <div *ngFor="let n of notificacoes" class="notificacao-item">
-        <h4>{{ n.titulo }}</h4>
-        <p>{{ n.mensagem }}</p>
-        <hr />
+    <!-- Indicador de carregamento -->
+    <div *ngIf="carregando" class="loading">Carregando notificações...</div>
+
+    <!-- Lista de notificações com scroll -->
+    <div
+      *ngIf="!carregando && notificacoes.length > 0; else semNotificacoes"
+      class="notificacoes-container"
+    >
+      <div
+        *ngFor="let n of notificacoes"
+        class="notificacao-item"
+        [ngClass]="{ lida: n.status === 'READ' }"
+      >
+        <div class="notificacao-texto">
+          <h4>
+            {{ n.type === 'TERM_ALTER_DATE' ? 'Termo de Alteração de Fatura' : 
+               n.type === 'BILL_PAID_ALTER_DATE' ? 'Boleto Compensado' : n.type }}
+          </h4>
+          <p>{{ n.message }}</p>
+          <span class="data">{{ n.createdAt | date : "short" }}</span>
+        </div>
+        <button
+          *ngIf="n.status !== 'READ'"
+          type="button"
+          class="btn-lida"
+          (click)="marcarComoLida(n.id)"
+        >
+          Marcar como lida
+        </button>
       </div>
     </div>
 
+    <!-- Mensagem de vazio -->
     <ng-template #semNotificacoes>
-      <p style="text-align: center; padding: 1rem; color: gray">
-        Nenhuma notificação no momento.
-      </p>
+      <p class="sem-notificacoes">Nenhuma notificação no momento.</p>
     </ng-template>
   </ng-template>
 </p-dialog>
