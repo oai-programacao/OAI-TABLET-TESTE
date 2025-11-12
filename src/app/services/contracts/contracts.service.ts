@@ -123,7 +123,7 @@ export class ContractsService {
 
   getContractByRbxCode(clientId: string, codeContractRbx: string) {
     return this.http.get<Contract>(
-      `${this.urlApi}/contracts/${clientId}/by-code`,
+      `${this.urlApi}/contract/${clientId}/by-code`,
       { params: { codeContractRbx } }
     );
   }
