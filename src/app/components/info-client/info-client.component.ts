@@ -90,8 +90,8 @@ export class InfoClientComponent implements OnInit {
           },
           {
             label: 'Central do Assinante',
-            icon: 'pi pi-paperclip',
-            command: () => this.navigateToAttendances()
+            icon: 'pi pi-globe',
+            command: () => this.navigateToCenterSubscriber()
           },
         ],
       },
@@ -139,6 +139,10 @@ export class InfoClientComponent implements OnInit {
   
   navigateToOpenTicket() {
     this.router.navigate([`/ticket-callcenter/${this.cliente.id}`]);
+  }
+
+  navigateToCenterSubscriber() {
+    this.router.navigate([`/center-subscribe/${this.cliente.id}`]);
   }
 
   toggleEditing() {
