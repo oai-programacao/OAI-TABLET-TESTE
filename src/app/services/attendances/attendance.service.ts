@@ -31,9 +31,9 @@ export class AttendancesService {
     return this.http.get<Attendance>(`${this.baseUrl}/${attendanceId}/details`);
   }
 
-  registerAttendanceDropDownUpgrade(payload: FormData): Observable<any> {
+  registerAttendance(payload: FormData): Observable<any> {
     return this.http.post<any>(
-      `${this.baseUrl}/attendances/register_attendance`,
+      `${this.baseUrl}/register_attendance`,
       payload,
       { responseType: 'text' as 'json' }
     );
