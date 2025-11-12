@@ -34,6 +34,7 @@
     "ngx-mask": "^20.0.3",
     "ngx-signaturepad": "^0.0.10",
     "ngx-translate": "^0.0.1-security",
+    "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^2.16.105",
     "primeicons": "^6.0.1",
     "primeng": "^19.1.4",

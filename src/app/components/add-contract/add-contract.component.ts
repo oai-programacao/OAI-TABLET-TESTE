@@ -45,7 +45,7 @@ import {
   ReportsService,
 } from '../../services/reports/reports.service';
 import { Observable } from 'rxjs';
-import { AttendancesService } from '../../services/attendances/attendances.service';
+import { AttendancesService } from '../../services/attendances/attendance.service';
 
 export interface ContractFormData {
   salesId?: number;
