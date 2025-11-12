@@ -1,14 +1,21 @@
-import { Component, inject, ViewChild, OnInit, ElementRef } from '@angular/core';
+import {
+  Component,
+  inject,
+  ViewChild,
+  OnInit,
+  ElementRef,
+} from '@angular/core';
 import { SafeResourceUrl, DomSanitizer } from '@angular/platform-browser';
 import { CardBaseComponent } from '../../shared/components/card-base/card-base.component';
 import { StepperModule } from 'primeng/stepper';
 import { ButtonModule } from 'primeng/button';
-import { FormsModule, NgForm,  NgModelGroup } from '@angular/forms';
+import { FormsModule, NgForm, NgModelGroup } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { IftaLabelModule } from 'primeng/iftalabel';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { InputTextModule } from 'primeng/inputtext';
+import { Cliente } from '../../models/cliente/cliente.dto';
 import { SelectModule } from 'primeng/select';
 import { NgxCurrencyDirective } from 'ngx-currency';
 import { DatePickerModule } from 'primeng/datepicker';
@@ -27,11 +34,18 @@ import { SalesService } from '../../services/sales/sales.service';
 import { MidiaService } from '../../services/midia/midia.service';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { AuthService } from '../../core/auth.service';
-import { ConsentTermAdesionRequest, ConsentTermPermanentRequest, ReportsService } from '../../services/reports/reports.service';
-import { forkJoin } from 'rxjs';
+import { ToastModule } from 'primeng/toast';
+import { ActionsContractsService } from '../../services/actionsToContract/actions-contracts.service';
+import { PdfMergerUtil } from '../../shared/utils/pdf-merger.utils';
+import { firstValueFrom, forkJoin } from 'rxjs';
+
+import {
+  ConsentTermAdesionRequest,
+  ConsentTermPermanentRequest,
+  ReportsService,
+} from '../../services/reports/reports.service';
 import { Observable } from 'rxjs';
-
-
+import { AttendancesService } from '../../services/attendances/attendances.service';
 
 export interface ContractFormData {
   salesId?: number;
@@ -74,6 +88,7 @@ export interface Address {
   neighborhood: string;
   type?: string;
 }
+
 @Component({
   selector: 'app-add-contract',
   standalone: true,
@@ -98,23 +113,21 @@ export interface Address {
     GoogleMapsComponent,
     SignaturePadComponent,
     ProgressSpinnerModule,
+    ToastModule
   ],
   templateUrl: './add-contract.component.html',
   styleUrl: './add-contract.component.scss',
-  providers: [MessageService],
+  providers: [MessageService, AttendancesService],
 })
 export class AddContractComponent implements OnInit {
   @ViewChild('pop') pop!: Popover;
 
- @ViewChild('contractForm') contractForm!: NgForm;
+  @ViewChild('contractForm') contractForm!: NgForm;
   @ViewChild('step1Group') step1Group!: NgModelGroup;
   @ViewChild('step2Group') step2Group!: NgModelGroup;
 
-  // (No topo do seu componente, junto com outros @ViewChild)
-@ViewChild('cameraInput') cameraInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('cameraInput') cameraInput!: ElementRef<HTMLInputElement>;
 
-
-  // Referência ao iframe do PDF
   @ViewChild('pdfIframe') pdfIframe!: ElementRef<HTMLIFrameElement>;
   @ViewChild(SignaturePadComponent)
   signaturePadComponent!: SignaturePadComponent;
@@ -130,78 +143,106 @@ export class AddContractComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly reportsService = inject(ReportsService);
   private readonly sanitizer = inject(DomSanitizer);
- 
+  private readonly attendanceService = inject(AttendancesService);
+  private readonly actionsContractsService = inject(ActionsContractsService);
+  private validateCurrentStep(): boolean {  
+  if (this.activeStep === 2) {
+    return this.step2Group?.valid ?? false;
+  }
+  return true;
+}
+
+  public pdfPreviewUrl: string | null = null;
+  public pdfBlobFinal: Blob | null = null;
+
+  client!: Cliente;
 
   modalVisible: boolean = false;
   phone: string = '';
+
+  step1Completed: boolean = false;
+  step2Completed: boolean = false;
+
+  pdfWasDownloaded: boolean = false;
+
+  safePdfPreviewUrl: SafeResourceUrl | null = null;
+
+  isArchiving: boolean = false;
+  archivedDraftId: string | null = null;
+
+  pdfDialogVisible = false;
+  pdfUrl: string | null = null;
+  pdfMode: 'adesion' | 'permanence' = 'adesion';
+  avisoInvalido: boolean = true;
+
+  safePdfAdesionUrl?: SafeResourceUrl;
+  safePdfPermanentUrl?: SafeResourceUrl;
+  rawPdfAdesionUrl: string | null = null;
+  rawPdfPermanentUrl: string | null = null;
+  thumbnailPreview: string | ArrayBuffer | null = null;
+  fotoCapturadaFile: File | null = null;
+  capturedPhotos: Array<{ file: File; preview: string }> = [];
+  images: (File | null)[] = [null, null, null];
+  imagePreviews: (string | null)[] = [null, null, null];
+  previewVisible = false;
+  previewImage: string | null = null;
+  isLoadingPreview = false;
+  previewLoadFailed = false;
+  isPdfViewerLoaded: boolean = false;
+
+  signDialogVisible = false;
+  isPreviewDialogVisible: boolean = false;
+
+  isLoadingSignature = false;
+
+  isLoading = false;
+
+  clientId: string | null = null;
+
+  dateSignature: Date | null = null;
+  dateOfStart: Date | null = null;
+  dateOfAssignment: Date | null = null;
+  dateOfMemberShipExpiration: Date | null = null;
+
+  public activeStep: number = 1;
+
+  public contractFormData: ContractFormData = {
+    sellerId: '',
+    clientId: '',
+    codePlan: 0,
+    dateStart: '',
+    dateSignature: '',
+    dateExpired: '',
+    adesion: 0,
+    numberParcels: 0,
+    parcels: [],
+    address: {
+      zipCode: '',
+      state: '',
+      city: '',
+      street: '',
+      number: '',
+      complement: '',
+      neighborhood: '',
+    },
+    discount: 0,
+    signature: '',
+    observation: '',
+    dateOfAssignment: undefined,
+    imagesOne: undefined,
+    situationDescription: undefined,
+    discountFixed: undefined,
+    vigencia: 0,
+    cicleFatId: 0,
+    cicleBillingDayBase: 0,
+    cicleBillingExpired: 0,
+  };
 
   onHide(): void {
     this.modalVisible = false;
     this.phone = '';
   }
 
-
-  // URLs e Blobs do PDF
-public pdfPreviewUrl: string | null = null;
-public pdfBlobFinal: Blob | null = null;
-safePdfPreviewUrl: SafeResourceUrl | null = null;
-
-// Estados de carregamento e controle
-isLoadingPreview = false;
-previewLoadFailed = false;
-isPdfViewerLoaded: boolean = false;
-
-// Controle de dialogs
-signDialogVisible = false;
-isPreviewDialogVisible: boolean = false;
-
-//Signature
-
-  isLoadingSignature = false;
-
-  isLoading = false;
-
-  public activeStep: number = 1;
-
-  public contractFormData: ContractFormData = {
-  sellerId: '',
-  clientId: '',
-  codePlan: 0,
-  dateStart: '',
-  dateSignature: '',
-  dateExpired: '',
-  adesion: 0,
-  numberParcels: 0,
-  parcels: [],
-  address: {
-    zipCode: '',
-    state: '',
-    city: '',
-    street: '',
-    number: '',
-    complement: '',
-    neighborhood: '',
-  },
-  discount: 0,
-  signature: '',
-  observation: '',
-  // Campos opcionais explicitamente undefined
-  dateOfAssignment: undefined,
-  imagesOne: undefined,
-  situationDescription: undefined,
-  discountFixed: undefined,
-  vigencia: 0,
-  cicleFatId: 0,
-  cicleBillingDayBase: 0,
-  cicleBillingExpired: 0,
-};
-
-  // Flags para controlar se cada step foi completado
-step1Completed: boolean = false;
-step2Completed: boolean = false;
-
-
- // ✅ Getters de validação
   get isStep1Valid(): boolean {
     return this.step1Group?.valid ?? false;
   }
@@ -214,24 +255,14 @@ step2Completed: boolean = false;
     return this.isStep1Valid && this.isStep2Valid;
   }
 
-  clientId: string | null = null;
-
-  // Datas no template como Date; converteremos no submit
-  dateSignature: Date | null = null; // opcional
-  dateOfStart: Date | null = null;
-  dateOfAssignment: Date | null = null;
-  dateOfMemberShipExpiration: Date | null = null;
-
   formData = {
     signaturePad: '',
   };
 
-  // Google Maps
   showMapDialog = false;
   center: google.maps.LatLngLiteral = { lat: -23.55052, lng: -46.633308 };
   zoom = 15;
 
-  // Dropdowns e selects
   selectContract: string | null = null;
   selectedPlan: string | null = null;
   selectedInstallment: string | null = null;
@@ -256,7 +287,7 @@ step2Completed: boolean = false;
     id: `${i + 1}`,
     dia: `${i + 1}`,
     vencimento: `${i + 1}`,
-    descricao: `${(i + 1).toString().padStart(2, '0')} a ${(i % 31 + 1)
+    descricao: `${(i + 1).toString().padStart(2, '0')} a ${((i % 31) + 1)
       .toString()
       .padStart(2, '0')} / ${(i + 1).toString().padStart(2, '0')}`,
     value: `${i + 1}`,
@@ -269,28 +300,20 @@ step2Completed: boolean = false;
     localidade: 'São Paulo',
   };
 
-  // Imagens
-  images: (File | null)[] = [null, null, null];
-  imagePreviews: (string | null)[] = [null, null, null];
-  previewVisible = false;
-  previewImage: string | null = null;
-
   constructor(public messageService: MessageService) {
-     this.clientId = this.route.snapshot.queryParamMap.get('clientId') ?? '';
+    this.clientId = this.route.snapshot.queryParamMap.get('clientId') ?? '';
   }
 
   ngOnInit(): void {
+    this.loadPlans();
 
-    
-  this.loadPlans();
+    const fromQuery = this.route.snapshot.queryParamMap.get('clientId');
+    this.clientId = fromQuery;
 
-  const fromQuery = this.route.snapshot.queryParamMap.get('clientId');
-  this.clientId = fromQuery;
-
-  if (this.clientId) {
-    this.contractFormData.clientId = this.clientId;
+    if (this.clientId) {
+      this.contractFormData.clientId = this.clientId;
+    }
   }
-}
 
   loadPlans() {
     this.planService.getPlans().subscribe({
@@ -333,14 +356,11 @@ step2Completed: boolean = false;
     setTimeout(() => {
       try {
         if (input && input instanceof HTMLInputElement) {
-
           if (input.value) {
-
             input.value = '';
           }
         }
       } catch (err) {
-
         try {
           const newInput = input.cloneNode() as HTMLInputElement;
           input.parentNode?.replaceChild(newInput, input);
@@ -388,6 +408,7 @@ step2Completed: boolean = false;
       },
     });
   }
+
   salvarFotoCapturada() {
     if (!this.fotoCapturadaFile) {
       this.messageService.add({
@@ -427,7 +448,24 @@ step2Completed: boolean = false;
     });
   }
 
+  removerFoto(index: number): void {
+  this.capturedPhotos.splice(index, 1);
+  this.messageService.add({
+    severity: 'info',
+    summary: 'Foto Removida',
+    detail: 'Foto excluída.',
+  });
+}
+tirarOutraFoto(): void {
+  this.limparPreview();
 
+  setTimeout(() => {
+    const input = document.querySelector('input[type="file"][accept="image/*"]') as HTMLInputElement;
+    if (input) {
+      input.click();
+    }
+  }, 100);
+}
   removeImage(index: number) {
     this.images[index] = null;
     this.imagePreviews[index] = null;
@@ -482,292 +520,436 @@ step2Completed: boolean = false;
 
   formatToLocalDateString(
     date: Date | string | null | undefined
-    ): string | null {
+  ): string | null {
     if (!date) return null;
     const d = new Date(date);
     if (Number.isNaN(d.getTime())) return null;
-     const dd = String(d.getDate()).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
     const mm = String(d.getMonth() + 1).padStart(2, '0');
     const yyyy = d.getFullYear();
     return `${dd}/${mm}/${yyyy}`;
   }
 
   submitContract(): void {
-    if(!this.contractForm.valid) {
+    if (!this.contractForm.valid) {
       alert('⚠️ Preencha todos os campos obrigatórios do formulário.');
       return;
     }
 
-  if (!this.clientId) {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Erro',
-      detail: 'ClientId ausente na URL.',
+    if (!this.clientId) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erro',
+        detail: 'ClientId ausente na URL.',
+      });
+      return;
+    }
+
+    const sellerId = this.authService.getSellerId();
+    if (!sellerId) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erro',
+        detail: 'SellerId não encontrado para o usuário logado.',
+      });
+      return;
+    }
+
+    const selectedCycle = this.typesOfDateExpirationCicle.find(
+      (c) => c.value === this.selectDateOfExpirationCicle
+    );
+    if (!selectedCycle) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Atenção',
+        detail: 'Selecione o ciclo de faturamento.',
+      });
+      return;
+    }
+
+    if (!this.selectedPlan) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Atenção',
+        detail: 'Selecione o plano.',
+      });
+      return;
+    }
+
+    if (!this.selectedInstallment) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Atenção',
+        detail: 'Selecione o número de parcelas.',
+      });
+      return;
+    }
+
+    const payload = {
+      sellerId,
+      clientId: this.clientId,
+      codePlan: Number(this.selectedPlan),
+      dateStart: this.formatToLocalDateString(this.dateOfStart) || '',
+      dateSignature:
+        this.formatToLocalDateString(this.dateSignature) ||
+        this.formatToLocalDateString(this.dateOfStart) ||
+        '',
+      dateExpired:
+        this.formatToLocalDateString(this.dateOfMemberShipExpiration) || '',
+      numberParcels: Number(this.selectedInstallment),
+      adesion: Number(this.contractFormData.adesion) || 100.0,
+      discount: 900.0,
+      descountFixe: '35.00',
+      address: {
+        street: this.contractFormData.address.street || '',
+        number: this.contractFormData.address.number || '',
+        neighborhood: this.contractFormData.address.neighborhood || '',
+        city: this.contractFormData.address.city || '',
+        state: this.contractFormData.address.state || '',
+        zipCode: this.contractFormData.address.zipCode || '',
+        complement: this.contractFormData.address.complement || '',
+      },
+      signature: this.formData.signaturePad || '',
+      imagesOne: this.images[0] ? URL.createObjectURL(this.images[0]) : '',
+      observation: this.contractFormData.observation || '',
+      vigencia: String(this.contractFormData.vigencia || 12),
+      cicleFatId: Number(selectedCycle.id),
+      cicleBillingDayBase: Number(selectedCycle.dia),
+      cicleBillingExpired: Number(selectedCycle.vencimento),
+    };
+
+    console.log(JSON.stringify(payload, null, 2));
+
+    console.log('Payload final para envio:', payload);
+
+    this.salesService.createSale(payload).subscribe({
+      next: (sale) => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Contrato Criado',
+          detail: 'O contrato foi criado com sucesso.',
+        });
+        console.log('Resposta createSale:', sale);
+
+        if (this.rawPdfAdesionUrl && this.rawPdfPermanentUrl) {
+          console.log('🎯 Chamando registerAttendance...');
+          this.registerAttendance(sale.id, sale.contractId);
+        } else {
+          console.warn(
+            '⚠️ PDFs não encontrados, atendimento não será registrado.'
+          );
+
+          setTimeout(() => {
+            this.router.navigate(['/client-contracts', this.clientId]);
+          }, 2000);
+        }
+      },
+      error: (err) => {
+        console.error('Erro na criação da venda:', err);
+        const detail = err?.error?.message ?? 'Erro ao criar a venda.';
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail,
+        });
+      },
     });
-    return;
   }
 
-  const sellerId = this.authService.getSellerId();
-  if (!sellerId) {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Erro',
-      detail: 'SellerId não encontrado para o usuário logado.',
-    });
-    return;
+  private registerAttendance(saleId: string, contractId: string): void {
+    console.log('🚀 Iniciando registro de atendimento...');
+
+    if (!this.clientId) {
+      console.error('registerAttendance: ClientID está ausente.');
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erro',
+        detail: 'ID do cliente não encontrado.',
+      });
+      return;
+    }
+
+    if (!contractId) {
+      console.error('registerAttendance: ContractID está ausente.');
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erro',
+        detail: 'ID do contrato não encontrado.',
+      });
+      return;
+    }
+
+    if (!this.rawPdfAdesionUrl || !this.rawPdfPermanentUrl) {
+      console.error('registerAttendance: PDFs não foram gerados.');
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erro',
+        detail:
+          'Os contratos precisam ser gerados antes de criar o atendimento.',
+      });
+      return;
+    }
+
+    this.isLoading = true;
+
+    Promise.all([
+      fetch(this.rawPdfAdesionUrl).then((res) => res.blob()),
+      fetch(this.rawPdfPermanentUrl).then((res) => res.blob()),
+    ])
+      .then(([adesionBlob, permanenceBlob]) => {
+        console.log('✅ PDFs convertidos para Blob');
+        console.log('Adesão:', adesionBlob.type, adesionBlob.size, 'bytes');
+        console.log(
+          'Permanência:',
+          permanenceBlob.type,
+          permanenceBlob.size,
+          'bytes'
+        );
+
+        const data = {
+          event: 'sale',
+          cliente: this.clientId,
+          contrato: contractId,
+        };
+
+        console.log('📦 Data:', data);
+
+        const jsonBlob = new Blob([JSON.stringify(data)], {
+          type: 'application/json',
+        });
+
+        const formData = new FormData();
+        formData.append('data', jsonBlob, 'data.json');
+
+        formData.append('arquivo', adesionBlob, 'contrato_adesao.pdf');
+        formData.append('arquivo', permanenceBlob, 'contrato_permanencia.pdf');
+
+        console.log('📤 Enviando FormData para o backend...');
+
+        this.attendanceService.registerAttendance(formData).subscribe({
+          next: (response) => {
+            this.isLoading = false;
+            console.log('✅ Atendimento registrado com sucesso:', response);
+
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Atendimento Criado!',
+              detail: `Atendimento ${response} registrado com sucesso!`,
+            });
+
+            setTimeout(() => {
+              this.router.navigate(['/client-contracts', this.clientId]);
+            }, 2000);
+          },
+          error: (err) => {
+            this.isLoading = false;
+            console.error('❌ Falha ao registrar atendimento:', err);
+
+            this.messageService.add({
+              severity: 'warn',
+              summary: 'Aviso',
+              detail:
+                'A venda foi criada, mas houve erro ao registrar o atendimento.',
+            });
+
+            setTimeout(() => {
+              this.router.navigate(['/client-contracts', this.clientId]);
+            }, 3000);
+          },
+        });
+      })
+      .catch((error) => {
+        this.isLoading = false;
+        console.error('❌ Erro ao converter PDFs para Blob:', error);
+
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: 'Falha ao processar os PDFs do contrato.',
+        });
+      });
   }
 
-  // Validar ciclo e plano
-  const selectedCycle = this.typesOfDateExpirationCicle.find(
-    (c) => c.value === this.selectDateOfExpirationCicle
-  );
-  if (!selectedCycle) {
+  abrirModal(): void {
+    this.modalVisible = true;
+  }
+
+  goToStep(nextStep: number): void {
+ 
+  if (this.activeStep === 2 && !this.validateCurrentStep()) {
     this.messageService.add({
-      severity: 'error',
+      severity: 'warn',
       summary: 'Atenção',
-      detail: 'Selecione o ciclo de faturamento.',
+      detail: 'Preencha todos os campos obrigatórios antes de avançar.',
     });
     return;
   }
 
-  if (!this.selectedPlan) {
+  if (this.activeStep === 1) this.step1Completed = true;
+  if (this.activeStep === 2) this.step2Completed = true;
+
+  this.activeStep = nextStep;
+
+  if (nextStep === 4 && !this.pdfPreviewUrl) {
+    this.loadPdfPreview();
+  }
+}
+
+
+  async sendToAutentiqueSubmit() {
+   if(!this.phone){
+    this.messageService.add({
+      severity: 'warn',
+      summary: 'Aviso',
+      detail: 'Por favor, insira um número de telefone válido.',
+    });
+    return;
+   }
+   if(!this.clientId){
     this.messageService.add({
       severity: 'error',
+      summary: 'Erro',
+      detail: 'ID do cliente não encontrado.',
+    });
+    return;
+   }
+  
+   const sellerId = this.authService.getSellerId();
+   if(!sellerId){
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Erro',
+      detail: 'ID do vendedor não encontrado.',
+    });
+    return;
+   }
+
+   if (!this.selectedPlan) {
+    this.messageService.add({
+      severity: 'warn',
       summary: 'Atenção',
       detail: 'Selecione o plano.',
     });
     return;
   }
 
-  if (!this.selectedInstallment) {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Atenção',
-      detail: 'Selecione o número de parcelas.',
-    });
-    return;
-  }
+  this.isLoading = true;
 
+  try{
 
-  const payload = {
-  sellerId,
-  clientId: this.clientId,
-  codePlan: Number(this.selectedPlan),
-  dateStart: this.formatToLocalDateString(this.dateOfStart) || '',
-  dateSignature: this.formatToLocalDateString(this.dateSignature) || this.formatToLocalDateString(this.dateOfStart) || '',
-  dateExpired: this.formatToLocalDateString(this.dateOfMemberShipExpiration) || '',
-  numberParcels: Number(this.selectedInstallment),
-  adesion: Number(this.contractFormData.adesion) || 100.00,
-  discount: 900.00,
-  descountFixe: "35.00",
-  address: {
-    street: this.contractFormData.address.street || '',
-    number: this.contractFormData.address.number || '',
-    neighborhood: this.contractFormData.address.neighborhood || '',
-    city: this.contractFormData.address.city || '',
-    state: this.contractFormData.address.state || '',
-    zipCode: this.contractFormData.address.zipCode || '',
-    complement: this.contractFormData.address.complement || ''
-  },
-  signature: this.formData.signaturePad || '',
-  imagesOne: this.images[0] ? URL.createObjectURL(this.images[0]) : '',
-  observation: this.contractFormData.observation || '',
-  vigencia: String(this.contractFormData.vigencia || 12),
-  cicleFatId: Number(selectedCycle.id),
-  cicleBillingDayBase: Number(selectedCycle.dia),
-  cicleBillingExpired: Number(selectedCycle.vencimento)
-};
+   const adesionData: ConsentTermAdesionRequest = {
+      clientId: this.clientId,
+      codePlanRBX: Number(this.selectedPlan),
+      street: this.contractFormData.address.street,
+      number: this.contractFormData.address.number,
+      neighborhood: this.contractFormData.address.neighborhood,
+      city: this.contractFormData.address.city,
+      state: this.contractFormData.address.state,
+      zipCode: this.contractFormData.address.zipCode,
+      contractDueDay:
+      this.formatToLocalDateString(this.dateOfMemberShipExpiration) || '',
+      discount: this.contractFormData.discount.toString(),
+      discountFixed: this.contractFormData.discountFixed?.toString() || '0',
+      
+    };
 
-  console.log(JSON.stringify(payload, null, 2));
+    const permanenceData: ConsentTermPermanentRequest = {
+      clientId: this.clientId,
+      codePlanRBX: Number(this.selectedPlan),
+      street: adesionData.street,
+      number: adesionData.number,
+      neighborhood: adesionData.neighborhood,
+      city: adesionData.city,
+      state: adesionData.state,
+      zipCode: adesionData.zipCode,
+      contractDueDay: adesionData.contractDueDay,
+      discount: adesionData.discount,
+      discountFixed: adesionData.discountFixed,
+     
+    };
+    
+    const mappedSigners = [
+      {
+        name: this.client?.name || 'Cliente',
+        phone: '+55' + (this.phone || ''),
+      },
+    ];
 
+    const payload = {
+      sellerId: sellerId,
+      adesionData: adesionData,
+      permanenceData: permanenceData,
+      signers: mappedSigners,
+    };
 
-  console.log('Payload final para envio:', payload);
+    console.log('Enviando para o Autentique');
 
-  this.salesService.createSale(payload).subscribe({
-    next: (res) => {
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Contrato Criado',
-        detail: 'O contrato foi criado com sucesso.',
-      });
-      console.log('Resposta createSale:', res);
-    },
-    error: (err) => {
-      console.error('Erro na criação da venda:', err);
-      const detail = err?.error?.message ?? 'Erro ao criar a venda.';
-      this.messageService.add({ severity: 'error', summary: 'Erro', detail });
-    },
-  });
-}
+    this.actionsContractsService.sendContractSalesAutentique(payload, this.clientId).subscribe({
+      next: (res: string) => {
+        this.isLoading = false;
 
-
-
-  private createSaleRequest(payload: any) {
-    console.log('Payload pra enviar:', payload);
-    this.salesService.createSale(payload).subscribe({
-      next: (res) => {
         this.messageService.add({
           severity: 'success',
-          summary: 'Contrato Criado',
-          detail: 'O contrato foi criado com sucesso.',
+          summary: 'Sucesso',
+           detail: `${res}. Aguarde o cliente assinar, todo o processo será feito de forma automática.`,
+           life: 10000,
         });
-        console.log('Resposta createSale:', res);
-      },
-      error: (err) => {
-        console.error('Erro na criação da venda:', err);
-        const detail = err?.error?.message ?? 'Erro ao criar a venda.';
-        this.messageService.add({ severity: 'error', summary: 'Erro', detail });
-      },
+
+        this.modalVisible = false;
+
+       },
+        error: (err) => {
+          const backendMessage =
+            (typeof err.error === 'string' ? err.error : err?.error?.message) ||
+            'Erro ao tentar enviar para o número, verifique com o Suporte!';
+          if (backendMessage.includes('Aguarde 4 minutos antes')) {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Atenção',
+              detail: backendMessage,
+            });
+          }
+        },
+      });
+  }catch (error) {
+    this.isLoading = false;
+    console.error('❌ Erro ao enviar para Autentique:', error);
+
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Erro',
+      detail: 'Falha ao processar envio.',
     });
-  }
-
-  avisoInvalido: boolean = true;
-
-  abrirModal(): void {
-   this.modalVisible = true;
-  }
-
- goToStep(nextStep: number) {
-  let currentGroup: NgModelGroup | null = null;
-
-  if (this.activeStep === 1) {
-    currentGroup = this.step1Group;
-  } else if (this.activeStep === 2) {
-    currentGroup = this.step2Group;
-  }
-
-  if (currentGroup) {
-    // Lógica para steps COM validação (Step 1 e 2)
-    Object.values(currentGroup.control.controls).forEach(control => {
-      control.markAsTouched();
-    });
-
-    // O setTimeout original da validação
-    setTimeout(() => {
-      if (currentGroup!.valid) {
-        if (this.activeStep === 1) this.step1Completed = true;
-        if (this.activeStep === 2) this.step2Completed = true;
-        
-        // Navega
-        this.activeStep = nextStep;
-
-        // ✅ CORREÇÃO: Chama o load APÓS a renderização
-        if (nextStep === 4) {
-          console.log('🚀 Indo para o passo 4 (v_valid)...');
-          // Espera 1 tick para o Angular renderizar o painel do step 4
-          setTimeout(() => this.loadPdfPreviewIfNeeded(), 0); 
-        }
-
-      } else {
-        this.messageService.add({
-          severity: 'warn',
-          summary: 'Campos obrigatórios',
-          detail: 'Preencha corretamente antes de avançar.',
-        });
-      }
-    });
-  } else {
-    // Lógica para steps SEM validação (Step 3)
-    
-    // Navega
-    this.activeStep = nextStep;
-
-    // ✅ CORREÇÃO: Chama o load APÓS a renderização
-    if (nextStep === 4) {
-      console.log('🚀 Indo para o passo 4 (v_else)...');
-      // Espera 1 tick para o Angular renderizar o painel do step 4
-      setTimeout(() => this.loadPdfPreviewIfNeeded(), 0);
-    }
   }
 }
 
-goToContractStep(activateCallback: (step: number) => void) {
-  console.log('Navegando e iniciando o carregamento do Step 4...');
-  
-  // 1. Navega para o step 4
-  activateCallback(4);
-  
-  // 2. Inicia o carregamento (se necessário)
-  // Vamos usar um pequeno delay para garantir que o painel do step 4
-  // foi renderizado ANTES de ligarmos o spinner.
-  setTimeout(() => {
-    this.loadPdfPreviewIfNeeded();
-  }, 50); // 50ms é um delay seguro
+private blobToBase64(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64 = (reader.result as string).split(',')[1]; 
+      resolve(base64);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
 }
-
-
-  sendToAutentiqueSubmit() {
-    //   const term: ConsentTermAddressRequest = {
-    //     zipCode: this.addressNewForm.zipCode,
-    //     state: this.addressNewForm.uf,
-    //     city: this.addressNewForm.city,
-    //     street: this.addressNewForm.street,
-    //     number: this.addressNewForm.numberFromHome,
-    //     neighborhood: this.addressNewForm.neighborhood,
-    //     complement: this.addressNewForm.complement,
-    //     observation: this.addressNewForm.observation,
-    //     adesionValue: this.addressNewForm.adesionValue,
-    //     paymentForm: this.addressNewForm.paymentForm,
-    //   };
-  
-    //   const mappedSigners = [
-    //     {
-    //       name: this.client?.name || 'Cliente',
-    //       phone: '+55' + (this.phone || ''),
-    //     },
-    //   ];
-  
-    //   const payload = { term, signers: mappedSigners };
-  
-    //   this.actionsContractsService
-    //     .sendAddressChangeAutentique(payload, this.clientId, this.contractId)
-    //     .subscribe({
-    //       next: (res: string) => {
-    //         this.messageService.add({
-    //           severity: 'success',
-    //           summary: 'Sucesso!',
-    //           detail: `${res}.
-    //           Aguarde o cliente assinar, todo o processo será feito de forma automática.
-    //           Consulte nos atendimentos do cliente se foi feito de fato.`,
-    //           life: 10000,
-    //         });
-    //         this.modalVisible = false;
-    //       },
-    //       error: (err) => {
-    //         const backendMessage =
-    //           (typeof err.error === 'string' ? err.error : err?.error?.message) ||
-    //           'Erro ao tentar enviar para o número, verifique com o Suporte!';
-    //         if (backendMessage.includes('Aguarde 4 minutos antes')) {
-    //           this.messageService.add({
-    //             severity: 'error',
-    //             summary: 'Atenção',
-    //             detail: backendMessage,
-    //           });
-    //         }
-    //       },
-    //     });
-    // }
-}
-
-// Sessão de ações de contrato com PDF
-
 
   ngAfterViewInit() {
     if (this.signaturePadComponent) {
       this.signaturePadComponent.clearPad();
     }
   }
-   clearSignature() {
+  clearSignature() {
     this.signaturePadComponent.clearPad();
-    
   }
-get capturedSignature(): string | null {
-  if (this.activeContractType === 'adesion') {
-    return this.capturedSignatureAdesion;
-  } else {
-    return this.capturedSignaturePermanence;
+  get capturedSignature(): string | null {
+    if (this.activeContractType === 'adesion') {
+      return this.capturedSignatureAdesion;
+    } else {
+      return this.capturedSignaturePermanence;
+    }
   }
-}
 
   forceSignatureRedraw() {
     setTimeout(() => {
@@ -778,229 +960,206 @@ get capturedSignature(): string | null {
     }, 30);
   }
 
-pdfDialogVisible = false;
-pdfUrl: string | null = null;
-pdfMode: 'adesion' | 'permanence' = 'adesion';
+  onFotoCapturada(event: Event): void {
+  const input = event.target as HTMLInputElement;
+  if (!input.files || input.files.length === 0) return;
 
-safePdfAdesionUrl?: SafeResourceUrl;
-safePdfPermanentUrl?: SafeResourceUrl;
-rawPdfAdesionUrl: string | null = null;
-rawPdfPermanentUrl: string | null = null;
-
-limparPreview(): void {
-  this.thumbnailPreview = null;
-  this.fotoCapturadaFile = null;
-  this.isPreviewDialogVisible = false;
-
-  // ✅ ADICIONE ESTAS LINHAS
-  // Isso limpa o valor do <input type="file"> com segurança
-  // e vai impedir o 'InvalidStateError'
-  if (this.cameraInput && this.cameraInput.nativeElement) {
-    this.cameraInput.nativeElement.value = ''; 
-  }
-}
+  const file = input.files[0];
   
- thumbnailPreview: string | ArrayBuffer | null = null;
- fotoCapturadaFile: File | null = null;
- onFotoCapturada(event: Event): void {
-    const input = event.target as HTMLInputElement;
-
-    if (input.files && input.files[0]) {
-      const file = input.files[0];
-      this.fotoCapturadaFile = file;
-      const reader = new FileReader();
-
-      reader.onload = (e) => {
-        this.thumbnailPreview = e.target?.result ?? null;
-
-        this.isPreviewDialogVisible = true;
-      };
-
-      reader.readAsDataURL(file);
-    }
-  }
-
- 
- savePdf() {
-  let urlToSave: string | null = null;
-  let fileName: string = 'contrato.pdf';
-
-  // 1. Descobre qual URL e nome de arquivo usar
-  if (this.activeContractType === 'adesion') {
-    urlToSave = this.rawPdfAdesionUrl;
-    fileName = 'contrato_adesao.pdf'; // (Nome do arquivo para Adesão)
-  } else {
-    urlToSave = this.rawPdfPermanentUrl;
-    fileName = 'contrato_permanencia.pdf'; // (Nome do arquivo para Permanência)
-  }
-
-  // 2. Verifica se a URL foi encontrada
-  if (!urlToSave) {
-    // É por isso que você via o log de erro: 'urlToSave' estava 'null'
-    console.error('URL do PDF não disponível para salvar (urlToSave está nulo).');
-    this.messageService.add({ 
-        severity: 'warn', 
-        summary: 'Erro', 
-        detail: 'URL do PDF não encontrada.' 
+  if (!file.type.startsWith('image/')) {
+    this.messageService.add({
+      severity: 'warn',
+      summary: 'Arquivo Inválido',
+      detail: 'Selecione uma imagem.',
     });
     return;
   }
 
-  // 3. Lógica de download (agora usando as variáveis corretas)
+  const reader = new FileReader();
+  reader.onload = (e: any) => {
+    this.thumbnailPreview = e.target.result;
+    this.fotoCapturadaFile = file;
+    this.isPreviewDialogVisible = true;
+  };
+  reader.readAsDataURL(file);
+
+  input.value = ''; 
+}
+
+savePdf(): void {
+  if (!this.pdfPreviewUrl) {
+    this.messageService.add({
+      severity: 'warn',
+      summary: 'Erro',
+      detail: 'PDF não disponível para download.',
+    });
+    return;
+  }
+
+  const fileName = `contratos_${new Date().getTime()}.pdf`;
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
   if (isIOS) {
-    window.open(urlToSave, '_blank');
+    // iOS: abre em nova aba
+    window.open(this.pdfPreviewUrl, '_blank');
+    
+    this.messageService.add({
+      severity: 'info',
+      summary: 'iOS',
+      detail: 'Toque em "Compartilhar" e depois em "Salvar em Arquivos"',
+      life: 5000,
+    });
   } else {
-    const link = document.createElement('a');
-    link.href = urlToSave;
-    link.download = fileName; // Usa o nome de arquivo dinâmico
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
-}
-  
 
- signatureVisibleFlag = false;
-abrirAssinatura() {
+    const link = document.createElement('a');
+    link.href = this.pdfPreviewUrl;
+    link.download = fileName;
+    link.click();
+
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Download',
+      detail: 'PDF baixado com sucesso!',
+    });
+  }
+
+  this.pdfWasDownloaded = true;
+}
+
+  signatureVisibleFlag = false;
+  abrirAssinatura() {
     this.signDialogVisible = true;
     this.signatureVisibleFlag = true;
-  } 
-
-activeContractType: 'adesion' | 'permanence' = 'adesion';
-capturedSignatureAdesion: string | null = null;
-capturedSignaturePermanence: string | null = null;
-
- /**
- * Helper para chamar o loadPdfPreview apenas se os PDFs
- * ainda não tiverem sido carregados.
- */
-loadPdfPreviewIfNeeded(): void {
-  // Se já estiver carregando ou se as URLs já existirem, não faz nada
-  if (this.isLoadingPreview || (this.safePdfAdesionUrl && this.safePdfPermanentUrl)) {
-    console.log('Load PDF ignorado (já carregado ou em andamento)');
-    return;
   }
+
+  limparPreview(): void {
+  this.thumbnailPreview = null;
+  this.fotoCapturadaFile = null;
+  this.isPreviewDialogVisible = false;
+  if (this.cameraInput && this.cameraInput.nativeElement) {
+    this.cameraInput.nativeElement.value = ''; 
+  }
+}
+
+  activeContractType: 'adesion' | 'permanence' = 'adesion';
+  capturedSignatureAdesion: string | null = null;
+  capturedSignaturePermanence: string | null = null;
   
-  // Define o contrato de adesão como padrão
-  this.activeContractType = 'adesion';
 
-  // Limpa URLs antigas para o <iframe> não mostrar PDF velho
-  this.safePdfAdesionUrl = undefined;
-  this.safePdfPermanentUrl = undefined;
+  async loadPdfPreview(): Promise<void> {
+    if (this.isLoadingPreview) return;
 
-  // Chama a sua função de carregar original
-  this.loadPdfPreview();
-}
+    console.log('Aguarde enquanto o PDF é gerado...');
 
-loadPdfPreview(): void {
-  if (this.isLoadingPreview) return;
+    const MINIMUM_SPINNER_TIME = 700;
+    const startTime = Date.now();
 
-  console.log('Aguarde enquanto o PDF é gerado...');
+    this.isLoadingPreview = true;
+    this.safePdfPreviewUrl = null;
 
-  const MINIMUM_SPINNER_TIME = 700;
-  const startTime = Date.now();
+    this.limparPreview?.();
 
-  this.isLoadingPreview = true;
-  this.safePdfAdesionUrl = undefined; 
-  this.safePdfPermanentUrl = undefined;
-  this.safePdfPreviewUrl = null;
-
-  // Limpa estados anteriores
-
-  this.limparPreview?.();
-
-  if (this.pdfPreviewUrl) {
-    URL.revokeObjectURL(this.pdfPreviewUrl);
-    this.pdfPreviewUrl = null;
-  }
-
-  console.log('🚀 Entrou em loadPdfPreview');
-
-  if (!this.clientId) return;
-
-  const adesionReq: ConsentTermAdesionRequest = {
-    codePlanRBX: Number(this.selectedPlan),
-    street: this.contractFormData.address.street,
-    number: this.contractFormData.address.number,
-    neighborhood: this.contractFormData.address.neighborhood,
-    city: this.contractFormData.address.city,
-    state: this.contractFormData.address.state,
-    zipCode: this.contractFormData.address.zipCode,
-    discount: this.contractFormData.discount.toString(),
-    discountFixed: this.contractFormData.discountFixed?.toString() || '0',
-    contractDueDay: this.formatToLocalDateString(this.dateOfMemberShipExpiration) || ''
-  };
-
-  const permanentReq: ConsentTermPermanentRequest = {
-    codePlanRBX: Number(this.selectedPlan),
-    street: adesionReq.street,
-    number: adesionReq.number,
-    neighborhood: adesionReq.neighborhood,
-    city: adesionReq.city,
-    state: adesionReq.state,
-    zipCode: adesionReq.zipCode,
-    discount: adesionReq.discount,
-    discountFixed: adesionReq.discountFixed,
-    contractDueDay: adesionReq.contractDueDay
-  };
-
-  forkJoin([
-    this.reportsService.getContractAdesionPdf(this.clientId, adesionReq),
-    this.reportsService.getContractPermanencePdf(this.clientId, permanentReq)
-  ]).subscribe({
-    next: async ([adesionBlob, permanentBlob]) => {
-      console.log('✅ PDFs recebidos!');
-      console.log('Tipo Adesão:', adesionBlob.type);
-      console.log('Tipo Permanência:', permanentBlob.type);
-
-      if (adesionBlob.type !== 'application/pdf') {
-        console.warn('⚠️ Adesão não retornou PDF:');
-        console.log(await adesionBlob.text());
-      }
-      if (permanentBlob.type !== 'application/pdf') {
-        console.warn('⚠️ Permanência não retornou PDF:');
-        console.log(await permanentBlob.text());
-      }
-
-      const adesionUrl = URL.createObjectURL(adesionBlob);
-      const permanentUrl = URL.createObjectURL(permanentBlob);
-
-
-      console.log('👉 URL Adesão:', adesionUrl);
-      console.log('👉 URL Permanência:', permanentUrl);
-
-      this.rawPdfAdesionUrl = adesionUrl;
-  this.rawPdfPermanentUrl = permanentUrl;
-
-      this.safePdfAdesionUrl = this.sanitizer.bypassSecurityTrustResourceUrl(adesionUrl);
-      this.safePdfPermanentUrl = this.sanitizer.bypassSecurityTrustResourceUrl(permanentUrl);
-
-      // Tempo mínimo do spinner
-      const duration = Date.now() - startTime;
-      const delay = Math.max(0, MINIMUM_SPINNER_TIME - duration);
-      setTimeout(() => {
-        this.isLoadingPreview = false;
-      }, delay);
-    },
-    error: (err) => {
-      console.error('❌ Erro ao carregar PDFs:', err);
-      this.previewLoadFailed = true;
-
-      const duration = Date.now() - startTime;
-      const delay = Math.max(0, MINIMUM_SPINNER_TIME - duration);
-      setTimeout(() => {
-        this.isLoadingPreview = false;
-      }, delay);
+    if (this.pdfPreviewUrl) {
+      URL.revokeObjectURL(this.pdfPreviewUrl);
+      this.pdfPreviewUrl = null;
     }
-  });
+
+    console.log('🚀 Entrou em loadPdfPreview');
+
+    if (!this.clientId) return;
+
+    const adesionReq: ConsentTermAdesionRequest = {
+      clientId: this.clientId,
+      codePlanRBX: Number(this.selectedPlan),
+      street: this.contractFormData.address.street,
+      number: this.contractFormData.address.number,
+      neighborhood: this.contractFormData.address.neighborhood,
+      city: this.contractFormData.address.city,
+      state: this.contractFormData.address.state,
+      zipCode: this.contractFormData.address.zipCode,
+      discount: this.contractFormData.discount.toString(),
+      discountFixed: this.contractFormData.discountFixed?.toString() || '0',
+      contractDueDay:
+        this.formatToLocalDateString(this.dateOfMemberShipExpiration) || '',
+    };
+
+    const permanentReq: ConsentTermPermanentRequest = {
+      clientId: this.clientId,
+      codePlanRBX: Number(this.selectedPlan),
+      street: adesionReq.street,
+      number: adesionReq.number,
+      neighborhood: adesionReq.neighborhood,
+      city: adesionReq.city,
+      state: adesionReq.state,
+      zipCode: adesionReq.zipCode,
+      discount: adesionReq.discount,
+      discountFixed: adesionReq.discountFixed,
+      contractDueDay: adesionReq.contractDueDay,
+    };
+
+    try{
+      const[adesionBlob, permanentBlob] = await firstValueFrom(
+         forkJoin([
+      this.reportsService.getContractAdesionPdf(this.clientId, adesionReq),
+      this.reportsService.getContractPermanencePdf(this.clientId, permanentReq),
+    ])
+  );
+
+  console.log(' PDFs recebidos:', {
+      adesao: `${(adesionBlob.size / 1024).toFixed(2)} KB`,
+      permanencia: `${(permanentBlob.size / 1024).toFixed(2)} KB`,
+    });
+
+    if(adesionBlob.type !== 'application/pdf'){
+      console.warn(' Adesão não retornou PDF:', await adesionBlob.text());
+      throw new Error('Contrato de adesão inválido');
+    }
+    if(permanentBlob.type !== 'application/pdf'){
+      console.warn(' Permanência não retornou PDF:', await permanentBlob.text());
+      throw new Error('Contrato de permanência inválido');
+    }
+
+    console.log('Mesclando PDFs...');
+    const mergedPdfBlob = await PdfMergerUtil.mergeTwoPDFs(
+      adesionBlob,
+      permanentBlob,
+    );
+    console.log(' PDFs mesclados com sucesso!');
+
+    this.pdfPreviewUrl = URL.createObjectURL(mergedPdfBlob);
+    this.safePdfPreviewUrl =
+      this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfPreviewUrl);
+
+    this.rawPdfAdesionUrl = URL.createObjectURL(adesionBlob);
+    this.rawPdfPermanentUrl = URL.createObjectURL(permanentBlob);
+
+    console.log('Pdfs mesclados pronto para a exibição');
+
+        const duration = Date.now() - startTime;
+        const delay = Math.max(0, MINIMUM_SPINNER_TIME - duration);
+        setTimeout(() => {
+          this.isLoadingPreview = false;
+        }, delay);
+      }catch (error) {
+    console.error(' Erro ao carregar/mesclar PDFs:', error);
+    this.previewLoadFailed = true;
+
+    const duration = Date.now() - startTime;
+    const delay = Math.max(0, MINIMUM_SPINNER_TIME - duration);
+
+    setTimeout(() => {
+      this.isLoadingPreview = false;
+    }, delay);
+
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Erro',
+      detail: 'Falha ao gerar preview dos contratos.',
+    });
+  }
 }
 
-generateContractWithSignature(signatureBase64: string) {
- 
-
-  // ✅ CORREÇÃO 2: Garante que o clientId não é nulo
+  async generateContractWithSignature(signatureBase64: string): Promise<void> {
   if (!this.clientId) {
     console.error('generateContractWithSignature: Client ID está nulo. Abortando.');
     this.messageService.add({
@@ -1011,19 +1170,17 @@ generateContractWithSignature(signatureBase64: string) {
     return;
   }
 
-   if (this.isLoadingPreview) return;
+  if (this.isLoadingPreview) return;
 
-  console.log('Gerando termo com assinatura...');
+  console.log(' Gerando contratos com assinatura...');
   this.isLoadingPreview = true;
   this.previewLoadFailed = false;
-
-  const activeType = this.activeContractType;
-  console.log(`Enviando assinatura para o contrato: ${activeType}`);
 
   const baseReq = {
     codePlanRBX: Number(this.selectedPlan),
     street: this.contractFormData.address.street,
     number: this.contractFormData.address.number,
+    complement: this.contractFormData.address.complement || '',
     neighborhood: this.contractFormData.address.neighborhood,
     city: this.contractFormData.address.city,
     state: this.contractFormData.address.state,
@@ -1033,125 +1190,199 @@ generateContractWithSignature(signatureBase64: string) {
     contractDueDay: this.formatToLocalDateString(this.dateOfMemberShipExpiration) || '',
   };
 
-  const signedRequest = {
+  const adesionSignedReq = {
+    clientId: this.clientId,
     ...baseReq,
-    signatureBase64: signatureBase64 // Usa a assinatura recebida como parâmetro
+    signatureBase64: signatureBase64,
   };
 
-  // ✅ CORREÇÃO 1: 'Observable' agora será encontrado (após o import)
-  let serviceCall: Observable<Blob>;
+  const permanenceSignedReq = {
+    clientId: this.clientId,
+    ...baseReq,
+    signatureBase64: signatureBase64, 
+  };
 
-  if (activeType === 'adesion') {
-    serviceCall = this.reportsService.getContractAdesionPdf(this.clientId, signedRequest);
-  } else {
-    serviceCall = this.reportsService.getContractPermanencePdf(this.clientId, signedRequest);
-  }
+  try {
+    const [adesionSignedBlob, permanenceSignedBlob] = await firstValueFrom(
+      forkJoin([
+        this.reportsService.getContractAdesionPdf(this.clientId, adesionSignedReq),
+        this.reportsService.getContractPermanencePdf(this.clientId, permanenceSignedReq),
+      ])
+    );
 
-  serviceCall.subscribe({
-    next: (signedBlob: Blob) => {
-      console.log(`✅ PDF assinado (${activeType}) recebido!`);
-      // (Sua verificação de 'signedBlob.type !== "application/pdf"' está perfeita)
-      
-      const signedUrl = URL.createObjectURL(signedBlob);
-      const safeSignedUrl = this.sanitizer.bypassSecurityTrustResourceUrl(signedUrl);
+    console.log('✅ PDFs assinados gerados:', {
+      adesao: `${(adesionSignedBlob.size / 1024).toFixed(2)} KB`,
+      permanencia: `${(permanenceSignedBlob.size / 1024).toFixed(2)} KB`,
+    });
 
-      // ✅ A MÁGICA ESTÁ AQUI ✅
-      // 1. Atualiza o iframe
-      // 2. Salva a assinatura na variável correta
-     if (this.activeContractType === 'adesion') {
-    this.safePdfAdesionUrl = safeSignedUrl;
-    this.rawPdfAdesionUrl = signedUrl; // <-- ESTA LINHA
-    this.capturedSignatureAdesion = signatureBase64; 
-  } else {
-    this.safePdfPermanentUrl = safeSignedUrl;
-    this.rawPdfPermanentUrl = signedUrl; // <-- ESTA LINHA
+   
+    this.rawPdfAdesionUrl = URL.createObjectURL(adesionSignedBlob);
+    this.rawPdfPermanentUrl = URL.createObjectURL(permanenceSignedBlob);
+
+    this.safePdfAdesionUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.rawPdfAdesionUrl);
+    this.safePdfPermanentUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.rawPdfPermanentUrl);
+
+  
+    console.log('🔗 Mesclando PDFs assinados...');
+    const mergedSignedBlob = await PdfMergerUtil.mergeTwoPDFs(adesionSignedBlob, permanenceSignedBlob);
+
+    console.log(`✅ PDFs assinados mesclados: ${(mergedSignedBlob.size / 1024).toFixed(2)} KB`);
+
+   
+    if (this.pdfPreviewUrl) {
+      URL.revokeObjectURL(this.pdfPreviewUrl);
+    }
+    this.pdfPreviewUrl = URL.createObjectURL(mergedSignedBlob);
+    this.safePdfPreviewUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfPreviewUrl);
+
+    // 5. ✅ Guarda as assinaturas
+    this.capturedSignatureAdesion = signatureBase64;
     this.capturedSignaturePermanence = signatureBase64;
-  }
+    this.formData.signaturePad = signatureBase64;
+    this.dateSignature = new Date();
 
-      this.isLoadingPreview = false;
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Sucesso',
-        detail: 'Termo com assinatura gerado!',
-      });
-      this.signDialogVisible = false;
-    },
-    error: (err: any) => {
-      // (Seu código de erro)
-      this.previewLoadFailed = true;
-      this.isLoadingPreview = false;
-    }
-  });
-}
+    this.isLoadingPreview = false;
 
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Sucesso',
+      detail: 'Contratos assinados e mesclados com sucesso!',
+    });
 
-  captureAndGenerate(): void {
-    if (this.isLoadingPreview) return;
+    this.signDialogVisible = false;
 
-    const signatureBase64 = this.signaturePadInDialog.getSignatureAsBase64();
+    console.log(' Contratos prontos para envio (rawPdfAdesionUrl e rawPdfPermanentUrl estão disponíveis)');
 
-    if (!signatureBase64) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Atenção',
-        detail: 'Por favor, assine no campo antes de gerar o termo.',
-      });
-      return;
-    }
+  } catch (error) {
+    console.error(' Erro ao gerar contratos assinados:', error);
+    this.previewLoadFailed = true;
+    this.isLoadingPreview = false;
 
-    this.generateContractWithSignature(signatureBase64);
-  }
-
-
-setActiveContract(type: 'adesion' | 'permanence'): void {
-  this.activeContractType = type;
-}
-
-initContractPreview(): void {
-  this.activeContractType = 'adesion'; // abre sempre o de adesão primeiro
-
-  // Se ainda não carregou PDFs, carrega agora
-  if (!this.safePdfAdesionUrl || !this.safePdfPermanentUrl) {
-    this.loadPdfPreview();
-  }
-}
-
-getAdesionContractPdf(){
-  if (!this.clientId) {
     this.messageService.add({
       severity: 'error',
       summary: 'Erro',
-      detail: 'ClientId ausente na URL.',
+      detail: 'Falha ao gerar contratos com assinatura.',
+    });
+  }
+}
+
+  captureAndGenerate(): void {
+  if (this.isLoadingPreview) return;
+
+  const signatureBase64 = this.signaturePadInDialog.getSignatureAsBase64();
+
+  if (!signatureBase64) {
+    this.messageService.add({
+      severity: 'warn',
+      summary: 'Atenção',
+      detail: 'Por favor, assine no campo antes de gerar os contratos.',
     });
     return;
   }
 
-  const requestBody: ConsentTermAdesionRequest = {
-    codePlanRBX: Number(this.selectedPlan),
-    street: this.contractFormData.address.street || '',
-    number: this.contractFormData.address.number || '',
-    neighborhood: this.contractFormData.address.neighborhood || '',
-    city: this.contractFormData.address.city || '',
-    state: this.contractFormData.address.state || '',
-    zipCode: this.contractFormData.address.zipCode || '',
-    discount: this.contractFormData.discount.toString() || '0',
-    discountFixed: this.contractFormData.discountFixed?.toString() || '0',
-    contractDueDay: this.formatToLocalDateString(this.dateOfMemberShipExpiration) || '',
+  this.generateContractWithSignature(signatureBase64);
+}
+
+
+
+initContractPreview(): void {
+  if (!this.safePdfPreviewUrl) {
+    this.loadPdfPreview();
+  }
+}
+
+archiveSaleDraft(): void {
+  if (!this.clientId) {
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Erro',
+      detail: 'ClientId ausente.',
+    });
+    return;
+  }
+
+  const sellerId = this.authService.getSellerId();
+  if (!sellerId) {
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Erro',
+      detail: 'SellerId não encontrado.',
+    });
+    return;
+  }
+
+  this.isArchiving = true;
+
+  const selectedCycle = this.typesOfDateExpirationCicle.find(
+    (c) => c.value === this.selectDateOfExpirationCicle
+  );
+
+
+  const payload = {
+    sellerId,
+    clientId: this.clientId,
+    
+    codePlan: this.selectedPlan ? Number(this.selectedPlan) : null,
+    dateStart: this.formatToLocalDateString(this.dateOfStart) || '',
+    dateSignature:
+      this.formatToLocalDateString(this.dateSignature) ||
+      this.formatToLocalDateString(this.dateOfStart) ||
+      '',
+    dateExpired:
+      this.formatToLocalDateString(this.dateOfMemberShipExpiration) || '',
+    numberParcels: this.selectedInstallment ? Number(this.selectedInstallment) : null,
+    adesion: this.contractFormData.adesion ? Number(this.contractFormData.adesion) : null,
+    discount: this.contractFormData.discount || 0,
+    descountFixe: this.contractFormData.discountFixed?.toString() || '0',
+    vigencia: String(this.contractFormData.vigencia || 12),
+    cicleFatId: selectedCycle ? Number(selectedCycle.id) : null,
+    cicleBillingDayBase: selectedCycle ? Number(selectedCycle.dia) : null,
+    cicleBillingExpired: selectedCycle ? Number(selectedCycle.vencimento) : null,
+    
+    address: {
+      street: this.contractFormData.address.street || '',
+      number: this.contractFormData.address.number || '',
+      neighborhood: this.contractFormData.address.neighborhood || '',
+      city: this.contractFormData.address.city || '',
+      state: this.contractFormData.address.state || '',
+      zipCode: this.contractFormData.address.zipCode || '',
+      complement: this.contractFormData.address.complement || '',
+    },
+    
+    observation: this.contractFormData.observation || '',
+    signature: this.formData.signaturePad || '',
+    imagesOne: this.images[0] ? URL.createObjectURL(this.images[0]) : '',
   };
 
-  this.isLoading = true;
-  this.reportsService.getContractAdesionPdf(this.clientId, requestBody).subscribe({
-    next: (blob: Blob) => {
-      this.isLoading = false;
-      const url = window.URL.createObjectURL(blob);
-      window.open(url, '_blank');
+  console.log('📦 Arquivando rascunho (Step 1 + Step 2):', payload);
+
+  this.salesService.archiveSale(payload).subscribe({
+    next: (response:any) => {
+      this.isArchiving = false;
+      this.archivedDraftId = response.draftId;
+
+      console.log('✅ Rascunho arquivado:', response);
+
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Rascunho Salvo',
+        detail: `${response.message}`,
+        life: 5000,
+      });
     },
-    error: (err) => {
-      this.isLoading = false;
-      console.error('Erro ao gerar PDF do contrato de adesão:', err);
+    error: (err:any) => {
+      this.isArchiving = false;
+
+      console.error('❌ Erro ao arquivar rascunho:', err);
+
+      const detail = err?.error?.message ?? 'Erro ao salvar rascunho.';
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erro',
+        detail,
+      });
     },
   });
 }
-
 
 }

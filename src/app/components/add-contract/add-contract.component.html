@@ -1,8 +1,9 @@
 <div class="page-container">
+  <p-toast position="top-center"></p-toast>
   <app-card-base>
     <div class="card">
        <form #contractForm="ngForm" novalidate>
-      <p-stepper [(value)]="activeStep">
+      <p-stepper [(value)]="activeStep" >
         <div class="btn-to-back">
           <p-button
             label="Voltar"
@@ -256,7 +257,7 @@
                       iconPos="right"
                       (onClick)="goToStep(2)"
                       [raised]="true"
-                      [disabled]="!isStep1Valid"
+                      
                     />
                   </div>
                 </div>
@@ -265,11 +266,11 @@
           </p-step-item>
 
           <!-- STEP 2 -->
-          <p-step-item [value]="2">
+          <p-step-item [value]="2" class="step-locked">
             <p-step>• Endereço do Contrato</p-step>
             <p-step-panel>
               <ng-template #content let-activateCallback="activateCallback">
-                <div *ngIf="step1Completed; else avisoInvalido">
+                <div >
                   <div ngModelGroup="step2Group" #step2Group="ngModelGroup">
                     <div class="space-stepper1">
                       <p-inputgroup>
@@ -444,8 +445,17 @@
                     >
                       <app-google-maps [address]="fullAddress"></app-google-maps>
                     </p-dialog>
-
+                    
                     <div class="button-content">
+                      <p-button
+                        [size]="'large'"
+                        label="Arquivar"
+                        raised="true"
+                        severity="secondary"
+                        (onClick)="archiveSaleDraft()"
+                        [loading]="isArchiving"
+                        icon="pi pi-inbox"
+                        />
                       <p-button
                         [size]="'large'"
                         label="Visualizar O.S"
@@ -508,7 +518,9 @@
                       <div class="fluxo-header">🖥️ <h3>Atendimento Online</h3></div>
                       <div class="fluxo-body">
                         <p>
-                          Envie o termo diretamente para assinatura online via Autentique.
+                        Envie o termo diretamente para assinatura online via
+                        Autentique. Ideal para clientes atendidos por WhatsApp
+                        ou Telefone
                         </p>
                       </div>
                       <div class="fluxo-footer">
@@ -517,6 +529,7 @@
                           icon="pi pi-send"
                           severity="warn"
                           [raised]="true"
+                          (onClick)="abrirModal()"
                           [style]="{ padding: '2rem 4rem' }"
                         ></p-button>
                       </div>
@@ -575,10 +588,8 @@
         Aguarde enquanto o PDF é gerado...
     </span>
 </div>
-      <!-- Validação: só mostra se steps anteriores completados -->
+    
       <div *ngIf="step1Completed && step2Completed; else avisoInvalido">
-
-        <!-- Erro ao carregar -->
         <div *ngIf="previewLoadFailed && !isLoadingPreview" 
              class="p-mt-2 text-center p-text-danger">
           <p>
@@ -595,43 +606,21 @@
           </p-button>
         </div>
 
-        <!-- Visualizador PDF -->
+        
         <div  class="pdf-preview-section">
-          <!-- Alternância entre os contratos -->
-  <div class="btn-ctr">
-    <p-button 
-      label="Contrato de Adesão"
-      [outlined]="activeContractType !== 'adesion'"
-      severity="info"
-      size="small"
-      raised="true"
-      (click)="setActiveContract('adesion')">
-    </p-button>
-
-    <p-button 
-      label="Contrato de Permanência"
-      [outlined]="activeContractType !== 'permanence'"
-      severity="info"
-      size="small"
-      raised="true"
-       (click)="setActiveContract('permanence')">
-    </p-button>
-  </div>
-          <!-- PDF Viewer -->
   <div class="pdf-viewer p-mt-2">
     <iframe
-      [src]="activeContractType === 'adesion' ? safePdfAdesionUrl : safePdfPermanentUrl"
+     [src]="safePdfPreviewUrl" 
       width="100%"
       height="600px"
       title="Visualização do Contrato">
     </iframe>
 
-          <!-- Botões de Ação -->
           <div class="btn-signature">
             <p-button
               label="Assinar"
               icon="pi pi-pencil"
-              severity="info"
+              severity="warn"
               [rounded]="true"
               [raised]="true"
               size="small"
@@ -641,7 +630,7 @@
             <p-button
               label="Capturar Foto"
               icon="pi pi-camera"
-              severity="info"
+              severity="secondary"
               [rounded]="true"
               [raised]="true"
               size="small"
@@ -651,18 +640,31 @@
             <p-button
               label="Salvar PDF"
               icon="pi pi-download"
-              severity="success"
+              severity="secondary"
               [rounded]="true"
               [raised]="true"
               size="small"
-              [disabled]="!capturedSignature"
               (click)="savePdf()">
             </p-button>
+
+             
+          </div>
+
+          <div class="finalizar">
+            <p-button
+            label="Finalizar Venda"
+            icon="pi pi-check"
+            severity="success"
+            [rounded]="true"
+            [raised]="true"
+            size="large"
+            [disabled]="!(capturedSignatureAdesion && capturedSignaturePermanence) && !pdfWasDownloaded"
+            (onClick)="submitContract()">
+          </p-button>
           </div>
         </div>
         </div>
 
-        <!-- Input Hidden para Câmera -->
         <div class="camera-section">
           <input
             type="file"
@@ -671,32 +673,22 @@
             (change)="onFotoCapturada($event)"
             style="display: none"
             #cameraInput />
+            
         </div>
 
-        <!-- Botões de Navegação -->
-        <div class="py-6">
+        <div class="py-6" >
           <p-button
             label="Voltar"
             icon="pi pi-arrow-left"
             severity="secondary"
             (onClick)="activateCallback(3)">
           </p-button>
-          
-          <p-button
-            label="Finalizar Contrato"
-            icon="pi pi-check"
-            severity="success"
-            [disabled]="!capturedSignatureAdesion || !capturedSignaturePermanence"
-            (onClick)="submitContract()">
-          </p-button>
         </div>
       </div>
 
-      <!-- Aviso de steps incompletos -->
       <ng-template #avisoInvalido>
         <div class="alert-warning">
-          <i class="pi pi-exclamation-triangle"></i>
-          <span>Complete os passos anteriores para visualizar o contrato.</span>
+          <span> ⚠️ Complete os passos anteriores para visualizar o contrato.</span>
         </div>
       </ng-template>
 
@@ -709,44 +701,51 @@
   </app-card-base>
 
   <p-dialog
-    header="Confirmar Foto Capturada"
-    [(visible)]="isPreviewDialogVisible"
-    [modal]="true"
-    [style]="{ width: '90vw', 'max-width': '600px' }"
-    (onHide)="limparPreview()"
-  >
-    <div *ngIf="thumbnailPreview" class="text-center">
-      <img
-        [src]="thumbnailPreview"
-        alt="Preview da foto capturada"
-        style="
-          width: 100%;
-          height: auto;
-          max-height: 60vh;
-          border: 1px solid #ddd;
-          border-radius: 4px;
-          margin-bottom: 1rem;
-        "
-      />
-    </div>
+  header="Confirmar Foto Capturada"
+  [(visible)]="isPreviewDialogVisible"
+  [modal]="true"
+  [style]="{ width: '90vw', 'max-width': '600px' }"
+  (onHide)="limparPreview()">
+  
+  <div *ngIf="thumbnailPreview" class="text-center" style="margin-bottom: 1rem;">
+    <img
+      [src]="thumbnailPreview"
+      alt="Preview da foto capturada"
+      style="
+        width: 100%;
+        height: auto;
+        max-height: 50vh;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+      " />
+  </div>
 
-    <ng-template pTemplate="footer">
-      <p-button
-        label="Descartar"
-        icon="pi pi-times"
-        (click)="limparPreview()"
-        styleClass="p-button-danger p-button-text"
-      ></p-button>
 
-      <p-button
-        label="Salvar Foto"
-        icon="pi pi-save"
-       (click)="salvarFotoCapturada()"
-        styleClass="p-button-success"
-        [disabled]="!fotoCapturadaFile"
-      ></p-button>
-    </ng-template>
-  </p-dialog>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Descartar"
+      icon="pi pi-times"
+      (click)="limparPreview()"
+      styleClass="p-button-danger p-button-text">
+    </p-button>
+
+    <p-button
+      label="Tirar Outra"
+      icon="pi pi-camera"
+      (click)="tirarOutraFoto()"
+      styleClass="p-button-secondary">
+    </p-button>
+
+    <p-button
+      label="Salvar Foto"
+      icon="pi pi-check"
+      (click)="salvarFotoCapturada()"
+      styleClass="p-button-success"
+      [disabled]="!fotoCapturadaFile">
+    </p-button>
+  </ng-template>
+</p-dialog>
 
   <p-dialog
     header="Assinatura Online 🖋️"
@@ -759,7 +758,7 @@
         <p-iftalabel>
           <label for="signature">Assinatura Online (Opcional):</label>
           <ng-container *ngIf="signatureVisibleFlag">
-            <app-signature-pad #signaturePadInDialog> </app-signature-pad>
+            <app-signature-pad #signaturePadInDialog (signatureData)="onSignatureData($event)"> </app-signature-pad>
           </ng-container>
         </p-iftalabel>
       </div>
@@ -783,7 +782,7 @@
     </div>
   </p-dialog>
 
-  <!-- MODAL -->
+<!-- Modal -->
   <p-dialog
     header="Enviar Via WhatsApp ⚙️"
     [(visible)]="modalVisible"
@@ -797,16 +796,32 @@
       <div class="icon-container">
         <i class="pi pi-whatsapp whatsapp-icon"></i>
       </div>
+
       <div class="alert-box">
         <div class="alert-icon-circle">!</div>
         <p class="alert-text">
-          Após a assinatura do documento...
+          Após a assinatura do documento pelo cliente via Autentique,<br />
+          o sistema processará automaticamente a atualização dos dados<br />
+          do contrato no RBX, vinculará um atendimento ao cliente<br />
+          e anexará o documento assinado.<br /><br />
+          Você será notificado assim que a assinatura for concluída<br />
+          e poderá consultar o atendimento diretamente no cadastro do cliente.
         </p>
       </div>
+
+      <p class="info-text">
+        Certifique-se de que o número está correto, caso contrário, poderá ser
+        enviado para outra pessoa!<br />
+        O termo será enviado pela Autentique para o cliente assinar via WhatsApp
+        📄✅ <br />
+        Digite o número no formato <strong>+55</strong> (DDD + Número).<br />
+      </p>
+
       <p-inputgroup>
         <p-inputgroup-addon>
           <i class="pi pi-whatsapp"></i>
         </p-inputgroup-addon>
+
         <input
           pInputText
           id="telefone"
@@ -814,12 +829,21 @@
           placeholder="+55 (DDD) 00000-0000"
           [(ngModel)]="phone"
           required
+          [style]="{ height: '40px', 'font-size': '20px' }"
           mask="00000000000"
+          prefix="+55"
+          #phoneModel="ngModel"
         />
       </p-inputgroup>
     </div>
+
     <ng-template pTemplate="footer">
-      <p-button label="Cancelar" icon="pi pi-times" severity="secondary" (onClick)="onHide()"></p-button>
+      <p-button
+        label="Cancelar"
+        icon="pi pi-times"
+        severity="secondary"
+        (onClick)="onHide()"
+      ></p-button>
       <p-button
         label="Enviar"
         icon="pi pi-send"

@@ -24,6 +24,7 @@ export interface ConsentTermAddressRequest {
 }
 
 export interface ConsentTermPermanentRequest{
+  clientId: string;
   codePlanRBX: number;
   street: string;
   number: string;
@@ -39,6 +40,7 @@ export interface ConsentTermPermanentRequest{
 }
 
 export interface ConsentTermAdesionRequest{
+  clientId: string;
   codePlanRBX: number;
   street: string;
   number: string;
