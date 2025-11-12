@@ -291,7 +291,7 @@ export class AlterDateExpiredComponent {
 
   sendToAutentiqueSubmit() {
     const term = {
-      proportionalValue: this.proportionalBoleto,
+      proportionalValue: this.proportionalBoleto ?? 0,
       newDateExpired:
         this.typesOfDateExpirationCicle.find(
           (t) => t.value === this.selectedBillingCycle
@@ -304,7 +304,7 @@ export class AlterDateExpiredComponent {
     ];
 
     const payload = { term, signers: mappedSigners };
-
+    
     this.actionsContractsService
       .sendAlterDateAutentique(payload, this.clientId, this.contractId)
       .subscribe({

@@ -21,6 +21,11 @@
       />
     </div>
 
+    <div class="contractNumber__header">
+        <label>Contrato a ser alterado:</label>
+        <span>#{{ contract.codeContractRbx }}</span>
+    </div>
+
     <p-stepper [(value)]="activeStep" [value]="1">
       <p-step-list>
         <p-step [value]="1">Selecionar datas</p-step>
