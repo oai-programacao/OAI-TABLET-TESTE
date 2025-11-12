@@ -1,3 +1,4 @@
+import { ButtonModule } from 'primeng/button';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DialogModule } from 'primeng/dialog';
@@ -7,7 +8,7 @@ import { NotificationSeller } from '../../models/notification/notification-selle
 @Component({
   selector: 'app-notification-panel',
   standalone: true,
-  imports: [CommonModule, DialogModule],
+  imports: [CommonModule, DialogModule, ButtonModule],
   templateUrl: './notification-panel.component.html',
   styleUrl: './notification-panel.component.scss',
 })

@@ -42,6 +42,11 @@
   }
 }
 
+.data {
+  font-size: 0.75rem;
+  color: #028096;
+}
+
 .sem-notificacoes {
   text-align: center;
   padding: 2rem 1rem;
@@ -53,4 +58,33 @@
   text-align: center;
   padding: 2rem 1rem;
   font-weight: 500;
+}
+
+
+.notificacoes-container {
+  max-height: 400px; 
+  overflow-y: auto;  
+
+  /* Scroll personalizado */
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #ffe6f0;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #ff69b4;
+    border-radius: 8px;
+    border: 2px solid #ffe6f0;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: #ff3399;
+  }
+
+  /* Para Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: #ff69b4 #ffe6f0;
 }
