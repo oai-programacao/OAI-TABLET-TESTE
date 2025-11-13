@@ -1,6 +1,3 @@
-import { NotificationPanelComponent } from './components/notification-panel/notification-panel.component';
-import { TicketCallcenterComponent } from './components/ticket-callcenter/ticket-callcenter.component';
-import { UploadPicturesComponent } from './components/upload-pictures/upload-pictures.component';
 import { Routes } from '@angular/router';
 import { AuthGuard } from './core/auth.guard';
 
@@ -143,6 +140,14 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./components/ticket-callcenter/ticket-callcenter.component').then(
         (m) => m.TicketCallcenterComponent
+      ),
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'center-subscribe/:clientId',
+    loadComponent: () =>
+      import('./components/center-subscriber/center-subscriber.component').then(
+        (m) => m.CenterSubscriberComponent
       ),
     canActivate: [AuthGuard],
   },

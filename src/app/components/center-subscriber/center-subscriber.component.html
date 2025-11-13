@@ -1,0 +1,104 @@
+<div class="page-container">
+  <p-toast />
+  <app-card-base width="auto" height="auto" header="CENTRAL DO ASSINANTE">
+    <div class="btn-to-go-back">
+      <p-button
+        [rounded]="true"
+        [raised]="true"
+        (onClick)="navigateToInfoClient()"
+        icon="pi pi-arrow-left"
+        severity="danger"
+        size="large"
+      />
+    </div>
+
+    <div class="container-text-image">
+      <img
+        src="/centersubscribe.png"
+        height="300px"
+        width="300px"
+        alt="centersubscribe"
+      />
+
+      <div class="container-text">
+        <h2>Credenciais do Cliente</h2>
+        <p>
+          Abaixo é possível visualizar as credenciais de acesso do cliente à Central do
+          do Assinante.<br>
+          Utilize os botões de cópia para facilitar o acesso.
+        </p>
+      </div>
+
+      <div class="btns">
+        <p-button
+          label="Acessar Central do Assinante"
+          icon="pi pi-external-link"
+          link="true"
+          (onClick)="openExternalLink()"
+        />
+        <p-button label="Alterar Credenciais" severity="warn" icon="pi pi-pencil" />
+      </div>
+
+      <div class="container-input">
+        <!-- Campo de Usuário -->
+        <div class="input-glass">
+          <i class="pi pi-user"></i>
+          <input
+            pInputText
+            type="text"
+            placeholder="Usuário"
+            [readonly]="true"
+            [value]="'cliente_12345'"
+          />
+          <p-button
+            icon="pi pi-copy"
+            [text]="true"
+            [rounded]="true"
+            size="large"
+            styleClass="copy-btn"
+            (onClick)="copyToClipboard('cliente_12345', 'Usuário')"
+          />
+        </div>
+
+        <!-- Campo de Senha -->
+        <div class="input-glass">
+          <i class="pi pi-lock"></i>
+          <input
+            pInputText
+            type="text"
+            placeholder="Senha"
+            [readonly]="true"
+            [value]="'senha_segura_123'"
+          />
+          <p-button
+            icon="pi pi-copy"
+            [text]="true"
+            [rounded]="true"
+            size="large"
+            styleClass="copy-btn"
+            (onClick)="copyToClipboard('senha_segura_123', 'Senha')"
+          />
+        </div>
+
+        <div class="input-glass">
+          <i class="pi pi-globe"></i>
+          <input
+            pInputText
+            type="text"
+            placeholder="Central URL"
+            [readonly]="true"
+            [value]="'https://sistema.oai.com.br/app_login/index.php'"
+          />
+          <p-button
+            icon="pi pi-copy"
+            [text]="true"
+            [rounded]="true"
+            size="large"
+            styleClass="copy-btn"
+            (onClick)="copyToClipboard('https://sistema.oai.com.br/app_login/index.php', 'URL')"
+          />
+        </div>
+      </div>
+    </div>
+  </app-card-base>
+</div>

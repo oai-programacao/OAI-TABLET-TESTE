@@ -1,0 +1,107 @@
+.page-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 88vh;
+  padding: 0.5rem;
+  position: relative;
+}
+
+@media screen and (orientation: portrait) {
+  .page-container {
+    justify-content: flex-start; /* mantém mais acima quando deitado */
+    padding-top: 15rem;
+  }
+}
+
+.btn-to-go-back {
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+}
+
+.container-text-image {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+.container-text {
+  text-align: center;
+
+  h2 {
+    color: #1e3a8a;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    text-align: justify;
+    color: #374151;
+    line-height: 1.5;
+  }
+}
+
+.container-input {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+  width: 100%;
+  max-width: 400px;
+}
+
+/* --- Glass nos campos --- */
+.input-glass {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0.8rem 1rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+
+  i {
+    color: #2563eb;
+    margin-right: 0.6rem;
+    font-size: 1.2rem;
+  }
+
+  input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    color: #1e3a8a;
+    font-weight: 500;
+    font-size: 1rem;
+
+    &:focus {
+      outline: none;
+    }
+  }
+}
+
+/* Botão de copiar */
+.copy-btn {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #2563eb;
+  transition: transform 0.2s ease, color 0.2s ease;
+
+  &:hover {
+    transform: translateY(-50%) scale(1.15);
+    color: #1e40af;
+  }
+}
+
+.btns {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
