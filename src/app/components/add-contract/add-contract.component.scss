@@ -21,6 +21,7 @@
   display: flex;
   gap: 1rem;
   margin: 2rem;
+  
 }
 
 .space2-stepper {
@@ -155,7 +156,7 @@
   justify-content: flex-end;
   gap: 1rem;
   margin-bottom: 0.5rem;
-  width: 85%;
+  width: 90%;
 }
 
 .image-upload-row {
@@ -257,17 +258,17 @@
 }
 
 
-.signature-container {
-  width: 100%;      
-  height: 100%;   
+.signature-pad-container {
+      
+  height: auto;  
   display: flex;
   justify-content: center;
   align-items: center;
-
   border: 1px solid transparent;
   padding: 1rem;
   background: #fff2f2b1;
   border-radius: 1rem;
+  
 
 }
 
@@ -285,4 +286,351 @@
   justify-content: flex-end;
   padding: 0 0 0  0;
   margin: 0.3125rem;
+}
+
+/* FLUXO CARDS */
+.fluxo-container {
+   display: flex;
+  gap: 25px;
+  margin-top: 25px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-left: auto;
+  margin-right: auto; 
+}
+
+.fluxo-card {
+ width: 320px;
+  min-height: 600px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.fluxo-card.online {
+  background: rgba(255, 230, 0, 0.05);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-top: 5px solid #fbc02d;
+}
+
+.fluxo-card.presencial {
+  background: rgba(13, 197, 243, 0.05);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-top: 5px solid #19cefc;
+}
+
+.fluxo-header {
+  font-size: 5rem;
+  text-align: center;
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.fluxo-header h3 {
+  margin-top: 10px;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.fluxo-body {
+  flex: 1;
+  text-align: center;
+  color: #333;
+  font-size: 0.9rem;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fluxo-body p {
+  line-height: 1.4;
+}
+
+.fluxo-footer {
+  display: flex;
+  justify-content: center;
+}
+
+// --- MODAL (DIALOG) ---
+// --- MODAL (DIALOG) ---
+.dialog-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+  text-align: center;
+  padding: 0.5rem;
+  min-width: 300px;
+
+  // 👇 MOVA A REGRA PARA CÁ
+  p-inputgroup {
+    width: 100%;
+    max-width: 300px; 
+  }
+}
+.icon-container {
+  display: flex;
+  justify-content: center;
+}
+
+.whatsapp-icon {
+  font-size: 3rem;
+  background-color: #25d366;
+  color: white;
+  padding: 1rem;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(37, 211, 102, 0.6);
+}
+
+.info-text {
+  font-size: 1rem;
+  color: #333; // Unificado
+  line-height: 1.4;
+}
+
+// --- ALERTAS E MENSAGENS ---
+.msg-error {
+  position: absolute;
+  bottom: 100%;
+  top: 0;
+  left: 5px;
+  width: 100%;
+  z-index: 2;
+  white-space: nowrap;
+}
+
+.alert-warning {
+  padding: 1rem;
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+  border-radius: 0.5rem;
+  font-weight: 400; // Unificado
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.alert-warning i {
+  font-size: 1.2rem;
+}
+
+.alert-box {
+  display: flex;
+  align-items: center;
+  background-color: rgba(255, 230, 0, 0.3);
+  padding: 5px;
+  border-radius: 8px;
+  gap: 15px;
+  margin-top: 15px;
+  padding-left: 20px;
+  border-left: 5px solid rgb(255, 136, 0);
+}
+
+.alert-icon-circle {
+  width: 40px;
+  height: 40px;
+  background-color: rgba(245, 127, 23, 0.5);
+  color: rgb(255, 255, 255);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.alert-text {
+  margin: 0;
+  color: #000000;
+  font-size: 16px;
+  line-height: 1.5;
+}
+.content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  width: 100%;
+  height: auto;
+  flex-wrap: wrap;
+}
+
+// --- STEP 4: VISUALIZAÇÃO DO CONTRATO ---
+.btn-ctr{
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+// Container principal do PDF
+.pdf-preview-section {
+  margin-bottom: 1rem;
+}
+
+// Viewer do PDF
+.pdf-viewer {
+  margin-top: 0.5rem;
+  
+  iframe {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+}
+
+.btn-signature {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  justify-content: start;
+  flex-wrap: wrap;
+}
+
+.camera-section {
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.p-text-danger {
+  color: #e24c4c;
+  
+  i {
+    margin-right: 0.25rem;
+  }
+  
+  p {
+    margin: 0.5rem 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .btn-signature {
+    flex-direction: column;
+    align-items: stretch;
+    
+    :host ::ng-deep .p-button {
+      width: 100%;
+    }
+  }
+  
+  .pdf-viewer iframe {
+    height: 400px;
+  }
+}
+
+// --- OVERLAY DE LOADING ---
+:host ::ng-deep .loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(255, 255, 255, 0.7);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.3s ease-out;
+}
+
+:host ::ng-deep .loading-overlay .p-progressspinner {
+  z-index: 10000;
+}
+
+:host ::ng-deep .loading-overlay .loading-text {
+  color: #2d11c9; // <-- Cor do texto
+  margin-top: 1rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  z-index: 10000;
+}
+
+// --- ASSINATURA ---
+.signature-pad-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  max-width: 60rem;
+  width: 100%;
+  height: auto;
+}
+
+.signature-input {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+  height: auto;
+
+  label {
+    width: 100%;
+    text-align: start;
+  }
+}
+.btn-to-capture {
+  padding: 1rem 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1rem;
+}
+
+.btn-to-signature {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  width: 50%;
+  gap: 1rem;
+}
+
+.btn-to-generate-contract {
+  display: flex;
+  align-items: center;
+  width: 50%;
+  gap: 1rem;
+}
+
+.finalizar{
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -2.2rem;
+}
+
+.alert-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: #d1ecf1;
+  border: 1px solid #bee5eb;
+  border-radius: 6px;
+  color: #0c5460;
+  margin-bottom: 1rem;
+
+  i {
+    font-size: 1.2rem;
+  }
+
+  strong {
+    color: #0c5460;
+  }
 }

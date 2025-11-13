@@ -240,7 +240,7 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
     formData.append('data', jsonBlob, 'data.json');
     formData.append('arquivo', pdfBlob, 'termo_transferencia_assinado.pdf');
 
-    this.attendancesService.registerAttendanceDropDownUpgrade(formData).subscribe({
+    this.attendancesService.registerAttendance(formData).subscribe({
       next: (response) => {
         console.log("Atendimento registrado com sucesso:", response);
         this.showInfo("Registro de Atendimento", "Atendimento registrado com sucesso no sistema.");

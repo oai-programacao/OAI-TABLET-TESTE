@@ -278,7 +278,7 @@ export class DownUpgradeComponent implements OnInit {
     formData.append('data', jsonBlob, 'data.json');
     formData.append('arquivo', pdfBlob, 'termo_transferencia_assinado.pdf');
 
-    this.attendancesService.registerAttendanceDropDownUpgrade(formData).subscribe({
+    this.attendancesService.registerAttendance(formData).subscribe({
       next: (response) => {
         console.log("Atendimento registrado com sucesso:", response);
         this.showInfo("Registro de Atendimento", "Atendimento registrado com sucesso no sistema.");
@@ -444,8 +444,9 @@ export class DownUpgradeComponent implements OnInit {
     this.modalVisible = false;
   }
   private showSuccess(summary: string, detail: string, life: number = 3000) { this.messageService.add({ severity: 'success', summary, detail, life }); }
-  private showError(summary: string, detail: string) { this.messageService.add({ severity: 'error', summary, detail }); }
-
+  private showError(summary: string, detail: string) {
+     this.messageService.add({ severity: 'error', summary, detail }); 
+    }
 
   loadPdfPreview(): void {
     if (this.isLoadingPreview) return;

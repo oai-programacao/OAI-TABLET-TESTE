@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../../core/auth.service';
 import { environment } from '../../../environments/environment';
 
@@ -28,15 +28,25 @@ export class ActionsContractsService {
     contractId: string
   ): Observable<string> {
     const sellerId = this.authService.getSellerId();
-
     const finalPayload = {
       ...payload,
       sellerId,
     };
 
     const url = `${this.apiUrl}/create-consent-document/${clientId}/${contractId}`;
-
-    return this.http.post(url, finalPayload, { responseType: 'text' });
+    const options = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+      }),
+      responseType: 'text' as 'json', // Mantenha 'text' se a API realmente retorna texto
+    };
+    const finalOptions = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+      }),
+      responseType: 'text' as 'text' // O 'as text' é só para o compilador
+    };
+    return this.http.post(url, finalPayload, finalOptions);
   }
 
   sendTransferOwnershipAutentique(
@@ -88,9 +98,19 @@ export class ActionsContractsService {
     contractId: string
   ): Observable<any> {
     const sellerId = this.authService.getSellerId();
-    const finalPayload = {...payload, sellerId };
+    const finalPayload = { ...payload, sellerId };
 
     const url = `${this.apiUrl}/create-consent-document-update-address/${clientId}/${contractId}`;
+    return this.http.post(url, finalPayload, { responseType: 'text' });
+  }
+
+  sendContractSalesAutentique(
+    payload: any,
+    clientId: string,
+  ): Observable<any> {
+    const sellerId = this.authService.getSellerId();
+    const finalPayload = { ...payload, sellerId };
+    const url = `${this.apiUrl}/create-contract-sale/${clientId}`;
     return this.http.post(url, finalPayload, { responseType: 'text' });
   }
 }

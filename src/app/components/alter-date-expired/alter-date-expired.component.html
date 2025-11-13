@@ -21,7 +21,12 @@
       />
     </div>
 
-    <p-stepper [value]="1">
+    <div class="contractNumber__header">
+        <label>Contrato a ser alterado:</label>
+        <span>#{{ contract.codeContractRbx }}</span>
+    </div>
+
+    <p-stepper [(value)]="activeStep" [value]="1">
       <p-step-list>
         <p-step [value]="1">Selecionar datas</p-step>
         <p-step [value]="2">Termo de Consentimento</p-step>
@@ -159,7 +164,7 @@
         </p-step-panel>
 
         <p-step-panel [value]="2">
-          <ng-template #content>
+          <ng-template #content let-activateCallback="activateCallback">
             <div *ngIf="selectedBillingCycle; else noDateSelected">
               <div class="fluxo-container">
                 <!-- CARD 1 - ONLINE -->
@@ -205,7 +210,9 @@
                       icon="pi pi-file-edit"
                       severity="success"
                       [raised]="true"
+                      (onClick)="goToStep(3)"
                       [style]="{ 'padding': '2rem 4rem' }"
+                      [disabled]="false"
                     ></p-button>
                   </div>
                 </div>
@@ -220,13 +227,136 @@
             </ng-template>
           </ng-template>
         </p-step-panel>
-
         <p-step-panel [value]="3">
-          <!-- Conteúdo da etapa 3 -->
+          <ng-template #content let-activateCallback="activateCallback">
+                        <div *ngIf="selectedBillingCycle; else avisoInvalido">
+                            <div class="pdf-preview-section p-mb-3">
+                            <div
+                                *ngIf="previewLoadFailed && !isLoadingPreview"
+                                class="p-mt-2 text-center p-text-danger"
+                            >
+                                <p>
+                                <i class="pi pi-exclamation-triangle p-mr-1"></i> Falha ao carregar o preview.
+                                </p>
+                                <p-button
+                                label="Tentar Novamente"
+                                icon="pi pi-refresh"
+                                styleClass="p-button-sm p-button-danger p-button-outlined"
+                                (click)="loadPdfPreview()"
+                                ></p-button>
+                            </div>
+
+                            <div
+                                *ngIf="safePdfPreviewUrl && !isLoadingPreview"
+                                class="pdf-viewer p-mt-2"
+                            >
+                                <iframe
+                                [src]="safePdfPreviewUrl"
+                                width="100%"
+                                height="600px"
+                                style="border: 1px solid #ccc"
+                                ></iframe>
+                                <div class="btn-signature">
+                                <p-button
+                                    label="Assinar"
+                                    icon="pi pi-pencil"
+                                    styleClass="p-button-sm"
+                                    severity="info"
+                                    rounded="true"
+                                    raised="true"
+                                    (click)="abrirAssinatura()"
+                                ></p-button>
+                                <p-button
+                                    label="Capturar"
+                                    icon="pi pi-camera"
+                                    (click)="cameraInput.click()"
+                                    styleClass="p-button-sm"
+                                    severity="info"
+                                    rounded="true"
+                                    raised="true"
+                                ></p-button>
+                                <p-button
+                                    label="Salvar"
+                                    icon="pi pi-download"
+                                    styleClass="p-button-sm p-button-success"
+                                    (click)="savePdf()"
+                                    [disabled]="!safePdfPreviewUrl"
+                                    rounded="true"
+                                    raised="true"
+                                ></p-button>
+                                </div>
+                            </div>
+                            </div>
+                             <div class="camera-section p-mt-4 p-mb-3">
+                            <input
+                            type="file"
+                            accept="image/*"
+                            capture="environment"
+                            (change)="onFotoCapturada($event)"
+                            style="display: none"
+                            #cameraInput
+                            />
+                        </div>
+
+                        <div class="btn-to-navigate">
+                            <p-button
+                            label="Voltar"
+                            icon="pi pi-arrow-left"
+                            severity="secondary"
+                            rounded="true"
+                            size="large"
+                            [raised]="true"
+                            (onClick)="activateCallback(2)"
+                            />
+                            <p-button
+                            severity="success"
+                            rounded="true"
+                            raised="true"
+                            size="large"
+                            icon="pi pi-arrow-right"
+                            iconPos="right"
+                            label="Atualizar Contrato"
+                            (onClick)="submitAlterDate()"
+                            [loading]="isLoadingTransfer"
+                            [disabled]="isLoadingTransfer || !safePdfPreviewUrl"
+                            />
+                        </div>
+                        </div>
+                        <ng-template #avisoInvalido>
+                            <div class="alert-warning">
+                                ⚠️ Você precisa preencher os dados no passo 1 para continuar.
+                            </div>
+                        </ng-template>
+                    </ng-template>
         </p-step-panel>
 
         <p-step-panel [value]="4">
-          <!-- Conteúdo da etapa 4 -->
+          <ng-template #content>
+	           <div *ngIf="selectedBillingCycle; else avisoInvalido">
+	              <div class="step-content confirmation-step">
+	                  <i class="pi pi-check-circle success-icon"></i>
+	                   <h3>Processo Concluído!</h3>
+	                      <p>
+	                        A alteração de plano foi concluída com sucesso.
+	                      </p>
+	                      </div>
+	    
+	                      <div class="step-footer">
+	                      <p-button 
+	                        severity="help"
+	                        [rounded]="true" 
+	                        label="Voltar para o Início" 
+	                        icon="pi pi-home"
+	                        (onClick)="navigateToInfoClient()">
+	                      </p-button>
+	                  </div>
+	                </div>
+	                    <ng-template #avisoInvalido>
+	                <div class="alert-warning">
+	                   ⚠️ Você precisa preencher os dados no passo 1 para continuar.
+	                </div>
+	              </ng-template>
+	            </ng-template>
         </p-step-panel>
       </p-step-panels>
     </p-stepper>
@@ -305,5 +435,79 @@
         (onClick)="sendToAutentiqueSubmit()"
       ></p-button>
     </ng-template>
+  </p-dialog>
+
+    <p-dialog
+    header="Confirmar Foto Capturada"
+    [(visible)]="isPreviewDialogVisible"
+    [modal]="true"
+    [style]="{ width: '90vw', 'max-width': '600px' }"
+    (onHide)="limparPreview()"
+    >
+    <div *ngIf="thumbnailPreview" class="text-center">
+      <img
+        [src]="thumbnailPreview"
+        alt="Preview da foto capturada"
+        style="
+          width: 100%;
+          height: auto;
+          max-height: 60vh;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          margin-bottom: 1rem;
+        "
+      />
+    </div>
+    <ng-template pTemplate="footer">
+      <p-button
+        label="Descartar"
+        icon="pi pi-times"
+        (click)="limparPreview()"
+        styleClass="p-button-danger p-button-text"
+      ></p-button>
+
+      <p-button
+        label="Salvar Foto"
+        icon="pi pi-save"
+        (click)="salvarFotoCapturada()"
+        styleClass="p-button-success"
+        [disabled]="!fotoCapturadaFile"
+      ></p-button>
+    </ng-template>
+  </p-dialog>
+
+  <p-dialog
+    header="Assinatura Ipad"
+    [(visible)]="signDialogVisible"
+    (onShow)="forceSignatureRedraw()"
+    (onHide)="resetSignaturePad()"
+  >
+    <div class="signature-pad-container">
+      <div class="signature-input">
+        <p-iftalabel>
+          <label for="signature">Assinatura Online (Opcional):</label>
+          <ng-container *ngIf="signatureVisibleFlag">
+            <app-signature-pad #signaturePadInDialog> </app-signature-pad>
+          </ng-container>
+        </p-iftalabel>
+      </div>
+    </div>
+
+    <p-divider layout="horizontal" styleClass="p-my-3"></p-divider>
+
+    <div class="btn-to-capture">
+      <div class="btn-to-generate-contract">
+        <p-button
+          label="Gerar Termo Final com Assinatura"
+          icon="pi pi-file-pdf"
+          [outlined]="true"
+          size="large"
+          severity="info"
+          variant="outlined"
+          [loading]="isLoadingPreview"
+          (onClick)="captureAndGenerate()"
+        ></p-button>
+      </div>
+    </div>
   </p-dialog>
 </div>

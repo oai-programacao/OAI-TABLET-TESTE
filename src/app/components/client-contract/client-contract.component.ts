@@ -142,7 +142,7 @@ export class ClientContractComponent implements OnInit {
     this.contractService
       .getContractsActivesAndWaitByClient(clientId)
       .subscribe({
-        next: (data) => (this.contracts = data),
+        next: (data) => (this.contracts = this.sortContractsByStatus(data)),
         error: () => {
           this.messageService.add({
             severity: 'error',
@@ -155,7 +155,7 @@ export class ClientContractComponent implements OnInit {
 
   loadAllContracts(clientId: string) {
     this.contractService.getAllContractsByClient(clientId).subscribe({
-      next: (data) => (this.contracts = data),
+      next: (data) => (this.contracts = this.sortContractsByStatus(data)),
       error: () => {
         this.messageService.add({
           severity: 'error',
@@ -368,5 +368,15 @@ export class ClientContractComponent implements OnInit {
           });
         },
       });
+  }
+  
+  private sortContractsByStatus(contracts: Contract[]): Contract[] {
+    const priorityOrder = ['ATIVO', 'AGUARDANDO_INSTALACAO', 'BLOQUEADO', 'TRANSFERIDO', 'CANCELADO'];
+
+    return contracts.sort((a, b) => {
+      const priorityA = priorityOrder.indexOf(a.situationDescription);
+      const priorityB = priorityOrder.indexOf(b.situationDescription);
+      return priorityA - priorityB;
+    });
   }
 }

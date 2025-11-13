@@ -11,6 +11,10 @@
         (onClick)="btnToBack()"
       />
     </div>
+    <div class="contrNumber__header">
+      <label>Contrato a ser alterado:</label>
+      <span>#{{ currentContract.codeContractRbx }}</span> 
+    </div>
     <div class="content">
       <ng-template #avisoInvalido>
         <div class="alert-warning">
@@ -18,7 +22,7 @@
           obrigatórios.
         </div>
       </ng-template>
-
+  
       <p-stepper [(value)]="activeStep">
         <p-step-list>
           <p-step [value]="1">Endereço</p-step>
@@ -598,7 +602,7 @@
                       icon="pi pi-check"
                       severity="success"
                       raised="true"
-                      (onClick)="sendToAutomation()"
+                      (onClick)=" onConfirmAddressChange()"
                     />
                   </div>
                 </div>

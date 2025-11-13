@@ -1,5 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap");
-
+// classe aqui é a down=upgrade css
 $border-radius-sm: 6px;
 $border-radius-md: 10px;
 $border-radius-lg: 12px;
@@ -84,6 +84,29 @@ $transition-base: 0.3s ease;
   padding: $spacing-lg 0;
   border-top: 1px solid #eee;
   margin-top: $spacing-lg;
+}
+
+.contractNumber__header {
+  background-color: #f8f9fa;
+  padding: 0.75rem 1.5rem;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #dee2e6;
+
+  label {
+    font-weight: 500;
+    color: #575353;
+    font-size: 1.3rem;
+  }
+
+  span {
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: #1c34a0;
+  }
 }
 
 .step {
