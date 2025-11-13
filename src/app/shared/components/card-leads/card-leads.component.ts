@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 
 
@@ -28,5 +28,26 @@ export interface Address{
   styleUrl: './card-leads.component.scss'
 })
 export class CardLeadsComponent {
- @Input() data!: Sell;
+ @Input() data: any;
+  
+  @Output() onConvert = new EventEmitter<void>();
+  @Output() onDelete = new EventEmitter<void>();
+  @Output() onCall = new EventEmitter<void>();
+  @Output() onEmail = new EventEmitter<void>();
+
+  convertSale(): void {
+    this.onConvert.emit();
+  }
+
+  deleteSale(): void {
+    this.onDelete.emit();
+  }
+
+  callClient(): void {
+    this.onCall.emit();
+  }
+
+  sendEmail(): void {
+    this.onEmail.emit();
+  }
 }

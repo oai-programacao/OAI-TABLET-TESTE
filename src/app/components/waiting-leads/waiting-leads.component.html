@@ -1,19 +1,42 @@
 <div class="leads-container">
-    <app-card-base header="Clientes Em Espera" width="auto" height="auto">
-        <div class="btn-to-back">
-            <p-button icon="pi pi-arrow-left" [rounded]="true" severity="danger" (onClick)="backToSearch()" />
-        </div>
-        <div class="container">
-            <div class="title">
-                <h1>Gestão de Vendas</h1>
-            </div>
-            <div class="card-container">
+  <app-card-base header="Clientes Em Espera" width="auto" height="auto">
+    <div class="btn-to-back">
+      <p-button 
+        icon="pi pi-arrow-left" 
+        [rounded]="true" 
+        severity="danger" 
+        (onClick)="backToSearch()">
+      </p-button>
+    </div>
 
+    <div class="container">
+      <div class="title">
+        <h1>📦 Gestão de Vendas Arquivadas</h1>        
+      </div>
 
+   
+      <div *ngIf="isLoading" class="loading-container">
+        <p-progressSpinner></p-progressSpinner>
+        <p>Carregando vendas arquivadas...</p>
+      </div>
 
-                <app-card-leads *ngFor="let sell of sells" [data]="sell"></app-card-leads>
+    
+      <div *ngIf="!isLoading && archivedSales.length === 0" class="empty-state">
+        <i class="pi pi-inbox" style="font-size: 4rem; color: #ccc;"></i>
+        <h3>Nenhuma venda arquivada</h3>
+        <p>As vendas arquivadas aparecerão aqui.</p>
+      </div>
 
-            </div>
-        </div>
-    </app-card-base>
+    
+      <div *ngIf="!isLoading && archivedSales.length > 0" class="card-container">
+        <app-card-leads 
+          *ngFor="let sale of archivedSales" 
+          [data]="transformToCardData(sale)"
+          (onConvert)="convertToSale(sale)"
+          (onCall)="callClient(sale.clientPhone || '')"
+          (onEmail)="sendEmail(sale.clientEmail || '')">
+        </app-card-leads>
+      </div>
+    </div>
+  </app-card-base>
 </div>

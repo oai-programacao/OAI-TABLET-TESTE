@@ -41,7 +41,5 @@ export class MidiaService {
       withCredentials: true, // mantém cookies/sessão se necessário
     });
   }
-
-
   
 }

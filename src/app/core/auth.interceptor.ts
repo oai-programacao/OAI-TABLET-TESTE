@@ -38,7 +38,6 @@ export class AuthInterceptor implements HttpInterceptor {
     );
   }
 
-
     private handle401(req: HttpRequest<any>, next: HttpHandler): Observable<any> {
     if (!this.isRefreshing) {
       this.isRefreshing = true;

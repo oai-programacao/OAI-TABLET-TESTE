@@ -20,6 +20,7 @@ import { ToastModule } from 'primeng/toast';
 import { AuthService } from '../../core/auth.service';
 import { MessagesValidFormsComponent } from '../../shared/components/message-valid-forms/message-valid-forms.component';
 import { WebSocketService } from '../../services/webSocket/websocket.service';
+import { SalesService } from '../../services/sales/sales.service';
 
 @Component({
   selector: 'app-searchclient',
@@ -47,6 +48,7 @@ export class SearchclientComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly searchClientService = inject(SearchclientService);
   private readonly ws = inject(WebSocketService);
+  private readonly salesService = inject(SalesService);
 
   @ViewChild('searchClientForm') form!: NgForm;
 
@@ -60,6 +62,7 @@ export class SearchclientComponent implements OnInit {
   clienteEncontrado: any = null;
 
   ngOnInit() {
+    this.loadArchivedSalesCount();
     this.vendedorNome = localStorage.getItem('name') || 'Visitante';
 
     setInterval(() => {
@@ -276,5 +279,36 @@ export class SearchclientComponent implements OnInit {
       'pi pi-chart-line', // Meta mensal
     ];
     return icons[index] || 'pi pi-info-circle';
+  }
+
+   /**
+   * Carrega a quantidade de vendas arquivadas para o badge
+   */
+
+  archivedSalesCount: number = 0;
+  isLoadingCount: boolean = false;
+  loadArchivedSalesCount(): void {
+    this.isLoadingCount = true;
+
+    this.salesService.getArchivedSales().subscribe({
+      next: (sales) => {
+        this.archivedSalesCount = sales.length;
+        this.isLoadingCount = false;
+        console.log(`📊 ${this.archivedSalesCount} vendas arquivadas`);
+      },
+      error: (err: any) => {
+        console.error('❌ Erro ao carregar contador de vendas:', err);
+        this.archivedSalesCount = 0;
+        this.isLoadingCount = false;
+      }
+    });
+  }
+
+  /**
+   * Navega para a tela de vendas arquivadas
+   */
+  navigateToArchivedSales(): void {
+    console.log('🔄 Navegando para vendas arquivadas...');
+    this.router.navigate(['/waiting-leads']);
   }
 }

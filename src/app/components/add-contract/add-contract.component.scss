@@ -257,22 +257,6 @@
   max-width: 94%;
 }
 
-
-.signature-pad-container {
-      
-  height: auto;  
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: 1px solid transparent;
-  padding: 1rem;
-  background: #fff2f2b1;
-  border-radius: 1rem;
-  
-
-}
-
-
 .btn-to-actions{
   display: flex;
   align-items: center;
@@ -578,13 +562,13 @@
   justify-content: center;
   gap: 0.4rem;
   width: 100%;
-  height: auto;
 
   label {
     width: 100%;
     text-align: start;
   }
 }
+
 .btn-to-capture {
   padding: 1rem 0;
   width: 100%;
