@@ -122,3 +122,21 @@
   border-color: #4da3ff !important;
   box-shadow: 0 0 0 0.2rem rgba(77, 163, 255, 0.3) !important;
 }
+
+.lottie-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999; 
+}
+
+.lottie-box {
+  width: 250px; 
+  height: 250px;
+}

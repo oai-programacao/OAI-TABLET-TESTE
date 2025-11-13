@@ -49,7 +49,7 @@
           icon="pi pi-pencil"
           (onClick)="createCredentialsClient()"
         />
-         <p-button
+        <p-button
           *ngIf="changeButtonCreate"
           severity="danger"
           icon="pi pi-times"
@@ -58,14 +58,12 @@
           (onClick)="cancelCreateCredentials()"
         />
 
-
         <p-button
           label="Acessar Central do Assinante"
           icon="pi pi-external-link"
           link="true"
           (onClick)="openExternalLink()"
         />
-
 
         <p-button
           *ngIf="!changeButton"
@@ -114,7 +112,7 @@
             [rounded]="true"
             size="large"
             styleClass="copy-btn"
-            (onClick)="copyToClipboard('cliente_12345', 'Usuário')"
+            (onClick)="copyToClipboard(usuario, 'Usuário')"
           />
         </div>
 
@@ -137,7 +135,7 @@
             [rounded]="true"
             size="large"
             styleClass="copy-btn"
-            (onClick)="copyToClipboard('senha_segura_123', 'Senha')"
+            (onClick)="copyToClipboard(password, 'Senha')"
           />
         </div>
         <div class="input-glass" [class.disabled]="!enable">
@@ -154,5 +152,11 @@
         </div>
       </div>
     </div>
+
+    
+    <div *ngIf="showSuccessLottie" class="lottie-overlay">
+      <div #lottieContainer class="lottie-box"></div>
+    </div>
+    
   </app-card-base>
 </div>

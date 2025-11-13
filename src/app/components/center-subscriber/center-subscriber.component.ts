@@ -1,8 +1,7 @@
-import { Message } from 'primeng/message';
 import { ContractsService } from './../../services/contracts/contracts.service';
 import { ClientService } from './../../services/clients/client.service';
 import { CommonModule } from '@angular/common';
-import { Component, type OnInit } from '@angular/core';
+import { Component, ElementRef, ViewChild, type OnInit } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { CardBaseComponent } from '../../shared/components/card-base/card-base.component';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -21,6 +20,7 @@ import { Contract } from '../../models/contract/contract.dto';
 import { SelectModule } from 'primeng/select';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { CreateCenterSubscribeDTO } from '../../models/centersubscribe/createCenterSubscribe.dto';
+import player from 'lottie-web';
 
 @Component({
   standalone: true,
@@ -57,6 +57,9 @@ export class CenterSubscriberComponent implements OnInit {
   selectedContract: Contract | undefined;
   isLoading = false;
 
+  @ViewChild('lottieContainer') lottieContainer!: ElementRef<HTMLDivElement>;
+  showSuccessLottie = false;
+
   constructor(
     private router: Router,
     private route: ActivatedRoute,
@@ -89,8 +92,6 @@ export class CenterSubscriberComponent implements OnInit {
           this.selectedContract = this.contracts.find(
             (c) => c.codeContractRbx === credencial.Contrato
           );
-
-          console.log('Contrato selecionado:', this.selectedContract);
         } else {
           console.warn('Nenhuma credencial encontrada para o cliente.');
         }
@@ -105,7 +106,7 @@ export class CenterSubscriberComponent implements OnInit {
     });
   }
 
-  copyToClipboard(text: string, label: string) {
+  copyToClipboard(text: any, label: string) {
     navigator.clipboard.writeText(text).then(() => {
       this.messageService.add({
         severity: 'success',
@@ -267,6 +268,8 @@ export class CenterSubscriberComponent implements OnInit {
           summary: 'Sucesso',
           detail: 'Credenciais atualizadas com sucesso!',
         });
+
+        this.showSuccess();
         this.changeButtonDisabled = false;
       },
       error: (err) => {
@@ -310,6 +313,8 @@ export class CenterSubscriberComponent implements OnInit {
           summary: 'Sucesso',
           detail: 'Credenciais atualizadas com sucesso!',
         });
+
+        this.showSuccess();
         this.changeButtonCreateDisabled = false;
       },
       error: (err) => {
@@ -326,4 +331,26 @@ export class CenterSubscriberComponent implements OnInit {
     this.enable = false;
     this.changeButton = false;
   }
+
+  showSuccess() {
+    this.showSuccessLottie = true;
+
+    // Aguarda o Angular renderizar o container antes de carregar a animação
+    setTimeout(() => {
+      if (this.lottieContainer) {
+        player.loadAnimation({
+          container: this.lottieContainer.nativeElement,
+          path: '/check.json',
+          renderer: 'svg',
+          loop: false,
+          autoplay: true,
+        });
+      }
+    }, 50);
+
+    setTimeout(() => {
+      this.showSuccessLottie = false;
+    }, 3000);
+  }
+
 }
