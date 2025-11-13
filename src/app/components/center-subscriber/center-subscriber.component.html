@@ -148,6 +148,7 @@
             styleClass="custom-select"
             [disabled]="!enable"
             required
+            [panelStyleClass]="'dropdown-up'"
           ></p-select>
         </div>
       </div>
@@ -157,6 +158,6 @@
     <div *ngIf="showSuccessLottie" class="lottie-overlay">
       <div #lottieContainer class="lottie-box"></div>
     </div>
-    
+
   </app-card-base>
 </div>
