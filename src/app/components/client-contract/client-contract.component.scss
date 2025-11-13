@@ -112,7 +112,7 @@
 
       &.transfer {
         background-color: rgb(19, 160, 253);
-        box-shadow: 0 0 5px #09b4f8, 0 0 10px #008cff;
+        box-shadow: 0 0 5px #32383a, 0 0 10px #008cff;
         animation: pulse 1.5s infinite;
       }
     }
@@ -173,8 +173,8 @@
 }
 
 .status span {
-  font-weight: 1000; // negrito
-  color: #313131; // opcional, cor destacada
+  font-weight: 1000; 
+  color: #313131; 
 }
 
 .addresscontract {
@@ -182,20 +182,15 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  /* mais espaço entre seções */
 }
 
 .addresscontract .section {
   display: flex;
   flex-wrap: wrap;
-  /* permite quebrar linha se precisar */
   align-items: center;
   gap: 0.5rem;
-  /* espaço entre label e span */
   padding: 0.25rem 0;
-  /* separação visual entre seções */
   border-bottom: 1px solid #eee;
-  /* linha sutil para separar seções */
 }
 
 .addresscontract label {
