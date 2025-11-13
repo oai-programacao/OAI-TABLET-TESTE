@@ -1,5 +1,6 @@
 <div class="page-container">
   <p-toast />
+  <p-confirmDialog></p-confirmDialog>
   <app-card-base width="auto" height="auto" header="CENTRAL DO ASSINANTE">
     <div class="btn-to-go-back">
       <p-button
@@ -23,32 +24,89 @@
       <div class="container-text">
         <h2>Credenciais do Cliente</h2>
         <p>
-          Abaixo é possível visualizar as credenciais de acesso do cliente à Central do
-          do Assinante.<br>
-          Utilize os botões de cópia para facilitar o acesso.
+          Abaixo é possível visualizar as credenciais de acesso do cliente à
+          Central do Assinante.<br />
+          Não é possível visualizar a senha do cliente, em caso de esquecimento
+          altere.
         </p>
       </div>
 
       <div class="btns">
+        <p-button
+          *ngIf="!changeButtonCreate"
+          label="Criar credencial"
+          severity="info"
+          icon="pi pi-pencil"
+          (onClick)="changeAlterInputCreate()"
+          [disabled]="changeButtonCreateDisabled"
+        />
+        <p-button
+          *ngIf="changeButtonCreate"
+          label="Salvar"
+          severity="success"
+          rounded="true"
+          raised="true"
+          icon="pi pi-pencil"
+          (onClick)="createCredentialsClient()"
+        />
+         <p-button
+          *ngIf="changeButtonCreate"
+          severity="danger"
+          icon="pi pi-times"
+          iconPos="right"
+          [rounded]="'true'"
+          (onClick)="cancelCreateCredentials()"
+        />
+
+
         <p-button
           label="Acessar Central do Assinante"
           icon="pi pi-external-link"
           link="true"
           (onClick)="openExternalLink()"
         />
-        <p-button label="Alterar Credenciais" severity="danger" icon="pi pi-pencil" />
+
+
+        <p-button
+          *ngIf="!changeButton"
+          label="Alterar Credenciais"
+          severity="info"
+          icon="pi pi-pencil"
+          (onClick)="changeAlterInputsCredentials()"
+          [disabled]="changeButtonDisabled"
+        />
+        <p-button
+          *ngIf="changeButton"
+          severity="success"
+          icon="pi pi-check"
+          iconPos="right"
+          [rounded]="'true'"
+          label="Salvar"
+          (onClick)="updateCredentialsClient()"
+        />
+        <p-button
+          *ngIf="changeButton"
+          severity="danger"
+          icon="pi pi-times"
+          iconPos="right"
+          [rounded]="'true'"
+          (onClick)="cancelAlterCredentials()"
+        />
       </div>
 
       <div class="container-input">
         <!-- Campo de Usuário -->
-        <div class="input-glass">
+        <div class="input-glass" [class.disabled]="!enable">
           <i class="pi pi-user"></i>
           <input
             pInputText
             type="text"
             placeholder="Usuário"
-            [readonly]="true"
-            [value]="'cliente_12345'"
+            [readonly]="!enable"
+            id="usuario"
+            minlength="7"
+            [(ngModel)]="usuario"
+            required
           />
           <p-button
             icon="pi pi-copy"
@@ -61,14 +119,17 @@
         </div>
 
         <!-- Campo de Senha -->
-        <div class="input-glass">
+        <div class="input-glass" [class.disabled]="!enable">
           <i class="pi pi-lock"></i>
           <input
             pInputText
             type="text"
             placeholder="Senha"
-            [readonly]="true"
-            [value]="'senha_segura_123'"
+            [readonly]="!enable"
+            id="password"
+            minlength="7"
+            [(ngModel)]="password"
+            required
           />
           <p-button
             icon="pi pi-copy"
@@ -79,24 +140,17 @@
             (onClick)="copyToClipboard('senha_segura_123', 'Senha')"
           />
         </div>
-
-        <div class="input-glass">
+        <div class="input-glass" [class.disabled]="!enable">
           <i class="pi pi-globe"></i>
-          <input
-            pInputText
-            type="text"
-            placeholder="Central URL"
-            [readonly]="true"
-            [value]="'https://sistema.oai.com.br/app_login/index.php'"
-          />
-          <p-button
-            icon="pi pi-copy"
-            [text]="true"
-            [rounded]="true"
-            size="large"
-            styleClass="copy-btn"
-            (onClick)="copyToClipboard('https://sistema.oai.com.br/app_login/index.php', 'URL')"
-          />
+          <p-select
+            [options]="contracts"
+            [(ngModel)]="selectedContract"
+            optionLabel="displayLabel"
+            placeholder="Selecione um contrato"
+            styleClass="custom-select"
+            [disabled]="!enable"
+            required
+          ></p-select>
         </div>
       </div>
     </div>
