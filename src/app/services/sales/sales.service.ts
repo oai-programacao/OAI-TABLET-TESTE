@@ -37,8 +37,8 @@ export class SalesService{
     private readonly http = inject(HttpClient);
 
 
-    createSale(payload: any): Observable<any> {
-        return this.http.post<any>(`${this.urlApi}/sales/newsale`, payload);
+  createSale(formData: FormData): Observable<any> {
+        return this.http.post<any>(`${this.urlApi}/sales/newsale`, formData);
 } 
 
   archiveSale(payload: any): Observable<any> {

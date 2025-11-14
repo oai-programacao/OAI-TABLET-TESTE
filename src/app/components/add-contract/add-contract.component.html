@@ -253,6 +253,15 @@
 
                   <div class="button-content">
                     <p-button
+                       
+                        label="Arquivar"
+                        raised="true"
+                        severity="secondary"
+                        (onClick)="archiveSaleDraft()"
+                        [loading]="isArchiving"
+                        icon="pi pi-inbox"
+                        />
+                    <p-button
                       label="Próximo"
                       icon="pi pi-arrow-down"
                       iconPos="right"
@@ -611,7 +620,8 @@
         <div  class="pdf-preview-section">
   <div class="pdf-viewer p-mt-2">
     <iframe
-     [src]="safePdfPreviewUrl" 
+      *ngIf="safePdfPreviewUrl"
+      [src]="safePdfPreviewUrl"
       width="100%"
       height="600px"
       title="Visualização do Contrato">
@@ -629,14 +639,14 @@
             </p-button>
             
             <p-button
-              label="Capturar Foto"
-              icon="pi pi-camera"
-              severity="secondary"
-              [rounded]="true"
-              [raised]="true"
-              size="small"
-              (click)="cameraInput.click()">
-            </p-button>
+  [label]="step4CapturedPhotos.length > 0 ? 'Ver Fotos (' + step4CapturedPhotos.length + ')' : 'Capturar Foto'"
+  [icon]="step4CapturedPhotos.length > 0 ? 'pi pi-images' : 'pi pi-camera'"
+  [severity]="step4CapturedPhotos.length > 0 ? 'info' : 'secondary'"
+  [rounded]="true"
+  [raised]="true"
+  size="small"
+  (click)="handleCapturaFoto()">
+</p-button>
             
             <p-button
               label="Salvar PDF"
@@ -667,15 +677,14 @@
         </div>
 
         <div class="camera-section">
-          <input
-            type="file"
-            accept="image/*"
-            capture="environment"
-            (change)="onFotoCapturada($event)"
-            style="display: none"
-            #cameraInput />
-            
-        </div>
+  <input
+    type="file"
+    #cameraInput
+    accept="image/*"
+    capture="environment"
+    (change)="processarFotoCapturada($event)"
+    style="display: none" />
+</div>
 
         <div class="py-6" >
           <p-button
@@ -701,14 +710,18 @@
     </div>
   </app-card-base>
 
-  <p-dialog
-  header="Confirmar Foto Capturada"
+ <!-- ✅ Dialog de Preview com Galeria de Thumbnails -->
+<p-dialog
+  header="Fotos do Contrato"
   [(visible)]="isPreviewDialogVisible"
   [modal]="true"
-  [style]="{ width: '90vw', 'max-width': '600px' }"
+  [style]="{ width: '90vw', 'max-width': '700px' }"
+  [closable]="true"
   (onHide)="limparPreview()">
   
-  <div *ngIf="thumbnailPreview" class="text-center" style="margin-bottom: 1rem;">
+  <!-- ✅ Preview da foto capturada (grande) -->
+  <div *ngIf="thumbnailPreview" class="text-center" style="margin-bottom: 1.5rem;">
+    <h5 style="margin-bottom: 0.5rem; color: #495057;">Preview da Foto</h5>
     <img
       [src]="thumbnailPreview"
       alt="Preview da foto capturada"
@@ -721,7 +734,23 @@
       " />
   </div>
 
-
+  <!-- ✅ Galeria de thumbnails (fotos já salvas) -->
+  <div  class="captured-photos-gallery-dialog">
+    <h5>Fotos Adicionadas ({{ step4CapturedPhotos.length }})</h5>
+    <div class="thumbnails-row-dialog">
+      <div class="thumbnail-item-dialog" *ngFor="let photo of step4CapturedPhotos; let i = index">
+        <img [src]="photo.preview" alt="Foto {{ i + 1 }}" />
+        <button 
+          type="button" 
+          class="remove-thumbnail-btn-dialog" 
+          (click)="removerFotoStep4(i)"
+          title="Remover foto">
+          ✕
+        </button>
+        <span class="thumbnail-number-dialog">{{ i + 1 }}</span>
+      </div>
+    </div>
+  </div>
 
   <ng-template pTemplate="footer">
     <p-button
@@ -741,9 +770,18 @@
     <p-button
       label="Salvar Foto"
       icon="pi pi-check"
-      (click)="salvarFotoCapturada()"
+      (click)="salvarFotoContratoCapturada()"
       styleClass="p-button-success"
       [disabled]="!fotoCapturadaFile">
+    </p-button>
+
+    <!-- ✅ Botão para fechar quando já tem fotos salvas -->
+    <p-button
+     
+      label="Concluir"
+      icon="pi pi-check-circle"
+      (click)="isPreviewDialogVisible = false"
+      styleClass="p-button-info">
     </p-button>
   </ng-template>
 </p-dialog>

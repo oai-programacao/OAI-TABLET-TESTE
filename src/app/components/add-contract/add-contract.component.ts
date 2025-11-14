@@ -38,7 +38,7 @@ import { ToastModule } from 'primeng/toast';
 import { ActionsContractsService } from '../../services/actionsToContract/actions-contracts.service';
 import { PdfMergerUtil } from '../../shared/utils/pdf-merger.utils';
 import { firstValueFrom, forkJoin } from 'rxjs';
-
+import { DateUtilsService } from '../../shared/utils/date.utils';
 import {
   ConsentTermAdesionRequest,
   ConsentTermPermanentRequest,
@@ -46,47 +46,21 @@ import {
 } from '../../services/reports/reports.service';
 
 import { AttendancesService } from '../../services/attendances/attendances.service';
+import { ContractFormData } from '../../models/sales/sales.dto';
+import { Address } from '../../models/sales/sales.dto';
 
-export interface ContractFormData {
-  salesId?: number;
-  sellerId: string;
-  clientId: string;
-  codePlan: number;
-  dateStart: string;
-  dateSignature: string;
-  dateOfAssignment?: string;
-  dateExpired: string;
-  adesion: number;
-  numberParcels: number;
-  parcels: Parcel[];
-  address: Address;
-  discount: number;
-  signature: string;
-  imagesOne?: string;
-  observation?: string;
-  situationDescription?: string;
-  discountFixed?: number;
-  vigencia?: number;
-  cicleFatId?: number;
-  cicleBillingDayBase?: number;
-  cicleBillingExpired?: number;
-}
 
-export interface Parcel {
-  description: string;
-  dueDate: string;
-  price: number;
-}
-
-export interface Address {
-  zipCode: string;
-  state: string;
-  city: string;
-  street: string;
-  number: string;
-  complement?: string;
-  neighborhood: string;
-  type?: string;
+export interface DraftSaleResponse extends ContractFormData {
+  draftId: string;
+  codeplan: string;
+  installments: string;
+  expirationCycle: string;
+  contractType: string;
+  startDate: string;      
+  signatureDate: string;  
+  expirationDate: string; 
+  
+  images?: string[];
 }
 
 @Component({
@@ -199,6 +173,7 @@ export class AddContractComponent implements OnInit {
   signDialogVisible = false;
   isPreviewDialogVisible: boolean = false;
 
+  step4CapturedPhotos: Array<{ file: File; preview: string }> = [];
 
   signatureVisibleFlag = false;
   activeContractType: 'adesion' | 'permanence' = 'adesion';
@@ -313,7 +288,7 @@ export class AddContractComponent implements OnInit {
     localidade: 'São Paulo',
   };
 
-  constructor(public messageService: MessageService) {
+  constructor(public messageService: MessageService,  private dateUtils: DateUtilsService,) {
     this.clientId = this.route.snapshot.queryParamMap.get('clientId') ?? '';
   }
 
@@ -373,23 +348,6 @@ export class AddContractComponent implements OnInit {
       this.imagePreviews[targetIndex] = reader.result as string;
     };
     reader.readAsDataURL(file);
-
-    setTimeout(() => {
-      try {
-        if (input && input instanceof HTMLInputElement) {
-          if (input.value) {
-            input.value = '';
-          }
-        }
-      } catch (err) {
-        try {
-          const newInput = input.cloneNode() as HTMLInputElement;
-          input.parentNode?.replaceChild(newInput, input);
-        } catch (innerErr) {
-          console.warn('Falha ao limpar input file:', innerErr);
-        }
-      }
-    }, 0);
   }
 
   salvarImagens() {
@@ -430,61 +388,50 @@ export class AddContractComponent implements OnInit {
     });
   }
 
-  salvarFotoCapturada() {
-    if (!this.fotoCapturadaFile) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Nenhuma foto',
-        detail: 'Tire uma foto antes de salvar.',
-      });
-      return;
-    }
 
-    if (!this.clientId) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Erro',
-        detail: 'ID do cliente não encontrado para associar a foto.',
-      });
-      return;
-    }
-
-    const filesToUpload: File[] = [this.fotoCapturadaFile];
-    this.midiaService.saveMidias(filesToUpload, this.clientId).subscribe({
-      next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Foto salva com sucesso!',
-        });
-
-        this.limparPreview();
-      },
-      error: (err) => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro ao salvar a foto',
-        });
-        console.error(err);
-      },
+  salvarFotoContratoCapturada(): void {
+  if (!this.fotoCapturadaFile || !this.thumbnailPreview) {
+    this.messageService.add({
+      severity: 'warn',
+      summary: 'Nenhuma foto',
+      detail: 'Tire uma foto antes de salvar.',
     });
+    return;
   }
 
-  removerFoto(index: number): void {
-  this.capturedPhotos.splice(index, 1);
+  this.step4CapturedPhotos.push({
+    file: this.fotoCapturadaFile,
+    preview: this.thumbnailPreview as string
+  });
+
+  this.messageService.add({
+    severity: 'success',
+    summary: 'Foto Adicionada',
+    detail: `Foto ${this.step4CapturedPhotos.length} salva!`,
+  });
+
+  this.thumbnailPreview = null;
+  this.fotoCapturadaFile = null;
+}
+
+removerFotoStep4(index: number): void {
+  this.step4CapturedPhotos.splice(index, 1);
+  
   this.messageService.add({
     severity: 'info',
     summary: 'Foto Removida',
-    detail: 'Foto excluída.',
+    detail: 'Foto excluída da galeria.',
   });
 }
 
-tirarOutraFoto(): void {
-  this.limparPreview();
 
+tirarOutraFoto(): void {
+  this.thumbnailPreview = null;
+  this.fotoCapturadaFile = null;
   setTimeout(() => {
-    const input = document.querySelector('input[type="file"][accept="image/*"]') as HTMLInputElement;
-    if (input) {
-      input.click();
+    if (this.cameraInput?.nativeElement) {
+      this.cameraInput.nativeElement.click();
+      console.log('📷 Câmera reaberta');
     }
   }, 100);
 }
@@ -540,22 +487,6 @@ tirarOutraFoto(): void {
       },
     });
   }
-
-formatToLocalDateString(date: Date | null): string | null {
-  if (!date) return null;
-
-  try {
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const year = date.getFullYear();
-
-    const formatted = `${day}/${month}/${year}`;
-    return formatted;
-  } catch (error) {
-    console.error('Erro ao formatar data:', error);
-    return null;
-  }
-}
 
   submitContract(): void {
     if (!this.contractForm.valid) {
@@ -616,13 +547,13 @@ formatToLocalDateString(date: Date | null): string | null {
       sellerId,
       clientId: this.clientId,
       codePlan: Number(this.selectedPlan),
-      dateStart: this.formatToLocalDateString(this.dateOfStart) || '',
+      dateStart: this.dateUtils.formatToLocalDateString(this.dateOfStart) || '',
       dateSignature:
-        this.formatToLocalDateString(this.dateSignature) ||
-        this.formatToLocalDateString(this.dateOfStart) ||
+        this.dateUtils.formatToLocalDateString(this.dateSignature) ||
+        this.dateUtils.formatToLocalDateString(this.dateOfStart) ||
         '',
       dateExpired:
-        this.formatToLocalDateString(this.dateOfMemberShipExpiration) || '',
+        this.dateUtils.formatToLocalDateString(this.dateOfMemberShipExpiration) || '',
       numberParcels: Number(this.selectedInstallment),
       adesion: Number(this.contractFormData.adesion) || 100.0,
       discount: 900.0,
@@ -637,7 +568,6 @@ formatToLocalDateString(date: Date | null): string | null {
         complement: this.contractFormData.address.complement || '',
       },
       signature: '',
-      imagesOne: this.images[0] ? URL.createObjectURL(this.images[0]) : '',
       observation: this.contractFormData.observation || '',
       vigencia: String(this.contractFormData.vigencia || 12),
       cicleFatId: Number(selectedCycle.id),
@@ -645,10 +575,29 @@ formatToLocalDateString(date: Date | null): string | null {
       cicleBillingExpired: Number(selectedCycle.vencimento),
       draftId: this.currentDraftId || null,  
       residenceType: this.selectedResidence || ''  
-      
     };
 
-    this.salesService.createSale(payload).subscribe({
+    const formData = new FormData();
+
+    const saleDataBlob = new Blob([JSON.stringify(payload)], {
+      type: 'application/json',
+    });
+
+    formData.append('saleData', saleDataBlob);
+
+    this.images.forEach((imageFile, index) => {
+  if (imageFile) {
+    formData.append('contractImages', imageFile, `contract_${index + 1}.jpg`);
+  }
+});
+      
+    this.step4CapturedPhotos.forEach((photo, index) => {
+  if (photo.file) {
+    formData.append('saleImages', photo.file, `sale_${index + 1}.jpg`);
+  }
+});
+
+    this.salesService.createSale(formData).subscribe({
       next: (sale) => {
         this.messageService.add({
           severity: 'success',
@@ -753,7 +702,7 @@ formatToLocalDateString(date: Date | null): string | null {
           },
           error: (err) => {
             this.isLoading = false;
-            console.error('❌ Falha ao registrar atendimento:', err);
+            console.error('Falha ao registrar atendimento:', err);
 
             this.messageService.add({
               severity: 'warn',
@@ -770,7 +719,7 @@ formatToLocalDateString(date: Date | null): string | null {
       })
       .catch((error) => {
         this.isLoading = false;
-        console.error('❌ Erro ao converter PDFs para Blob:', error);
+        console.error('Erro ao converter PDFs para Blob:', error);
 
         this.messageService.add({
           severity: 'error',
@@ -856,7 +805,7 @@ formatToLocalDateString(date: Date | null): string | null {
       state: this.contractFormData.address.state,
       zipCode: this.contractFormData.address.zipCode,
       contractDueDay:
-      this.formatToLocalDateString(this.dateOfMemberShipExpiration) || '',
+      this.dateUtils.formatToLocalDateString(this.dateOfMemberShipExpiration) || '',
       discount: this.contractFormData.discount.toString(),
       discountFixed: this.contractFormData.discountFixed?.toString() || '0',
       
@@ -922,7 +871,7 @@ formatToLocalDateString(date: Date | null): string | null {
       });
   }catch (error) {
     this.isLoading = false;
-    console.error('❌ Erro ao enviar para Autentique:', error);
+    console.error('Erro ao enviar para Autentique:', error);
 
     this.messageService.add({
       severity: 'error',
@@ -930,18 +879,6 @@ formatToLocalDateString(date: Date | null): string | null {
       detail: 'Falha ao processar envio.',
     });
   }
-}
-
-private blobToBase64(blob: Blob): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64 = (reader.result as string).split(',')[1]; 
-      resolve(base64);
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
 }
 
   ngAfterViewInit() {
@@ -974,6 +911,7 @@ private blobToBase64(blob: Blob): Promise<string> {
   if (!input.files || input.files.length === 0) return;
 
   const file = input.files[0];
+    this.fotoCapturadaFile = file;
   
   if (!file.type.startsWith('image/')) {
     this.messageService.add({
@@ -992,7 +930,6 @@ private blobToBase64(blob: Blob): Promise<string> {
   };
   reader.readAsDataURL(file);
 
-  input.value = ''; 
 }
 
 savePdf(): void {
@@ -1005,7 +942,7 @@ savePdf(): void {
     return;
   }
 
-  const fileName = `contratos_${new Date().getTime()}.pdf`;
+  const fileName = `contratos_${this.clientId}}.pdf`;
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
   if (isIOS) {
@@ -1044,230 +981,130 @@ savePdf(): void {
   this.thumbnailPreview = null;
   this.fotoCapturadaFile = null;
   this.isPreviewDialogVisible = false;
-  if (this.cameraInput && this.cameraInput.nativeElement) {
-    this.cameraInput.nativeElement.value = ''; 
-  }
+  
 }
 
+ async loadPdfPreview(): Promise<void> {
+  if (this.isLoadingPreview || !this.clientId) return;
 
+  const MINIMUM_SPINNER_TIME = 700;
+  const startTime = Date.now();
+
+  this.isLoadingPreview = true;
+  this.safePdfPreviewUrl = null;
+
+  this.limparPreview?.();
+  this.safePdfPreviewUrl = null;
+  if (this.pdfPreviewUrl) {
+    URL.revokeObjectURL(this.pdfPreviewUrl);
+    this.pdfPreviewUrl = null;
+  }
+
+  try {
   
-
-  async loadPdfPreview(): Promise<void> {
-    if (this.isLoadingPreview) return;
-
-    console.log('Aguarde enquanto o PDF é gerado...');
-
-    const MINIMUM_SPINNER_TIME = 700;
-    const startTime = Date.now();
-
-    this.isLoadingPreview = true;
-    this.safePdfPreviewUrl = null;
-
-    this.limparPreview?.();
-
-    if (this.pdfPreviewUrl) {
-      URL.revokeObjectURL(this.pdfPreviewUrl);
-      this.pdfPreviewUrl = null;
-    }
-
-    console.log('🚀 Entrou em loadPdfPreview');
-
-    if (!this.clientId) return;
-
-    const adesionReq: ConsentTermAdesionRequest = {
+    const contractData = {
       clientId: this.clientId,
       codePlanRBX: Number(this.selectedPlan),
-      street: this.contractFormData.address.street,
-      number: this.contractFormData.address.number,
-      neighborhood: this.contractFormData.address.neighborhood,
-      city: this.contractFormData.address.city,
-      state: this.contractFormData.address.state,
-      zipCode: this.contractFormData.address.zipCode,
+      ...this.contractFormData.address,
+      complement: this.contractFormData.address.complement || '',
       discount: this.contractFormData.discount.toString(),
       discountFixed: this.contractFormData.discountFixed?.toString() || '0',
       contractDueDay:
-        this.formatToLocalDateString(this.dateOfMemberShipExpiration) || '',
+        this.dateUtils.formatToLocalDateString(this.dateOfMemberShipExpiration) || '',
+      signatureBase64: null, // <-- Enviamos null (sem assinatura)
     };
-
-    const permanentReq: ConsentTermPermanentRequest = {
-      clientId: this.clientId,
-      codePlanRBX: Number(this.selectedPlan),
-      street: adesionReq.street,
-      number: adesionReq.number,
-      neighborhood: adesionReq.neighborhood,
-      city: adesionReq.city,
-      state: adesionReq.state,
-      zipCode: adesionReq.zipCode,
-      discount: adesionReq.discount,
-      discountFixed: adesionReq.discountFixed,
-      contractDueDay: adesionReq.contractDueDay,
-    };
-
-    try{
-      const[adesionBlob, permanentBlob] = await firstValueFrom(
-         forkJoin([
-      this.reportsService.getContractAdesionPdf(this.clientId, adesionReq),
-      this.reportsService.getContractPermanencePdf(this.clientId, permanentReq),
-    ])
-  );
-
-  console.log(' PDFs recebidos:', {
-      adesao: `${(adesionBlob.size / 1024).toFixed(2)} KB`,
-      permanencia: `${(permanentBlob.size / 1024).toFixed(2)} KB`,
-    });
-
-    if(adesionBlob.type !== 'application/pdf'){
-      console.warn(' Adesão não retornou PDF:', await adesionBlob.text());
-      throw new Error('Contrato de adesão inválido');
-    }
-    if(permanentBlob.type !== 'application/pdf'){
-      console.warn(' Permanência não retornou PDF:', await permanentBlob.text());
-      throw new Error('Contrato de permanência inválido');
-    }
-
-    console.log('Mesclando PDFs...');
-    const mergedPdfBlob = await PdfMergerUtil.mergeTwoPDFs(
-      adesionBlob,
-      permanentBlob,
+    const mergedPdfBlob = await firstValueFrom(
+      this.reportsService.getContractDisplayPdf(this.clientId, contractData)
     );
-    console.log(' PDFs mesclados com sucesso!');
+
+    if (mergedPdfBlob.type !== 'application/pdf') {
+      throw new Error('PDF inválido retornado pelo servidor');
+    }
 
     this.pdfPreviewUrl = URL.createObjectURL(mergedPdfBlob);
-    this.safePdfPreviewUrl =
-      this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfPreviewUrl);
+    this.safePdfPreviewUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
+      this.pdfPreviewUrl
+    );
 
-    this.rawPdfAdesionUrl = URL.createObjectURL(adesionBlob);
-    this.rawPdfPermanentUrl = URL.createObjectURL(permanentBlob);
-
-    console.log('Pdfs mesclados pronto para a exibição');
-
-        const duration = Date.now() - startTime;
-        const delay = Math.max(0, MINIMUM_SPINNER_TIME - duration);
-        setTimeout(() => {
-          this.isLoadingPreview = false;
-        }, delay);
-      }catch (error) {
-    console.error(' Erro ao carregar/mesclar PDFs:', error);
+  } catch (error) {
+    console.error('Erro ao carregar preview:', error);
     this.previewLoadFailed = true;
-
-    const duration = Date.now() - startTime;
-    const delay = Math.max(0, MINIMUM_SPINNER_TIME - duration);
-
-    setTimeout(() => {
-      this.isLoadingPreview = false;
-    }, delay);
-
     this.messageService.add({
       severity: 'error',
       summary: 'Erro',
       detail: 'Falha ao gerar preview dos contratos.',
     });
+  } finally {
+    const duration = Date.now() - startTime;
+    const delay = Math.max(0, MINIMUM_SPINNER_TIME - duration);
+    setTimeout(() => (this.isLoadingPreview = false), delay);
   }
 }
 
   async generateContractWithSignature(signatureBase64: string): Promise<void> {
-  if (!this.clientId) {
-    console.error('generateContractWithSignature: Client ID está nulo. Abortando.');
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Erro de Sistema',
-      detail: 'ID do Cliente não foi encontrado. Recarregue a página.',
-    });
-    return;
-  }
+  if (!this.clientId || this.isLoadingPreview) return;
 
-  if (this.isLoadingPreview) return;
-
-  console.log(' Gerando contratos com assinatura...');
   this.isLoadingPreview = true;
   this.previewLoadFailed = false;
 
-  const baseReq = {
-    codePlanRBX: Number(this.selectedPlan),
-    street: this.contractFormData.address.street,
-    number: this.contractFormData.address.number,
-    complement: this.contractFormData.address.complement || '',
-    neighborhood: this.contractFormData.address.neighborhood,
-    city: this.contractFormData.address.city,
-    state: this.contractFormData.address.state,
-    zipCode: this.contractFormData.address.zipCode,
-    discount: this.contractFormData.discount.toString(),
-    discountFixed: this.contractFormData.discountFixed?.toString() || '0',
-    contractDueDay: this.formatToLocalDateString(this.dateOfMemberShipExpiration) || '',
-  };
-
-  const adesionSignedReq = {
-    clientId: this.clientId,
-    ...baseReq,
-    signatureBase64: signatureBase64,
-  };
-
-  const permanenceSignedReq = {
-    clientId: this.clientId,
-    ...baseReq,
-    signatureBase64: signatureBase64, 
-  };
-
   try {
-    const [adesionSignedBlob, permanenceSignedBlob] = await firstValueFrom(
+
+    const contractData = {
+      clientId: this.clientId,
+      codePlanRBX: Number(this.selectedPlan),
+      ...this.contractFormData.address,
+      complement: this.contractFormData.address.complement || '',
+      discount: this.contractFormData.discount.toString(),
+      discountFixed: this.contractFormData.discountFixed?.toString() || '0',
+      contractDueDay: this.dateUtils.formatToLocalDateString(this.dateOfMemberShipExpiration) || '',
+      signatureBase64,
+    };
+
+    const [adesionBlob, permanenceBlob, mergedSignedBlob] = await firstValueFrom(
       forkJoin([
-        this.reportsService.getContractAdesionPdf(this.clientId, adesionSignedReq),
-        this.reportsService.getContractPermanencePdf(this.clientId, permanenceSignedReq),
+        this.reportsService.getContractAdesionPdf(this.clientId, contractData),
+        this.reportsService.getContractPermanencePdf(this.clientId, contractData),
+        this.reportsService.getContractDisplayPdf(this.clientId, contractData),
       ])
     );
 
-    console.log('✅ PDFs assinados gerados:', {
-      adesao: `${(adesionSignedBlob.size / 1024).toFixed(2)} KB`,
-      permanencia: `${(permanenceSignedBlob.size / 1024).toFixed(2)} KB`,
-    });
-
-   
-    this.rawPdfAdesionUrl = URL.createObjectURL(adesionSignedBlob);
-    this.rawPdfPermanentUrl = URL.createObjectURL(permanenceSignedBlob);
-
+    this.rawPdfAdesionUrl = URL.createObjectURL(adesionBlob);
+    this.rawPdfPermanentUrl = URL.createObjectURL(permanenceBlob);
     this.safePdfAdesionUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.rawPdfAdesionUrl);
     this.safePdfPermanentUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.rawPdfPermanentUrl);
 
-  
-    console.log('🔗 Mesclando PDFs assinados...');
-    const mergedSignedBlob = await PdfMergerUtil.mergeTwoPDFs(adesionSignedBlob, permanenceSignedBlob);
-
-    console.log(`✅ PDFs assinados mesclados: ${(mergedSignedBlob.size / 1024).toFixed(2)} KB`);
-
-   
-    if (this.pdfPreviewUrl) {
-      URL.revokeObjectURL(this.pdfPreviewUrl);
-    }
+if (this.pdfPreviewUrl) URL.revokeObjectURL(this.pdfPreviewUrl);
     this.pdfPreviewUrl = URL.createObjectURL(mergedSignedBlob);
-    this.safePdfPreviewUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfPreviewUrl);
+    this.safePdfPreviewUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
+      this.pdfPreviewUrl
+    );
+
     this.capturedSignatureAdesion = signatureBase64;
     this.capturedSignaturePermanence = signatureBase64;
     this.formData.signaturePad = signatureBase64;
     this.dateSignature = new Date();
 
-    this.isLoadingPreview = false;
-
     this.messageService.add({
       severity: 'success',
       summary: 'Sucesso',
-      detail: 'Contratos assinados e mesclados com sucesso!',
+      detail: 'Contratos assinados com sucesso!',
     });
 
     this.signDialogVisible = false;
 
   } catch (error) {
-    console.error(' Erro ao gerar contratos assinados:', error);
+    console.error('Erro ao gerar contratos:', error);
     this.previewLoadFailed = true;
-    this.isLoadingPreview = false;
 
     this.messageService.add({
       severity: 'error',
       summary: 'Erro',
-      detail: 'Falha ao gerar contratos com assinatura.',
+      detail: 'Falha ao gerar contratos.',
     });
+  } finally {
+    this.isLoadingPreview = false;
   }
 }
-
   captureAndGenerate(): void {
   if (this.isLoadingPreview) return;
 
@@ -1285,13 +1122,6 @@ savePdf(): void {
   this.generateContractWithSignature(signatureBase64);
 }
 
-
-
-initContractPreview(): void {
-  if (!this.safePdfPreviewUrl) {
-    this.loadPdfPreview();
-  }
-}
 
 archiveSaleDraft(): void {
   if (!this.clientId) {
@@ -1325,13 +1155,13 @@ archiveSaleDraft(): void {
     clientId: this.clientId,
     
     codePlan: this.selectedPlan ? Number(this.selectedPlan) : null,
-    dateStart: this.formatToLocalDateString(this.dateOfStart) || '',
+    dateStart: this.dateUtils.formatToLocalDateString(this.dateOfStart) || '',
     dateSignature:
-      this.formatToLocalDateString(this.dateSignature) ||
-      this.formatToLocalDateString(this.dateOfStart) ||
+      this.dateUtils.formatToLocalDateString(this.dateSignature) ||
+      this.dateUtils.formatToLocalDateString(this.dateOfStart) ||
       '',
     dateExpired:
-      this.formatToLocalDateString(this.dateOfMemberShipExpiration) || '',
+      this.dateUtils.formatToLocalDateString(this.dateOfMemberShipExpiration) || '',
     numberParcels: this.selectedInstallment ? Number(this.selectedInstallment) : null,
     adesion: this.contractFormData.adesion ? Number(this.contractFormData.adesion) : null,
     discount: this.contractFormData.discount || 0,
@@ -1342,19 +1172,17 @@ archiveSaleDraft(): void {
     cicleBillingExpired: selectedCycle ? Number(selectedCycle.vencimento) : null,
     
     address: {
-      street: this.contractFormData.address.street || '',
-      number: this.contractFormData.address.number || '',
-      neighborhood: this.contractFormData.address.neighborhood || '',
-      city: this.contractFormData.address.city || '',
-      state: this.contractFormData.address.state || '',
-      zipCode: this.contractFormData.address.zipCode || '',
-      complement: this.contractFormData.address.complement || '',
+     ...this.contractFormData.address,
        residenceType: this.selectedResidence || null,
     },
     
     observation: this.contractFormData.observation || '',
     signature: this.formData.signaturePad || '',
-    imagesOne: this.images[0] ? URL.createObjectURL(this.images[0]) : '',
+    imagesOne: this.imagePreviews[0] || '',
+    imagesTwo: this.imagePreviews[1] || '',
+    imagesThree: this.imagePreviews[2] || '',
+    imagesFour: this.imagePreviews[3] || '',
+    imagesFive: this.imagePreviews[4] || '',
   };
 
   this.salesService.archiveSale(payload).subscribe({
@@ -1374,7 +1202,7 @@ archiveSaleDraft(): void {
     error: (err:any) => {
       this.isArchiving = false;
 
-      console.error('❌ Erro ao arquivar rascunho:', err);
+      console.error('Erro ao arquivar rascunho:', err);
 
       const detail = err?.error?.message ?? 'Erro ao salvar rascunho.';
       this.messageService.add({
@@ -1387,13 +1215,12 @@ archiveSaleDraft(): void {
 }
 
 
-
 loadDraft(clientId: string | null, draftId: string | undefined): void {
   if (!clientId || !draftId) {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Erro',
-      detail: 'ClientId ou DraftId ausentes.',
+    this.messageService.add({ 
+      severity: 'error', 
+      summary: 'Erro', 
+      detail: 'ClientId ou DraftId ausentes.' 
     });
     return;
   }
@@ -1401,170 +1228,85 @@ loadDraft(clientId: string | null, draftId: string | undefined): void {
   this.isLoadingDraft = true;
 
   this.salesService.getArchivedSaleForConversion(clientId, draftId).subscribe({
-    next: (draft: any) => {
-      this.isLoadingDraft = false;
+    next: (draft: DraftSaleResponse) => {
+      this.currentDraftId = draft.draftId;
 
-      this.currentDraftId = draftId;
-  
-      if (draft.codePlan) {
-        this.selectedPlan = String(draft.codePlan);
-      }
-     
-      if (draft.numberParcels) {
-        this.selectedInstallment = String(draft.numberParcels);
-      }
+      Object.assign(this.contractFormData, draft);
+      
+      this.selectedPlan = draft.codeplan || '';
+      this.selectedInstallment = draft.installments || '';
+      this.selectDateOfExpirationCicle = draft.expirationCycle || '';
+      this.selectContract = draft.contractType || '';
 
-      if (draft.cicleBillingDayBase) {
-        this.selectDateOfExpirationCicle = String(draft.cicleBillingDayBase);
+      if (draft.startDate) {
+        this.dateOfStart = this.dateUtils.parseDate(draft.startDate);
       }
 
-      if (draft.vigencia) {
-        this.selectContract = draft.vigencia === 12 || draft.vigencia === "12" ? '12' : '';
+      if (draft.signatureDate) {
+        this.dateSignature = this.dateUtils.parseDate(draft.signatureDate);
       }
 
-      if (draft.adesion !== null && draft.adesion !== undefined) {
-        this.contractFormData.adesion = draft.adesion;
+      if (draft.expirationDate) {
+        this.dateOfMemberShipExpiration = this.dateUtils.parseDate(draft.expirationDate);
       }
 
-      if (draft.descountFixe !== null && draft.descountFixe !== undefined) {
-        this.contractFormData.discountFixed = draft.descountFixe;
-      }
-
-      if (draft.discount !== null && draft.discount !== undefined) {
-        this.contractFormData.discount = draft.discount;
-      }
-
-      if (draft.vigencia) {
-        this.contractFormData.vigencia = draft.vigencia;
-      }
-
-      if (draft.dateStart) {
-        this.dateOfStart = this.parseDate(draft.dateStart);
-      }
-
-      if (draft.dateSignature) {
-        this.dateSignature = this.parseDate(draft.dateSignature);
-      }
-
-      if (draft.dateExpired) {
-        this.dateOfMemberShipExpiration = this.parseDate(draft.dateExpired);
-      }
-
-      if (draft.imagesOne) {
-        this.loadImageFromBase64(draft.imagesOne, 0);
-      }
-      if (draft.imagesTwo) {
-        this.loadImageFromBase64(draft.imagesTwo, 1);
-      }
-      if (draft.imagesThree) {
-        this.loadImageFromBase64(draft.imagesThree, 2);
-      }
-      if (draft.imagesFour) {
-        this.loadImageFromBase64(draft.imagesFour, 3);
-      }
-      if (draft.imagesFive) {
-        this.loadImageFromBase64(draft.imagesFive, 4);
-      }
-
-      if (draft.address) {
-        this.contractFormData.address = {
-          zipCode: draft.address.zipCode || '',
-          street: draft.address.street || '',
-          number: draft.address.number || '',
-          neighborhood: draft.address.neighborhood || '',
-          city: draft.address.city || '',
-          state: draft.address.state || '',
-          complement: draft.address.complement || '',
-          type: draft.address.typeResidence || '',
-        };
-      }
-
-      if (draft.observation) {
-        this.contractFormData.observation = draft.observation;
-      }
-
-
-      this.messageService.add({
-        severity: 'info',
-        summary: 'Rascunho Carregado',
-        detail: 'Dados preenchidos automaticamente. Revise e finalize a venda.',
-        life: 5000,
+      this.messageService.add({ 
+        severity: 'info', 
+        summary: 'Rascunho Carregado', 
+        detail: 'Dados preenchidos automaticamente.', 
+        life: 5000 
       });
     },
-    error: (err: any) => {
-      this.isLoadingDraft = false;
+    error: (err) => {
       console.error('❌ Erro ao carregar rascunho:', err);
-
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Erro',
-        detail: 'Falha ao carregar dados do rascunho.',
+      this.messageService.add({ 
+        severity: 'error', 
+        summary: 'Erro', 
+        detail: 'Falha ao carregar rascunho.' 
       });
     },
+    complete: () => {
+      this.isLoadingDraft = false;
+    }
   });
 }
 
 
-parseDate(dateString: string): Date | null {
-  if (!dateString) return null;
 
-  try {
-    if (dateString.includes('/')) {
-      const parts = dateString.split('/');
-      const day = parseInt(parts[0], 10);
-      const month = parseInt(parts[1], 10);
-      const year = parseInt(parts[2], 10);
+handleCapturaFoto(): void {
+  if (this.step4CapturedPhotos.length > 0) {
+    this.isPreviewDialogVisible = true;
+    return;
+  }
 
-      if (month > 12) {
-        const date = new Date(year, day - 1, month);
-        return date;
-      } else {
-       
-        const date = new Date(year, month - 1, day);
-        return date;
-      }
-    }
-
-    if (dateString.includes('-')) {
-      const date = new Date(dateString);
-      return date;
-    }
-
-    console.warn('⚠️ Formato de data não reconhecido:', dateString);
-    return null;
-  } catch (error) {
-    console.error('❌ Erro ao parsear data:', dateString, error);
-    return null;
+  if (this.cameraInput?.nativeElement) {
+    this.cameraInput.nativeElement.click();
   }
 }
 
-
-loadImageFromBase64(base64: string, index: number): void {
-  if (!base64) return;
-
-  try {
-    const base64Data = base64.includes(',') ? base64.split(',')[1] : base64;
-    const byteCharacters = atob(base64Data);
-    const byteNumbers = new Array(byteCharacters.length);
-    
-    for (let i = 0; i < byteCharacters.length; i++) {
-      byteNumbers[i] = byteCharacters.charCodeAt(i);
-    }
-    
-    const byteArray = new Uint8Array(byteNumbers);
-    const blob = new Blob([byteArray], { type: 'image/jpeg' });
-    
-    const file = new File([blob], `contrato_imagem_${index + 1}.jpg`, { 
-      type: 'image/jpeg' 
+processarFotoCapturada(event: Event): void {
+  const input = event.target as HTMLInputElement;
+  
+  if (!input.files || input.files.length === 0) {
+    return;
+  }
+  const file = input.files[0];
+  if (!file.type.startsWith('image/')) {
+    this.messageService.add({
+      severity: 'warn',
+      summary: 'Arquivo Inválido',
+      detail: 'Selecione uma imagem.',
     });
-    this.images[index] = file;
-    this.imagePreviews[index] = base64.includes(',') 
-      ? base64 
-      : `data:image/jpeg;base64,${base64}`;
-
-    console.log(`✅ Imagem ${index + 1} carregada com sucesso`);
-  } catch (error) {
-    console.error(`❌ Erro ao carregar imagem ${index + 1}:`, error);
+    return;
   }
+
+  const reader = new FileReader();
+  reader.onload = (e: any) => {
+    this.thumbnailPreview = e.target.result;
+    this.fotoCapturadaFile = file;
+    this.isPreviewDialogVisible = true;
+  };
+  reader.readAsDataURL(file);
 }
+
 }
