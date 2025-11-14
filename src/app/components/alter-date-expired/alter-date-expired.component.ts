@@ -1,7 +1,7 @@
 import { ActionsContractsService } from './../../services/actionsToContract/actions-contracts.service';
 import { ContractsService } from './../../services/contracts/contracts.service';
 import { Contract } from './../../models/contract/contract.dto';
-import { Component, inject } from '@angular/core';
+import { Component, ElementRef, inject, ViewChild } from '@angular/core';
 import { CardBaseComponent } from '../../shared/components/card-base/card-base.component';
 import { StepPanels } from 'primeng/stepper';
 import { StepperModule } from 'primeng/stepper';
@@ -22,11 +22,26 @@ import { InputTextModule } from 'primeng/inputtext';
 import { NgxMaskDirective } from 'ngx-mask';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { SignaturePadComponent } from '../../shared/components/signature-pad/signature-pad.component';
+import { AuthService } from '../../core/auth.service';
+import { MidiaService } from '../../services/midia/midia.service';
+import { IftaLabelModule } from 'primeng/iftalabel';
+import { DividerModule } from "primeng/divider";
+import { AttendancesService } from '../../services/attendances/attendance.service';
 
 export interface ConsentTermRequest {
   proportionalValue: number;
   newDateExpired: string;
 }
+
+export interface ConsentTermRequestHandle {
+  proportionalValue: number;
+  newDateExpired: string;
+  paymentMethod: string;
+  signature: string;
+}
+ 
 
 @Component({
   selector: 'app-alterdateexpired',
@@ -46,12 +61,18 @@ export interface ConsentTermRequest {
     InputTextModule,
     NgxMaskDirective,
     ToastModule,
-  ],
+    IftaLabelModule,
+    SignaturePadComponent,
+    DividerModule
+],
   templateUrl: './alter-date-expired.component.html',
   styleUrl: './alter-date-expired.component.scss',
   providers: [MessageService],
 })
 export class AlterDateExpiredComponent {
+  @ViewChild('cameraInput') cameraInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('signaturePadInDialog') signaturePadInDialog!: SignaturePadComponent;
+  
   clientId!: string;
   contractId!: string;
 
@@ -68,6 +89,31 @@ export class AlterDateExpiredComponent {
   private readonly reportsService = inject(ReportsService);
   private readonly actionsContractsService = inject(ActionsContractsService);
   private readonly messageService = inject(MessageService);
+  private readonly sanitizer = inject(DomSanitizer);
+  private readonly authService = inject(AuthService);
+  private readonly midiaService = inject(MidiaService);
+  private readonly attendancesService = inject(AttendancesService)
+  private signedPdfBlob: Blob | null = null;
+  
+
+  isLoadingPreview = false;
+  previewLoadFailed = false;
+  safePdfPreviewUrl: SafeResourceUrl | null = null;
+  pdfPreviewUrl: string | null = null;
+
+  signDialogVisible = false;
+  capturedSignature: string | null = null;
+
+  signatureVisibleFlag = false;
+  isPreviewDialogVisible: boolean = false;
+  thumbnailPreview: string | ArrayBuffer | null = null;
+  fotoCapturadaFile: File | null = null;
+
+  isLoadingTransfer: boolean = false;
+  loadingMessage: string = '';
+  fluxo: string = 'alter_date_expired';
+
+  isUpdatingContract = false;
 
   ngOnInit() {
     this.route.queryParams.subscribe((params) => {
@@ -123,6 +169,17 @@ export class AlterDateExpiredComponent {
       });
   }
 
+  private showSuccess(summary: string, detail: string, life: number = 3000) {
+     this.messageService.add({
+       severity: 'success', summary, detail, life 
+      }); 
+    }
+  private showError(summary: string, detail: string) {
+    this.messageService.add({
+       severity: 'error', summary, detail
+      })
+    }
+
   voltarParaCliente() {
     this.router.navigate(['/client-contracts', this.clientId]);
   }
@@ -141,14 +198,11 @@ export class AlterDateExpiredComponent {
     return this.contract?.dateStart ? new Date(this.contract.dateStart) : null;
   }
 
-  //Calcular a diferença de dias e valores.
-  //==============================//
-  today: Date = new Date();
-
   selectedBillingCycle: number | null = null;
   proportionalBoleto: number | null = null;
 
   selectedTypeOfPaymentMethod: string | null = null;
+
   typesOfPaymentMethod = [
     { descricao: 'Boleto Bancário', value: 'Boleto' },
   ];
@@ -167,7 +221,7 @@ export class AlterDateExpiredComponent {
     { descricao: '10 a 09 / 10', value: 10 },
     { descricao: '11 a 10 / 11', value: 11 },
     { descricao: '12 a 11 / 12', value: 12 },
-    { descricao: '13 a 12 / 13', value: 13 },
+    { descricao: '12 a 11 / 13', value: 13 },
     { descricao: '14 a 13 / 14', value: 14 },
     { descricao: '15 a 14 / 15', value: 15 },
     { descricao: '16 a 15 / 16', value: 16 },
@@ -183,34 +237,33 @@ export class AlterDateExpiredComponent {
     { descricao: '26 a 25 / 26', value: 26 },
     { descricao: '27 a 26 / 27', value: 27 },
     { descricao: '28 a 27 / 28', value: 28 },
-    { descricao: '29 a 28 / 29', value: 29 },
-    { descricao: '30 a 29 / 30', value: 30 },
-    { descricao: '31 a 30 / 31', value: 31 },
+    { descricao: '28 a 27 / 29', value: 29 },
+    { descricao: '28 a 27 / 30', value: 30 },
+    { descricao: '28 a 27 / 31', value: 31 },
   ];
 
+
+  
+  today: Date = new Date();
   // Cálculo proporcional do boleto
   calculateProportionalBoleto(
     contractLiquidPrice: number,
-    newBillingDay: number
+    newBillingDay: number,
+    oldBillingDay: number
   ): number {
-    const today = new Date();
-    const currentDay = today.getDate();
-
-    // Número de dias reais do mês atual
-    const daysInMonth = new Date(
-      today.getFullYear(),
-      today.getMonth() + 1,
-      0
-    ).getDate();
+    const daysInMonth = 30;
 
     // Valor diário proporcional
-    const dailyPrice = contractLiquidPrice / daysInMonth;
+    const dailyPrice = contractLiquidPrice / daysInMonth; //valor de cada dia
 
     // Calcula diferença de dias
-    let daysDifference = newBillingDay - currentDay;
+    let daysDifference = newBillingDay - oldBillingDay;
     if (daysDifference < 0) {
       daysDifference += daysInMonth; // Usa o total real de dias do mês
     }
+
+    daysDifference += 1;
+    
     return Number((dailyPrice * daysDifference).toFixed(2));
   }
 
@@ -219,7 +272,8 @@ export class AlterDateExpiredComponent {
     if (this.selectedBillingCycle && this.contract) {
       this.proportionalBoleto = this.calculateProportionalBoleto(
         this.contract.liquidPrice!,
-        this.selectedBillingCycle
+        this.selectedBillingCycle,
+        this.contract.cicleBillingExpired!
       );
     } else {
       this.proportionalBoleto = null;
@@ -237,7 +291,7 @@ export class AlterDateExpiredComponent {
 
   sendToAutentiqueSubmit() {
     const term = {
-      proportionalValue: this.proportionalBoleto,
+      proportionalValue: this.proportionalBoleto ?? 0,
       newDateExpired:
         this.typesOfDateExpirationCicle.find(
           (t) => t.value === this.selectedBillingCycle
@@ -250,7 +304,7 @@ export class AlterDateExpiredComponent {
     ];
 
     const payload = { term, signers: mappedSigners };
-
+    
     this.actionsContractsService
       .sendAlterDateAutentique(payload, this.clientId, this.contractId)
       .subscribe({
@@ -278,5 +332,361 @@ export class AlterDateExpiredComponent {
           });
         },
       });
+  }
+
+  activeStep = 1;
+
+  goToStep(stepNumber: number): void {
+    this.activeStep = stepNumber;
+
+    if (stepNumber === 3 && !this.safePdfPreviewUrl) {
+      this.loadPdfPreview();
+    }
+  }
+
+  //Carrega o preview do pdf
+  loadPdfPreview(): void {
+    if(this.isLoadingPreview) return;
+
+    if (!this.selectedBillingCycle) {
+      this.showError('Error', 'Nenhum plano foi selecionado no passo anterior.');
+      this.previewLoadFailed = true;
+    }
+
+    this.isLoadingPreview = true;
+    this.previewLoadFailed = false;
+    this.safePdfPreviewUrl = null;
+
+    if (this.pdfPreviewUrl){
+      URL.revokeObjectURL(this.pdfPreviewUrl);
+      this.pdfPreviewUrl = null;
+    }
+    const selected = this.typesOfDateExpirationCicle.find(
+          (t) => t.value === this.selectedBillingCycle
+        );
+
+    if (!selected) return;
+
+    const requestBody: ConsentTermRequest = {
+      proportionalValue: this.proportionalBoleto || 0,
+      newDateExpired: selected.descricao,
+    };
+
+    this.reportsService.getConsentTermPdf(this.clientId, this.contractId, requestBody)
+          .subscribe({
+            next: (blob) => {
+              this.pdfPreviewUrl = window.URL.createObjectURL(blob);
+              this.safePdfPreviewUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfPreviewUrl);
+              this.isLoadingPreview = false;
+            },
+            error: (err) => {
+              console.error('Erro ao carregar preview do PDF:', err)
+              this.showError('Erro no Preview', 'não foi possível carregar o termo. tente novamente.');
+              this.isLoadingPreview = false;
+            },
+          });
+  }
+
+
+  //Metodos de captura da assinatura
+  abrirAssinatura(): void {
+    this.signDialogVisible = true;
+    this.signatureVisibleFlag = true;
+  }
+
+  forceSignatureRedraw() {
+    setTimeout(() => {
+      this.signatureVisibleFlag = false;
+      setTimeout(() => {
+        this.signatureVisibleFlag = true;
+      })
+    }, 30)
+  }
+
+  resetSignaturePad() {
+    this.capturedSignature = null;
+  }
+
+  generateConsentTermWithSignature() {
+    if (!this.capturedSignature) {
+      this.showError('Atenção' , 'capture a assinatura antes de gerar o termo. ');
+      return;
+    }
+    if(this.isLoadingPreview) return;
+    
+    this.isLoadingPreview = true;
+    this.previewLoadFailed = false;
+    this.safePdfPreviewUrl = null;
+
+    if (this.pdfPreviewUrl) {
+      URL.revokeObjectURL(this.pdfPreviewUrl);
+      this.pdfPreviewUrl = null;
+    }
+
+    const rawBase64 = this.capturedSignature.split(',')[1];
+    
+    const selected = this.typesOfDateExpirationCicle.find(
+          (t) => t.value === this.selectedBillingCycle
+        );
+
+    if (!selected) return;
+
+    if (!this.selectedTypeOfPaymentMethod) {
+        this.showError('Atenção', 'Selecione um método de pagamento para continuar.');
+        return;
+    }
+
+    const requestBody: ConsentTermRequestHandle = {
+      proportionalValue: this.proportionalBoleto || 0,
+      newDateExpired: selected.descricao,
+      paymentMethod: this.selectedTypeOfPaymentMethod, 
+      signature: rawBase64
+    };
+
+    this.reportsService.getConsentTermPdf(this.clientId, this.contractId, requestBody)
+      .subscribe({
+        next: (blob) => {
+          this.pdfPreviewUrl = window.URL.createObjectURL(blob);
+          this.safePdfPreviewUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfPreviewUrl);
+          this.showSuccess('Sucesso', 'Termo com asinatura gerado!');
+          this.signDialogVisible = false;
+          this.signedPdfBlob = blob;
+          this.isLoadingPreview = false;
+        },
+        error: (err) => {
+          console.error('Erro ao gerar termo com assinatura: ', err);
+          this.showError('Erro', 'Falha ao gerar o termo final com assinatura.');
+          this.previewLoadFailed = true;
+          this.isLoadingPreview = false;
+        }
+      })
+  }
+
+   navigateToInfoClient() {
+    if (this.clientId) {
+      this.router.navigate(["info", this.clientId])
+    } else {
+      this.router.navigate(["/"])
+    }
+  }
+
+  captureAndGenerate(): void {
+    if (this.isLoadingPreview) return;
+
+    const signatureBase64 = this.signaturePadInDialog.getSignatureAsBase64();
+
+    if(!signatureBase64 || signatureBase64.length <= 22){
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Atenção',
+        detail: 'Não foi possível capturar a assinatura. tente novamente.',
+      });
+      return;
+    }
+
+    this.capturedSignature = signatureBase64;
+    this.generateConsentTermWithSignature();
+  }
+
+  savePdf(): void {
+    if (!this.pdfPreviewUrl) return;
+    const a = document.createElement('a');
+    a.href = this.pdfPreviewUrl;
+    a.download = `Termo_alteracao_data_${this.contract.codeContractRbx || this.contractId}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  limparPreview(): void {
+    this.thumbnailPreview = null;
+    this.fotoCapturadaFile = null;
+    this.isPreviewDialogVisible = false;
+  }
+
+  onFotoCapturada(event: Event): void {
+    const input = event.target as HTMLInputElement;
+
+    if(input.files && input.files[0]) {
+      const file = input.files[0];
+      this.fotoCapturadaFile = file;
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        this.thumbnailPreview = e.target?.result ?? null;
+        this.isPreviewDialogVisible = true;
+      };
+
+      reader.readAsDataURL(file);
+    }
+  }
+
+  salvarFotoCapturada() {
+    if (!this.fotoCapturadaFile) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Nenhuma foto',
+        detail: 'Tire uma foto antes de salvar.',
+      });
+      return;
+    }
+
+    if (!this.clientId) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erro',
+        detail: 'ID do cliente não encontrado para associar a foto.',
+      });
+      return;
+    }
+
+    const filesToUpload: File[] = [this.fotoCapturadaFile];
+    this.midiaService.saveMidias(filesToUpload, this.clientId).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Foto salva com sucesso!',
+        });
+        this.limparPreview(); // Fecha o dialog de preview
+      },
+      error: (err) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro ao salvar a foto',
+        });
+        console.error(err);
+      },
+    });
+  }
+
+  private registerAttendance(pdfBlob: Blob): void {
+    if (!this.clientId || !this.contractId) {
+      console.error("registerAttendance: ClientID ou ContractID estão ausentes.");
+      return;
+    }
+    console.log('clientId:', this.clientId);
+    console.log('contractId:', this.contractId);
+    console.log("PDF size (bytes):", pdfBlob.size);
+      pdfBlob.arrayBuffer().then(buf => {
+        const header = new TextDecoder().decode(buf.slice(0, 5));
+        console.log("PDF header:", header); // deve exibir "%PDF-"
+      });
+    const data = {
+      event: this.fluxo as string,
+      cliente: this.clientId,
+      contrato: this.contractId
+    };
+    const jsonBlob = new Blob ([JSON.stringify(data)], { type: "application/json"});
+    const formData = new FormData();
+    formData.append('data', jsonBlob, 'data.json');
+    formData.append('arquivo', pdfBlob, 'termo_alteracao_data_assinado.pdf');
+
+    this.attendancesService.registerAttendance(formData).subscribe({
+      next: (response) => {
+        console.log("Atendimento registrado com sucesso:", response);
+        this.showInfo("Registro de Atendimento", "Atendimento registrado com sucesso no sistema.");
+      },
+      error: (err) => {
+        console.error("Falha ao registrar atendimento:", err);
+        this.showWarning("Aviso", "A transferência foi concluída, mas houve um erro ao registrar o atendimento no histórico.");
+      }
+    });
+  }
+
+  submitAlterDate(){
+    console.log('Iniciando submit (fluxo Presencial assinado)');
+
+    this.isLoadingTransfer = true;
+    this.loadingMessage = 'Atualizando data de vencimento e registrando atendimento...';
+
+    if (!this.signedPdfBlob){
+      this.messageService.add({
+        severity: 'warn', summary: 'Atenção', detail: 'Você precisa gerar o termo assinado antes de atualizar o contrato.'
+      });
+      return
+    }
+
+    if (!this.selectedBillingCycle) {
+      this.messageService.add({
+        severity: 'warn', summary: 'Atenção', detail: 'Selecione uma data de vencimento'
+      });
+      return
+    }
+
+    const pdfParaRegistro: Blob = this.signedPdfBlob;
+    this.signedPdfBlob = null;
+
+    const sellerIdNumber = this.authService.getSellerId();
+
+    if (sellerIdNumber === null || sellerIdNumber === undefined) {
+      console.error('ERRO CRÍTICO: SellerID está nulo ou indefinido. Verifique o AuthService.');
+      this.messageService.add({ severity: 'error', summary: 'Erro de Autenticação', detail: 'ID do Vendedor não foi encontrado.' });
+      return;
+    }
+
+    const sellerIdString = String(sellerIdNumber);
+
+    if (this.contract.cicleBillingDayBase === null || this.contract.cicleBillingExpired === null) {
+      console.error('ERRO CRÍTICO: cicleBillingDayBase ou cicleBillingExpired estão nulos no contrato carregado.');
+      this.messageService.add({ severity: 'error', summary: 'Erro de Dados', detail: 'Informações de ciclo de faturamento inválidas no contrato.' });
+      return;
+    }
+
+    const alterDateDto = {
+      clientId: this.clientId,
+      sellerId: sellerIdString,
+      contractNumber: this.contract.codeContractRbx,
+      billingCycleLabel: this.typesOfDateExpirationCicle.find(c => c.value === this.selectedBillingCycle)?.descricao ?? '',
+    };
+
+  console.log('Enviando DTO de alteração de vencimento:', alterDateDto);
+
+  this.isLoadingTransfer = true;
+  this.loadingMessage = 'Atualizando data de vencimento e registrando atendimento...';
+
+  // --- Chamada ao endpoint /billing-date ---
+  this.contractService.changeBillingDate(alterDateDto).subscribe({
+    next: (response) => {
+      console.log('Resposta da API:', response);
+
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Sucesso',
+        detail: `Data de vencimento alterada com sucesso! Novo ciclo: ${response.newCycle || this.selectedBillingCycle}`,
+        life: 10000
+      });
+
+        // Registra o atendimento com o PDF assinado
+        this.registerAttendance(pdfParaRegistro);
+
+        this.isLoadingTransfer = false;
+        this.modalVisible = false;
+        this.goToStep(4);
+      },
+      error: (err) => {
+        this.isLoadingTransfer = false;
+        console.error('Erro ao alterar data de vencimento:', err);
+
+        const backendMessage =
+          typeof err.error === 'string'
+            ? err.error
+            : (err.error?.message || 'Erro ao alterar a data de vencimento.');
+
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: backendMessage,
+          life: 10000
+        });
+      }
+    });  
+  }
+
+  private showWarning(summary: string, detail: string, life: number = 5000) {
+    this.messageService.add({ severity: 'warn', summary, detail, life });
+  }
+
+  private showInfo(summary: string, detail: string, life: number = 3000) {
+    this.messageService.add({ severity: 'info', summary, detail, life });
   }
 }

@@ -7,10 +7,26 @@
           <span class="dot yellow"></span>
           <span class="dot green"></span>
         </div>
+
+        <div class="notification-container" (click)="openNotifications()">
+          <div class="bell" [class.ringing]="temNotificacao">
+            🔔
+            <span *ngIf="temNotificacao" class="badge">
+              {{ qtdNotificacoes }}
+            </span>
+          </div>
+        </div>
+
         <div class="header-title">{{ header }}</div>
       </div>
     </ng-template>
 
     <ng-content></ng-content>
   </p-card>
+
+  <!-- ✅ Recebe sellerId e escuta o evento -->
+  <app-notification-panel
+    [sellerId]="sellerId"
+    (notificacoesAtualizadas)="buscarQtdNotificacoes()"
+  ></app-notification-panel>
 </div>

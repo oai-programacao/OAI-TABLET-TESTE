@@ -7,6 +7,7 @@ import { environment } from '../../../environments/environment';
 export interface ConsentTermRequest {
   proportionalValue: number;
   newDateExpired: string;
+  signatureBase64?: string;
 }
 
 export interface ConsentTermAddressRequest {

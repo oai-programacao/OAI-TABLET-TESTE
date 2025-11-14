@@ -112,7 +112,7 @@
 
       &.transfer {
         background-color: rgb(19, 160, 253);
-        box-shadow: 0 0 5px #09b4f8, 0 0 10px #008cff;
+        box-shadow: 0 0 5px #32383a, 0 0 10px #008cff;
         animation: pulse 1.5s infinite;
       }
     }
@@ -173,8 +173,8 @@
 }
 
 .status span {
-  font-weight: 1000; // negrito
-  color: #313131; // opcional, cor destacada
+  font-weight: 1000; 
+  color: #313131; 
 }
 
 .addresscontract {
@@ -182,20 +182,15 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  /* mais espaço entre seções */
 }
 
 .addresscontract .section {
   display: flex;
   flex-wrap: wrap;
-  /* permite quebrar linha se precisar */
   align-items: center;
   gap: 0.5rem;
-  /* espaço entre label e span */
   padding: 0.25rem 0;
-  /* separação visual entre seções */
   border-bottom: 1px solid #eee;
-  /* linha sutil para separar seções */
 }
 
 .addresscontract label {
@@ -303,493 +298,28 @@
   color: #555;
 }
 
-// DIALOG DATE EXPIRED
-
-:host ::ng-deep .p-select {
-  --p-select-option-selected-background: #4da3ff;
-  --p-select-option-selected-color: white;
-  --p-select-option-selected-focus-background: #377ad6;
-  --p-select-option-selected-focus-color: white;
-}
-
-:host ::ng-deep .p-select.p-component.p-focus {
-  border-color: #4da3ff !important;
-  box-shadow: 0 0 0 0.2rem rgba(77, 163, 255, 0.3) !important;
-}
-
-.global-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 999999;
-}
-
-.global-overlay-message {
-  margin-top: 1.5rem;
-  font-size: 1.5rem;
-  /* pode aumentar para combinar com o spinner */
-  font-weight: 800;
-  color: #f8f2f8;
-  text-transform: uppercase;
-  text-shadow:
-    2px 2px 0 #000000,
-    4px 4px 0 #2c2c2c,
-    6px 6px 10px rgba(0, 0, 0, 0.6);
-  letter-spacing: 1px;
-  text-align: center;
-}
-
-::ng-deep .p-progress-spinner {
-  width: 200px !important;
-  /* largura maior */
-  height: 200px !important;
-  /* altura maior */
-}
-
-.dialog-content {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  padding: 2rem;
-}
-
-/* Ícone acima do select */
-.select-with-icon {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  /* alinha à esquerda do select */
-  gap: 0.4rem;
-}
-
-.warn-icon-container {
-  display: flex;
-  justify-content: flex-start;
-  margin: 0;
-  padding: 0;
-}
-
-.warn-icon {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #000;
-  color: #fff;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.warn-popup {
-  background: #000;
-  color: #fff;
-  padding: 0.8rem;
-  border-radius: 6px;
-  max-width: 250px;
-  font-size: 0.85rem;
-  line-height: 1.3;
-}
-
-
-
-///
-
-
-.dialog-container {
-  padding: 0.5rem 1rem; // Espaçamento interno para não colar nas bordas
-}
-
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 1.25rem;
-}
-
-.form-group-contract {
-  display: flex;
-  flex-direction: row;
-  gap: 0.5rem;
-  margin-bottom: 1.25rem;
-  font-family: "IBM Plex Mono", monospace;
-  font-weight: bold;
-  color: #1c34a0;
-  font-size: 1rem;
-}
-
-.form-group label {
-  font-family: "IBM Plex Mono", monospace;
-  font-weight: bold;
-  color: #1c34a0; // Mantendo o azul padrão dos seus labels
-  font-size: 0.9rem;
-}
-
-/* ::ng-deep é usado para estilizar os componentes internos do PrimeNG 
-  que não são facilmente acessíveis pelo CSS normal do componente.
-*/
-
-// Força a fonte padrão no título do dialog
-::ng-deep .p-dialog .p-dialog-header .p-dialog-title {
-  font-family: "IBM Plex Mono", monospace;
-  font-weight: 600;
-}
-
-::ng-deep .p-dialog .p-dialog-footer {
-  border-top: 1px solid #dee2e6; // Linha separadora sutil
-  padding-top: 1rem;
-  margin-top: 1rem;
-}
-
-:host ::ng-deep .transfer-dialog-wrapper .p-dialog-content {
-  padding: 0;
-}
-
-
-// Label flutuante (dentro do p-iftalabel)
-:host ::ng-deep .transfer-dialog-wrapper p-iftalabel {
+.search-wrapper {
   position: relative;
-  width: 100%;
-}
+  display: inline-block;
 
-:host ::ng-deep .transfer-dialog-wrapper p-iftalabel label {
-  position: absolute;
-  left: 1rem;
-  top: -0.6rem;
-  background: #fff;
-  padding: 0 0.25rem;
-  font-size: 0.8rem;
-  color: #6c757d;
-  pointer-events: none;
-}
+  p-button {
+    position: absolute;
+    top: 50%;
+    right: 0.3rem;
+    transform: translateY(-49%);
+    height: 2rem;
+    width: 2rem;
 
-:host ::ng-deep .transfer-dialog-wrapper .p-dialog-content {
-  padding: 0;
-  overflow-x: hidden;
-}
+    ::ng-deep .p-button {
+      padding: 0;
+      border-radius: 50%;
+      min-width: unset;
+      height: 2rem;
+      width: 2rem;
+    }
 
-.transfer-dialog__header {
-  background-color: #f8f9fa;
-  padding: 0.75rem 1.5rem;
-  margin: 1.5rem 1.5rem 0 1.5rem;
-  border-radius: 8px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border: 1px solid #dee2e6;
-
-  label {
-    font-weight: 500; // Corrigido de 5rem
-    color: #575353;
-    font-size: 1.30rem;
-  }
-
-  span {
-    font-weight: 700;
-    font-size: 1.30rem;
-    color: #1c34a0;
+    ::ng-deep .p-button-icon {
+      font-size: 0.9rem;
+    }
   }
 }
-
-.step-panels-container {
-  width: 100%;
-  height: 70%;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 150px;
-  padding: 2rem 1.5rem;
-  transition: all 0.2s ease-in-out;
-}
-
-.step-panel-content {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.75rem;
-  animation: fadeIn 0.4s ease-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.step-footer {
-  width: 100%;
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  padding-top: 1.5rem;
-  margin-top: 1.5rem;
-}
-.step-instruction {
-  font-size: 1rem;
-  color: #575353;
-  margin-bottom: 1rem;
-}
-
-.confirmation-name {
-  // Substitui .__name
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1c34a0;
-  padding: 0.5rem 1rem;
-  background-color: #f7f4f4;
-  border-radius: 6px;
-  border: 1px solid #e0e0e0;
-}
-
-.success-icon,
-.error-icon {
-  // Substitui .__icon--
-  font-size: 3rem;
-  margin-bottom: 0.5rem;
-}
-
-.success-icon {
-  color: #28a745;
-}
-
-.error-icon {
-  color: #d9534f;
-}
-
-.message-text {
-  // Substitui .__message--
-  font-size: 1.25rem;
-  font-weight: 700;
-}
-
-.subtext {
-  font-size: 0.9rem;
-  color: #6c757d;
-}
-
-.pdf-viewer {
-  width: 100%;
-  border: 1px solid #dee2e6;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.consent-check {
-  margin-top: 1.5rem;
-}
-
-.transfer-dialog__loading-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(255, 255, 255, 0.9);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 10;
-  border-radius: 0;
-  backdrop-filter: blur(3px);
-
-  .loading-message {
-    margin-top: 1.5rem;
-    font-weight: 700;
-    color: #1c34a0;
-    font-size: 1.1rem;
-  }
-}
-
-.p-stepper {
-  --p-stepper-step-number-font-size: 2rem;
-  --p-stepper-step-number-background: #fff;
-  --p-stepper-step-number-color: #004e9b;
-  --p-stepper-step-number-active-background: #004e9b;
-  --p-stepper-step-number-active-color: #fff;
-  --p-stepper-separator-background: #375ca4;
-  --p-stepper-separator-active-background: #000;
-
-  border-radius: 0.75rem;
-  overflow: hidden;
-  background: transparent;
-}
-
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap");
-
-:host ::ng-deep .p-stepper .p-step-title {
-  font-family: "IBM Plex Mono", monospace;
-  font-weight: 400;
-  font-size: 1.05rem !important;
-  padding: 0.25rem 0.5rem;
-  border-radius: 3px;
-  transition: all 0.2s ease-in-out;
-}
-
-:host ::ng-deep .p-stepper .p-step.p-step-active .p-step-title {
-  background-color: #5ccdf9;
-  color: #000;
-  border: 1px solid #000;
-  box-shadow: 0 0 5px rgba(0.1, 0.3, 0.2, 0.4);
-  font-weight: 600 !important;
-}
-
-.fluxo-container {
-  display: flex;
-  gap: 2rem;
-  width: 100%;
-  height: 30rem;
-  justify-content: center;
-  align-items: stretch;
-}
-
-.fluxo-card {
-  width: 320px;
-  min-height: 600px;
-  display: flex;
-  flex-direction: column;
-  border: 1px solid #dee2e6;
-  border-radius: 8px;
-  background-color: #fff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  transition: all 0.2s ease-in-out;
-
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
-
-  &.online {
-    background: rgba(255, 230, 0, 0.05);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border-top: 5px solid #fbc02d;
-  }
-
-  &.presencial {
-    background: rgba(13, 197, 243, 0.05);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border-top: 5px solid #19cefc;
-  }
-
-  .fluxo-header {
-    font-size: 5rem;
-    text-align: center;
-    margin-bottom: 15px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .fluxo-header h3 {
-    margin-top: 10px;
-    font-size: 1.5rem;
-    font-weight: 600;
-  }
-
-  .fluxo-body {
-    flex: 1;
-    text-align: center;
-    color: #333;
-    font-size: 0.9rem;
-    padding: 0 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .fluxo-footer {
-    padding: 1rem;
-    text-align: center;
-    background-color: #f8f9fa;
-    border-top: 1px solid #dee2e6;
-  }
-}
-//AQUI COMEÇA O AJUSTES DO DIALOG DO WATHSAPP
-.dialog-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 0.5rem;
-
-  .icon-container {
-    display: flex;
-    justify-content: center;
-  }
-
-  .whatsapp-icon {
-    font-size: 3rem;
-    background-color: #25d366;
-    color: white;
-    padding: 1rem;
-    border-radius: 50%;
-    box-shadow: 0 0 10px rgba(37, 211, 102, 0.6);
-  }
-
-  .info-text {
-    font-size: 1rem;
-    color: #333;
-    line-height: 1.4;
-  }
-
-  p-inputgroup {
-    width: 100%;
-    max-width: 300px;
-  }
-
-  .alert-box {
-    display: flex;
-    align-items: center;
-    background-color: rgba(255, 230, 0, 0.3);
-    /* fundo translúcido */
-    padding: 5px;
-    border-radius: 8px;
-    gap: 15px;
-    margin-top: 15px;
-    padding-left: 20px;
-    border-left: 5px solid rgb(255, 136, 0);
-  }
-
-  .alert-icon-circle {
-    width: 40px;
-    height: 40px;
-    background-color: rgba(245, 127, 23, 0.5);
-
-    color: rgb(255, 255, 255);
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: bold;
-    font-size: 20px;
-  }
-
-  .alert-text {
-    margin: 0;
-    color: #000000;
-    font-size: 16px;
-    line-height: 1.5;
-  }
-}
-
-

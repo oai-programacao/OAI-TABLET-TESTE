@@ -1,0 +1,115 @@
+<div class="page-container">
+  <p-confirmDialog
+    [acceptLabel]="'👍'"
+    [rejectLabel]="'👎'"
+    [acceptButtonStyleClass]="'p-button-success custom-accept-btn'"
+    [rejectButtonStyleClass]="'p-button-danger custom-reject-btn'"
+  ></p-confirmDialog>
+  <p-toast></p-toast>
+
+  <app-card-base width="auto" height="auto" header=" Abrir Ticket 🚩">
+    <div class="btn-to-actions">
+      <p-button
+        icon="pi pi-arrow-left"
+        [rounded]="true"
+        severity="danger"
+        [raised]="true"
+        size="large"
+        (onClick)="btnToBack()"
+      />
+    </div>
+
+    <div class="imagem-container">
+      <div class="imagem">
+        <img src="/callcenter.jpg" alt="Call Center" class="callcenter-img" />
+      </div>
+
+      <div class="info-text">
+        <h2>⚫ Instruções</h2>
+        <p>
+          Caro vendedor, nossa equipe de está pronta para ajudar com qualquer
+          dúvida ou problema técnico. Abra um ticket com um breve resumo sobre o
+          incidente ao técnico/setores externos. É de extrema importância que
+          todas as informações sejam preenchidas corretamente para que possamos
+          oferecer um atendimento ágil e eficaz.
+        </p>
+        <h2>⚫ Informação</h2>
+        <p>
+          O atendimento será aberto para o cliente de momento. Certifique-se de
+          que todas as informações estejam corretas antes de prosseguir.
+        </p>
+      </div>
+    </div>
+
+    <div class="badge-container">
+      <p-inputgroup>
+        <p-inputgroup-addon>
+          <i class="pi pi-phone"></i>
+        </p-inputgroup-addon>
+        <p-iftalabel>
+          <p-select
+            [options]="typeOfAttendanceOptions"
+            [(ngModel)]="selectedTypeOfAttendance"
+            optionLabel="label"
+            placeholder="Selecione"
+            name="planos"
+            required
+          >
+          </p-select>
+          <label for="planos">(Fluxo/Tópico) Atendimento *</label>
+        </p-iftalabel>
+      </p-inputgroup>
+
+      <p-inputgroup>
+        <p-inputgroup-addon>
+          <i class="pi pi-file"></i>
+        </p-inputgroup-addon>
+        <p-iftalabel>
+          <p-select
+            [options]="contracts"
+            [(ngModel)]="selectedContract"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Selecione"
+            name="contrato"
+            required
+          >
+          </p-select>
+          <label for="contrato"
+            >Selecione o Contrato (Ativos/Aguardando)*</label
+          >
+        </p-iftalabel>
+      </p-inputgroup>
+    </div>
+
+    <div class="textarea-observation">
+      <p-iftalabel>
+        <textarea
+          pTextarea
+          id="description"
+          rows="15"
+          cols="114"
+          style="resize: none"
+          [(ngModel)]="descricaoPadrao"
+          required
+        ></textarea>
+        <label for="description"
+          >Descrição do Atendimento (A equipe do Call-Center irá
+          visualizar)</label
+        >
+      </p-iftalabel>
+    </div>
+
+    <div class="btn-to-confirm">
+      <p-button
+        icon="pi pi-check"
+        [rounded]="true"
+        severity="success"
+        [raised]="true"
+        size="large"
+        (onClick)="confirmAction()"
+        [disabled]="!isFormValid()"
+      />
+    </div>
+  </app-card-base>
+</div>

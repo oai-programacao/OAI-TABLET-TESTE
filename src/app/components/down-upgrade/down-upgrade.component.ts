@@ -35,7 +35,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ReportsService } from '../../services/reports/reports.service';
 import { MidiaService } from '../../services/midia/midia.service';
 import { IftaLabelModule } from "primeng/iftalabel";
-import { AttendancesService } from '../../services/attendances/attendances.service';
+import { AttendancesService } from '../../services/attendances/attendance.service';
 
 export interface ContractUpdate {
   seller: string;
@@ -241,7 +241,6 @@ export class DownUpgradeComponent implements OnInit {
     this.contractService.getContractById(this.contractId).subscribe({
       next: (data) => {
         this.contract = data;
-        this.newDiscount = this.contract.descountFixe;
         this.selectedBillingCycle = this.contract.cicleBillingExpired;
         if (this.client.telefone) {
           this.phone = this.client.telefone.replace(/\D/g, '');
@@ -444,8 +443,9 @@ export class DownUpgradeComponent implements OnInit {
     this.modalVisible = false;
   }
   private showSuccess(summary: string, detail: string, life: number = 3000) { this.messageService.add({ severity: 'success', summary, detail, life }); }
-  private showError(summary: string, detail: string) { this.messageService.add({ severity: 'error', summary, detail }); }
-
+  private showError(summary: string, detail: string) {
+     this.messageService.add({ severity: 'error', summary, detail }); 
+    }
 
   loadPdfPreview(): void {
     if (this.isLoadingPreview) return;

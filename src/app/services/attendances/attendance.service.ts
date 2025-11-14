@@ -28,8 +28,33 @@ export class AttendancesService {
   }
 
   getAttendanceDetails(attendanceId: string) {
-    return this.http.get<Attendance>(
-      `${this.baseUrl}/${attendanceId}/details`
+    return this.http.get<Attendance>(`${this.baseUrl}/${attendanceId}/details`);
+  }
+
+  registerAttendance(payload: FormData): Observable<any> {
+    return this.http.post<any>(
+      `${this.baseUrl}/register_attendance`,
+      payload,
+      { responseType: 'text' as 'json' }
+    );
+  }
+
+  createAttendance(any: any): Observable<string> {
+    return this.http.post<string>(`${this.baseUrl}/create-attendance`, any, {
+      responseType: 'text' as 'json',
+    });
+  }
+
+  getFilteredAttendances(
+    clientId: string,
+    status: string | null,
+    page = 0,
+    size = 5
+  ) {
+    let params = `?page=${page}&size=${size}`;
+    if (status) params += `&status=${status}`;
+    return this.http.get<PaginationDTO<Attendance>>(
+      `${environment.apiUrl}/attendances/${clientId}/filter${params}`
     );
   }
 }

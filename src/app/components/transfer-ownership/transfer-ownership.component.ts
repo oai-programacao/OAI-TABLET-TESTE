@@ -1,3 +1,4 @@
+import { AttendancesService } from './../../services/attendances/attendance.service';
 import { SignaturePadComponent } from './../../shared/components/signature-pad/signature-pad.component';
 import { CommonModule } from "@angular/common"
 import { type AfterViewInit, Component, type ElementRef, inject, type OnInit, ViewChild } from "@angular/core"
@@ -46,7 +47,6 @@ import { NgxMaskDirective } from "ngx-mask"
 import SignaturePad from "signature_pad"
 import { concatMap } from "rxjs/internal/operators/concatMap"
 import { ReportsService } from "../../services/reports/reports.service"
-import { AttendancesService } from "../../services/attendances/attendances.service"
 
 @Component({
   selector: "app-transfer-ownership",

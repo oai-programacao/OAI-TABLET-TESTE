@@ -1,0 +1,111 @@
+.page-container {
+  min-height: 90vh;
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  ::ng-deep app-card-base {
+    animation: fadeIn 0.5s ease-in;
+  }
+}
+
+
+.badge-container {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  justify-content: center;
+  background: rgba(56, 208, 235, 0.2);
+  border: 1px solid rgba(69, 70, 70, 0.25);
+  margin-left: 0.1rem;
+  margin-right: 0.4rem;
+  margin-bottom: 0.5rem;
+}
+
+
+.btn-to-back{
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 0 0  0;
+  margin: 0.3125rem;
+}
+
+
+.btn-to-confirm {
+  display: flex;
+  justify-content: right;
+  align-items: center;
+  flex-direction: row;
+  margin-top: 1rem;
+}
+
+
+:host ::ng-deep {
+  .p-textarea {
+    --p-textarea-background: rgba(56, 208, 235, 0.2);
+    --p-textarea-filled-background: rgba(60, 230, 236, 0.6);
+    --p-textarea-filled-hover-background: rgba(107, 255, 235, 0.75);
+    --p-textarea-filled-focus-background: rgba(59, 221, 250, 0.9);
+
+    --p-textarea-focus-ring-color: rgba(0, 123, 255, 0.6);
+    --p-textarea-focus-ring-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+
+    --p-textarea-transition-duration: 0.3s;
+    --p-textarea-border-radius: 0px;
+  }
+}
+
+
+:host ::ng-deep .p-select {
+  --p-select-option-selected-background: #4da3ff;
+  --p-select-option-selected-color: white;
+  --p-select-option-selected-focus-background: #377ad6;
+  --p-select-option-selected-focus-color: white;
+}
+
+.imagem-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 2rem;
+  padding: 1rem;
+  flex-wrap: wrap;
+  max-width: 1100px; 
+  margin: 0 auto; 
+  box-sizing: border-box;
+
+  .imagem {
+    flex: 0 0 40%; 
+    position: relative;
+    overflow: hidden;
+    max-width: 400px;
+
+    .callcenter-img {
+      width: 100%;
+      height: auto;
+    }
+  }
+
+  .info-text {
+    flex: 0 0 55%; 
+    display: flex;
+    flex-direction: column;
+    min-width: 250px;
+    max-width: 400px;
+
+    h2 {
+      font-size: 1rem;
+      color: rgb(0, 0, 0);
+      padding: 0rem;
+      font-weight: 600;
+    }
+
+    p {
+      font-size: 1rem;
+      color: #334155;
+      line-height: 1.7;
+      text-align: justify;
+    }
+  }
+}

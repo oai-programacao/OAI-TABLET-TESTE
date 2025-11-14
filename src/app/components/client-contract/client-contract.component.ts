@@ -29,11 +29,11 @@ import { InputMaskModule } from 'primeng/inputmask';
 import { ClientService } from '../../services/clients/client.service';
 import { Cliente as ClientData } from '../../models/cliente/cliente.dto';
 import { CheckboxModule } from 'primeng/checkbox';
-import { StepperModule } from "primeng/stepper";
-import { InputGroupModule } from "primeng/inputgroup";
-import { InputGroupAddonModule } from "primeng/inputgroupaddon";
+import { StepperModule } from 'primeng/stepper';
+import { InputGroupModule } from 'primeng/inputgroup';
+import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { InputTextModule } from 'primeng/inputtext';
-
+import { NgxMaskDirective } from "ngx-mask";
 
 @Component({
   selector: 'app-client-contract',
@@ -63,26 +63,23 @@ import { InputTextModule } from 'primeng/inputtext';
     StepperModule,
     InputTextModule,
     InputGroupModule,
-    InputGroupAddonModule
-  ],
+    InputGroupAddonModule,
+    NgxMaskDirective
+],
   templateUrl: './client-contract.component.html',
   styleUrl: './client-contract.component.scss',
   providers: [ConfirmationService, MessageService],
 })
-
-
 export class ClientContractComponent implements OnInit {
-
   private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly contractService = inject(ContractsService);
-  private readonly clientService = inject(ClientService)
+  private readonly clientService = inject(ClientService);
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
 
-  private currentClient: ClientData | null = null;
   contracts: Contract[] = [];
   loadingBillingDialog: boolean = false;
   isLoading = false;
@@ -95,8 +92,7 @@ export class ClientContractComponent implements OnInit {
   clientId!: string;
   upgradeForm!: FormGroup;
   selectedContractForUpgrade: Contract | null = null;
-
-
+  searchCode: string = '';
 
   typesOfDateExpirationCicle = [
     { dia: '1', vencimento: '1', descricao: '01 a 31 / 01 ', value: '1' },
@@ -138,42 +134,28 @@ export class ClientContractComponent implements OnInit {
     if (id) {
       this.clientId = id;
       this.loadContracts(this.clientId);
-      this.loadCurrentClientData(this.clientId);
     }
   }
 
   // --- MÉTODOS DE CARREGAMENTO DE DADOS (Originais) ---
   loadContracts(clientId: string) {
-    this.contractService.getContractsActivesAndWaitByClient(clientId).subscribe({
-      next: (data) => (this.contracts = data),
-      error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro',
-          detail: 'Não foi possível carregar os contratos',
-        });
-      },
-    });
-  }
-
-  loadCurrentClientData(clientId: string): void {
-    this.clientService.getClientById(clientId).subscribe({
-      next: (data) => {
-        this.currentClient = data;
-      },
-      error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro Crítico',
-          detail: 'Não foi possível carregar os dados do titular do contrato.',
-        });
-      },
-    });
+    this.contractService
+      .getContractsActivesAndWaitByClient(clientId)
+      .subscribe({
+        next: (data) => (this.contracts = this.sortContractsByStatus(data)),
+        error: () => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erro',
+            detail: 'Não foi possível carregar os contratos',
+          });
+        },
+      });
   }
 
   loadAllContracts(clientId: string) {
     this.contractService.getAllContractsByClient(clientId).subscribe({
-      next: (data) => (this.contracts = data),
+      next: (data) => (this.contracts = this.sortContractsByStatus(data)),
       error: () => {
         this.messageService.add({
           severity: 'error',
@@ -223,7 +205,6 @@ export class ClientContractComponent implements OnInit {
     });
   }
 
-
   // --- MÉTODOS DIVERSOS (Originais) ---
   confirmTransferDate(contract: Contract) {
     this.confirmationService.confirm({
@@ -231,7 +212,12 @@ export class ClientContractComponent implements OnInit {
       header: 'Confirmação',
       icon: 'pi pi-exclamation-triangle',
       accept: () => this.transferDateExpired(contract),
-      reject: () => this.messageService.add({ severity: 'info', summary: 'Cancelado', detail: 'Ação cancelada.' }),
+      reject: () =>
+        this.messageService.add({
+          severity: 'info',
+          summary: 'Cancelado',
+          detail: 'Ação cancelada.',
+        }),
     });
   }
 
@@ -239,7 +225,11 @@ export class ClientContractComponent implements OnInit {
     this.loadingBillingDialog = true;
     const sellerId = this.authService.getSellerId();
     if (!sellerId) {
-      this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'SellerId não encontrado no token!' });
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erro',
+        detail: 'SellerId não encontrado no token!',
+      });
       this.loadingBillingDialog = false;
       return;
     }
@@ -251,13 +241,23 @@ export class ClientContractComponent implements OnInit {
     };
     this.contractService['changeBillingDate'](payload).subscribe({
       next: () => {
-        this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Data de vencimento alterada com sucesso!' });
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Sucesso',
+          detail: 'Data de vencimento alterada com sucesso!',
+        });
         this.dialogBilling = false;
         this.loadingBillingDialog = false;
       },
-      error: (err: { error: { errorMessage: string; }; }) => {
-        const backendMessage = err?.error?.errorMessage || 'Não foi possível alterar a data de vencimento.';
-        this.messageService.add({ severity: 'error', summary: 'Erro', detail: backendMessage });
+      error: (err: { error: { errorMessage: string } }) => {
+        const backendMessage =
+          err?.error?.errorMessage ||
+          'Não foi possível alterar a data de vencimento.';
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: backendMessage,
+        });
         this.loadingBillingDialog = false;
       },
     });
@@ -272,22 +272,26 @@ export class ClientContractComponent implements OnInit {
   }
 
   // --- MÉTODOS DE NAVEGAÇÃO E UTILITÁRIOS (Originais) ---
-  navigateToCreatContract() { 
-    const clientId = this.route.snapshot.paramMap.get('clientId');
-    this.router.navigate(['add-contract'], { queryParams: { clientId }});
+  navigateToCreatContract() {
+    this.router.navigate(['add-contract']);
+  }
+  navigateToInfoClient() {
+    this.router.navigate(['info', this.clientId]);
   }
 
-  navigateToInfoClient() { this.router.navigate(['info', this.clientId]); }
-  
   navigateToTransferOwnership(contract: Contract): void {
-    this.router.navigate(['/transfer-ownership', this.clientId, contract.id]); 
+    this.router.navigate(['/transfer-ownership', this.clientId, contract.id]);
   }
-  
+
   openUpgradeDialog(contract: Contract, isUpgrade: boolean) {
     const action = isUpgrade ? 'upgrade' : 'downgrade';
-    this.router.navigate([`/upgrade-downgrade`, this.clientId, action, contract.id]);
+    this.router.navigate([
+      `/upgrade-downgrade`,
+      this.clientId,
+      action,
+      contract.id,
+    ]);
   }
-
 
   goToAlterDateExpired(contract: Contract) {
     this.router.navigate(['/alter-dateexpired'], {
@@ -317,21 +321,62 @@ export class ClientContractComponent implements OnInit {
     this.loadContractsTransfer(this.clientId);
   }
   navigateToAddressTransfer(contract: Contract) {
-
     const sellerId = this.authService.getSellerId();
-    if(!sellerId){
-      console.error("Id do vendedor não encontrado");
+    if (!sellerId) {
+      console.error('Id do vendedor não encontrado');
       return;
     }
     this.router.navigate(['address-transfer'], {
       queryParams: {
         fromClient: contract.clientId,
-        contractId: contract.id
+        contractId: contract.id,
       },
 
       state: {
-        contractData: contract
-      }
+        contractData: contract,
+      },
+    });
+  }
+
+  searchContractByRbxCode() {
+    if (!this.searchCode.trim()) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Atenção',
+        detail: 'Digite o número RBX para pesquisar.',
+      });
+      return;
+    }
+
+    this.isLoading = true;
+    this.contractService
+      .getContractByRbxCode(this.clientId, this.searchCode)
+      .subscribe({
+        next: (contract) => {
+          // Se quiser mostrar apenas ele:
+          this.contracts = [contract];
+          this.isLoading = false;
+        },
+        error: (err) => {
+          this.isLoading = false;
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erro',
+            detail:
+              err?.error?.message ||
+              'Contrato não encontrado para este cliente.',
+          });
+        },
+      });
+  }
+  
+  private sortContractsByStatus(contracts: Contract[]): Contract[] {
+    const priorityOrder = ['ATIVO', 'AGUARDANDO_INSTALACAO', 'BLOQUEADO', 'TRANSFERIDO', 'CANCELADO'];
+
+    return contracts.sort((a, b) => {
+      const priorityA = priorityOrder.indexOf(a.situationDescription);
+      const priorityB = priorityOrder.indexOf(b.situationDescription);
+      return priorityA - priorityB;
     });
   }
 }

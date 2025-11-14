@@ -1,0 +1,142 @@
+.page-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 88vh;
+  padding: 0.5rem;
+  position: relative;
+}
+
+@media screen and (orientation: portrait) {
+  .page-container {
+    justify-content: flex-start; /* mantém mais acima quando deitado */
+    padding-top: 15rem;
+  }
+}
+
+.btn-to-go-back {
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+}
+
+.container-text-image {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+.container-text {
+  text-align: center;
+
+  h2 {
+    color: #1e3a8a;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    text-align: justify;
+    color: #374151;
+    line-height: 1.5;
+  }
+}
+
+.container-input {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  max-width: 400px;
+}
+
+.input-glass {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0.8rem 1rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  gap: 1rem;
+
+  i {
+    color: #2563eb;
+    margin-right: 0.6rem;
+    font-size: 1.2rem;
+  }
+
+  input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    color: #1e3a8a;
+    font-weight: 500;
+    font-size: 1rem;
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  /* Estado desativado (readonly) */
+  &.disabled {
+    background: #e5e7eb; /* cinza claro */
+    backdrop-filter: none;
+    border: 1px solid #d1d5db;
+    box-shadow: none;
+
+    input {
+      color: #6b7280; /* cinza escuro */
+    }
+
+    i {
+      color: #9ca3af;
+    }
+  }
+}
+
+.btns {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+:host ::ng-deep .p-select {
+  --p-select-option-selected-background: #4da3ff;
+  --p-select-option-selected-color: white;
+  --p-select-option-selected-focus-background: #377ad6;
+  --p-select-option-selected-focus-color: white;
+  width: 100%;
+  height: 3rem;
+  font-size: 2rem;
+}
+
+:host ::ng-deep .p-select.p-component.p-focus {
+  border-color: #4da3ff !important;
+  box-shadow: 0 0 0 0.2rem rgba(77, 163, 255, 0.3) !important;
+}
+
+.lottie-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999; 
+}
+
+.lottie-box {
+  width: 250px; 
+  height: 250px;
+}

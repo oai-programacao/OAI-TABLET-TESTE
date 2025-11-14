@@ -1,13 +1,7 @@
 <div class="page-container">
   <p-toast />
   <p-confirmDialog></p-confirmDialog>
-  <app-card-base width="auto" height="auto">
-    <p-divider>
-      <div class="title">
-        <h1>- CONTRATOS -</h1>
-      </div>
-    </p-divider>
-
+  <app-card-base width="auto" height="auto" header="CONTRATOS">
     <div class="btn-to-create-another-contract">
       <p-button
         [rounded]="true"
@@ -35,14 +29,51 @@
     </div>
 
     <div class="headerlist">
-      <p-button [raised]="true" label="Somente Ativos" (onClick)="listActivesContracts()" icon="pi pi-list"
-        severity="info" />
-      <p-button [raised]="true" label="Visualizar todos" (onClick)="listToAllContracts()" icon="pi pi-list"
-        severity="secondary" />
-      <p-button [raised]="true" label="Bloqueados" (onClick)="listBlockedsContracts()" icon="pi pi-list"
-        severity="secondary" />
-      <p-button [raised]="true" label="Transferidos" (onClick)="listTransferContracts()" icon="pi pi-list"
-        severity="secondary" />
+      <div class="search-wrapper">
+        <input
+          pInputText
+          type="text"
+          [mask]="'0000000'"
+          placeholder="Nº Contrato do RBX"
+          [(ngModel)]="searchCode"
+          (keydown.enter)="searchContractByRbxCode()"
+        />
+        <p-button
+          label="🔎"
+          severity="warn"
+          [rounded]="true"
+          (onClick)="searchContractByRbxCode()"
+        ></p-button>
+      </div>
+
+      <p-button
+        [raised]="true"
+        label="Somente Ativos"
+        (onClick)="listActivesContracts()"
+        icon="pi pi-list"
+        severity="info"
+      />
+      <p-button
+        [raised]="true"
+        label="Visualizar todos"
+        (onClick)="listToAllContracts()"
+        icon="pi pi-list"
+        severity="secondary"
+      />
+      <p-button
+        [raised]="true"
+        label="Bloqueados"
+        (onClick)="listBlockedsContracts()"
+        icon="pi pi-list"
+        severity="secondary"
+      />
+      <p-button
+        [raised]="true"
+        label="Transferidos"
+        (onClick)="listTransferContracts()"
+        icon="pi pi-list"
+        severity="secondary"
+      />
     </div>
 
     <div class="contracts-list">
@@ -55,15 +86,20 @@
         <div class="contract-info">
           <div class="wrapper status-wrapper">
             <div class="status">
-              <span class="status-dot" [ngClass]="{
+              <span
+                class="status-dot"
+                [ngClass]="{
                   active: contract.situationDescription == 'ATIVO',
                   waiting:
                     contract.situationDescription == 'AGUARDANDO_INSTALACAO',
                   blocked: contract.situationDescription == 'BLOQUEADO',
                   transfer: contract.situationDescription == 'TRANSFERIDO'
-                }"></span>
-              <label>[{{ contract.situationDescription }}] N° Contrato 📜 (RBX)
-                →</label>
+                }"
+              ></span>
+              <label
+                >[{{ contract.situationDescription }}] N° Contrato 📜 (RBX)
+                →</label
+              >
               <span>{{ contract.codeContractRbx }}</span>
             </div>
           </div>
@@ -87,7 +123,6 @@
               <label>📪 CEP:</label>
               <span>{{ contract.zipCode }}</span>
             </div>
-
 
             <div class="section section-inline">
               <div class="group">
@@ -132,20 +167,57 @@
         </div>
 
         <div class="contract-actions">
+          <p-button
+            icon="pi pi-arrow-up"
+            (onClick)="openUpgradeDialog(contract, true)"
+            severity="success"
+            [rounded]="true"
+            [text]="true"
+            pTooltip="Fazer Upgrade"
+            tooltipPosition="top"
+            [disabled]="contract.situationDescription !== 'ATIVO'"
+          />
+          <p-button
+            icon="pi pi-arrow-down"
+            (onClick)="openUpgradeDialog(contract, false)"
+            severity="danger"
+            [rounded]="true"
+            [text]="true"
+            pTooltip="Fazer Downgrade"
+            tooltipPosition="top"
+            [disabled]="contract.situationDescription !== 'ATIVO'"
+          />
 
-          <p-button icon="pi pi-arrow-up" (onClick)="openUpgradeDialog(contract, true)" severity="success"
-            [rounded]="true" [text]="true" pTooltip="Fazer Upgrade" tooltipPosition="top" />
-          <p-button icon="pi pi-arrow-down" (onClick)="openUpgradeDialog(contract, false)" severity="danger"
-            [rounded]="true" [text]="true" pTooltip="Fazer Downgrade" tooltipPosition="top" />
-
-          <p-button icon="pi pi-home" (onClick)="navigateToAddressTransfer(contract)" severity="warn" [rounded]="true"
-            [text]="true" pTooltip="Transferir Endereço" tooltipPosition="top" />
-          <p-button icon="pi pi-calendar" (onClick)="goToAlterDateExpired(contract)" severity="success" [rounded]="true"
-            [text]="true" pTooltip="Alterar Vencimento" tooltipPosition="top">
-          </p-button>
-          <p-button icon="pi pi-users" (onClick)="navigateToTransferOwnership(contract)" severity="info" [rounded]="true"
-            [text]="true" pTooltip="Transferir Titularidade" tooltipPosition="top">
-          </p-button>
+          <p-button
+            icon="pi pi-home"
+            (onClick)="navigateToAddressTransfer(contract)"
+            severity="warn"
+            [rounded]="true"
+            [text]="true"
+            pTooltip="Transferir Endereço"
+            tooltipPosition="top"
+            [disabled]="contract.situationDescription !== 'ATIVO'"
+          />
+          <p-button
+            icon="pi pi-calendar"
+            (onClick)="goToAlterDateExpired(contract)"
+            severity="success"
+            [rounded]="true"
+            [text]="true"
+            pTooltip="Alterar Vencimento"
+            tooltipPosition="top"
+            [disabled]="contract.situationDescription !== 'ATIVO'"
+          />
+          <p-button
+            icon="pi pi-users"
+            (onClick)="navigateToTransferOwnership(contract)"
+            severity="info"
+            [rounded]="true"
+            [text]="true"
+            pTooltip="Transferir Titularidade"
+            tooltipPosition="top"
+            [disabled]="contract.situationDescription !== 'ATIVO'"
+          />
         </div>
       </div>
       } }

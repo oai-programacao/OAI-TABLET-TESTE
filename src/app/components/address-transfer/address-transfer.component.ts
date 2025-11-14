@@ -23,8 +23,6 @@ import { InputGroupAddon } from 'primeng/inputgroupaddon';
 import { IftaLabel } from 'primeng/iftalabel';
 import { MessageService } from 'primeng/api';
 
-import { AttendancesService } from '../../services/attendances/attendances.service';
-
 import { MessageModule } from 'primeng/message';
 
 import { NgxMaskDirective } from 'ngx-mask';
@@ -50,6 +48,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { firstValueFrom, Observable } from 'rxjs';
+import { AttendancesService } from '../../services/attendances/attendance.service';
 
 export interface AddressForm {
   zipCode: string | null;
@@ -61,7 +60,7 @@ export interface AddressForm {
   city: string;
   observation: string;
   adesionValue: number | null;
- paymentForm: string | null;
+  paymentForm: string | null;
 }
 
 @Component({
@@ -293,13 +292,13 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
         next: (blob) => {
           this.pdfPreviewUrl = window.URL.createObjectURL(blob);
           this.safePdfPreviewUrl =
-            this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfPreviewUrl); 
+            this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfPreviewUrl);
 
           const duration = Date.now() - startTime;
           const delay = Math.max(0, MINIMUM_SPINNER_TIME - duration);
 
           setTimeout(() => {
-            this.isLoadingPreview = false; 
+            this.isLoadingPreview = false;
           }, delay);
         },
         error: (err) => {
@@ -309,7 +308,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
             summary: 'Erro no Preview',
             detail: 'Não foi possível carregar o termo. Tente novamente.',
           });
-          this.previewLoadFailed = true; 
+          this.previewLoadFailed = true;
           const duration = Date.now() - startTime;
           const delay = Math.max(0, MINIMUM_SPINNER_TIME - duration);
 
@@ -512,7 +511,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       .getConsentTermAddressPdf(this.clientId, this.contractId, requestBody)
       .subscribe({
         next: (blob) => {
-           this.pdfBlobFinal = blob;
+          this.pdfBlobFinal = blob;
           this.pdfPreviewUrl = window.URL.createObjectURL(blob);
           this.safePdfPreviewUrl =
             this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfPreviewUrl);
@@ -656,13 +655,13 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     { label: 'Boleto', value: 'Boleto' },
   ];
 
- savePdf() {
-  if (!this.pdfPreviewUrl) {
-    console.error('URL do PDF não disponível para salvar.');
-    return;
-  }
+  savePdf() {
+    if (!this.pdfPreviewUrl) {
+      console.error('URL do PDF não disponível para salvar.');
+      return;
+    }
 
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
   if (isIOS) {
     window.open(this.pdfPreviewUrl, '_blank');
@@ -691,11 +690,11 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       this.addressNewForm.zipCode !== this.originalAddressForm.zipCode ||
       this.addressNewForm.street !== this.originalAddressForm.street ||
       this.addressNewForm.numberFromHome !==
-        this.originalAddressForm.numberFromHome ||
+      this.originalAddressForm.numberFromHome ||
       this.addressNewForm.complement !== this.originalAddressForm.complement ||
       this.addressNewForm.uf !== this.originalAddressForm.uf ||
       this.addressNewForm.neighborhood !==
-        this.originalAddressForm.neighborhood ||
+      this.originalAddressForm.neighborhood ||
       this.addressNewForm.city !== this.originalAddressForm.city ||
       this.addressNewForm.observation !== this.originalAddressForm.observation
     );
@@ -796,5 +795,4 @@ private registerAttendance(pdfBlob: Blob): void {
       }
     });
   }
-
 }
