@@ -68,6 +68,33 @@
   margin: 0 auto;
 }
 
+.confirmation-step {
+  align-items: center;
+  text-align: center;
+  gap: 1rem;
+  padding: 2.5rem;
+  background-color: #f0fff4;
+  border: 2px solid #34d399;
+  border-radius: 2rem;
+  box-shadow: 0 4px 12px rgba(52, 211, 153, 0.2);
+
+  .success-icon {
+    font-size: 2rem;
+    color: #10b981;
+    animation: pulse 1.5s infinite;
+  }
+
+  h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #059669;
+  }
+
+  p {
+    color: #4b5563;
+  }
+}
+
 // --- COMPONENTES DE FORMULÁRIO ---
 .form-container {
   display: flex;
@@ -270,6 +297,7 @@
 // --- PAGAMENTO ---
 .payment-container {
   display: flex;
+  gap: 0.5rem;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -288,15 +316,23 @@
   justify-content: center;
   gap: 1rem;
 }
-
+.question-payment{
+  display: flex;
+  justify-content: center;
+  background-color: #3b463773;
+  border-radius: 1rem;
+  padding: 1rem;
+  padding-top: 1rem;
+  width: 100%;
+}
 .btn-actions-payment {
   gap: 1rem;
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
   align-items: center;
   flex-direction: row;
   width: 100%;
-  padding: 5rem 0 0;
+  padding: 1rem;
 }
 
 .finish-process {
