@@ -26,16 +26,13 @@ $font-size-emoji: 5rem;
 $transition-fast: 0.2s ease-in-out;
 $transition-base: 0.3s ease;
 
-// =================================================================
-// ESTILOS BASE (MANTIDOS E AJUSTADOS)
-// =================================================================
-
 /* === Layout Principal === */
 .page-container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 88vh;
+  padding: 0.5rem;
 }
 
 /* === Stepper (PrimeNG) === */
@@ -216,16 +213,6 @@ $transition-base: 0.3s ease;
     &.p-component.p-focus {
       border-color: #4da3ff !important;
       box-shadow: 0 0 0 0.2rem rgba(77, 163, 255, 0.3) !important;
-    }
-  }
-
-  .p-inputnumber {
-    width: 100%;
-
-    &-input {
-      width: 100%;
-      font-size: $font-size-md;
-      padding: $spacing-md;
     }
   }
 
