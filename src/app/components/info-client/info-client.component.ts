@@ -71,6 +71,7 @@ export class InfoClientComponent implements OnInit {
 
   cliente: Cliente = {};
 
+
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
       const clientId = params.get('clientId');

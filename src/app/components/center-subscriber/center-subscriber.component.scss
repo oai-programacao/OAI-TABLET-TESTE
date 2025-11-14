@@ -47,12 +47,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.2rem;
+  gap: 1rem;
   width: 100%;
   max-width: 400px;
 }
 
-/* --- Glass nos campos --- */
 .input-glass {
   position: relative;
   width: 100%;
@@ -64,6 +63,8 @@
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.25);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  gap: 1rem;
 
   i {
     color: #2563eb;
@@ -83,20 +84,21 @@
       outline: none;
     }
   }
-}
 
-/* Botão de copiar */
-.copy-btn {
-  position: absolute;
-  right: 0.5rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #2563eb;
-  transition: transform 0.2s ease, color 0.2s ease;
+  /* Estado desativado (readonly) */
+  &.disabled {
+    background: #e5e7eb; /* cinza claro */
+    backdrop-filter: none;
+    border: 1px solid #d1d5db;
+    box-shadow: none;
 
-  &:hover {
-    transform: translateY(-50%) scale(1.15);
-    color: #1e40af;
+    input {
+      color: #6b7280; /* cinza escuro */
+    }
+
+    i {
+      color: #9ca3af;
+    }
   }
 }
 
@@ -104,4 +106,37 @@
   display: flex;
   justify-content: center;
   gap: 1rem;
+}
+
+:host ::ng-deep .p-select {
+  --p-select-option-selected-background: #4da3ff;
+  --p-select-option-selected-color: white;
+  --p-select-option-selected-focus-background: #377ad6;
+  --p-select-option-selected-focus-color: white;
+  width: 100%;
+  height: 3rem;
+  font-size: 2rem;
+}
+
+:host ::ng-deep .p-select.p-component.p-focus {
+  border-color: #4da3ff !important;
+  box-shadow: 0 0 0 0.2rem rgba(77, 163, 255, 0.3) !important;
+}
+
+.lottie-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999; 
+}
+
+.lottie-box {
+  width: 250px; 
+  height: 250px;
 }

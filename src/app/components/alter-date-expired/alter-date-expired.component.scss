@@ -26,16 +26,13 @@ $font-size-emoji: 5rem;
 $transition-fast: 0.2s ease-in-out;
 $transition-base: 0.3s ease;
 
-// =================================================================
-// ESTILOS BASE (MANTIDOS E AJUSTADOS)
-// =================================================================
-
 /* === Layout Principal === */
 .page-container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 88vh;
+  padding: 0.5rem;
 }
 
 /* === Stepper (PrimeNG) === */
@@ -81,14 +78,13 @@ $transition-base: 0.3s ease;
 .btn-actions {
   display: flex;
   justify-content: flex-end;
-  gap: $spacing-md;
-  margin-top: $spacing-2xl;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
 }
 
 .contractNumber__header {
   background-color: #f8f9fa;
-  padding: 0.75rem 1.5rem;
-  margin-bottom: 1rem;
+  padding: 0.5rem;
   border-radius: 8px;
   display: flex;
   justify-content: space-between;
@@ -108,18 +104,16 @@ $transition-base: 0.3s ease;
   }
 }
 
-/* === Step Container === */
 .step {
   width: 100%;
   max-width: 700px;
-  margin: $spacing-xl auto;
-  padding: $spacing-3xl;
-  border-radius: $border-radius-xl;
+  margin: 0.5rem auto;
+  padding: 2rem;
+  border-radius: 14px;
   background: #fff;
   border: 1px solid #e5e7eb;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  transition: all $transition-fast;
-  box-sizing: border-box;
+  transition: all 0.2s ease-in-out;
 
   &.active {
     border-color: #3b82f6;
@@ -129,13 +123,7 @@ $transition-base: 0.3s ease;
   .step-content {
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
-  }
-
-  hr {
-    border: none;
-    border-top: 2px dashed #d1d5db;
-    margin: 1.75rem 0;
+    gap: 1.5rem;
   }
 }
 
@@ -146,7 +134,7 @@ $transition-base: 0.3s ease;
   align-items: flex-start;
   border-bottom: 1px dashed #d4d4d4;
   padding-bottom: $spacing-md;
-  gap: $spacing-lg;
+  gap: 0.5rem;
 
   .label {
     color: #1a3b73;
@@ -161,7 +149,7 @@ $transition-base: 0.3s ease;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 0.4rem;
+    gap: 0.2rem;
     flex: 1;
 
     .value-row {
@@ -185,42 +173,20 @@ $transition-base: 0.3s ease;
   }
 }
 
-/* === Select Wrapper === */
-.select-wrapper {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  margin-bottom: $spacing-xl;
-
-  .p-float-label {
-    width: 100%;
-
-    label {
-      font-size: $font-size-base;
-      color: #1a3b73;
-      font-weight: 500;
-    }
-  }
-
-  &+& {
-    margin-top: 0;
-  }
-}
-
 /* === Nova Data Selecionada === */
 .selected-info {
-  margin-top: $spacing-xl;
+  margin-top: 0rem;
   text-align: center;
   color: #004e9b;
   font-weight: 600;
-  font-size: $font-size-xl;
+  font-size: 0.5rem;
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: $spacing-md;
-  padding: $spacing-lg $spacing-xl;
+  gap: 0.5rem;
+  padding: 0.1rem;
   background: #e3f2fd;
-  border-radius: $border-radius-md;
+  border-radius: 0.5rem;
   border: 2px solid #1976d2;
   box-shadow: 0 2px 8px rgba(25, 118, 210, 0.15);
 
@@ -250,25 +216,15 @@ $transition-base: 0.3s ease;
     }
   }
 
-  .p-inputnumber {
-    width: 100%;
-
-    &-input {
-      width: 100%;
-      font-size: $font-size-md;
-      padding: $spacing-md;
-    }
-  }
-
-  .p-float-label>label {
+  .p-float-label > label {
     left: $spacing-md;
     color: #64748b;
     transition: all $transition-fast;
   }
 
-  .p-float-label:has(.p-focus)>label,
-  .p-float-label:has(input:not(:placeholder-shown))>label,
-  .p-float-label:has(.p-inputwrapper-filled)>label {
+  .p-float-label:has(.p-focus) > label,
+  .p-float-label:has(input:not(:placeholder-shown)) > label,
+  .p-float-label:has(.p-inputwrapper-filled) > label {
     top: -0.5rem;
     font-size: $font-size-sm;
     color: #1976d2;
@@ -276,14 +232,13 @@ $transition-base: 0.3s ease;
     padding: 0 $spacing-xs;
   }
 
-  .p-dialog {
+  :host ::ng-deep .p-dialog {
     background-color: #ffffff;
-    border-radius: $border-radius-lg;
+    border-color: black;
   }
 
-  .p-dialog-header {
+  :host ::ng-deep .p-dialog-header {
     color: rgb(0, 0, 0);
-    font-weight: 600;
   }
 
   .dialog-content {
@@ -329,41 +284,21 @@ $transition-base: 0.3s ease;
   }
 }
 
-/* === Alerta de Aviso === */
+// DIALOG ENVIAR WHATSAPP
 .alert-warning {
-  padding: $spacing-xl;
+  padding: 1rem;
   background-color: #fff3cd;
   color: #856404;
   border: 1px solid #ffeeba;
-  border-radius: $border-radius-md;
-  font-weight: 500;
-  font-size: $font-size-lg;
+  border-radius: 0.5rem;
+  font-weight: 400;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: $spacing-md;
-  text-align: center;
-  margin: $spacing-2xl auto;
-  max-width: 600px;
+  gap: 0.5rem;
 }
 
-/* === Estilo para Erro de Preview === */
-.p-mt-2.text-center.p-text-danger {
-  border: 1px solid var(--red-200);
-  background-color: var(--red-50);
-  padding: $spacing-xl;
-  border-radius: 8px;
-  max-width: 600px;
-  width: 90%;
-  margin: $spacing-2xl auto;
-
-  i {
-    margin-right: $spacing-sm;
-  }
-
-  p-button {
-    margin-top: $spacing-lg;
-  }
+.alert-warning i {
+  font-size: 1.2rem; /* Tamanho do ícone */
 }
 
 /* === Estilos de Dialog (Geral) === */
@@ -372,8 +307,7 @@ $transition-base: 0.3s ease;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: $spacing-lg;
-  gap: $spacing-xl;
+  padding: 0.5rem;
 }
 
 .icon-container {
@@ -392,20 +326,20 @@ $transition-base: 0.3s ease;
 
 .alert-box {
   display: flex;
-  align-items: flex-start;
-  background-color: rgba(255, 230, 0, 0.15);
-  padding: $spacing-lg;
+  align-items: center;
+  background-color: rgba(255, 230, 0, 0.3); /* fundo translúcido */
+  padding: 5px;
   border-radius: 8px;
-  gap: $spacing-lg;
+  gap: 15px;
+  margin-top: 15px;
+  padding-left: 20px;
   border-left: 5px solid rgb(255, 136, 0);
-  text-align: left;
 }
 
 .alert-icon-circle {
   width: 40px;
   height: 40px;
-  min-width: 40px;
-  background-color: rgba(245, 127, 23, 0.7);
+  background-color: rgba(245, 127, 23, 0.5); /* amarelo escuro translúcido */
   color: rgb(255, 255, 255);
   border-radius: 50%;
   display: flex;
@@ -417,17 +351,19 @@ $transition-base: 0.3s ease;
 
 .alert-text {
   margin: 0;
-  color: #070707;
-  font-size: 0.95rem;
-  line-height: 1.6;
+  color: #000000;
+  font-size: 16px;
+  line-height: 1.5;
 }
 
 .info-text {
-  font-size: $font-size-base;
+  font-size: 1rem;
   color: #000000;
   line-height: 1.6;
   margin: 0;
 }
+
+//ENCERRA DIALOG ENVIAR WHATSAPP
 
 /* === Estilos de Fluxo (Step 2) === */
 .fluxo-container {
@@ -448,33 +384,31 @@ $transition-base: 0.3s ease;
   padding: 20px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  /* efeito vidro */
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
   border: 1px solid rgba(255, 255, 255, 0.3);
-
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
-  }
 }
 
+/* Cores individuais com translucidez */
 .fluxo-card.online {
-  background: rgba(255, 230, 0, 0.05);
+  background: rgba(255, 230, 0, 0.05); /* amarelo bem leve */
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
   border-top: 5px solid #fbc02d;
 }
 
 .fluxo-card.presencial {
-  background: rgba(13, 197, 243, 0.05);
+  background: rgba(13, 197, 243, 0.05); /* verde bem leve */
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
   border-top: 5px solid #19cefc;
 }
 
 .fluxo-header {
-  font-size: $font-size-emoji;
+  font-size: 5rem;
   text-align: center;
   margin-bottom: 15px;
   display: flex;
@@ -486,7 +420,6 @@ $transition-base: 0.3s ease;
   margin-top: 10px;
   font-size: 1.5rem;
   font-weight: 600;
-  color: #1a3b73;
 }
 
 .fluxo-body {
@@ -502,7 +435,6 @@ $transition-base: 0.3s ease;
 
 .fluxo-body p {
   line-height: 1.4;
-  margin: 0;
 }
 
 .fluxo-footer {
@@ -530,7 +462,7 @@ $transition-base: 0.3s ease;
     border: 1px solid #e0e0e0;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    margin-bottom: $spacing-xl;
+    margin-bottom: 0rem;
     width: 100%;
     height: 550px;
     max-height: 70vh;
@@ -539,11 +471,9 @@ $transition-base: 0.3s ease;
 
 .btn-signature {
   display: flex;
-  gap: $spacing-md;
+  gap: 1rem;
   justify-content: center;
-  margin-bottom: $spacing-xl;
-  padding: $spacing-lg;
-  background-color: #f8f9fa;
+  margin-top: 0.5rem;
   border-radius: $border-radius-md;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
@@ -552,8 +482,8 @@ $transition-base: 0.3s ease;
   display: flex;
   justify-content: space-between;
   width: 100%;
-  padding: $spacing-lg 0;
-  margin-top: $spacing-lg;
+  padding: 0;
+  margin-top: 0rem;
 }
 
 /* === REFACTOR: Estilos de Confirmação (Step 4) === */
@@ -603,13 +533,11 @@ $transition-base: 0.3s ease;
 .step-footer {
   display: flex;
   justify-content: center;
-  margin-top: $spacing-xl;
 }
 
 /* === Estilos de Proporcional === */
 .proportional-explanation {
   margin: 0;
-  padding: $spacing-md;
   font-size: 0.95rem;
   color: #000000;
   line-height: 1.5;
@@ -695,5 +623,24 @@ $transition-base: 0.3s ease;
     .value {
       align-items: flex-start;
     }
+  }
+}
+
+/* === Estilo para Erro de Preview === */
+.p-mt-2.text-center.p-text-danger {
+  border: 1px solid var(--red-200);
+  background-color: var(--red-50);
+  padding: $spacing-xl;
+  border-radius: 8px;
+  max-width: 600px;
+  width: 90%;
+  margin: $spacing-2xl auto;
+
+  i {
+    margin-right: $spacing-sm;
+  }
+
+  p-button {
+    margin-top: $spacing-lg;
   }
 }

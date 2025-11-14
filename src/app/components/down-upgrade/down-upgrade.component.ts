@@ -241,7 +241,6 @@ export class DownUpgradeComponent implements OnInit {
     this.contractService.getContractById(this.contractId).subscribe({
       next: (data) => {
         this.contract = data;
-        this.newDiscount = this.contract.descountFixe;
         this.selectedBillingCycle = this.contract.cicleBillingExpired;
         if (this.client.telefone) {
           this.phone = this.client.telefone.replace(/\D/g, '');
