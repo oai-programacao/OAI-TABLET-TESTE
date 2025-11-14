@@ -36,7 +36,6 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { AuthService } from '../../core/auth.service';
 import { ToastModule } from 'primeng/toast';
 import { ActionsContractsService } from '../../services/actionsToContract/actions-contracts.service';
-import { PdfMergerUtil } from '../../shared/utils/pdf-merger.utils';
 import { firstValueFrom, forkJoin } from 'rxjs';
 import { DateUtilsService } from '../../shared/utils/date.utils';
 import {
@@ -1011,7 +1010,7 @@ savePdf(): void {
       discountFixed: this.contractFormData.discountFixed?.toString() || '0',
       contractDueDay:
         this.dateUtils.formatToLocalDateString(this.dateOfMemberShipExpiration) || '',
-      signatureBase64: null, // <-- Enviamos null (sem assinatura)
+      signatureBase64: null, 
     };
     const mergedPdfBlob = await firstValueFrom(
       this.reportsService.getContractDisplayPdf(this.clientId, contractData)
