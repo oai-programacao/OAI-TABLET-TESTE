@@ -1177,11 +1177,6 @@ archiveSaleDraft(): void {
     
     observation: this.contractFormData.observation || '',
     signature: this.formData.signaturePad || '',
-    imagesOne: this.imagePreviews[0] || '',
-    imagesTwo: this.imagePreviews[1] || '',
-    imagesThree: this.imagePreviews[2] || '',
-    imagesFour: this.imagePreviews[3] || '',
-    imagesFive: this.imagePreviews[4] || '',
   };
 
   this.salesService.archiveSale(payload).subscribe({
