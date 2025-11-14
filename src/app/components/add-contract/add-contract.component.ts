@@ -44,7 +44,7 @@ import {
   ReportsService,
 } from '../../services/reports/reports.service';
 
-import { AttendancesService } from '../../services/attendances/attendances.service';
+import { AttendancesService } from '../../services/attendances/attendance.service';
 import { ContractFormData } from '../../models/sales/sales.dto';
 import { Address } from '../../models/sales/sales.dto';
 
