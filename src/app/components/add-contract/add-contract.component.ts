@@ -46,7 +46,7 @@ import {
 
 import { AttendancesService } from '../../services/attendances/attendance.service';
 import { ContractFormData } from '../../models/sales/sales.dto';
-import { Address } from '../../models/sales/sales.dto';
+import { finalize } from 'rxjs/operators';
 
 
 export interface DraftSaleResponse extends ContractFormData {
@@ -59,7 +59,6 @@ export interface DraftSaleResponse extends ContractFormData {
   signatureDate: string;  
   expirationDate: string; 
   residenceType: string;
-  images?: string[];
 }
 
 @Component({
@@ -131,6 +130,7 @@ export class AddContractComponent implements OnInit {
 
   public activeStep: number = 1;
 
+  isSubmitting = false;
 
   client!: Cliente;
 
@@ -542,6 +542,8 @@ tirarOutraFoto(): void {
       return;
     }
 
+    this.isSubmitting = true;
+
     const payload = {
       sellerId,
       clientId: this.clientId,
@@ -596,7 +598,11 @@ tirarOutraFoto(): void {
   }
 });
 
-    this.salesService.createSale(formData).subscribe({
+    this.salesService.createSale(formData).pipe(
+      finalize(() => {
+        this.isSubmitting = false;
+      })
+    ).subscribe({
       next: (sale) => {
         this.messageService.add({
           severity: 'success',
@@ -1172,7 +1178,6 @@ archiveSaleDraft(): void {
     
     address: {
      ...this.contractFormData.address,
-    
     },
     
     observation: this.contractFormData.observation || '',
@@ -1185,15 +1190,19 @@ archiveSaleDraft(): void {
       this.isArchiving = false;
       this.archivedDraftId = response.draftId;
 
-      console.log('✅ Rascunho arquivado:', response);
+      console.log('Rascunho arquivado:', response);
 
       this.messageService.add({
         severity: 'success',
         summary: 'Rascunho Salvo',
         detail: `${response.message}`,
-        life: 5000,
+        life: 2000,
       });
-    },
+
+      setTimeout(() => {
+        this.router.navigate(['/waiting-leads']);
+    }, 2000);
+  },
     error: (err:any) => {
       this.isArchiving = false;
 

@@ -598,6 +598,16 @@
         Aguarde enquanto o PDF é gerado...
     </span>
 </div>
+    <div *ngIf="isSubmitting" class="loading-overlay">
+      <p-progressSpinner
+        styleClass="w-6rem h-6rem"
+        strokeWidth="6"
+        animationDuration=".5s"
+      ></p-progressSpinner>
+      <span class="loading-text">
+        Finalizando a venda, aguarde...
+      </span>
+    </div>
     
       <div *ngIf="step1Completed && step2Completed; else avisoInvalido">
         <div *ngIf="previewLoadFailed && !isLoadingPreview" 
