@@ -38,5 +38,5 @@ export interface Address {
   number: string;
   complement?: string;
   neighborhood: string;
-  type?: string;
+  residenceType?: string;
 }

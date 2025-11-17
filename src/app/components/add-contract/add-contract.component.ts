@@ -58,7 +58,7 @@ export interface DraftSaleResponse extends ContractFormData {
   startDate: string;      
   signatureDate: string;  
   expirationDate: string; 
-  
+  residenceType: string;
   images?: string[];
 }
 
@@ -254,7 +254,7 @@ export class AddContractComponent implements OnInit {
   selectedPlan: string | null = null;
   selectedInstallment: string | null = null;
   selectDateOfExpirationCicle: string | null = null;
-  selectedResidence: Address | null = null;
+  selectedResidence: string = '';
   typeOfResidenceOptions = [
     { label: 'Urbana', value: 'urbana' },
     { label: 'Rural', value: 'rural' },
@@ -1172,11 +1172,12 @@ archiveSaleDraft(): void {
     
     address: {
      ...this.contractFormData.address,
-       residenceType: this.selectedResidence || null,
+    
     },
     
     observation: this.contractFormData.observation || '',
     signature: this.formData.signaturePad || '',
+    residenceType: this.selectedResidence || null,
   };
 
   this.salesService.archiveSale(payload).subscribe({
@@ -1236,12 +1237,18 @@ loadDraft(clientId: string | null, draftId: string | undefined): void {
         this.dateOfStart = this.dateUtils.parseDate(draft.startDate);
       }
 
-      if (draft.signatureDate) {
-        this.dateSignature = this.dateUtils.parseDate(draft.signatureDate);
+      if (draft.signatureDate) { 
+        this.dateOfAssignment = this.dateUtils.parseDate(draft.signatureDate);
       }
 
       if (draft.expirationDate) {
         this.dateOfMemberShipExpiration = this.dateUtils.parseDate(draft.expirationDate);
+      }
+
+      if (draft.residenceType) {
+        this.selectedResidence = draft.residenceType;
+      } else {
+        this.selectedResidence = ''; 
       }
 
       this.messageService.add({ 
@@ -1264,7 +1271,6 @@ loadDraft(clientId: string | null, draftId: string | undefined): void {
     }
   });
 }
-
 
 
 handleCapturaFoto(): void {
