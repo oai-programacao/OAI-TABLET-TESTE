@@ -42,6 +42,18 @@
   }
 }
 
+:host ::ng-deep .dialog-notification .p-dialog-header {
+  background-color: #d8fdfb;
+  color: #313131;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border-bottom: #666565 1px solid;
+}
+
+:host ::ng-deep .dialog-notification {
+  border: 1px solid #666565;
+}
+
 .data {
   font-size: 0.75rem;
   color: #028096;
