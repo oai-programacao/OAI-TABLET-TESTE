@@ -28,6 +28,11 @@ export interface ArchivedSale {
   font?: string;
 }
 
+export interface DailyMetricsDto {
+  newSalesCount: number;
+  totalRevenue: number;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -52,4 +57,9 @@ export class SalesService{
     return this.http.get<any>(`${this.urlApi}/sales/archived/${clientId}/${draftId}`);
   }
 
+  getTodayMetrics(sellerId: string): Observable<DailyMetricsDto>{
+    return this.http.get<DailyMetricsDto>(`${this.urlApi}/sales/metrics/today/${sellerId}`);
+  }
+
+  
 }
