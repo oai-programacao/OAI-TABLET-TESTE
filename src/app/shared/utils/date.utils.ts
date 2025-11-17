@@ -1,17 +1,15 @@
-
 import { Injectable } from '@angular/core';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class DateUtilsService {
-
   formatToLocalDateString(date: Date | null | undefined): string | null {
     if (!date) return null;
 
     try {
       const validDate = date instanceof Date ? date : new Date(date);
-      
+
       if (isNaN(validDate.getTime())) {
         console.error('❌ Data inválida:', date);
         return null;
@@ -33,13 +31,13 @@ export class DateUtilsService {
 
     try {
       const validDate = date instanceof Date ? date : new Date(date);
-      
+
       if (isNaN(validDate.getTime())) {
         console.error('❌ Data inválida:', date);
         return null;
       }
 
-      return validDate.toISOString().split('T')[0]; 
+      return validDate.toISOString().split('T')[0];
     } catch (error) {
       console.error('❌ Erro ao formatar data ISO:', error);
       return null;
@@ -62,12 +60,18 @@ export class DateUtilsService {
 
     if (typeof dateValue === 'string') {
       const trimmed = dateValue.trim();
-      
+
       if (!trimmed) {
         return null;
       }
+
       if (trimmed.includes('-')) {
-        const date = new Date(trimmed);
+        let dateStr = trimmed;
+        if (dateStr.length === 10 && !dateStr.includes('T')) {
+          dateStr = `${dateStr}T00:00:00`;
+        }
+
+        const date = new Date(dateStr);
         if (!isNaN(date.getTime())) {
           return date;
         }
@@ -86,7 +90,7 @@ export class DateUtilsService {
           }
 
           const date = new Date(year, month - 1, day);
-          
+
           if (!isNaN(date.getTime())) {
             return date;
           }
@@ -103,11 +107,11 @@ export class DateUtilsService {
 
   isValidDate(date: any): boolean {
     if (!date) return false;
-    
+
     if (date instanceof Date) {
       return !isNaN(date.getTime());
     }
-    
+
     const parsed = this.parseDate(date);
     return parsed !== null;
   }
