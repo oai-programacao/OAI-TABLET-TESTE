@@ -57,4 +57,14 @@ export class AttendancesService {
       `${environment.apiUrl}/attendances/${clientId}/filter${params}`
     );
   }
+
+  cancelAttendance(attendanceId: string) {
+  return this.http.post<string>(
+    `${this.baseUrl}/${attendanceId}/cancel`,
+    {},
+    { responseType: 'text' as 'json' }
+  );
+}
+
+
 }

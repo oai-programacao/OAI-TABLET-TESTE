@@ -1,3 +1,4 @@
+import { MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -12,6 +13,7 @@ import { PdfViewerDialogComponent } from '../../shared/components/pdf-viewer/pdf
 import { FormsModule } from '@angular/forms';
 import { PopoverModule } from 'primeng/popover';
 import { SelectModule } from 'primeng/select';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'app-attendances-client',
@@ -26,6 +28,7 @@ import { SelectModule } from 'primeng/select';
     PopoverModule,
     FormsModule,
     SelectModule,
+    ToastModule
   ],
   templateUrl: './attendances-client.component.html',
   styleUrl: './attendances-client.component.scss',
@@ -34,6 +37,7 @@ export class AttendancesClientComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private attendancesService = inject(AttendancesService);
+  private messageService = inject(MessageService);
 
   clientId!: string;
   attendances: Attendance[] = [];
@@ -58,6 +62,7 @@ export class AttendancesClientComponent implements OnInit {
     type: '',
     topic: '',
     subject: '',
+    solution: '',
     codeAttendanceRbx: 0,
     medias: [],
   };
@@ -151,4 +156,30 @@ export class AttendancesClientComponent implements OnInit {
   backToHome() {
     this.router.navigate(['home']);
   }
+
+  cancelAttendance(att: Attendance) {
+    if (att.status !== 'OPEN') {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Atenção',
+        detail: 'Somente atendimentos com status OPEN podem ser cancelados.',
+      });
+      return;
+    }
+
+    this.attendancesService.cancelAttendance(att.id).subscribe({
+      next: (res) => {
+        this.loadAttendances();
+      },
+      error: (err) => {
+        this.messageService.add({
+          severity: 'danger',
+          summary: 'Atenção',
+          detail: 'Não foi possível realizar o cancelamento do Atendimento',
+        });
+      },
+    });
+  }
+
+  
 }

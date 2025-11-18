@@ -21,6 +21,7 @@ export interface Attendance {
   type: string;
   topic: string;
   subject: string;
+  solution: string;
   codeAttendanceRbx: number;
 
   medias?: Media[]; 
