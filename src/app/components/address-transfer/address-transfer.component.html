@@ -480,111 +480,31 @@
             <ng-template #content let-activateCallback="activateCallback">
               <div *ngIf="formIsValid; else avisoInvalido">
                 <div class="payment-container">
-                  <form #paymentNgForm="ngForm" class="payment-content">
-                    <div class="input-content">
-                      <div class="msg-error">
-                        <app-message-valid-forms
-                          [control]="title"
-                          error="required"
-                          text="Campo Obrigatório"
-                        ></app-message-valid-forms>
-                      </div>
-                      <p-inputgroup>
-                        <p-inputgroup-addon>
-                          <span class="material-symbols-outlined"
-                            >attach_money</span
-                          >
-                        </p-inputgroup-addon>
-                        <p-iftalabel>
-                          <input
-                            [(ngModel)]="paymentForm.title"
-                            #title="ngModel"
-                            name="title"
-                            id="title"
-                            pInputText
-                            required
-                          />
-                          <label for="title">Título:</label>
-                          <div></div>
-                        </p-iftalabel>
-                      </p-inputgroup>
+                  <div class="step-content confirmation-step">
+	                  <i class="pi pi-check-circle success-icon"></i>
+	                   <h3>Processo Concluído!</h3>
+	                      <p>
+	                        A alteração de plano foi concluída com sucesso.
+	                      </p>
+	                </div>
+                  <div class="container-finalize">
+                    <div class="question-payment">
+                      <p>Você deseja enviar o boleto de qual forma?</p>
                     </div>
-
-                    <div class="input-content">
-                      <div class="msg-error">
-                        <app-message-valid-forms
-                          [control]="dueDate"
-                          error="required"
-                          text="Campo Obrigatório"
-                        ></app-message-valid-forms>
-                      </div>
-                      <p-inputgroup>
-                        <p-inputgroup-addon>
-                          <span class="material-symbols-outlined"
-                            >calendar_clock</span
-                          >
-                        </p-inputgroup-addon>
-                        <p-iftalabel>
-                          <input
-                            [(ngModel)]="paymentForm.dueDate"
-                            #dueDate="ngModel"
-                            name="dueDate"
-                            id="due-date"
-                            pInputText
-                            required
-                          />
-                          <label for="due-date">Data de Vencimento:</label>
-                        </p-iftalabel>
-                      </p-inputgroup>
+                    <div class="btn-actions-payment">
+                      <p-button
+                        label="Gerar Boleto"
+                        size="large"
+                        severity="info"
+                        icon="pi pi-file"
+                      ></p-button>
+                      <p-button
+                        label="Enviar Por Whatsapp"
+                        size="large"
+                        severity="success"
+                        icon="pi pi-whatsapp"
+                      ></p-button>
                     </div>
-
-                    <div class="input-content">
-                      <div class="msg-error">
-                        <app-message-valid-forms
-                          [control]="price"
-                          error="required"
-                          text="Campo Obrigatório"
-                        ></app-message-valid-forms>
-                      </div>
-                      <p-inputgroup>
-                        <p-inputgroup-addon>
-                          <span class="material-symbols-outlined"
-                            >attach_money</span
-                          >
-                        </p-inputgroup-addon>
-                        <p-iftalabel>
-                          <input
-                            [(ngModel)]="paymentForm.price"
-                            #price="ngModel"
-                            name="price"
-                            id="price"
-                            pInputText
-                            prefix="R$"
-                            thousandSeparator="."
-                            decimalMarker=","
-                            [mask]="'separator.2'"
-                            required
-                          />
-                          <label for="price">Valor:</label>
-                        </p-iftalabel>
-                      </p-inputgroup>
-                    </div>
-                  </form>
-                  <div class="btn-actions-payment">
-                    <p-button
-                      label="Gerar Boleto"
-                      [outlined]="true"
-                      size="large"
-                      severity="info"
-                      icon="pi pi-file"
-                    ></p-button>
-                    <p-button
-                      label="Enviar Por Whatsapp"
-                      size="large"
-                      [outlined]="true"
-                      severity="success"
-                      icon="pi pi-whatsapp"
-                    ></p-button>
                   </div>
                   <div class="btn-to-navigate">
                     <p-button
@@ -600,7 +520,7 @@
                       label="Concluir"
                       size="large"
                       icon="pi pi-check"
-                      severity="success"
+                      severity="help"
                       raised="true"
                       (onClick)=" onConfirmAddressChange()"
                     />

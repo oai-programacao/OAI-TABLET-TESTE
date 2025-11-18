@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
-import { Contract } from '../../models/contract/contract.dto';
+import { Contract, RequestDateTransfer,  } from '../../models/contract/contract.dto';
 
 @Injectable({
   providedIn: 'root',
@@ -70,6 +70,10 @@ export class ContractsService {
     const payload = { newClientId };
 
     return this.http.post<any>(url, payload);
+  }
+
+  completeDateTransfer(payload: RequestDateTransfer): Observable<any> {
+    return this.http.post<any>(`${this.urlApi}/contract/complete-date-transfer`, payload)
   }
 
   getTransferConsentPdf(

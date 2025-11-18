@@ -317,10 +317,8 @@
                   size="large"
                   icon="pi pi-arrow-right"
                   iconPos="right"
-                  label="Atualizar Contrato"
-                  (onClick)="submitAlterDate()"
-                  [loading]="isLoadingTransfer"
-                  [disabled]="isLoadingTransfer || !safePdfPreviewUrl"
+                  label="Proximo"
+                  (onClick)="activateCallback(4)"
                 />
               </div>
             </div>
@@ -333,23 +331,93 @@
         </p-step-panel>
 
         <p-step-panel [value]="4">
-          <ng-template #content>
+          <ng-template #content let-activateCallback="activateCallback">
             <div *ngIf="selectedBillingCycle; else avisoInvalido">
-              <div class="step-content confirmation-step">
-                <i class="pi pi-check-circle success-icon"></i>
-                <h3>Processo Concluído!</h3>
-                <p>A alteração de plano foi concluída com sucesso.</p>
-              </div>
+              <div class="step-finalization">
+                <div *ngIf="finalization" class="step-body">
+                    <div class="table-finalization">
+                       <p-table class="tabela-teste" [value]="[
+                          { campo: 'Cliente', valor: result?.clientName },
+                          { campo: 'CPF/CNPJ', valor: formatCpfCnpj(result?.clientCpf) },
+                          { campo: 'Contrato', valor: result?.contrato },
+                          { campo: 'Nova data', valor: result?.newDate },
+                          { campo: 'Valor Proporcional', valor: (result?.proportionalValue | currency:'BRL':'symbol':'1.2-2') },
+                          { campo: 'Documento nº', valor: result?.numeroDocumentoRbx },
+                          { campo: 'Boleto', valor: 'link' }
+                        ]">
+                        
+                        <ng-template pTemplate="header">
+                          <tr>
+                            <th>Dados do cliente: </th>
+                            <th>     </th>
+                          </tr>
+                        </ng-template>
 
-              <div class="step-footer">
-                <p-button
-                  severity="success"
-                  [rounded]="true"
-                  label="Voltar para o Início"
-                  icon="pi pi-home"
-                  (onClick)="navigateToInfoClient()"
-                >
-                </p-button>
+                        <ng-template pTemplate="body" let-row>
+                          <tr>
+                            <td><strong>{{ row.campo }}</strong></td>
+
+                            <td *ngIf="row.valor !== 'link'">{{ row.valor }}</td>
+
+                            <td *ngIf="row.valor === 'link'">
+                              <a 
+                                [href]="getBoletoUrl(result?.linkBoleto)" 
+                                target="_blank">
+                                Clique para abrir o boleto
+                              </a>
+                            </td>
+                          </tr>
+                        </ng-template>
+                      </p-table>
+                    </div>
+                    <div class="button-finalization">
+                      <p-button
+                          label="Voltar ao Menu do cliente"
+                          icon="pi pi-thumbs-up-fil"
+                          severity="success"
+                          rounded="true"
+                          size="large"
+                          [raised]="true"
+                          (onClick)="navigateToInfoClient()"
+                        />
+                    </div>
+                </div>
+                <div *ngIf="!finalization" class="step-footer">
+                  <div class="proportional-info">
+                    <div>
+                      <span class="footer-title">
+                        Deseja realmente concluir o processo de alteração de data do plano contratado?
+                      </span>
+                    </div>
+                    <div>
+                      <span>
+                        Valor Proporcional:
+                        {{
+                          proportionalBoleto | currency : "BRL" : "symbol" : "1.2-2"
+                        }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="footer-actions">
+                    <p-button
+                      label="Voltar"
+                      icon="pi pi-arrow-left"
+                      severity="secondary"
+                      rounded="true"
+                      size="large"
+                      [raised]="true"
+                      (onClick)="activateCallback()"
+                    />
+                    <p-button
+                      severity="success"
+                      [rounded]="true"
+                      label="Enviar alteração"
+                      icon="pi pi-check"
+                      [loading]="isLoadingTransfer"
+                      (onClick)="submitAlterDate()"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
             <ng-template #avisoInvalido>
@@ -361,6 +429,7 @@
         </p-step-panel>
       </p-step-panels>
     </p-stepper>
+    <app-check [trigger]="tocarCheck"/>
   </app-card-base>
 
   <!-- Modal -->
