@@ -28,11 +28,8 @@ import { AuthService } from '../../core/auth.service';
 import { MidiaService } from '../../services/midia/midia.service';
 import { IftaLabelModule } from 'primeng/iftalabel';
 import { DividerModule } from "primeng/divider";
-import { AttendancesService } from '../../services/attendances/attendance.service';
 import { TableModule } from "primeng/table";
-import { Seller } from '../../models/seller/seller.dto';
 import { CardModule } from "primeng/card";
-import { NotificationPanelComponent } from '../notification-panel/notification-panel.component';
 import { CheckComponent } from "../../shared/components/check-component/check-component.component";
 
 export interface ConsentTermRequest {
@@ -70,7 +67,6 @@ export interface ConsentTermRequestHandle {
     DividerModule,
     TableModule,
     CardModule,
-    NotificationPanelComponent,
     CheckComponent
 ],
   templateUrl: './alter-date-expired.component.html',

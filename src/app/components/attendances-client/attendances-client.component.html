@@ -1,5 +1,7 @@
 <div class="page-container">
   <p-toast position="top-center"></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+
   <app-card-base>
     <!-- Botões de navegação e badge fora do card com bordas, mas dentro do app-card-base -->
     <div class="btn-to-back">
@@ -295,8 +297,16 @@
           {{ selectedAttendance.openHour }}</span
         >
       </div>
+
       <div class="info-badge">
-        <p-button [severity]="'danger'" [raised]="true">❌ CANCELAR</p-button>
+        <p-button
+          severity="danger"
+          [raised]="true"
+          icon="pi pi-times"
+          label="Cancelar"
+          (onClick)="confirmCancel(selectedAttendance)"
+        >
+        </p-button>
       </div>
     </div>
 
@@ -319,7 +329,9 @@
       </h3>
       <div class="description-box">
         <p style="white-space: pre-line">
-          {{ selectedAttendance.solution || "Não há nada para ser exibido aqui" }}
+          {{
+            selectedAttendance.solution || "Não há nada para ser exibido aqui"
+          }}
         </p>
       </div>
     </div>
@@ -366,6 +378,8 @@
     </div>
   </div>
 </p-dialog>
+
+<app-check [trigger]="tocarCheck" />
 
 <app-pdf-viewer-dialog
   [(visible)]="pdfDialogVisible"

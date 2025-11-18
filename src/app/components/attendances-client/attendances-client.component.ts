@@ -1,4 +1,4 @@
-import { MessageService } from 'primeng/api';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -14,6 +14,8 @@ import { FormsModule } from '@angular/forms';
 import { PopoverModule } from 'primeng/popover';
 import { SelectModule } from 'primeng/select';
 import { ToastModule } from 'primeng/toast';
+import { CheckComponent } from '../../shared/components/check-component/check-component.component';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 @Component({
   selector: 'app-attendances-client',
@@ -28,21 +30,26 @@ import { ToastModule } from 'primeng/toast';
     PopoverModule,
     FormsModule,
     SelectModule,
-    ToastModule
+    ToastModule,
+    CheckComponent,
+    ConfirmDialogModule,
   ],
   templateUrl: './attendances-client.component.html',
   styleUrl: './attendances-client.component.scss',
+  providers: [MessageService, ConfirmationService],
 })
 export class AttendancesClientComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private attendancesService = inject(AttendancesService);
   private messageService = inject(MessageService);
+  private confirmationService = inject(ConfirmationService);
 
   clientId!: string;
   attendances: Attendance[] = [];
   client: any;
   displayDialog = false;
+  tocarCheck = false;
 
   totalElements = 0;
   selectedStatus: string | null = null;
@@ -157,6 +164,22 @@ export class AttendancesClientComponent implements OnInit {
     this.router.navigate(['home']);
   }
 
+  confirmCancel(attendance: Attendance) {
+    this.confirmationService.confirm({
+      message: 'Tem certeza que deseja cancelar este atendimento?',
+      header: 'Confirmar Cancelamento',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sim',
+      rejectLabel: 'Não',
+      acceptButtonProps: { severity: 'danger' },
+      rejectButtonProps: { severity: 'secondary' },
+
+      accept: () => {
+        this.cancelAttendance(attendance);
+      },
+    });
+  }
+
   cancelAttendance(att: Attendance) {
     if (att.status !== 'OPEN') {
       this.messageService.add({
@@ -169,6 +192,8 @@ export class AttendancesClientComponent implements OnInit {
 
     this.attendancesService.cancelAttendance(att.id).subscribe({
       next: (res) => {
+        this.tocarCheck = true;
+        setTimeout(() => (this.tocarCheck = false), 10);
         this.loadAttendances();
       },
       error: (err) => {
@@ -180,6 +205,4 @@ export class AttendancesClientComponent implements OnInit {
       },
     });
   }
-
-  
 }
