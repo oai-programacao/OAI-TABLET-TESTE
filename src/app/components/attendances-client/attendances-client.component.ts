@@ -198,7 +198,7 @@ export class AttendancesClientComponent implements OnInit {
       },
       error: (err) => {
         this.messageService.add({
-          severity: 'danger',
+          severity: 'error',
           summary: 'Atenção',
           detail: 'Não foi possível realizar o cancelamento do Atendimento',
         });
