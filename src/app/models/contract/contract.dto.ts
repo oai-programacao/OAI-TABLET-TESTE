@@ -28,7 +28,7 @@ export interface Contract {
     clientName: string;
     planId: number;
     planName: string;
-    codePlanRbx: number; 
+    codePlanRbx: number;
     sellerId: string | null;
     saleId: string | null;
     cicleFatId: number | null;
@@ -36,3 +36,16 @@ export interface Contract {
     cicleBillingExpired: number | null;
     vigencia: number | null;
 }
+
+export interface RequestDateTransfer {
+    clientId: string;
+    contrato: string;
+    proportionalValue: number;
+    newDate: string;
+    paymentMethod: string | null;
+    fluxo: string;
+    assunto: string;
+    phone?: string;
+    pdfBytes: string;
+}
+

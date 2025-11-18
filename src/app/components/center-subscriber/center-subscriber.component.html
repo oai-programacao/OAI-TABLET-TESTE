@@ -93,7 +93,6 @@
       </div>
 
       <div class="container-input">
-        <!-- Campo de Usuário -->
         <div class="input-glass" [class.disabled]="!enable">
           <i class="pi pi-user"></i>
           <input
@@ -115,8 +114,7 @@
             (onClick)="copyToClipboard(usuario, 'Usuário')"
           />
         </div>
-
-        <!-- Campo de Senha -->
+        
         <div class="input-glass" [class.disabled]="!enable">
           <i class="pi pi-lock"></i>
           <input
@@ -153,11 +151,8 @@
         </div>
       </div>
     </div>
-
     
-    <div *ngIf="showSuccessLottie" class="lottie-overlay">
-      <div #lottieContainer class="lottie-box"></div>
-    </div>
+    <app-check [trigger]="tocarCheck"/>
 
   </app-card-base>
 </div>
