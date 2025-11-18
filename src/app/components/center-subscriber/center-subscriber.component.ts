@@ -1,7 +1,7 @@
 import { ContractsService } from './../../services/contracts/contracts.service';
 import { ClientService } from './../../services/clients/client.service';
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, ViewChild, type OnInit } from '@angular/core';
+import { Component, type OnInit } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { CardBaseComponent } from '../../shared/components/card-base/card-base.component';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -20,7 +20,7 @@ import { Contract } from '../../models/contract/contract.dto';
 import { SelectModule } from 'primeng/select';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { CreateCenterSubscribeDTO } from '../../models/centersubscribe/createCenterSubscribe.dto';
-import player from 'lottie-web';
+import { CheckComponent } from '../../shared/components/check-component/check-component.component';
 
 @Component({
   standalone: true,
@@ -38,6 +38,7 @@ import player from 'lottie-web';
     InputIconModule,
     SelectModule,
     ConfirmDialog,
+    CheckComponent
   ],
   templateUrl: './center-subscriber.component.html',
   styleUrl: './center-subscriber.component.scss',
@@ -56,9 +57,7 @@ export class CenterSubscriberComponent implements OnInit {
   contracts: Contract[] = [];
   selectedContract: Contract | undefined;
   isLoading = false;
-
-  @ViewChild('lottieContainer') lottieContainer!: ElementRef<HTMLDivElement>;
-  showSuccessLottie = false;
+  tocarCheck = false;
 
   constructor(
     private router: Router,
@@ -68,7 +67,7 @@ export class CenterSubscriberComponent implements OnInit {
     private centerSubscribeService: CenterSubscribeService,
     private contractsService: ContractsService,
     private confirmationService: ConfirmationService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.clientId = this.route.snapshot.paramMap.get('clientId');
@@ -269,7 +268,8 @@ export class CenterSubscriberComponent implements OnInit {
           detail: 'Credenciais atualizadas com sucesso!',
         });
 
-        this.showSuccess();
+        this.tocarCheck = true;
+        setTimeout(() => this.tocarCheck = false, 10);
         this.changeButtonDisabled = false;
       },
       error: (err) => {
@@ -314,7 +314,8 @@ export class CenterSubscriberComponent implements OnInit {
           detail: 'Credenciais atualizadas com sucesso!',
         });
 
-        this.showSuccess();
+        this.tocarCheck = true;
+        setTimeout(() => this.tocarCheck = false, 10);
         this.changeButtonCreateDisabled = false;
       },
       error: (err) => {
@@ -332,25 +333,5 @@ export class CenterSubscriberComponent implements OnInit {
     this.changeButton = false;
   }
 
-  showSuccess() {
-    this.showSuccessLottie = true;
-
-    // Aguarda o Angular renderizar o container antes de carregar a animação
-    setTimeout(() => {
-      if (this.lottieContainer) {
-        player.loadAnimation({
-          container: this.lottieContainer.nativeElement,
-          path: '/check.json',
-          renderer: 'svg',
-          loop: false,
-          autoplay: true,
-        });
-      }
-    }, 50);
-
-    setTimeout(() => {
-      this.showSuccessLottie = false;
-    }, 3000);
-  }
 
 }
