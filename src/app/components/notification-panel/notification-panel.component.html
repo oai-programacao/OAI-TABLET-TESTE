@@ -1,11 +1,12 @@
 <p-dialog
-  header="Notificações 🔔"
+  header="Central de Notificações 🔔"
   [(visible)]="visivel"
   [modal]="true"
   [style]="{ width: '400px' }"
   [draggable]="false"
   [resizable]="false"
   (onHide)="fechar()"
+  class="dialog-notification"
 >
   <ng-template pTemplate="content">
     <!-- Indicador de carregamento -->

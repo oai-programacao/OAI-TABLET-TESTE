@@ -1,3 +1,4 @@
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -12,6 +13,10 @@ import { PdfViewerDialogComponent } from '../../shared/components/pdf-viewer/pdf
 import { FormsModule } from '@angular/forms';
 import { PopoverModule } from 'primeng/popover';
 import { SelectModule } from 'primeng/select';
+import { ToastModule } from 'primeng/toast';
+import { CheckComponent } from '../../shared/components/check-component/check-component.component';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { LinkifyPipe } from '../../shared/pipes/linkify.pipe';
 
 @Component({
   selector: 'app-attendances-client',
@@ -26,19 +31,27 @@ import { SelectModule } from 'primeng/select';
     PopoverModule,
     FormsModule,
     SelectModule,
+    ToastModule,
+    CheckComponent,
+    ConfirmDialogModule,
+    LinkifyPipe
   ],
   templateUrl: './attendances-client.component.html',
   styleUrl: './attendances-client.component.scss',
+  providers: [MessageService, ConfirmationService],
 })
 export class AttendancesClientComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private attendancesService = inject(AttendancesService);
+  private messageService = inject(MessageService);
+  private confirmationService = inject(ConfirmationService);
 
   clientId!: string;
   attendances: Attendance[] = [];
   client: any;
   displayDialog = false;
+  tocarCheck = false;
 
   totalElements = 0;
   selectedStatus: string | null = null;
@@ -58,6 +71,7 @@ export class AttendancesClientComponent implements OnInit {
     type: '',
     topic: '',
     subject: '',
+    solution: '',
     codeAttendanceRbx: 0,
     medias: [],
   };
@@ -150,5 +164,53 @@ export class AttendancesClientComponent implements OnInit {
 
   backToHome() {
     this.router.navigate(['home']);
+  }
+
+  confirmCancel(attendance: Attendance) {
+    this.confirmationService.confirm({
+      message: 'Tem certeza que deseja cancelar este atendimento?',
+      header: 'Confirmar Cancelamento',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sim',
+      rejectLabel: 'Não',
+      acceptButtonProps: { severity: 'danger' },
+      rejectButtonProps: { severity: 'secondary' },
+
+      accept: () => {
+        this.cancelAttendance(attendance);
+      },
+    });
+  }
+
+  cancelAttendance(att: Attendance) {
+    if (att.status !== 'OPEN') {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Atenção',
+        detail: 'Somente atendimentos com status ABERTO podem ser cancelados.',
+      });
+      return;
+    }
+
+    this.attendancesService.cancelAttendance(att.id).subscribe({
+      next: (res) => {
+        this.tocarCheck = true;
+        setTimeout(() => (this.tocarCheck = false), 3);
+         this.messageService.add({
+          severity: 'sucess',
+          summary: 'Sucesso',
+          detail: 'Atendimento cancelado com sucesso!',
+        });
+        this.displayDialog = false;
+        this.loadAttendances();
+      },
+      error: (err) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Atenção',
+          detail: 'Não foi possível realizar o cancelamento do Atendimento',
+        });
+      },
+    });
   }
 }

@@ -58,6 +58,14 @@ export class AttendancesService {
     );
   }
 
+  cancelAttendance(attendanceId: string) {
+  return this.http.post<string>(
+    `${this.baseUrl}/${attendanceId}/cancel`,
+    {},
+    { responseType: 'text' as 'json' }
+  );
+}
+
    getTodayAttendance(sellerId: string): Observable<number> {
     return this.http.get<number>(`${this.baseUrl}/today/${sellerId}`);
   }
