@@ -195,13 +195,14 @@ export class AttendancesClientComponent implements OnInit {
     this.attendancesService.cancelAttendance(att.id).subscribe({
       next: (res) => {
         this.tocarCheck = true;
-        setTimeout(() => (this.tocarCheck = false), 10);
-        this.loadAttendances();
+        setTimeout(() => (this.tocarCheck = false), 3);
          this.messageService.add({
           severity: 'sucess',
           summary: 'Sucesso',
           detail: 'Atendimento cancelado com sucesso!',
         });
+        this.displayDialog = false;
+        this.loadAttendances();
       },
       error: (err) => {
         this.messageService.add({
