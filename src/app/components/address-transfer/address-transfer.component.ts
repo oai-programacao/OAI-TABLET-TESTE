@@ -42,13 +42,15 @@ import { ToastModule } from 'primeng/toast';
 import { MidiaService } from '../../services/midia/midia.service';
 
 import { SignaturePadComponent } from '../../shared/components/signature-pad/signature-pad.component';
+import { ClientService } from '../../services/clients/client.service';
 
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
-import { firstValueFrom, Observable } from 'rxjs';
+import { TableModule } from "primeng/table";
 import { AttendancesService } from '../../services/attendances/attendance.service';
+import { finalize } from 'rxjs/operators';
 
 export interface AddressForm {
   zipCode: string | null;
@@ -91,7 +93,8 @@ export interface AddressForm {
     DropdownModule,
     SelectModule,
     TooltipModule,
-
+    TableModule
+  
   ],
   providers: [MessageService, AttendancesService],
   templateUrl: './address-transfer.component.html',
@@ -107,6 +110,10 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
 
   phone: string = '';
   formIsValid: boolean = false;
+
+  finalization: boolean = false;
+
+  isSubmitting: boolean = false;
 
   @ViewChild('addressNewNgForm') addressNewNgForm!: NgForm;
   @ViewChild(SignaturePadComponent)
@@ -126,6 +133,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   private readonly reportsService = inject(ReportsService);
   private readonly midiaService = inject(MidiaService);
   private readonly attendancesService = inject(AttendancesService);
+  private readonly clientService = inject(ClientService);
   public pdfPreviewUrl: string | null = null;
   public pdfBlobFinal: Blob | null = null;
 
@@ -138,6 +146,10 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   isLoadingSignature = false;
 
   isPreviewDialogVisible: boolean = false;
+
+   result: any = null;
+
+   pdfWasDownloaded: boolean = false;
 
   public currentContract!: Contract;
   public isLoading = false;
@@ -223,6 +235,8 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
         paymentForm: null,
       };
       this.originalAddressForm = { ...this.addressNewForm };
+
+      this.loadClientData();
       return;
     }
 
@@ -233,6 +247,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     if (clientIdFromRoute && contractIdFromRoute) {
       this.clientId = clientIdFromRoute;
       this.contractId = contractIdFromRoute;
+      
       return;
     }
 
@@ -672,6 +687,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    this.pdfWasDownloaded = true;
   }
 }
 
@@ -700,7 +716,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     );
   }
 
- onConfirmAddressChange(): void {
+ async onConfirmAddressChange() {
     if (!this.currentContract) {
       this.messageService.add({
         severity: 'error',
@@ -719,9 +735,22 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     }
 
     this.isLoading = true;
+    this.isSubmitting = true;
+
+    try {
+    // 2. Converter PDF para Base64
+    let pdfBase64Clean = '';
+    if (this.pdfBlobFinal) {
+      const fullBase64 = await this.blobToBase64(this.pdfBlobFinal);
+      // Remove o prefixo "data:application/pdf;base64," se existir
+      pdfBase64Clean = fullBase64.includes(',') ? fullBase64.split(',')[1] : fullBase64;
+    }
+
      const payload = {
       clientId: this.currentContract.clientId,
       contractId: this.currentContract.id,
+      adesion: this.addressNewForm.adesionValue || 0,
+      pdfBytes: pdfBase64Clean,
       address: {
         cep: this.addressNewForm.zipCode,
         uf: this.addressNewForm.uf,
@@ -733,26 +762,44 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       }
     };
 
-    this.contractsService.updateAddressContract(this.currentContract.id, payload).subscribe({
-      next: () => {
-        this.isLoading = false;
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Sucesso!',
-          detail: 'Endereço atualizado!',
-        });
+    this.contractsService.updateAddressContract(this.currentContract.id, payload).pipe(
+      finalize(() => {
+          this.isLoading = false;
+          this.isSubmitting = false;
+      })
+  ).subscribe({
+    next: (response: any) => {
+      
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Sucesso!',
+        detail: 'Endereço atualizado!',
+      });
         if (this.pdfBlobFinal) {
-          this.registerAttendance(this.pdfBlobFinal);
+          this.registerAttendance(this.pdfBlobFinal, response.linkBoleto);
         } else {
           console.warn("PDF não encontrado, o atendimento não será registrado.");
         }
 
-        setTimeout(() => {
-          this.router.navigate([
-          '/client-contracts',
-          this.currentContract?.clientId,
-        ]);
-      }, 2500);
+        const enderecoCompleto = `${this.addressNewForm.street}, ${this.addressNewForm.numberFromHome} - ${this.addressNewForm.neighborhood}`;
+        const cidadeUF = `${this.addressNewForm.city}/${this.addressNewForm.uf}`;
+        const enderecoFinalizado = `${enderecoCompleto} | ${cidadeUF}`;
+
+        this.result = {
+          clientName: this.client?.name || this.client?.socialName || 'Cliente Indisponível',
+        clientCpf: this.formatCpfCnpj(this.client?.cpf || this.client?.cnpj || 'N/A'),
+          contrato: this.currentContract?.codeContractRbx || this.currentContract?.id,
+         novoEndereco: enderecoFinalizado,
+         cidade: `${this.addressNewForm.city}/${this.addressNewForm.uf}`,
+
+    adesionValue: this.addressNewForm.adesionValue || 0,
+
+    documentoRbx: response?.numeroDocumento || response?.protocolo || 'Processado',
+    linkBoleto: response?.linkBoleto
+        };
+
+        console.log('Final Result Object:', this.result);
+        this.finalization = true;
       },
       error: (err) => {
         this.isLoading = false;
@@ -765,10 +812,25 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
         });
       },
     });
+  }catch (error) {
+    console.error("Erro ao processar PDF", error);
+    this.isLoading = false;
+    this.isSubmitting = false;
+    this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao processar o arquivo PDF.' });
   }
+ }
+
+  blobToBase64(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
 
 
-private registerAttendance(pdfBlob: Blob): void {
+private registerAttendance(pdfBlob: Blob, linkBoleto: string): void {
     if (!this.clientId || !this.contractId) {
       console.error("registerAttendance: ClientID ou ContractID estão ausentes.");
       return;
@@ -776,8 +838,10 @@ private registerAttendance(pdfBlob: Blob): void {
     const data = {
       event: this.event as string,
       cliente: this.clientId,
-      contrato: this.contractId
+      contrato: this.contractId,
+      linkBoleto: linkBoleto
     };
+
     const jsonBlob = new Blob([JSON.stringify(data)], { type: "application/json" });
 
     const formData = new FormData();
@@ -792,6 +856,46 @@ private registerAttendance(pdfBlob: Blob): void {
       error: (err) => {
         console.error("Falha ao registrar atendimento:", err);
         this.showWarning("Aviso", "A transferência foi concluída, mas houve um erro ao registrar o atendimento no histórico.");
+      }
+    });
+  }
+
+  formatCpfCnpj(value: string): string {
+    const numbers = value.replace(/\D/g, '');
+    if (numbers.length <= 11) {
+      // CPF → 000.000.000-00
+      return numbers
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+    }
+    // CNPJ → 00.000.000/0000-00
+    return numbers
+      .replace(/(\d{2})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1/$2')
+      .replace(/(\d{4})(\d{1,2})$/, '$1-$2');
+  }
+
+  getBoletoUrl(numero: string | number): string {
+    return `${numero}`;
+  }
+
+    navigateToInfoClient() {
+    if (this.clientId) {
+      this.router.navigate(["info", this.clientId])
+    } else {
+      this.router.navigate(["/"])
+    }
+  }
+
+  loadClientData() {
+    this.clientService.getClientById(this.clientId).subscribe({
+      next: (clientData: Cliente) => {
+        this.client = clientData;
+},
+error: (err) => {
+        console.error("Erro ao carregar dados do cliente:", err);
       }
     });
   }
