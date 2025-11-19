@@ -197,6 +197,11 @@ export class AttendancesClientComponent implements OnInit {
         this.tocarCheck = true;
         setTimeout(() => (this.tocarCheck = false), 10);
         this.loadAttendances();
+         this.messageService.add({
+          severity: 'sucess',
+          summary: 'Sucesso',
+          detail: 'Atendimento cancelado com sucesso!',
+        });
       },
       error: (err) => {
         this.messageService.add({
