@@ -140,11 +140,20 @@
                 </div>
 
                 <div class="selected-info">
-                  <i class="pi pi-calendar"></i>
-                  <span>
-                    Novo Plano selecionado:
-                    {{ selectedPlan?.nome || "Nenhum" }}
-                  </span>
+                  <div class="plan-item">
+                    <i class="pi pi-calendar"></i>
+                    <span>
+                      Novo Plano selecionado:
+                      {{ selectedPlan?.nome || "Nenhum" }}
+                    </span>
+                  </div>
+                  <div class="plan-item">
+                    <i class="pi pi-money-bill"></i>
+                    <span>
+                      Valor do novo Plano:
+                      <strong>{{ valorFinalComDescontoDisplay | currency:'BRL':'symbol':'1.2-2' }}</strong>
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -320,8 +329,8 @@
                   size="large"
                   icon="pi pi-arrow-right"
                   iconPos="right"
-                  label="Atualizar Contrato"
-                  (onClick)="submitUpgrade()"
+                  label="Proxímo"
+                  (onClick)="activateCallback(4)"
                 />
               </div>
             </div>
@@ -333,23 +342,78 @@
           </ng-template>
         </p-step-panel>
         <p-step-panel [value]="4">
-          <ng-template #content>
+          <ng-template #content let-activateCallback="activateCallback">
             <div *ngIf="selectedPlan; else avisoInvalido">
-              <div class="step-content confirmation-step">
-                <i class="pi pi-check-circle success-icon"></i>
-                <h3>Processo Concluído!</h3>
-                <p>A alteração de plano foi concluída com sucesso.</p>
-              </div>
-              <div class="step-footer">
+              <div *ngIf="finalization" class="step-body">
+                    <div class="table-finalization">
+                       <p-table class="tabela-finalization" [value]="[
+                          { campo: 'Cliente', valor: result?.clientName },
+                          { campo: 'CPF/CNPJ', valor: formatCpfCnpj(result?.clientCpf) },
+                          { campo: 'Contrato gerado pelo RBX: ', valor: result?.contrato },
+                          { campo: 'Plano', valor: result?.plano },
+                          { campo: 'Valor do plano:', valor: (result?.valor | currency:'BRL':'symbol':'1.2-2') }                        
+                          ]">
+                        
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th>Dados do cliente: </th>
+                                <th></th>
+                            </tr>
+                        </ng-template>
+
+                        <ng-template pTemplate="body" let-row>
+                            <tr>
+                                <td><strong>{{ row.campo }}</strong></td>
+                                <td>{{ row.valor }}</td>
+                            </tr>
+                        </ng-template>            
+                      </p-table>
+                    </div>
+                    <div class="button-finalization">
+                      <p-button
+                          label="Voltar ao Menu do cliente"
+                          icon="pi pi-thumbs-up-fil"
+                          severity="success"
+                          rounded="true"
+                          size="large"
+                          [raised]="true"
+                          (onClick)="navigateToInfoClient()"
+                        />
+                    </div>
+                </div>
+                <div *ngIf="!finalization" class="step-footer">
+              <div class="proportional-info">
+                <div>
+                    <span>
+                      Deseja realmente concluir o processo de alteração de plano contratado?
+                    </span>
+                    <p style="font-size: 1em;">
+                        <b style="font-size: 1.5em;">Atenção:</b> Após a alteração, o novo plano será iniciado somente no dia seguinte.
+                        <br>
+                        Se precisar alterar o plano novamente, será necessário esperar dois dias (48 horas) para que essa troca possa ser feita.
+                    </p>
+                  </div>
+                </div>
+                <div class="footer-actions">
                 <p-button
-                  severity="info"
+                  label="Voltar"
+                  icon="pi pi-arrow-left"
+                  severity="secondary"
+                  rounded="true"
+                  size="large"
+                  [raised]="true"
+                  (onClick)="activateCallback()"
+                  />
+                  <p-button
+                  severity="success"
                   [rounded]="true"
-                  label="Voltar para o Início"
-                  icon="pi pi-home"
-                  (onClick)="navigateToInfoClient()"
-                >
-                </p-button>
+                  label="Enviar alteração"
+                  icon="pi pi-check"
+                  [loading]="isLoadingTransfer"
+                  (onClick)="submitUpgrade()"
+                  />
               </div>
+            </div>
             </div>
             <ng-template #avisoInvalido>
               <div class="alert-warning">
@@ -360,6 +424,7 @@
         </p-step-panel>
       </p-step-panels>
     </p-stepper>
+    <app-check [trigger]="tocarCheck"/>
   </app-card-base>
 
   <p-dialog

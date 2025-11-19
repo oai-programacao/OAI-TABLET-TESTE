@@ -336,7 +336,7 @@
               <div class="step-finalization">
                 <div *ngIf="finalization" class="step-body">
                     <div class="table-finalization">
-                       <p-table class="tabela-teste" [value]="[
+                       <p-table class="tabela-finalization" [value]="[
                           { campo: 'Cliente', valor: result?.clientName },
                           { campo: 'CPF/CNPJ', valor: formatCpfCnpj(result?.clientCpf) },
                           { campo: 'Contrato', valor: result?.contrato },
@@ -385,7 +385,7 @@
                 <div *ngIf="!finalization" class="step-footer">
                   <div class="proportional-info">
                     <div>
-                      <span class="footer-title">
+                      <span>
                         Deseja realmente concluir o processo de alteração de data do plano contratado?
                       </span>
                     </div>

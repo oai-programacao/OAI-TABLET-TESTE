@@ -169,7 +169,7 @@
         <div class="contract-actions">
           <p-button
             icon="pi pi-arrow-up"
-            (onClick)="openUpgradeDialog(contract, true)"
+            (onClick)="handleOpenDialogValidation(contract, true)"
             severity="success"
             [rounded]="true"
             [text]="true"
@@ -179,7 +179,7 @@
           />
           <p-button
             icon="pi pi-arrow-down"
-            (onClick)="openUpgradeDialog(contract, false)"
+            (onClick)="handleOpenDialogValidation(contract, false)"
             severity="danger"
             [rounded]="true"
             [text]="true"

@@ -181,6 +181,7 @@ $transition-base: 0.3s ease;
   font-weight: 600;
   font-size: $font-size-xl;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   gap: $spacing-md;
@@ -571,4 +572,182 @@ p-progressspinner {
   .pi-tag {
     font-size: 0.75rem;
   }
+}
+
+.step-footer {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #f7fbfc;
+  border-radius: 12px;
+  border: 1px solid #d6e9ef;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  .proportional-info {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+  }
+}
+
+.footer-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.proportional-info {
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  background-color: #f0f9ff;
+  color: #002efd;
+  font-weight: 1000;
+
+  i {
+    font-size: 2rem;
+    color: #2f9102;
+  }
+
+  span {
+    font-size: 2rem;
+  }
+}
+
+.table-finalization {
+  margin-top: 2rem;
+  margin-left:  2rem;
+  margin-right:  2rem;
+  margin-bottom:  2rem;
+  border-radius: 24px;
+  overflow: hidden;
+  background: linear-gradient(135deg,
+      rgba(117, 0, 250, 0.95) 0%,
+      rgba(43, 6, 252, 0.85) 100%);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(174, 0, 255, 0.3);
+  box-shadow:
+    0 25px 50px -12px rgba(102, 126, 234, 0.25),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.8),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  position: relative;
+  z-index: 1;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+:host ::ng-deep .table-finalization .p-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: transparent;
+  border-radius: 24px;
+  overflow: hidden;
+  position: relative;
+}
+
+:host ::ng-deep .table-finalization .p-table .p-table-thead>tr>th {
+  background: linear-gradient(135deg,
+      rgba(102, 126, 234, 0.95) 0%,
+      rgba(118, 75, 162, 0.9) 100%) !important;
+  backdrop-filter: blur(10px);
+  color: white !important;
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 700;
+  font-size: 1.3rem;
+  padding: 1.5rem 1.5rem;
+  text-align: left;
+  border: none;
+  position: relative;
+  overflow: hidden;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+:host ::ng-deep .table-finalization .p-table .p-table-tbody>tr::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, #002efd, #fbff01, #7d03f7);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+:host ::ng-deep .table-finalization .p-table .p-table-tbody>tr:hover::before {
+  opacity: 1;
+}
+
+:host ::ng-deep .table-finalization .p-table .p-table-tbody>tr>td {
+  padding: 1.3rem 1.5rem;
+  border: none;
+  font-size: 1.05rem;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+:host ::ng-deep .table-finalization .p-table .p-table-tbody>tr>td:first-child {
+  font-weight: 700;
+  color: #1f2937;
+  background: linear-gradient(135deg,
+      rgba(0, 72, 255, 0.9) 0%,
+      rgba(13, 20, 70, 0.8) 100%);
+  border-right: 1px solid rgba(102, 126, 234, 0.2);
+  width: 35%;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 1rem;
+  position: relative;
+}
+
+:host ::ng-deep .table-finalization .p-table .p-table-tbody>tr>td:first-child::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2px;
+  height: 60%;
+  background: linear-gradient(180deg, transparent, #d302fd, transparent);
+  opacity: 0.6;
+}
+
+.button-finalization {
+  gap: 1rem;
+  width: 100%;
+  margin-top: 2.5rem;
+  margin-bottom: 2.5rem;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+:host ::ng-deep .button-finalization .p-button {
+  background: linear-gradient(135deg,
+      rgba(69, 102, 248, 0.95) 0%,
+      rgba(174, 105, 243, 0.9) 100%);
+  border: none;
+  padding: 1.2rem 2.5rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  border-radius: 16px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow:
+    0 8px 30px rgba(102, 126, 234, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 0 20px rgba(102, 126, 234, 0.3);
+  position: relative;
+  overflow: hidden;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  backdrop-filter: blur(10px);
 }

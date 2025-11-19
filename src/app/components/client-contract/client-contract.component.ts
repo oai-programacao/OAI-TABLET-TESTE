@@ -65,7 +65,7 @@ import { NgxMaskDirective } from "ngx-mask";
     InputGroupModule,
     InputGroupAddonModule,
     NgxMaskDirective
-],
+  ],
   templateUrl: './client-contract.component.html',
   styleUrl: './client-contract.component.scss',
   providers: [ConfirmationService, MessageService],
@@ -369,7 +369,7 @@ export class ClientContractComponent implements OnInit {
         },
       });
   }
-  
+
   private sortContractsByStatus(contracts: Contract[]): Contract[] {
     const priorityOrder = ['ATIVO', 'AGUARDANDO_INSTALACAO', 'BLOQUEADO', 'TRANSFERIDO', 'CANCELADO'];
 
@@ -378,5 +378,38 @@ export class ClientContractComponent implements OnInit {
       const priorityB = priorityOrder.indexOf(b.situationDescription);
       return priorityA - priorityB;
     });
+  }
+
+  handleOpenDialogValidation(contract: any, isUpgrade: boolean): void {
+    const dateString = contract.dateStart;
+
+    const today = new Date();
+    const todayISO = today.getFullYear() + '-' + 
+                     String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+                     String(today.getDate()).padStart(2, '0');
+    const todayForComparison = new Date(todayISO);
+
+    let contractDateString;
+
+    if (dateString.includes('/')) {
+        const parts = dateString.split('/');
+        contractDateString = `${parts[2]}-${parts[1]}-${parts[0]}`;
+    } else {
+        contractDateString = dateString.substring(0, 10);
+    }
+    const contractStartDate = new Date(contractDateString);
+    if (contractStartDate.getTime() >= todayForComparison.getTime()) { 
+      
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Ação Bloqueada',
+        detail: 'Não é possível realizar a alteração em contratos que iniciam hoje ou em datas futuras.',
+        life: 5000
+      });
+      
+    } else {
+      
+      this.openUpgradeDialog(contract, isUpgrade);
+    }
   }
 }
