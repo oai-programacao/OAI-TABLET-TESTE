@@ -20,6 +20,10 @@ import { ToastModule } from 'primeng/toast';
 import { AuthService } from '../../core/auth.service';
 import { MessagesValidFormsComponent } from '../../shared/components/message-valid-forms/message-valid-forms.component';
 import { WebSocketService } from '../../services/webSocket/websocket.service';
+import { SalesService } from '../../services/sales/sales.service';
+import { AttendancesService } from '../../services/attendances/attendance.service';
+import { catchError, forkJoin, of } from 'rxjs';
+
 
 @Component({
   selector: 'app-searchclient',
@@ -47,6 +51,8 @@ export class SearchclientComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly searchClientService = inject(SearchclientService);
   private readonly ws = inject(WebSocketService);
+  private readonly salesService = inject(SalesService);
+  private readonly attendanceService = inject(AttendancesService);
 
   @ViewChild('searchClientForm') form!: NgForm;
 
@@ -60,6 +66,8 @@ export class SearchclientComponent implements OnInit {
   clienteEncontrado: any = null;
 
   ngOnInit() {
+    this.loadSalesMetrics();
+    this.loadArchivedSalesCount();
     this.vendedorNome = localStorage.getItem('name') || 'Visitante';
 
     setInterval(() => {
@@ -83,7 +91,7 @@ export class SearchclientComponent implements OnInit {
 
   infoVendas = [
     { label: 'Clientes atendidos hoje', value: 12 },
-    { label: 'Novos contratos fechados', value: 5 },
+    { label: 'Novos contratos fechados', value: ' ' },
     { label: 'Faturamento do dia', value: 'R$ 2.350,00' },
     { label: 'Meta mensal', value: '24 / 50' },
   ];
@@ -227,14 +235,14 @@ export class SearchclientComponent implements OnInit {
       return;
     }
 
-    // impede colagem direta (vamos gerenciar o valor)
+
     event.preventDefault();
 
     const input = event.target as HTMLInputElement;
     const start = input.selectionStart ?? input.value.length;
     const end = input.selectionEnd ?? start;
 
-    // pega os dígitos atuais, sem máscara
+
     const currentDigits = (input.value.replace(/\D/g, '') || '').slice(0, 14);
 
     const before = currentDigits.slice(
@@ -270,11 +278,85 @@ export class SearchclientComponent implements OnInit {
 
   getMetricIcon(index: number): string {
     const icons = [
-      'pi pi-users', // Clientes atendidos hoje
-      'pi pi-check', // Novos contratos fechados
-      'pi pi-dollar', // Faturamento do dia
-      'pi pi-chart-line', // Meta mensal
+      'pi pi-users', 
+      'pi pi-check', 
+      'pi pi-dollar', 
+      'pi pi-chart-line', 
     ];
     return icons[index] || 'pi pi-info-circle';
   }
+
+
+  archivedSalesCount: number = 0;
+  isLoadingCount: boolean = false;
+  loadArchivedSalesCount(): void {
+    this.isLoadingCount = true;
+
+    this.salesService.getArchivedSales().subscribe({
+      next: (sales) => {
+        this.archivedSalesCount = sales.length;
+        this.isLoadingCount = false;
+        console.log(`📊 ${this.archivedSalesCount} vendas arquivadas`);
+      },
+      error: (err: any) => {
+        console.error('❌ Erro ao carregar contador de vendas:', err);
+        this.archivedSalesCount = 0;
+        this.isLoadingCount = false;
+      }
+    });
+  }
+
+ 
+  navigateToArchivedSales(): void {
+    console.log('🔄 Navegando para vendas arquivadas...');
+    this.router.navigate(['/waiting-leads']);
+  }
+
+  loadSalesMetrics(): void {
+  const sellerId = this.authService.getSellerId();
+  if (!sellerId) return;
+
+  const sales$ = this.salesService.getTodayMetrics(sellerId)
+    .pipe(
+      catchError(err => {
+        console.error('Erro ao buscar métricas de venda', err);
+        // fallback parcial
+        return of({ newSalesCount: 0, totalRevenue: 0 } as any);
+      })
+    );
+
+  const attendance$ = this.attendanceService.getTodayAttendance(sellerId)
+    .pipe(
+      catchError(err => {
+        console.error('Erro ao buscar attendance', err);
+        return of(0);
+      })
+    );
+
+  forkJoin([sales$, attendance$]).subscribe(([sales, attendance]) => {
+    const newSalesCount = sales?.newSalesCount ?? 0;
+    const totalRevenue = sales?.totalRevenue ?? 0;
+    const attendanceCount = attendance ?? 0;
+
+    console.log('MÉTRICAS RECEBIDAS DO BACKEND:', { newSalesCount, totalRevenue, attendanceCount });
+
+    this.infoVendas = [
+      { label: 'Clientes atendidos hoje', value: attendanceCount },
+      { label: 'Novos contratos fechados', value: newSalesCount },
+      { label: 'Faturamento do dia', value: this.formatCurrency(totalRevenue) },
+      { label: 'Meta mensal', value: '...' }
+    ];
+  });
+}
+
+  formatCurrency(value: number): string {
+    if (value === null || value === undefined) {
+      value = 0;
+    }
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(value);
+  }
+  
 }

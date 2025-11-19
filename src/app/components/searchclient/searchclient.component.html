@@ -27,11 +27,14 @@
       <div class="btn-to-logout">
         <p-button
           label="Em Espera"
-          (onClick)="navigateToLeads()"
+           (onClick)="navigateToArchivedSales()"
           icon="pi pi-clock"
           severity="warn"
-          badge="2"
+          raised="true"
+           [badge]="archivedSalesCount > 0 ? archivedSalesCount.toString() : '0'"
+           [loading]="isLoadingCount"
           styleClass="action-btn"
+          [ngClass]="{ 'pulse-active': archivedSalesCount > 0 }"
         />
       </div>
     </div>

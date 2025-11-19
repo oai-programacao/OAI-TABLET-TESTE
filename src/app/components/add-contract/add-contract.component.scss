@@ -257,22 +257,6 @@
   max-width: 94%;
 }
 
-
-.signature-pad-container {
-      
-  height: auto;  
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: 1px solid transparent;
-  padding: 1rem;
-  background: #fff2f2b1;
-  border-radius: 1rem;
-  
-
-}
-
-
 .btn-to-actions{
   display: flex;
   align-items: center;
@@ -566,7 +550,7 @@
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  max-width: 60rem;
+  max-width: 90rem;
   width: 100%;
   height: auto;
 }
@@ -578,13 +562,13 @@
   justify-content: center;
   gap: 0.4rem;
   width: 100%;
-  height: auto;
 
   label {
     width: 100%;
     text-align: start;
   }
 }
+
 .btn-to-capture {
   padding: 1rem 0;
   width: 100%;
@@ -632,5 +616,153 @@
 
   strong {
     color: #0c5460;
+  }
+}
+
+// ========== GALERIA DENTRO DO DIALOG ==========
+
+.captured-photos-gallery-dialog {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+
+  h5 {
+    margin: 0 0 1rem 0;
+    color: #495057;
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+}
+
+.thumbnails-row-dialog {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 0.5rem 0;
+}
+
+.thumbnail-item-dialog {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 2px solid #ced4da;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+
+  &:hover {
+    border-color: #007bff;
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+    transform: scale(1.05);
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .remove-thumbnail-btn-dialog {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: rgba(220, 53, 69, 0.9);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+
+    &:hover {
+      background: rgba(220, 53, 69, 1);
+      transform: scale(1.15);
+    }
+  }
+
+  &:hover .remove-thumbnail-btn-dialog {
+    opacity: 1;
+  }
+
+  .thumbnail-number-dialog {
+    position: absolute;
+    bottom: 3px;
+    left: 3px;
+    background: rgba(0, 0, 0, 0.75);
+    color: white;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: bold;
+  }
+}
+
+// ========== SCROLLBAR CUSTOMIZADO ==========
+
+.thumbnails-row-dialog {
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+
+    &:hover {
+      background: #555;
+    }
+  }
+}
+
+// ========== RESPONSIVIDADE ==========
+
+@media (max-width: 768px) {
+  .thumbnail-item-dialog {
+    width: 70px;
+    height: 70px;
+  }
+
+  .thumbnails-row-dialog {
+    gap: 0.5rem;
+    max-height: 150px;
+  }
+}
+
+@media (max-width: 480px) {
+  .thumbnail-item-dialog {
+    width: 60px;
+    height: 60px;
+  }
+
+  .remove-thumbnail-btn-dialog {
+    width: 18px !important;
+    height: 18px !important;
+    font-size: 9px !important;
+  }
+
+  .thumbnail-number-dialog {
+    font-size: 9px;
+    padding: 1px 3px;
   }
 }

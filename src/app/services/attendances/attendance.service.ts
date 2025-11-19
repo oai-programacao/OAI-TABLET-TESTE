@@ -57,4 +57,8 @@ export class AttendancesService {
       `${environment.apiUrl}/attendances/${clientId}/filter${params}`
     );
   }
+
+   getTodayAttendance(sellerId: string): Observable<number> {
+    return this.http.get<number>(`${this.baseUrl}/today/${sellerId}`);
+  }
 }
