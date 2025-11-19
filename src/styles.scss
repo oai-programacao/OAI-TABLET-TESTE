@@ -11,12 +11,29 @@ body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  background-image: url("/background.png"); // fundo
+  display: flex;
+  flex-direction: column;
+}
+
+body.default-bg {
+  background-image: url("/background.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  display: flex;
-  flex-direction: column;
+}
+
+body.christmas-bg {
+  background-image: url("/backgroundnatal.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+body.halloween-bg {
+  background-image: url("/backgroundhallowen.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .app-content {
@@ -24,8 +41,6 @@ body {
 }
 
 * {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-size: small;
 }
-
-
