@@ -16,6 +16,7 @@ import { SelectModule } from 'primeng/select';
 import { ToastModule } from 'primeng/toast';
 import { CheckComponent } from '../../shared/components/check-component/check-component.component';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { LinkifyPipe } from '../../shared/pipes/linkify.pipe';
 
 @Component({
   selector: 'app-attendances-client',
@@ -33,6 +34,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
     ToastModule,
     CheckComponent,
     ConfirmDialogModule,
+    LinkifyPipe
   ],
   templateUrl: './attendances-client.component.html',
   styleUrl: './attendances-client.component.scss',
@@ -185,7 +187,7 @@ export class AttendancesClientComponent implements OnInit {
       this.messageService.add({
         severity: 'warn',
         summary: 'Atenção',
-        detail: 'Somente atendimentos com status OPEN podem ser cancelados.',
+        detail: 'Somente atendimentos com status ABERTO podem ser cancelados.',
       });
       return;
     }
