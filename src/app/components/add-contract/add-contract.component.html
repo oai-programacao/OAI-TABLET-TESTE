@@ -984,6 +984,8 @@
   [resizable]="false"
   [draggable]="false"
   [(visible)]="dialogOs"
+  [style]="{ width: '60vw', height: '30vw' }"
+  class="dialogOs"
 >
   <div class="linhaDropdown">
     <p-inputgroup>
@@ -1000,7 +1002,6 @@
           name="planos"
           required
           id="plan"
-          appendTo="body"
           (onChange)="reloadTable()"
         >
         </p-select>
@@ -1021,7 +1022,6 @@
           name="planos"
           required
           id="plan"
-          appendTo="body"
           (onChange)="reloadTable()"
         >
         </p-select>
@@ -1042,7 +1042,6 @@
           name="planos"
           required
           id="plan"
-          appendTo="body"
           (onChange)="reloadTable()"
         >
         </p-select>
