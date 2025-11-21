@@ -29,7 +29,7 @@ export interface ConsentTermPermanentRequest{
   codePlanRBX: number;
   street: string;
   number: string;
-  complement?: string;  // opcional
+  complement?: string;  
   neighborhood: string;
   city: string;
   state: string;
@@ -45,7 +45,7 @@ export interface ConsentTermAdesionRequest{
   codePlanRBX: number;
   street: string;
   number: string;
-  complement?: string;  // opcional
+  complement?: string;  
   neighborhood: string;
   city: string;
   state: string;
@@ -128,6 +128,14 @@ export class ReportsService {
     const url = `${this.baseUrl}/adesion/${clientId}`;
     return this.http.post(url, requestBody, { responseType: 'blob' });
   }
+
+  getContractDisplayPdf(
+    clientId: string, 
+    contractData: any): Observable<Blob> {
+  return this.http.post(`${this.baseUrl}/display-contract/${clientId}`, contractData, {
+    responseType: 'blob'
+  });
+}
 }
 
 

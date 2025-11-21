@@ -598,3 +598,129 @@ p-inputgroup {
   display: flex;
   justify-content: center;
 }
+
+
+/* === CSS QUE VOCÊ ENVIOU (Tabela e Estilos Avançados) === */
+
+.step-finalization {
+  position: relative;
+  overflow: hidden;
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.step-body {
+    width: 100%;
+    max-width: 900px;
+}
+
+.step-finalization::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 150%;
+  height: 150%;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(74, 108, 232, 0.04) 0%, transparent 50%),
+    radial-gradient(circle at 70% 70%, rgba(148, 85, 211, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 50% 20%, rgba(59, 130, 246, 0.02) 0%, transparent 50%);
+  z-index: 0;
+}
+
+.table-finalization {
+  border-radius: 24px;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(117, 0, 250, 0.95) 0%, rgba(43, 6, 252, 0.85) 100%);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(174, 0, 255, 0.3);
+  box-shadow:
+    0 25px 50px -12px rgba(102, 126, 234, 0.25),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.8),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  position: relative;
+  z-index: 1;
+}
+
+:host ::ng-deep .table-finalization .p-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: transparent;
+}
+
+:host ::ng-deep .table-finalization .p-table .p-table-thead>tr>th {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.95) 0%, rgba(118, 75, 162, 0.9) 100%) !important;
+  color: white !important;
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 700;
+  font-size: 1.3rem;
+  padding: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border: none;
+}
+
+:host ::ng-deep .table-finalization .p-table .p-table-tbody>tr>td {
+  padding: 1.3rem 1.5rem;
+  border: none;
+  font-size: 1.05rem;
+  color: #fff; /* Ajustei para branco para ler no fundo roxo */
+}
+
+:host ::ng-deep .table-finalization .p-table .p-table-tbody>tr>td:first-child {
+  font-weight: 700;
+  color: #1f2937;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(230, 230, 250, 0.8) 100%); /* Ajustado para legibilidade */
+  width: 35%;
+  font-family: "IBM Plex Mono", monospace;
+}
+
+.button-finalization {
+  gap: 1rem;
+  width: 100%;
+  margin-top: 2.5rem;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+:host ::ng-deep .button-finalization .p-button {
+  background: linear-gradient(135deg, rgba(69, 102, 248, 0.95) 0%, rgba(174, 105, 243, 0.9) 100%);
+  border: none;
+  padding: 1.2rem 2.5rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  border-radius: 16px;
+  color: white;
+}
+
+/* === CSS ADICIONAL PARA A TELA DE CONFIRMAÇÃO (Estado Inicial) === */
+
+
+.step-footer {
+  margin-top: 2rem;
+  
+  .proportional-info {
+    background-color: #f0f9ff;
+    border-left: 4px solid #0ea5e9;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border-radius: 4px;
+    text-align: center;
+    
+    .footer-title {
+      font-weight: 600;
+      color: #0c4a6e;
+      font-size: 1.2rem;
+      display: block;
+    }
+  }
+
+  .footer-actions {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+  }
+}

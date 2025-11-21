@@ -2,7 +2,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 88vh;
+  height: 90vh;
   padding: 1rem;
   box-sizing: border-box;
 }
@@ -10,12 +10,14 @@
 .title {
   display: flex;
   align-items: center;
-  padding: 1rem 0 0;
+  justify-content: center;
+  padding: 1rem;
 }
 
 .title > h1 {
-  font-size: 1.5rem;
+  font-size: 2rem;
   color: #3c83f6;
+  
 }
 
 .card-container {
@@ -33,9 +35,19 @@
 
 .card-container > * {
   flex: 0 0 auto;           
-  max-width: 350px;
+  max-width: 500px;
   scroll-snap-align: start; 
 }
+
+.empty-state{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: auto;
+  width: auto;
+}
+
 
 @media (max-width: 480px) {
   .card-container {
@@ -47,7 +59,7 @@
 @media (min-width: 768px) and (max-width: 1024px) {
   .card-container {
 
-    max-width: 60rem;
+    max-width: 80rem;
     padding: 0;
   }
 }

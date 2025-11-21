@@ -2,7 +2,7 @@
   <div class="header">
     <div class="info">
       <h3>{{ data.email }}</h3>
-      <span>Interessado em: {{ data.planCode }}</span>
+      <span class="interessado">Interessado no: {{ data.planCode }}</span>
     </div>
     <div class="status">{{ data.status }}</div>
   </div>
@@ -15,12 +15,17 @@
       {{ data.address?.street }}, {{ data.address?.number }} -
       {{ data.address?.neighborhood }}, {{ data.address?.UF }}
     </div>
-    <div class="item"><i class="pi pi-calendar"></i> Lead desde {{ data.leadSince }}</div>
+    <!-- <div class="item"><i class="pi pi-calendar"></i> Lead desde {{ data.archivedAt }}</div> -->
   </div>
 
-  <div class="last-contact">
-    Último contato: {{ '2025-01-12' }} - Ligação realizada
+  <div class="last-contact" *ngIf="data.archivedAt">
+    Arquivado em: {{ data.archivedAt }}
+
   </div>
+  
+  <!-- <div class="last-contact">
+    Último contato: {{ '2025-01-12' }} - Ligação realizada
+  </div> -->
 
   <div class="observations" *ngIf="data.observation">
     <strong>Observações:</strong>
@@ -32,8 +37,7 @@
     <p-button severity="secondary" label="Email" />
 </div>
 <div class="convert">
-    <p-button  label="Converter Venda" size="large" severity="info" />
+    <p-button  label="Converter Venda" size="large" severity="info"  (onClick)="convertSale()" />
 </div>
 
-  <div class="footer">Fonte: {{ data.font }}</div>
 </div>

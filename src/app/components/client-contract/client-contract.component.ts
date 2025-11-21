@@ -80,6 +80,7 @@ export class ClientContractComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
 
+  private currentClient: ClientData | null = null;
   contracts: Contract[] = [];
   loadingBillingDialog: boolean = false;
   isLoading = false;
@@ -129,11 +130,12 @@ export class ClientContractComponent implements OnInit {
   ];
 
   // --- MÉTODOS DO CICLO DE VIDA ---
-  ngOnInit() {
+    ngOnInit() {
     const id = this.route.snapshot.paramMap.get('clientId');
     if (id) {
       this.clientId = id;
       this.loadContracts(this.clientId);
+      this.loadCurrentClientData(this.clientId);
     }
   }
 
@@ -161,6 +163,20 @@ export class ClientContractComponent implements OnInit {
           severity: 'error',
           summary: 'Erro',
           detail: 'Não foi possível carregar todos os contratos',
+        });
+      },
+    });
+  }
+   loadCurrentClientData(clientId: string): void {
+    this.clientService.getClientById(clientId).subscribe({
+      next: (data) => {
+        this.currentClient = data;
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro Crítico',
+          detail: 'Não foi possível carregar os dados do titular do contrato.',
         });
       },
     });
@@ -272,9 +288,11 @@ export class ClientContractComponent implements OnInit {
   }
 
   // --- MÉTODOS DE NAVEGAÇÃO E UTILITÁRIOS (Originais) ---
-  navigateToCreatContract() {
-    this.router.navigate(['add-contract']);
+    navigateToCreatContract() { 
+    const clientId = this.route.snapshot.paramMap.get('clientId');
+    this.router.navigate(['add-contract'], { queryParams: { clientId }});
   }
+  
   navigateToInfoClient() {
     this.router.navigate(['info', this.clientId]);
   }
