@@ -346,7 +346,7 @@
             <div *ngIf="selectedPlan; else avisoInvalido">
               <div *ngIf="finalization" class="step-body">
                     <div class="table-finalization">
-                       <p-table class="tabela-finalization" [value]="[
+                      <p-table class="tabela-finalization" [value]="[
                           { campo: 'Cliente', valor: result?.clientName },
                           { campo: 'CPF/CNPJ', valor: formatCpfCnpj(result?.clientCpf) },
                           { campo: 'Contrato gerado pelo RBX: ', valor: result?.contrato },
@@ -382,39 +382,39 @@
                     </div>
                 </div>
                 <div *ngIf="!finalization" class="step-footer">
-              <div class="proportional-info">
-                <div>
-                    <span>
-                      Deseja realmente concluir o processo de alteração de plano contratado?
-                    </span>
-                    <p style="font-size: 1em;">
-                        <b style="font-size: 1.5em;">Atenção:</b> Após a alteração, o novo plano será iniciado somente no dia seguinte.
-                        <br>
-                        Se precisar alterar o plano novamente, será necessário esperar dois dias (48 horas) para que essa troca possa ser feita.
-                    </p>
+                  <div class="proportional-info">
+                    <div>
+                        <span>
+                          Deseja realmente concluir o processo de alteração de plano contratado?
+                        </span>
+                        <p style="font-size: 1em;">
+                            <b style="font-size: 1.5em;">Atenção:</b> Após a alteração, o novo plano será iniciado somente no dia seguinte.
+                            <br>
+                            Se precisar alterar o plano novamente, será necessário esperar dois dias (48 horas) para que essa troca possa ser feita.
+                        </p>
+                      </div>
+                    </div>
+                    <div class="footer-actions">
+                    <p-button
+                      label="Voltar"
+                      icon="pi pi-arrow-left"
+                      severity="secondary"
+                      rounded="true"
+                      size="large"
+                      [raised]="true"
+                      (onClick)="activateCallback()"
+                      />
+                      <p-button
+                      severity="success"
+                      [rounded]="true"
+                      label="Enviar alteração"
+                      icon="pi pi-check"
+                      [loading]="isLoadingTransfer"
+                      (onClick)="submitUpgrade()"
+                      />
                   </div>
                 </div>
-                <div class="footer-actions">
-                <p-button
-                  label="Voltar"
-                  icon="pi pi-arrow-left"
-                  severity="secondary"
-                  rounded="true"
-                  size="large"
-                  [raised]="true"
-                  (onClick)="activateCallback()"
-                  />
-                  <p-button
-                  severity="success"
-                  [rounded]="true"
-                  label="Enviar alteração"
-                  icon="pi pi-check"
-                  [loading]="isLoadingTransfer"
-                  (onClick)="submitUpgrade()"
-                  />
               </div>
-            </div>
-            </div>
             <ng-template #avisoInvalido>
               <div class="alert-warning">
                 ⚠️ Você precisa preencher os dados no passo 1 para continuar.
