@@ -766,3 +766,20 @@
     padding: 1px 3px;
   }
 }
+
+
+.linhaDropdown {
+  display: flex;
+  justify-content: center;
+  justify-items: inline;
+  gap: 1.5rem;
+  padding: 1rem;
+}
+
+.emptytable {
+  background-color: rgb(255, 184, 184);
+  color: black;
+  text-align: center;
+  padding: 1rem;
+  font-weight: 500;
+}
