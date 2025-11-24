@@ -50,11 +50,14 @@ import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { TableModule, Table } from "primeng/table";
 import { AttendancesService } from '../../services/attendances/attendance.service';
-import { finalize } from 'rxjs/operators';
+import { interval, Subject, of } from 'rxjs';
+import { finalize, switchMap, takeUntil } from 'rxjs/operators';
 import { OffersService } from '../../services/offers/offers.service';
 import { OfferProjection } from '../../models/offer/offer-projection.model';
 import { ButtonModule } from 'primeng/button';
-
+import { BlockPeriodOffers, BlockPeriodOffersLabels, ViewBlockOffersDto } from '../../models/blockoffer/blockOffer.dto';
+import { BlockOffersRequestService } from './../../services/blockOffer/blockoffer.service';
+import { DatePickerModule } from 'primeng/datepicker';
 
 export interface AddressForm {
   zipCode: string | null;
@@ -98,7 +101,8 @@ export interface AddressForm {
     SelectModule,
     TooltipModule,
     TableModule,
-    ButtonModule
+    ButtonModule,
+    DatePickerModule
   
   ],
   providers: [MessageService, AttendancesService, OffersService],
@@ -125,8 +129,12 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   private readonly midiaService = inject(MidiaService);
   private readonly attendancesService = inject(AttendancesService);
   private readonly clientService = inject(ClientService);
-  private originalAddressForm: AddressForm | null = null;
+  private readonly blockOfferService = inject(BlockOffersRequestService);
   private readonly offerService = inject(OffersService);
+  private originalAddressForm: AddressForm | null = null;
+  private stopPolling$ = new Subject<void>();
+  private destroy$ = new Subject<void>();
+
 
   contract!: Contract;
   client!: Cliente;
@@ -165,12 +173,18 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   isPdfViewerLoaded: boolean = false;
 
   dialogOs: boolean = false;
+  dialogNewOs: boolean = false;
   loadingOs: boolean = false;
   offers: OfferProjection[] = [];
   totalRecords: number = 0;
   offerNothing: boolean = false;
+  activeBlock: ViewBlockOffersDto | null = null;
+
+  selectedOs: string | null = null; // IRÁ RECEBER O UUID DA OS SOLICITADA
+  minDateValue: Date = new Date();
 
   selectedCity: string = '';
+  selectedNewOsCity: string = '';
   cities = [
     { label: 'Assis', value: 'ASSIS' },
     { label: 'Cândido Mota', value: 'CANDIDO_MOTA' },
@@ -194,6 +208,13 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     { label: 'Tarde', value: 'AFTERNOON' },
     { label: 'Noite', value: 'NIGHT' },
   ];
+
+  selectedTypeNewOs: string = '';
+  typeNewOs = [
+    { label: 'Mudança de Endereço de Instalação', value: 'CHANGE_OF_ADDRESS'}
+  ]
+
+  selectedDate: string | null = null;
 
   addressNewForm: AddressForm = {
     zipCode: null,
@@ -289,9 +310,50 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+     this.stopPolling$.next();
+    this.stopPolling$.complete();
     if (this.pdfPreviewUrl) {
       URL.revokeObjectURL(this.pdfPreviewUrl);
     }
+    
+  }
+
+  onDialogShow() {
+    this.startPolling();
+  }
+
+  onDialogHide() {
+    this.stopPolling$.next();
+  }
+
+  startPolling() {
+    interval(3000)
+      .pipe(
+        takeUntil(this.stopPolling$),
+        switchMap(() => {
+          if (!this.osTable) {
+            return of({ content: [], totalElements: 0 });
+          }
+
+          const page = this.osTable.first! / this.osTable.rows!;
+          const size = this.osTable.rows!;
+
+          return this.offerService.getOffersChangeAddress(
+            this.selectedCity,
+            this.selectedTypeOs,
+            this.selectedPeriodOs,
+            page,
+            size
+          );
+        })
+      )
+      .subscribe({
+        next: (pageData: any) => {
+          this.offers = pageData.content;
+          this.totalRecords = pageData.totalElements;
+        },
+        error: (err) => console.error(err),
+      });
   }
 
 
@@ -894,7 +956,7 @@ loadOffers(event: any) {
     const size = event.rows;
 
     this.offerService
-      .getOffers(
+      .getOffersChangeAddress(
         this.selectedCity,
         this.selectedTypeOs,
         this.selectedPeriodOs,
@@ -914,4 +976,63 @@ loadOffers(event: any) {
   reloadTable(){
     this.osTable.reset();
   }
+
+   onDialogNewOs() {
+    this.loadExistingBlocks();
+  }
+
+   private loadExistingBlocks(): void {
+    this.blockOfferService
+      .getAllBlockOffers()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (blocks) => {
+          if (blocks && blocks.length > 0) {
+            this.activeBlock = blocks[0];
+            const releaseDate = this.parsePtBrDate(
+              this.activeBlock.initialDate
+            );
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            if (releaseDate && releaseDate > today) {
+              this.minDateValue = releaseDate;
+            } else {
+              this.minDateValue = today;
+            }
+          }
+        },
+        error: (err) =>
+          console.error('Erro ao carregar blocos existentes:', err),
+      });
+  }
+
+  getOfferBlockPeriodLabel(period: BlockPeriodOffers): string {
+    return BlockPeriodOffersLabels[period] || 'Período Desconhecido';
+  }
+
+  private toComparableFormat(dateStr: string): string | null {
+    if (!dateStr || !/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) return null;
+    const parts = dateStr.split('/');
+    return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(
+      2,
+      '0'
+    )}`;
+  }
+
+  private parsePtBrDate(dateStr: string): Date | null {
+    const comparableFormat = this.toComparableFormat(dateStr);
+    return comparableFormat ? new Date(comparableFormat + 'T00:00:00') : null;
+  }
+
+
+
+  clearFiltersOs() {
+    this.selectedPeriodOs = '';
+    this.selectedCity = '';
+    this.selectedTypeOs = '';
+    this.osTable.reset();
+  }
 }
+
+

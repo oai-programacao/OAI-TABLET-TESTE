@@ -13,7 +13,7 @@
     </div>
     <div class="contrNumber__header">
       <label>Contrato a ser alterado:</label>
-      <span>#{{ currentContract.codeContractRbx }}</span> 
+      <span>#{{ currentContract.codeContractRbx }}</span>
     </div>
     <div class="content">
       <ng-template #avisoInvalido>
@@ -22,7 +22,7 @@
           obrigatórios.
         </div>
       </ng-template>
-  
+
       <p-stepper [(value)]="activeStep">
         <p-step-list>
           <p-step [value]="1">Endereço</p-step>
@@ -273,6 +273,14 @@
                   (click)="openDialogOs()"
                 />
                 <p-button
+                  [size]="'large'"
+                  label="Solicitar O.S"
+                  raised="true"
+                  severity="warn"
+                  icon="pi pi-bell"
+                  (onClick)="dialogNewOs = true"
+                />
+                <p-button
                   label="Verificar Cabeamento"
                   size="large"
                   severity="warn"
@@ -367,20 +375,18 @@
             </ng-template>
           </p-step-panel>
 
-        
-
           <p-step-panel [value]="3">
             <ng-template #content let-activateCallback="activateCallback">
-               <div *ngIf="isLoadingPreview" class="loading-overlay">
-            <p-progressSpinner
-              styleClass="w-6rem h-6rem"
-              strokeWidth="6"
-              animationDuration=".5s"
-            ></p-progressSpinner>
-            <span class="loading-text">
-              Aguarde enquanto o PDF é gerado...</span
-            >
-          </div>
+              <div *ngIf="isLoadingPreview" class="loading-overlay">
+                <p-progressSpinner
+                  styleClass="w-6rem h-6rem"
+                  strokeWidth="6"
+                  animationDuration=".5s"
+                ></p-progressSpinner>
+                <span class="loading-text">
+                  Aguarde enquanto o PDF é gerado...</span
+                >
+              </div>
               <div *ngIf="formIsValid; else avisoInvalido">
                 <div class="pdf-preview-section p-mb-3">
                   <div
@@ -477,117 +483,162 @@
             </ng-template>
           </p-step-panel>
 
+          <p-step-panel [value]="4">
+            <ng-template #content let-activateCallback="activateCallback">
+              <div *ngIf="isSubmitting" class="loading-overlay">
+                <p-progressSpinner
+                  styleClass="w-6rem h-6rem"
+                  strokeWidth="6"
+                  animationDuration=".5s"
+                ></p-progressSpinner>
+                <span class="loading-text">Processando alteração...</span>
+              </div>
 
-<p-step-panel [value]="4">
-  <ng-template #content let-activateCallback="activateCallback">
-    
-    <div *ngIf="isSubmitting" class="loading-overlay">
-     <p-progressSpinner
-              styleClass="w-6rem h-6rem"
-              strokeWidth="6"
-              animationDuration=".5s"
-            ></p-progressSpinner>
-      <span class="loading-text">Processando alteração...</span>
-    </div>
+              <div *ngIf="finalization; else estadoConfirmacao">
+                <div class="step-finalization">
+                  <div class="step-body">
+                    <div class="table-finalization">
+                      <p-table
+                        [value]="[
+                          { campo: 'Cliente', valor: result?.clientName },
+                          {
+                            campo: 'CPF/CNPJ',
+                            valor: formatCpfCnpj(result?.clientCpf)
+                          },
+                          { campo: 'Contrato', valor: result?.contrato },
+                          {
+                            campo: 'Novo Endereço',
+                            valor: result?.novoEndereco
+                          },
+                          {
+                            campo: 'Valor da Adesão',
+                            valor: result?.adesionValue,
+                            isCurrency: true
+                          },
+                          { campo: 'Documento', valor: result?.documentoRbx },
+                          { campo: 'Boleto', valor: 'link' }
+                        ]"
+                      >
+                        <ng-template pTemplate="header">
+                          <tr>
+                            <th>Resumo da Operação</th>
+                            <th></th>
+                          </tr>
+                        </ng-template>
 
-    <div *ngIf="finalization; else estadoConfirmacao">
-      <div class="step-finalization">
-        <div class="step-body">
-          
-          <div class="table-finalization">
-            <p-table [value]="[
-                 { campo: 'Cliente', valor: result?.clientName },
-                 { campo: 'CPF/CNPJ', valor: formatCpfCnpj(result?.clientCpf) },
-                 { campo: 'Contrato', valor: result?.contrato },
-                 { campo: 'Novo Endereço', valor: result?.novoEndereco },
-                 { campo: 'Valor da Adesão', valor: result?.adesionValue, isCurrency: true },
-                 { campo: 'Documento', valor: result?.documentoRbx },
-                 { campo: 'Boleto', valor: 'link' }
-               ]">
-              
-              <ng-template pTemplate="header">
-                <tr>
-                  <th>Resumo da Operação</th>
-                  <th> </th>
-                </tr>
-              </ng-template>
+                        <ng-template pTemplate="body" let-row>
+                          <tr>
+                            <td>
+                              <strong>{{ row.campo }}</strong>
+                            </td>
 
-              <ng-template pTemplate="body" let-row>
-                <tr>
-                  <td><strong>{{ row.campo }}</strong></td>
-                  
-                  <td *ngIf="row.valor !== 'link'">
-                    <span *ngIf="row.isCurrency">{{ row.valor | currency:'BRL':'symbol':'1.2-2' }}</span>
-                    <span *ngIf="!row.isCurrency">{{ row.valor }}</span>
-                  </td>
-                  
-                  <td *ngIf="row.valor === 'link'">
-                    <a *ngIf="result?.linkBoleto" [href]="result?.linkBoleto" target="_blank">
-                      Clique para abrir o boleto
-                    </a>
-                    <span *ngIf="!result?.linkBoleto" style="color: #999;">
-                      (Sem boleto gerado)
+                            <td *ngIf="row.valor !== 'link'">
+                              <span *ngIf="row.isCurrency">{{
+                                row.valor
+                                  | currency : "BRL" : "symbol" : "1.2-2"
+                              }}</span>
+                              <span *ngIf="!row.isCurrency">{{
+                                row.valor
+                              }}</span>
+                            </td>
+
+                            <td *ngIf="row.valor === 'link'">
+                              <a
+                                *ngIf="result?.linkBoleto"
+                                [href]="result?.linkBoleto"
+                                target="_blank"
+                              >
+                                Clique para abrir o boleto
+                              </a>
+                              <span
+                                *ngIf="!result?.linkBoleto"
+                                style="color: #999"
+                              >
+                                (Sem boleto gerado)
+                              </span>
+                            </td>
+                          </tr>
+                        </ng-template>
+                      </p-table>
+                    </div>
+
+                    <div class="button-finalization">
+                      <p-button
+                        label="Voltar ao Menu do Cliente"
+                        icon="pi pi-home"
+                        severity="success"
+                        [raised]="true"
+                        [rounded]="true"
+                        size="large"
+                        (onClick)="navigateToInfoClient()"
+                      >
+                      </p-button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <ng-template #estadoConfirmacao>
+                <div class="step-footer" style="margin-top: 2rem">
+                  <div
+                    class="proportional-info"
+                    style="
+                      background-color: #f0f9ff;
+                      border-left: 4px solid #0ea5e9;
+                      padding: 1.5rem;
+                      margin-bottom: 2rem;
+                      border-radius: 4px;
+                      text-align: center;
+                    "
+                  >
+                    <span
+                      class="footer-title"
+                      style="
+                        font-weight: 600;
+                        color: #0c4a6e;
+                        font-size: 1.2rem;
+                        display: block;
+                      "
+                    >
+                      Deseja confirmar a alteração de endereço?
                     </span>
-                  </td>
-                </tr>
+                    <div style="margin-top: 0.5rem; color: #334155">
+                      Verifique se o termo foi assinado corretamente antes de
+                      prosseguir.
+                    </div>
+                  </div>
+
+                  <div
+                    class="footer-actions"
+                    style="display: flex; justify-content: center; gap: 1rem"
+                  >
+                    <p-button
+                      label="Voltar"
+                      severity="secondary"
+                      icon="pi pi-arrow-left"
+                      size="large"
+                      [raised]="true"
+                      [rounded]="true"
+                      (onClick)="activateCallback(3)"
+                    >
+                    </p-button>
+
+                    <p-button
+                      label="Confirmar Alteração"
+                      severity="help"
+                      icon="pi pi-check"
+                      size="large"
+                      [raised]="true"
+                      [rounded]="true"
+                      [disabled]="!(pdfBlobFinal || pdfWasDownloaded)"
+                      (onClick)="onConfirmAddressChange()"
+                    >
+                    </p-button>
+                  </div>
+                </div>
               </ng-template>
-            </p-table>
-          </div>
-
-          <div class="button-finalization">
-            <p-button 
-              label="Voltar ao Menu do Cliente" 
-              icon="pi pi-home" 
-              severity="success"
-              [raised]="true" 
-              [rounded]="true" 
-              size="large"
-              (onClick)="navigateToInfoClient()">
-            </p-button>
-          </div>
-
-        </div>
-      </div>
-    </div>
-
-    <ng-template #estadoConfirmacao>
-       <div class="step-footer" style="margin-top: 2rem;">
-          <div class="proportional-info" style="background-color: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 1.5rem; margin-bottom: 2rem; border-radius: 4px; text-align: center;">
-             <span class="footer-title" style="font-weight: 600; color: #0c4a6e; font-size: 1.2rem; display: block;">
-               Deseja confirmar a alteração de endereço?
-             </span>
-             <div style="margin-top: 0.5rem; color: #334155;">
-                Verifique se o termo foi assinado corretamente antes de prosseguir.
-             </div>
-          </div>
-          
-          <div class="footer-actions" style="display: flex; justify-content: center; gap: 1rem;">
-             <p-button 
-                label="Voltar" 
-                severity="secondary" 
-                icon="pi pi-arrow-left" 
-                size="large"
-                [raised]="true" 
-                [rounded]="true"
-                (onClick)="activateCallback(3)">
-             </p-button>
-             
-             <p-button 
-                label="Confirmar Alteração" 
-                severity="help" 
-                icon="pi pi-check" 
-                size="large"
-                [raised]="true" 
-                [rounded]="true"
-                [disabled]="!(pdfBlobFinal || pdfWasDownloaded)" 
-                (onClick)="onConfirmAddressChange()">
-             </p-button>
-          </div>
-       </div>
-    </ng-template>
-
-  </ng-template>
-</p-step-panel>
+            </ng-template>
+          </p-step-panel>
         </p-step-panels>
       </p-stepper>
     </div>
@@ -742,13 +793,13 @@
   </p-dialog>
 </div>
 
-
-
 <p-dialog
   [header]="'Ofertas Disponíveis'"
   [resizable]="false"
   [draggable]="false"
   [(visible)]="dialogOs"
+  (onShow)="onDialogShow()"
+  (onHide)="onDialogHide()"
   [style]="{ width: '60vw', height: '30vw' }"
   class="dialogOs"
 >
@@ -813,6 +864,8 @@
         <label for="planos">Períodos</label>
       </p-iftalabel>
     </p-inputgroup>
+      <p-button icon="pi pi-eraser" size="large" severity="warn"
+     rounded="true" raised="true" (onClick)="clearFiltersOs()"></p-button>
   </div>
   <div class="divider">
     <p-divider></p-divider>
@@ -849,7 +902,7 @@
           <td>{{ offer.period }}</td>
           <td>{{ offer.total }}</td>
           <td>
-             <button
+            <button
               pButton
               size="small"
               icon="pi pi-stop-circle"
@@ -869,5 +922,114 @@
         </tr>
       </ng-template>
     </p-table>
+  </div>
+</p-dialog>
+
+
+<p-dialog
+  [header]="'Solicitar OS'"
+  [resizable]="false"
+  [draggable]="false"
+  [(visible)]="dialogNewOs"
+  (onShow)="onDialogNewOs()"
+  [style]="{ width: '35vw', height: '20vw' }"
+  class="dialogOs"
+>
+  <div class="infoBlockOffers" *ngIf="activeBlock">
+    <p>
+      <i class="pi pi-info-circle mr-2"></i>
+      Lembrete: As solicitações de oferta estão liberadas a partir de
+      <strong>{{ this.activeBlock?.initialDate || "***" }}</strong> no período
+      <strong>{{
+        getOfferBlockPeriodLabel(this.activeBlock!.periodOffer)
+      }}</strong
+      >.
+    </p>
+  </div>
+
+    <div class="inputsNewOs">
+      <p-inputgroup>
+      <p-inputgroup-addon>
+        <i class="pi pi-ticket"></i>
+      </p-inputgroup-addon>
+      <p-iftalabel>
+        <p-select
+          [options]="typeNewOs"
+          [(ngModel)]="selectedTypeNewOs"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Selecione"
+          name="typeOsNew"
+          required
+          id="typeOsNew"
+        >
+        </p-select>
+        <label for="typeOsNew">Tipo OS</label>
+      </p-iftalabel>
+    </p-inputgroup>
+    <p-inputgroup>
+      <p-inputgroup-addon>
+        <i class="pi pi-ticket"></i>
+      </p-inputgroup-addon>
+      <p-iftalabel>
+        <p-select
+          [options]="cities"
+          [(ngModel)]="selectedNewOsCity"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Selecione"
+          name="cidadeOsNew"
+          required
+          id="cidadeOsNew"
+        >
+        </p-select>
+        <label for="cidadeOsNew">Cidade</label>
+      </p-iftalabel>
+    </p-inputgroup>
+    </div>
+
+
+    <div class="inputsNewOs">
+      <p-inputgroup>
+      <p-inputgroup-addon>
+        <i class="pi pi-ticket"></i>
+      </p-inputgroup-addon>
+      <p-iftalabel>
+        <p-select
+          [options]="periodsOs"
+          [(ngModel)]="selectedPeriodOs"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Selecione"
+          name="periodoOsNew"
+          required
+          id="periodoOsNew"
+        >
+        </p-select>
+        <label for="periodoOsNew">Períodos</label>
+      </p-iftalabel>
+    </p-inputgroup>
+    
+
+    <div class="datepicker-wrapper">
+      <p-datepicker
+        id="date"
+        [(ngModel)]="selectedDate"
+        name="date"
+        dateFormat="dd/mm/yy"
+        [minDate]="minDateValue"
+        showIcon="true"
+        [disabledDays]="[0]"
+        dataType="string"
+        placeholder="Selecione a Data"
+        appendTo="body"
+      >
+      </p-datepicker>
+    </div>
+    </div>
+    
+
+  <div class="buttonsNewOs">
+    <p-button label="Solicitar OS" [severity]="'info'" [raised]="true"></p-button>
   </div>
 </p-dialog>

@@ -189,10 +189,8 @@
 // --- BOTÕES ---
 .btn-actions {
   margin-bottom: 0.5rem;
-  padding: 0.2rem;
   display: flex;
   gap: 0.5rem;
-  justify-content: flex-start;
   padding-bottom: 0rem;
   margin: 0.9rem;
 }
@@ -255,8 +253,7 @@
 }
 
 .btn-step1-prox {
-  display: flex;
-  margin-left: 18rem;
+  margin-left: 5rem;
 }
 
 .btn-signature {
@@ -748,4 +745,43 @@ p-inputgroup {
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
   border-bottom: #666565 1px solid;
+}
+
+:host ::ng-deep .dialogOs .p-datatable .p-datatable-thead > tr > th {
+  background: #f3f2f2 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.inputsNewOs {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-direction: inline;
+}
+
+.buttonsNewOs {
+  display: flex;
+  justify-content: end;
+  gap: 1rem;
+  margin-top: 8rem;
+  flex-direction: inline;
+}
+
+.infoBlockOffers {
+  border-left: rgb(88, 177, 250) 5px solid;
+  color: rgb(59, 46, 250);
+  text-align: center;
+}
+
+.datepicker-wrapper {
+  display: inline-block;
+  width: 100%;
+  max-width: 56rem; 
+  
+  ::ng-deep .p-datepicker {
+    width: 100%; 
+    max-width: 56rem;
+    height: 3.3rem;
+  }
 }
