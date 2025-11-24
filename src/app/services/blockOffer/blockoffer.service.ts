@@ -13,4 +13,8 @@ export class BlockOffersRequestService {
   private http = inject(HttpClient);
   private readonly apiUrl = environment.apiUrl + '/blocking-offers';
 
+  getAllBlockOffers(): Observable<ViewBlockOffersDto[]> {
+    return this.http.get<ViewBlockOffersDto[]>(`${this.apiUrl}`);
+  }
+
 }
