@@ -1,4 +1,7 @@
 <div class="page-container">
+  <p-toast position="top-center"></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+
   <app-card-base>
     <!-- Botões de navegação e badge fora do card com bordas, mas dentro do app-card-base -->
     <div class="btn-to-back">
@@ -187,6 +190,8 @@
                         : att.topic === "88"
                         ? "88 • Downgrade"
                         : att.topic
+                        ? "18 • Transf. Titular"
+                        : att.topic
                     }}
                   </span>
                 </div>
@@ -294,8 +299,16 @@
           {{ selectedAttendance.openHour }}</span
         >
       </div>
+
       <div class="info-badge">
-        <p-button [severity]="'danger'" [raised]="true">❌ CANCELAR</p-button>
+        <p-button
+          severity="danger"
+          [raised]="true"
+          icon="pi pi-times"
+          label="Cancelar"
+          (onClick)="confirmCancel(selectedAttendance)"
+        >
+        </p-button>
       </div>
     </div>
 
@@ -305,8 +318,25 @@
         Descrição
       </h3>
       <div class="description-box">
+        <p
+          style="white-space: pre-line"
+          [innerHTML]="
+            selectedAttendance.subject || 'Sem descrição disponível' | linkify
+          "
+        ></p>
+      </div>
+    </div>
+
+    <div class="dialog-section">
+      <h3 class="section-title">
+        <i class="pi pi-align-left"></i>
+        Solução
+      </h3>
+      <div class="description-box">
         <p style="white-space: pre-line">
-          {{ selectedAttendance.subject || "Sem descrição disponível" }}
+          {{
+            selectedAttendance.solution || "Não há nada para ser exibido aqui"
+          }}
         </p>
       </div>
     </div>
@@ -353,6 +383,8 @@
     </div>
   </div>
 </p-dialog>
+
+<app-check [trigger]="tocarCheck" />
 
 <app-pdf-viewer-dialog
   [(visible)]="pdfDialogVisible"

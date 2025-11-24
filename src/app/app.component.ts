@@ -9,7 +9,7 @@ import { AuthService } from './core/auth.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
   standalone: true,
-  imports: [RouterOutlet] 
+  imports: [RouterOutlet],
 })
 export class AppComponent implements OnInit {
   constructor(
@@ -19,6 +19,16 @@ export class AppComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    const month = new Date().getMonth() + 1;
+
+    if (month === 10) {
+      document.body.classList.add('halloween-bg');
+    } else if (month === 11 || month === 12) {
+      document.body.classList.add('christmas-bg');
+    } else {
+      document.body.classList.add('default-bg');
+    }
+
     const token = localStorage.getItem('accessToken');
 
     if (this.authService.isAuthenticated()) {
@@ -28,7 +38,10 @@ export class AppComponent implements OnInit {
     this.tryRedirectAtStartup();
 
     this.router.events
-      .pipe(filter(event => event instanceof NavigationEnd), take(1))
+      .pipe(
+        filter((event) => event instanceof NavigationEnd),
+        take(1)
+      )
       .subscribe((ev: NavigationEnd) => {
         this.tryRedirectAtStartup();
       });
@@ -38,13 +51,17 @@ export class AppComponent implements OnInit {
     const isAuth = this.authService.isAuthenticated();
     const currentUrl = this.router.url;
 
-    if (isAuth && (currentUrl === '/login')) {
-      this.router.navigate(['/search']).catch(err => console.error('[router.navigate]', err));
+    if (isAuth && currentUrl === '/login') {
+      this.router
+        .navigate(['/search'])
+        .catch((err) => console.error('[router.navigate]', err));
       return;
     }
 
     if (!isAuth && currentUrl !== '/login') {
-      this.router.navigate(['/login']).catch(err => console.error('[router.navigate]', err));
+      this.router
+        .navigate(['/login'])
+        .catch((err) => console.error('[router.navigate]', err));
     }
   }
 }
