@@ -13,7 +13,7 @@ export class OffersService {
 
   private baseUrl = environment.apiUrl + '/offers';
 
-  getOffers(
+  getOffersSales(
     city?: string,
     typeOfOs?: string,
     period?: string,
@@ -25,9 +25,12 @@ export class OffersService {
     if (city) params = params.set('city', city);
     if (period) params = params.set('period', period);
 
-    // 🔥 Agora envia corretamente a lista de typeOfOs
     if (typeOfOs) {
       params = params.set('typeOfOs', typeOfOs);
+    }
+    
+    else {
+      params = params.set('typeOfOs', 'INSTALLATION,TECHNICAL_VISIT');
     }
 
     return this.http

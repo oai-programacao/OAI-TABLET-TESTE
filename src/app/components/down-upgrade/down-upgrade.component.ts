@@ -36,6 +36,8 @@ import { ReportsService } from '../../services/reports/reports.service';
 import { MidiaService } from '../../services/midia/midia.service';
 import { IftaLabelModule } from "primeng/iftalabel";
 import { AttendancesService } from '../../services/attendances/attendance.service';
+import { TableModule } from "primeng/table";
+import { CheckComponent } from '../../shared/components/check-component/check-component.component';
 
 export interface ContractUpdate {
   seller: string;
@@ -77,7 +79,9 @@ export interface ContractUpdate {
     // 🔹 Componente customizado
     CardBaseComponent,
     SignaturePadComponent,
-    IftaLabelModule
+    IftaLabelModule,
+    TableModule,
+    CheckComponent
   ],
   providers: [MessageService],
   templateUrl: './down-upgrade.component.html',
@@ -138,6 +142,10 @@ export class DownUpgradeComponent implements OnInit {
   isPreviewDialogVisible: boolean = false;
   thumbnailPreview: string | ArrayBuffer | null = null;
   fotoCapturadaFile: File | null = null;
+
+  tocarCheck = false;
+  finalization: boolean = false;
+  result: any;
 
   typesOfDateExpirationCicle = [
     { descricao: 'Nenhum', value: null },
@@ -237,6 +245,17 @@ export class DownUpgradeComponent implements OnInit {
     });
   }
 
+  public get valorFinalComDescontoDisplay(): number{
+    const valorBase = this.selectedPlan?.valor || 0;
+    const desconto = this.newDiscount || 0;
+    if(!this.selectedPlan) {
+      return 0;
+    }
+    const valorFinal = valorBase - desconto;
+
+    return valorFinal > 0 ? valorFinal : 0;
+  }
+
   loadContract(): void {
     this.contractService.getContractById(this.contractId).subscribe({
       next: (data) => {
@@ -269,8 +288,11 @@ export class DownUpgradeComponent implements OnInit {
     const data = {
       event: this.fluxo as string,
       cliente: this.clientId,
-      contrato: this.contractId
+      contrato: this.contractId,
+      plano: this.selectedPlan!.codePlanRBX
     };
+
+    console.log("Validando se a data está vindo certa: ", data)
     const jsonBlob = new Blob([JSON.stringify(data)], { type: "application/json" });
 
     const formData = new FormData();
@@ -336,7 +358,6 @@ export class DownUpgradeComponent implements OnInit {
     this.isLoadingTransfer = true;
     this.loadingMessage = "Atualizando contrato e registrando atendimento...";
 
-    // --- 5. CHAMADA DE UPGRADE (Seu código original) ---
     this.contractService.upgradeContract(this.contractId, upgradeDto)
       .subscribe({
         next: (newContractResponse) => {
@@ -347,12 +368,22 @@ export class DownUpgradeComponent implements OnInit {
             life: 10000,
           });
 
-          // A chamada agora é segura
+          const valorPlano = this.selectedPlan!.valor || 0;
+          const desconto = this.newDiscount || 0;
+          const valorFinalComDesconto = valorPlano - desconto;
+          this.result = {
+            clientName: this.client.name, 
+            clientCpf: this.client.cpf,   
+            contrato: newContractResponse.codeContractRbx,
+            plano: this.selectedPlan!.nome,
+            valor: valorFinalComDesconto
+          };
           this.registerAttendance(pdfParaRegistrar);
 
+          this.tocarCheck = true;
+          this.finalization = true;
           this.isLoadingTransfer = false;
           this.modalVisible = false;
-          this.goToStep(4);
         },
         error: (err) => {
           this.isLoadingTransfer = false;
@@ -372,8 +403,6 @@ export class DownUpgradeComponent implements OnInit {
       });
   }
 
-
-  // Dialog de atendimento Online:
   public get arePhonesInvalid(): boolean {
     const cleanPhoneOld = (this.phone || '').replace(/\D/g, '');
     return cleanPhoneOld.length < 10;
@@ -444,8 +473,8 @@ export class DownUpgradeComponent implements OnInit {
   }
   private showSuccess(summary: string, detail: string, life: number = 3000) { this.messageService.add({ severity: 'success', summary, detail, life }); }
   private showError(summary: string, detail: string) {
-     this.messageService.add({ severity: 'error', summary, detail }); 
-    }
+    this.messageService.add({ severity: 'error', summary, detail });
+  }
 
   loadPdfPreview(): void {
     if (this.isLoadingPreview) return;
@@ -662,6 +691,23 @@ export class DownUpgradeComponent implements OnInit {
 
   getConsentTermPdf() {
     console.log('getConsentTermPdf clicado. (Implementar lógica de PDF se necessário)');
+  }
+
+  formatCpfCnpj(value: string): string {
+    const numbers = value.replace(/\D/g, '');
+    if (numbers.length <= 11) {
+      // CPF → 000.000.000-00
+      return numbers
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+    }
+    // CNPJ → 00.000.000/0000-00
+    return numbers
+      .replace(/(\d{2})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1/$2')
+      .replace(/(\d{4})(\d{1,2})$/, '$1-$2');
   }
 }
 

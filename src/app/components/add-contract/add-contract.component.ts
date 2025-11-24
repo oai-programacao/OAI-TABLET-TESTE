@@ -1,3 +1,4 @@
+import { BlockOffersRequestService } from './../../services/blockOffer/blockoffer.service';
 import {
   Component,
   inject,
@@ -36,7 +37,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { AuthService } from '../../core/auth.service';
 import { ToastModule } from 'primeng/toast';
 import { ActionsContractsService } from '../../services/actionsToContract/actions-contracts.service';
-import { firstValueFrom, forkJoin } from 'rxjs';
+import { firstValueFrom, forkJoin, interval, of, Subject } from 'rxjs';
 import { DateUtilsService } from '../../shared/utils/date.utils';
 import {
   ConsentTermAdesionRequest,
@@ -46,11 +47,17 @@ import {
 
 import { AttendancesService } from '../../services/attendances/attendance.service';
 import { ContractFormData } from '../../models/sales/sales.dto';
-import { finalize } from 'rxjs/operators';
+import { finalize, switchMap, takeUntil } from 'rxjs/operators';
 import { DraftSaleResponse } from '../../models/sales/draftSale.dto';
 import { Table, TableModule } from 'primeng/table';
 import { OfferProjection } from '../../models/offer/offer-projection.model';
 import { OffersService } from '../../services/offers/offers.service';
+import { TagModule } from 'primeng/tag';
+import {
+  BlockPeriodOffers,
+  BlockPeriodOffersLabels,
+  ViewBlockOffersDto,
+} from '../../models/blockoffer/blockOffer.dto';
 
 @Component({
   selector: 'app-add-contract',
@@ -78,6 +85,7 @@ import { OffersService } from '../../services/offers/offers.service';
     ProgressSpinnerModule,
     ToastModule,
     TableModule,
+    TagModule,
   ],
   templateUrl: './add-contract.component.html',
   styleUrl: './add-contract.component.scss',
@@ -108,6 +116,9 @@ export class AddContractComponent implements OnInit {
   private readonly sanitizer = inject(DomSanitizer);
   private readonly attendanceService = inject(AttendancesService);
   private readonly actionsContractsService = inject(ActionsContractsService);
+  private readonly blockOfferService = inject(BlockOffersRequestService);
+  private stopPolling$ = new Subject<void>();
+  private destroy$ = new Subject<void>();
 
   client!: Cliente;
   clientId: string | null = null;
@@ -122,9 +133,12 @@ export class AddContractComponent implements OnInit {
   signDialogVisible = false;
   isPreviewDialogVisible: boolean = false;
   dialogOs: boolean = false;
+  dialogNewOs: boolean = false;
   offerNothing: boolean = false;
+  activeBlock: ViewBlockOffersDto | null = null;
 
   selectedCity: string = '';
+  selectedNewOsCity: string = '';
   cities = [
     { label: 'Assis', value: 'ASSIS' },
     { label: 'Cândido Mota', value: 'CANDIDO_MOTA' },
@@ -143,11 +157,19 @@ export class AddContractComponent implements OnInit {
   ];
 
   selectedPeriodOs: string = '';
+  selectedNewPeriodOs: string = '';
   periodsOs = [
     { label: 'Manhã', value: 'MORNING' },
     { label: 'Tarde', value: 'AFTERNOON' },
     { label: 'Noite', value: 'NIGHT' },
   ];
+
+  selectedTypeNewOs: string = '';
+  typeNewOs = [
+    { label: 'Nova Instalação', value: 'INSTALLATION'}
+  ]
+
+  selectedDate: string | null = null;
 
   pdfPreviewUrl: string | null = null;
   pdfBlobFinal: Blob | null = null;
@@ -191,6 +213,9 @@ export class AddContractComponent implements OnInit {
   dateOfAssignment: Date | null = null;
   dateOfMemberShipExpiration: Date | null = null;
   refreshInterval: any;
+
+  selectedOs: string | null = null; // IRÁ RECEBER O UUID DA OS SOLICITADA
+  minDateValue: Date = new Date();
 
   public contractFormData: ContractFormData = {
     sellerId: '',
@@ -247,16 +272,49 @@ export class AddContractComponent implements OnInit {
     if (this.clientId) {
       this.contractFormData.clientId = this.clientId;
     }
-
-    this.refreshInterval = setInterval(() => {
-      this.reloadTable();
-    }, 1000);
   }
 
   ngOnDestroy() {
-    if (this.refreshInterval) {
-      clearInterval(this.refreshInterval);
-    }
+    this.stopPolling$.next();
+    this.stopPolling$.complete();
+  }
+
+  onDialogShow() {
+    this.startPolling();
+  }
+
+  onDialogHide() {
+    this.stopPolling$.next();
+  }
+
+  startPolling() {
+    interval(3000)
+      .pipe(
+        takeUntil(this.stopPolling$),
+        switchMap(() => {
+          if (!this.osTable) {
+            return of({ content: [], totalElements: 0 });
+          }
+
+          const page = this.osTable.first! / this.osTable.rows!;
+          const size = this.osTable.rows!;
+
+          return this.offerService.getOffersSales(
+            this.selectedCity,
+            this.selectedTypeOs,
+            this.selectedPeriodOs,
+            page,
+            size
+          );
+        })
+      )
+      .subscribe({
+        next: (pageData: any) => {
+          this.offers = pageData.content;
+          this.totalRecords = pageData.totalElements;
+        },
+        error: (err) => console.error(err),
+      });
   }
 
   onHide(): void {
@@ -1374,7 +1432,7 @@ export class AddContractComponent implements OnInit {
     const size = event.rows;
 
     this.offerService
-      .getOffers(
+      .getOffersSales(
         this.selectedCity,
         this.selectedTypeOs,
         this.selectedPeriodOs,
@@ -1392,6 +1450,63 @@ export class AddContractComponent implements OnInit {
   }
 
   reloadTable() {
+    this.osTable.reset();
+  }
+
+  onDialogNewOs() {
+    this.loadExistingBlocks();
+  }
+
+  private loadExistingBlocks(): void {
+    this.blockOfferService
+      .getAllBlockOffers()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (blocks) => {
+          if (blocks && blocks.length > 0) {
+            this.activeBlock = blocks[0];
+            const releaseDate = this.parsePtBrDate(
+              this.activeBlock.initialDate
+            );
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            if (releaseDate && releaseDate > today) {
+              this.minDateValue = releaseDate;
+            } else {
+              this.minDateValue = today;
+            }
+          }
+        },
+        error: (err) =>
+          console.error('Erro ao carregar blocos existentes:', err),
+      });
+  }
+
+  getOfferBlockPeriodLabel(period: BlockPeriodOffers): string {
+    return BlockPeriodOffersLabels[period] || 'Período Desconhecido';
+  }
+
+  private toComparableFormat(dateStr: string): string | null {
+    if (!dateStr || !/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) return null;
+    const parts = dateStr.split('/');
+    return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(
+      2,
+      '0'
+    )}`;
+  }
+
+  private parsePtBrDate(dateStr: string): Date | null {
+    const comparableFormat = this.toComparableFormat(dateStr);
+    return comparableFormat ? new Date(comparableFormat + 'T00:00:00') : null;
+  }
+
+
+
+  clearFiltersOs() {
+    this.selectedPeriodOs = '';
+    this.selectedCity = '';
+    this.selectedTypeOs = '';
     this.osTable.reset();
   }
 }

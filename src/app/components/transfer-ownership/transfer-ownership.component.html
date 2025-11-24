@@ -33,7 +33,7 @@
             <!-- Mudança de activeStepIndex === 0 para activeStep === 1 -->
             <div *ngIf="activeStep === 1" class="step-panel-content">
                 <div class="step-content">
-                    <p class="step-instruction">Digite o documento do novo titular para iniciar a transferência.</p>
+                    <span class="step-instruction">Digite o documento do novo titular para iniciar a transferência.</span>
                     <div class="form-group-input">
                         <p-iftalabel variant="on">
                             <input 
@@ -63,7 +63,15 @@
                         label="Próximo" 
                         icon="pi pi-arrow-right" 
                         (onClick)="activeStep = 2"
-                        [disabled]="!foundClient">
+                        [disabled]="!foundClient"
+                        *ngIf="!createNewClient">
+                    </p-button>
+                    <p-button 
+                        [rounded]="true" 
+                        label="Criar Cliente" 
+                        icon="pi pi-arrow-right"
+                        (onClick)="navigateToCreateClient()"
+                        *ngIf="createNewClient">
                     </p-button>
                 </div>
             </div>
@@ -87,7 +95,9 @@
                                         icon="pi pi-send" 
                                         severity="warn"
                                         [raised]="true" 
-                                        (onClick)="abrirModalAutentique()">
+                                        (onClick)="abrirModalAutentique()"
+                                        [style]="{ padding: '2rem 4rem' }"
+                                        >
                                     </p-button>
                                 </div>
                             </div>
@@ -108,27 +118,18 @@
                                         icon="pi pi-file-pdf" 
                                         severity="success"
                                         [raised]="true" 
-                                        (onClick)="goToPdfViewerStep()">
+                                        (onClick)="goToPdfViewerStep()"
+                                        [style]="{ padding: '2rem 4rem' }">
                                     </p-button>
                                 </div>
                             </div>
                         </div>
                 </ng-container> 
-                        <ng-template #erro>
-                            <div class="alert-warning">
-                                ⚠️ Para acessar este passo, volte e busque um cliente válido no Passo 1.
-                            </div>
-                        </ng-template>
-               
-                <div class="step-footer">
-                    <p-button 
-                        [rounded]="true" 
-                        severity="help"
-                        label="Voltar" 
-                        icon="pi pi-arrow-left" 
-                        (onClick)="goToStep(1)">
-                    </p-button>
-                </div>
+                <ng-template #erro>
+                    <div class="alert-warning">
+                        ⚠️ Para acessar este passo, volte e busque um cliente válido no Passo 1.
+                    </div>
+                </ng-template>
             </div>
 
             <!-- Mudança para activeStep === 3 -->
@@ -198,7 +199,7 @@
                         <p-button 
                             label="Voltar" 
                             icon="pi pi-arrow-left" 
-                            severity="help" 
+                            severity="secondary"
                             rounded="true" 
                             size="large"
                             [raised]="true" 
@@ -210,8 +211,8 @@
                             size="large" 
                             icon="pi pi-arrow-right"
                             iconPos="right" 
-                            label="Confirmar Transferência" 
-                            (onClick)="onConfirmTransfer()"
+                            label="Proxímo" 
+                            (onClick)="goToStep(4)"
                             [disabled]="!signatureOldBase64 || !signatureNewBase64" />
                     </div>
                 </ng-container>
@@ -222,29 +223,81 @@
                 </ng-template>
             </div>
 
-            <!-- Mudança para activeStep === 4 -->
             <div *ngIf="activeStep === 4" class="step-panel-content">
                 <ng-container *ngIf="foundClient; else erroStep4">
-                    <div class="step-content confirmation-step">
-                        <i class="pi pi-check-circle success-icon"></i>
-                        <h3>Processo Concluído!</h3>
-                        <p>
-                            A transferência de titularidade foi concluída com sucesso.
-                        </p>
-                    </div>
+                    <div *ngIf="finalization" class="step-final">
+                        <div class="table-finalization">
+                            <p-table class="tabela-finalization" [value]="[
+                                { campo: 'Cliente antigo', valor: result?.clientOldName },
+                                { campo: 'CPF/CNPJ', valor: result?.clientOldCpfCnpj ? formatCpfCnpj(result.clientOldCpfCnpj) : '' },
+                                { campo: 'Contrato RBX antigo', valor: result?.oldContractCode },
+                                { campo: 'Novo Cliente (nome)', valor: result?.clientNewName },
+                            ]"
+                            >
+                                <ng-template pTemplate="header">
+                                    <tr>
+                                    <th>Campo</th>
+                                    <th>Valor</th>
+                                    </tr>
+                                </ng-template>
 
-                    <div *ngIf="pdfSrc" class="pdf-viewer final-pdf-viewer">
-                        <iframe [src]="pdfSrc" width="100%" height="600px"></iframe>
+                                <ng-template pTemplate="body" let-rowData>
+                                    <tr>
+                                    <td>{{ rowData.campo }}</td>
+                                    <td>{{ rowData.valor }}</td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                        </div>
+                            <div class="button-finalization">
+                                <p-button
+                                    label="Voltar ao Menu do cliente"
+                                    icon="pi pi-thumbs-up-fil"
+                                    severity="success"
+                                    rounded="true"
+                                    size="large"
+                                    [raised]="true"
+                                    (onClick)="voltarParaCliente()"
+                                />
+                            </div>
                     </div>
-
-                    <div class="step-footer">
-                        <p-button 
-                            severity="help"
-                            [rounded]="true" 
-                            label="Voltar para o Início" 
-                            icon="pi pi-home"
-                            (onClick)="navigateToInfoClient()">
-                        </p-button>
+                    <div *ngIf="!finalization" class="step-footer">
+                        <div class="step-antes-finalization">
+                            <div>
+                                <span>
+                                    Deseja realmente concluir o processo de transferencia de titularidade?
+                                </span>
+                               <p style="font-size: 1em;">
+                                    <strong style="color: #d32f2f;">Observações sobre o Processo:</strong>
+                                    <br><br>
+                                    
+                                    ✓ Será criado um novo contrato para o titular indicado
+                                    <br>
+                                    ✓ É necessário que o contrato possua MAC configurado (autenticação)
+                                    <br>
+                                    ✓ Em caso de erro, valide as informações do cliente consultando novamente o CPF/CNPJ
+                                </p>
+                            </div>
+                            <div class="footer-actions">
+                                <p-button
+                                    label="Voltar"
+                                    icon="pi pi-arrow-left"
+                                    severity="secondary"
+                                    rounded="true"
+                                    size="large"
+                                    [raised]="true"
+                                    (onClick)="goToStep(3)"
+                                    />
+                                <p-button
+                                    severity="success"
+                                    [rounded]="true"
+                                    label="Enviar alteração"
+                                    icon="pi pi-check"
+                                    [loading]="isLoadingTransfer"
+                                    (onClick)="onConfirmTransfer()"
+                                    />
+                            </div>
+                        </div>
                     </div>
                 </ng-container>
                 <ng-template #erroStep4>
@@ -254,6 +307,7 @@
                 </ng-template>
             </div>
         </div>
+        <app-check [trigger]="tocarCheck"/>
     </app-card-base>
 
     <!-- Adicionada estrutura de alert-box melhorada no modal -->
@@ -414,7 +468,7 @@
                 <p-button 
                     label="Voltar"
                     icon="pi pi-arrow-left"
-                    severity="help"
+                    severity="secondary"
                     rounded="true"
                     (onClick)="dialogAssinaturaCessionario = false; dialogAssinaturaCedente = true">
                 </p-button>

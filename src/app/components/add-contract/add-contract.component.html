@@ -510,7 +510,7 @@
                         raised="true"
                         severity="warn"
                         icon="pi pi-bell"
-                        (onClick)="showMapDialog = true"
+                        (onClick)="dialogNewOs = true"
                       />
                       <p-button
                         [size]="'large'"
@@ -984,6 +984,8 @@
   [resizable]="false"
   [draggable]="false"
   [(visible)]="dialogOs"
+  (onShow)="onDialogShow()"
+  (onHide)="onDialogHide()"
   [style]="{ width: '60vw', height: '30vw' }"
   class="dialogOs"
 >
@@ -999,13 +1001,12 @@
           optionLabel="label"
           optionValue="value"
           placeholder="Selecione"
-          name="planos"
-          required
-          id="plan"
+          name="cities"
+          id="cities"
           (onChange)="reloadTable()"
         >
         </p-select>
-        <label for="planos">Cidade</label>
+        <label for="cities">Cidade</label>
       </p-iftalabel>
     </p-inputgroup>
     <p-inputgroup>
@@ -1019,13 +1020,12 @@
           optionLabel="label"
           optionValue="value"
           placeholder="Selecione"
-          name="planos"
-          required
-          id="plan"
+          name="typeOs"
+          id="typeOs"
           (onChange)="reloadTable()"
         >
         </p-select>
-        <label for="planos">Tipo de OS</label>
+        <label for="typeOs">Tipo de OS</label>
       </p-iftalabel>
     </p-inputgroup>
     <p-inputgroup>
@@ -1039,15 +1039,16 @@
           optionLabel="label"
           optionValue="value"
           placeholder="Selecione"
-          name="planos"
-          required
-          id="plan"
+          name="periodsOs"
+          id="periodsOs"
           (onChange)="reloadTable()"
         >
         </p-select>
-        <label for="planos">Períodos</label>
+        <label for="periodsOs">Períodos</label>
       </p-iftalabel>
     </p-inputgroup>
+    <p-button icon="pi pi-eraser" size="large" severity="warn"
+     rounded="true" raised="true" (onClick)="clearFiltersOs()"></p-button>
   </div>
   <div class="divider">
     <p-divider></p-divider>
@@ -1059,6 +1060,7 @@
       [paginator]="true"
       [rows]="8"
       [lazy]="true"
+      stripedRows="true"
       (onLazyLoad)="loadOffers($event)"
       [value]="offers"
       [totalRecords]="totalRecords"
@@ -1082,7 +1084,7 @@
           <td>{{ offer.typeOfOs }}</td>
           <td>{{ offer.date }}</td>
           <td>{{ offer.period }}</td>
-          <td>{{ offer.total }}</td>
+          <td><p-tag [value]="offer.total" severity="success"></p-tag></td>
           <td>
             <button
               pButton
@@ -1104,5 +1106,112 @@
         </tr>
       </ng-template>
     </p-table>
+  </div>
+</p-dialog>
+
+<p-dialog
+  [header]="'Solicitar OS'"
+  [resizable]="false"
+  [draggable]="false"
+  [(visible)]="dialogNewOs"
+  (onShow)="onDialogNewOs()"
+  [style]="{ width: '25vw', height: '20vw' }"
+  class="dialogOs"
+>
+  <div class="infoBlockOffers" *ngIf="activeBlock">
+    <p>
+      <i class="pi pi-info-circle mr-2"></i>
+      Lembrete: As solicitações de oferta estão liberadas a partir de
+      <strong>{{ this.activeBlock?.initialDate || "***" }}</strong> no período
+      <strong>{{
+        getOfferBlockPeriodLabel(this.activeBlock!.periodOffer)
+      }}</strong
+      >.
+    </p>
+  </div>
+
+    <div class="inputsNewOs">
+      <p-inputgroup>
+      <p-inputgroup-addon>
+        <i class="pi pi-ticket"></i>
+      </p-inputgroup-addon>
+      <p-iftalabel>
+        <p-select
+          [options]="typeNewOs"
+          [(ngModel)]="selectedTypeNewOs"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Selecione"
+          name="typeOsNew"
+          required
+          id="typeOsNew"
+        >
+        </p-select>
+        <label for="typeOsNew">Tipo OS</label>
+      </p-iftalabel>
+    </p-inputgroup>
+    <p-inputgroup>
+      <p-inputgroup-addon>
+        <i class="pi pi-ticket"></i>
+      </p-inputgroup-addon>
+      <p-iftalabel>
+        <p-select
+          [options]="cities"
+          [(ngModel)]="selectedNewOsCity"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Selecione"
+          name="cidadeOsNew"
+          required
+          id="cidadeOsNew"
+        >
+        </p-select>
+        <label for="cidadeOsNew">Cidade</label>
+      </p-iftalabel>
+    </p-inputgroup>
+    </div>
+
+
+    <div class="inputsNewOs">
+      <p-inputgroup>
+      <p-inputgroup-addon>
+        <i class="pi pi-ticket"></i>
+      </p-inputgroup-addon>
+      <p-iftalabel>
+        <p-select
+          [options]="periodsOs"
+          [(ngModel)]="selectedPeriodOs"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Selecione"
+          name="periodoOsNew"
+          required
+          id="periodoOsNew"
+        >
+        </p-select>
+        <label for="periodoOsNew">Períodos</label>
+      </p-iftalabel>
+    </p-inputgroup>
+
+    <div class="datepicker-wrapper">
+      <p-datepicker
+        id="date"
+        [(ngModel)]="selectedDate"
+        name="date"
+        dateFormat="dd/mm/yy"
+        [minDate]="minDateValue"
+        [showIcon]="true"
+        [disabledDays]="[0]"
+        dataType="string"
+        placeholder="Selecione a Data"
+        appendTo="body"
+      >
+      </p-datepicker>
+    </div>
+    </div>
+    
+
+  <div class="buttonsNewOs">
+    <p-button label="Solicitar OS" [severity]="'info'" [raised]="true"></p-button>
   </div>
 </p-dialog>

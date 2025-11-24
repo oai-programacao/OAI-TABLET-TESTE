@@ -47,6 +47,8 @@ import { NgxMaskDirective } from "ngx-mask"
 import SignaturePad from "signature_pad"
 import { concatMap } from "rxjs/internal/operators/concatMap"
 import { ReportsService } from "../../services/reports/reports.service"
+import { TableModule } from 'primeng/table';
+import { CheckComponent } from "../../shared/components/check-component/check-component.component";
 
 @Component({
   selector: "app-transfer-ownership",
@@ -77,8 +79,10 @@ import { ReportsService } from "../../services/reports/reports.service"
     NgxMaskDirective,
     // 🔹 Componente customizado
     CardBaseComponent,
-    SignaturePadComponent
-  ],
+    SignaturePadComponent,
+    TableModule,
+    CheckComponent
+],
   templateUrl: "./transfer-ownership.component.html",
   styleUrl: "./transfer-ownership.component.scss",
   providers: [ConfirmationService, MessageService],
@@ -104,9 +108,10 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
   private readonly authService = inject(AuthService)
   private readonly reportsService = inject(ReportsService)
 
-  // --- Estado Geral do Componente ---
   clientId!: string
   contractId!: string
+  toNewContractId!: string;
+  toNewClientId!: string;
   phoneOldOwner!: string
   phoneNewOwner!: string
   contracts: Contract[] = []
@@ -147,6 +152,11 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
   thumbnailPreview: string | ArrayBuffer | null = null;
   event: string = "transfer_contract";
 
+  finalization: boolean = false;
+  result: any;
+  tocarCheck: boolean = false;
+  createNewClient: boolean = false;
+
   ngOnInit() {
     const clientId = this.route.snapshot.paramMap.get("clientId")
     const contractId = this.route.snapshot.paramMap.get("contractId")
@@ -186,7 +196,6 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
   }
 
   // --- MÉTODOS DO FLUXO DE TRANSFERÊNCIA DE TITULARIDADE ---
-
   onSearchNewOwner(): void {
     const documentoParaBuscar = this.documento.replace(/\D/g, "")
     if (documentoParaBuscar.length < 11) {
@@ -210,7 +219,8 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
           this.foundClient = { id: client.id, name: clientName }
           this.showInfo("Cliente Localizado", `O cliente ${clientName} está pronto para a transferência.`)
         } else {
-          this.foundClient = null
+          this.foundClient = null;
+          this.createNewClient = true;
           this.showWarning(
             "Cliente não encontrado",
             "Nenhum cliente foi encontrado com este documento. Pode registá-lo.",
@@ -227,27 +237,41 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
   private registerAttendance(pdfBlob: Blob): void {
     if (!this.clientId || !this.contractId) {
       console.error("registerAttendance: ClientID ou ContractID estão ausentes.");
-      return; 
+      return;
     }
+    if (!this.toNewClientId || !this.toNewContractId) {
+      console.error("registerAttendance: newClientId ou newContractId ausentes.");
+      return;
+    }
+
     const data = {
-      event: this.event,
+      event: this.event as string,
       cliente: this.clientId,
-      contrato: this.contractId
+      contrato: this.contractId,
+      toNewClient: this.toNewClientId,
+      toNewContract: this.toNewContractId
     };
-    const jsonBlob = new Blob([JSON.stringify(data)], { type: "application/json" });
 
     const formData = new FormData();
-    formData.append('data', jsonBlob, 'data.json');
-    formData.append('arquivo', pdfBlob, 'termo_transferencia_assinado.pdf');
+    formData.append("arquivo", pdfBlob, "transferencia_titularidade_asssinado.pdf");
+    formData.append(
+      "data",
+      new Blob([JSON.stringify(data)], { type: "application/json" })
+    );
 
     this.attendancesService.registerAttendance(formData).subscribe({
       next: (response) => {
-        console.log("Atendimento registrado com sucesso:", response);
-        this.showInfo("Registro de Atendimento", "Atendimento registrado com sucesso no sistema.");
+        this.showInfo(
+          "Registro de Atendimento",
+          "Atendimento registrado com sucesso no sistema."
+        );
       },
       error: (err) => {
         console.error("Falha ao registrar atendimento:", err);
-        this.showWarning("Aviso", "A transferência foi concluída, mas houve um erro ao registrar o atendimento no histórico.");
+        this.showWarning(
+          "Aviso",
+          "A operação concluiu, mas houve erro ao registrar o atendimento."
+        );
       }
     });
   }
@@ -287,10 +311,13 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
     this.contractService
       .transferOwnership(oldContractId, newClientId)
       .pipe(
-        concatMap(() => {
+        concatMap((responseTransfer) => {
+          this.toNewContractId = responseTransfer.id;
+          this.toNewClientId = newClientId;
           this.loadingMessage = "A carimbar assinaturas no PDF final..."
           return this.contractService.finalizeAndSignTransfer(signPayload)
         }),
+
       )
       .subscribe({
         next: (signedPdfBlob: Blob) => {
@@ -307,10 +334,17 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
           this.activeStep = 4
 
           this.showSuccess("Sucesso!", "A transferência foi concluída e o PDF assinado.", 10000)
-          this.isLoadingTransfer = false
-
-          this.signatureOldBase64 = null
-          this.signatureNewBase64 = null
+          this.isLoadingTransfer = false;
+          this.result = {
+            clientOldName: this.currentClient?.name,
+            clientOldCpfCnpj: this.currentClient?.cpf || this.currentClient?.cnpj,
+            oldContractCode: this.selectedContractForTransfer?.codeContractRbx,
+            clientNewName: this.foundClient?.name
+          };
+          this.tocarCheck = true;
+          this.signatureOldBase64 = null;
+          this.signatureNewBase64 = null;
+          this.finalization = true;
 
           this.registerAttendance(signedPdfBlob);
         },
@@ -510,6 +544,10 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
     }
   }
 
+  navigateToCreateClient() {
+    this.router.navigate(["/register"])
+  }
+
   public get arePhonesInvalid(): boolean {
     const cleanPhoneOld = (this.phoneOldOwner || "").replace(/\D/g, "")
     const cleanPhoneNew = (this.phoneNewOwner || "").replace(/\D/g, "")
@@ -576,7 +614,6 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
   }
 
   // metodos de assinatura
-
   forceSignatureRedraw() {
     setTimeout(() => {
       this.signatureVisibleFlag = false;
@@ -689,4 +726,19 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
     this.signatureVisibleFlag = true;
   }
 
+  formatCpfCnpj(value: string | null | undefined): string {
+    if (!value) return "";
+    const digits = value.replace(/\D/g, "");
+
+    if (digits.length === 11) {
+      return digits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+    }
+
+    if (digits.length === 14) {
+      return digits.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,
+        "$1.$2.$3/$4-$5");
+    }
+
+    return value;
+  }
 }
