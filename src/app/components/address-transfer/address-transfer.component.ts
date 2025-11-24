@@ -738,11 +738,9 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     this.isSubmitting = true;
 
     try {
-    // 2. Converter PDF para Base64
     let pdfBase64Clean = '';
     if (this.pdfBlobFinal) {
       const fullBase64 = await this.blobToBase64(this.pdfBlobFinal);
-      // Remove o prefixo "data:application/pdf;base64," se existir
       pdfBase64Clean = fullBase64.includes(',') ? fullBase64.split(',')[1] : fullBase64;
     }
 
@@ -775,12 +773,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
         summary: 'Sucesso!',
         detail: 'Endereço atualizado!',
       });
-        if (this.pdfBlobFinal) {
-          this.registerAttendance(this.pdfBlobFinal, response.linkBoleto);
-        } else {
-          console.warn("PDF não encontrado, o atendimento não será registrado.");
-        }
-
+        
         const enderecoCompleto = `${this.addressNewForm.street}, ${this.addressNewForm.numberFromHome} - ${this.addressNewForm.neighborhood}`;
         const cidadeUF = `${this.addressNewForm.city}/${this.addressNewForm.uf}`;
         const enderecoFinalizado = `${enderecoCompleto} | ${cidadeUF}`;
@@ -829,36 +822,6 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   });
 }
 
-
-private registerAttendance(pdfBlob: Blob, linkBoleto: string): void {
-    if (!this.clientId || !this.contractId) {
-      console.error("registerAttendance: ClientID ou ContractID estão ausentes.");
-      return;
-    }
-    const data = {
-      event: this.event as string,
-      cliente: this.clientId,
-      contrato: this.contractId,
-      linkBoleto: linkBoleto
-    };
-
-    const jsonBlob = new Blob([JSON.stringify(data)], { type: "application/json" });
-
-    const formData = new FormData();
-    formData.append('data', jsonBlob, 'data.json');
-    formData.append('arquivo', pdfBlob, 'termo_transferencia_assinado.pdf');
-
-    this.attendancesService.registerAttendance(formData).subscribe({
-      next: (response) => {
-        console.log("Atendimento registrado com sucesso:", response);
-        this.showInfo("Registro de Atendimento", "Atendimento registrado com sucesso no sistema.");
-      },
-      error: (err) => {
-        console.error("Falha ao registrar atendimento:", err);
-        this.showWarning("Aviso", "A transferência foi concluída, mas houve um erro ao registrar o atendimento no histórico.");
-      }
-    });
-  }
 
   formatCpfCnpj(value: string): string {
     const numbers = value.replace(/\D/g, '');
