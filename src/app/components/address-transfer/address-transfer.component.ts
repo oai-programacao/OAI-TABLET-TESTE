@@ -48,9 +48,13 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
-import { TableModule } from "primeng/table";
+import { TableModule, Table } from "primeng/table";
 import { AttendancesService } from '../../services/attendances/attendance.service';
 import { finalize } from 'rxjs/operators';
+import { OffersService } from '../../services/offers/offers.service';
+import { OfferProjection } from '../../models/offer/offer-projection.model';
+import { ButtonModule } from 'primeng/button';
+
 
 export interface AddressForm {
   zipCode: string | null;
@@ -93,36 +97,23 @@ export interface AddressForm {
     DropdownModule,
     SelectModule,
     TooltipModule,
-    TableModule
+    TableModule,
+    ButtonModule
   
   ],
-  providers: [MessageService, AttendancesService],
+  providers: [MessageService, AttendancesService, OffersService],
   templateUrl: './address-transfer.component.html',
   styleUrls: ['./address-transfer.component.scss'],
 })
 export class AddressTransferComponent implements OnInit, OnDestroy {
-  addressNewFormValid = false;
-  contract!: Contract;
-  client!: Cliente;
-
-  modalVisible: boolean = false;
-  signatureVisibleFlag = false;
-
-  phone: string = '';
-  formIsValid: boolean = false;
-
-  finalization: boolean = false;
-
-  isSubmitting: boolean = false;
-
+  
   @ViewChild('addressNewNgForm') addressNewNgForm!: NgForm;
   @ViewChild(SignaturePadComponent)
   signaturePadComponent!: SignaturePadComponent;
   @ViewChild('signaturePadInDialog')
   signaturePadInDialog!: SignaturePadComponent;
   @ViewChild('pdfIframe') pdfIframe!: ElementRef<HTMLIFrameElement>;
-
-  capturedSignature: string | null = null;
+  @ViewChild('osTable') osTable!: Table;
 
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -134,47 +125,77 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   private readonly midiaService = inject(MidiaService);
   private readonly attendancesService = inject(AttendancesService);
   private readonly clientService = inject(ClientService);
-  public pdfPreviewUrl: string | null = null;
-  public pdfBlobFinal: Blob | null = null;
+  private originalAddressForm: AddressForm | null = null;
+  private readonly offerService = inject(OffersService);
 
+  contract!: Contract;
+  client!: Cliente;
 
+  addressNewFormValid = false;
+  modalVisible: boolean = false;
+  signatureVisibleFlag = false;
+  phone: string = '';
+  formIsValid: boolean = false;
+  finalization: boolean = false;
+  isSubmitting: boolean = false;
+  capturedSignature: string | null = null;
+  pdfPreviewUrl: string | null = null;
+  pdfBlobFinal: Blob | null = null;
   safePdfPreviewUrl: SafeResourceUrl | null = null;
   isLoadingPreview = false;
   previewLoadFailed = false;
-
   signDialogVisible = false;
   isLoadingSignature = false;
-
   isPreviewDialogVisible: boolean = false;
+  result: any = null;
+  pdfWasDownloaded: boolean = false;
+  currentContract!: Contract;
+  isLoading = false;
+  displayDialog = false;
+  isLoad = false;
+  activeStep: number = 1;
+  clientId!: string;
+  contractId!: string;
+  isEditingAddress = false;
+  loadingMessage: string | null = null;
+  event: string = "update_address";
+  avisoInvalido: boolean = true;
+  thumbnailPreview: string | ArrayBuffer | null = null;
+  fotoCapturadaFile: File | null = null;
+  isPdfViewerLoaded: boolean = false;
 
-   result: any = null;
+  dialogOs: boolean = false;
+  loadingOs: boolean = false;
+  offers: OfferProjection[] = [];
+  totalRecords: number = 0;
+  offerNothing: boolean = false;
 
-   pdfWasDownloaded: boolean = false;
+  selectedCity: string = '';
+  cities = [
+    { label: 'Assis', value: 'ASSIS' },
+    { label: 'Cândido Mota', value: 'CANDIDO_MOTA' },
+    { label: 'Palmital', value: 'PALMITAL' },
+    { label: 'Echaporã', value: 'ECHAPORA' },
+    { label: 'Ibirarema', value: 'IBIRAREMA' },
+    { label: 'Oscar Bressane', value: 'OSCAR_BRESSANE' },
+    { label: 'Platina', value: 'PLATINA' },
+    { label: 'Andirá', value: 'ANDIRA' },
+  ];
 
-  public currentContract!: Contract;
-  public isLoading = false;
-  public displayDialog = false;
-  public isLoad = false;
+  selectedTypeOs: string = '';
+  typeOs = [
+    { label: 'Mudança de Endereço', value: 'CHANGE_OF_ADDRESS' },
+    { label: 'Visita Técnica', value: 'TECHNICAL_VISIT' },
+  ];
 
-  public activeStep: number = 1;
-  public clientId!: string;
-  public contractId!: string;
+  selectedPeriodOs: string = '';
+  periodsOs = [
+    { label: 'Manhã', value: 'MORNING' },
+    { label: 'Tarde', value: 'AFTERNOON' },
+    { label: 'Noite', value: 'NIGHT' },
+  ];
 
-  public isEditingAddress = false;
-  private originalAddressForm: AddressForm | null = null;
-
-  
-  public loadingMessage: string | null = null;
-
-  private showWarning(summary: string, detail: string, life?: number): void {
-    this.messageService.add({ severity: 'warn', summary, detail, life });
-  }
-
-  private showInfo(summary: string, detail: string, life: number = 3000) {
-    this.messageService.add({ severity: 'info', summary, detail, life });
-  }
-
-  public addressNewForm: AddressForm = {
+  addressNewForm: AddressForm = {
     zipCode: null,
     street: '',
     numberFromHome: null,
@@ -187,11 +208,15 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     paymentForm: null,
   };
 
-  public paymentForm = {
+  paymentForm = {
     title: '',
     dueDate: '',
     price: '',
   };
+
+  get isAddressValid(): boolean {
+    return this.addressNewNgForm?.valid ?? false;
+  }
 
   constructor(private cepService: CepService, private sanitizer: DomSanitizer) {
     const navigation = this.router.getCurrentNavigation();
@@ -208,7 +233,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     }
   }
 
-  event: string = "update_address";
+  
 
   ngOnInit(): void {
     if (!this.currentContract) {
@@ -257,8 +282,10 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     this.router.navigate(['/contracts']);
   }
 
-  get isAddressValid(): boolean {
-    return this.addressNewNgForm?.valid ?? false;
+  ngAfterViewInit() {
+    if (this.signaturePadComponent) {
+      this.signaturePadComponent.clearPad();
+    }
   }
 
   ngOnDestroy(): void {
@@ -266,6 +293,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       URL.revokeObjectURL(this.pdfPreviewUrl);
     }
   }
+
 
   loadPdfPreview(): void {
     if (this.isLoadingPreview) return;
@@ -413,7 +441,6 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     this.phone = '';
   }
 
-  avisoInvalido: boolean = true;
 
   meuMetodoExtra(): void {
     this.formIsValid = true;
@@ -480,11 +507,6 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngAfterViewInit() {
-    if (this.signaturePadComponent) {
-      this.signaturePadComponent.clearPad();
-    }
-  }
 
   clearSignature() {
     this.signaturePadComponent.clearPad();
@@ -588,8 +610,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     this.generateConsentTermWithSignature();
   }
 
-  thumbnailPreview: string | ArrayBuffer | null = null;
-  fotoCapturadaFile: File | null = null;
+
 
   onFotoCapturada(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -691,7 +712,6 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   }
 }
 
-  isPdfViewerLoaded: boolean = false;
 
   onPdfViewerLoad(): void {
     console.log('O Iframe do PDF está 100% carregado e pronto.');
@@ -861,5 +881,37 @@ error: (err) => {
         console.error("Erro ao carregar dados do cliente:", err);
       }
     });
+  }
+
+  openDialogOs(): void{
+    this.dialogOs = true;
+  }
+
+loadOffers(event: any) {
+    this.loadingOs = true;
+
+    const page = event.first / event.rows;
+    const size = event.rows;
+
+    this.offerService
+      .getOffers(
+        this.selectedCity,
+        this.selectedTypeOs,
+        this.selectedPeriodOs,
+        page,
+        size
+      )
+      .subscribe({
+        next: (pageData) => {
+          this.offers = pageData.content;
+          this.totalRecords = pageData.totalElements; 
+          this.loadingOs = false;
+        },
+        error: () => (this.loadingOs = false),
+      });
+  }
+
+  reloadTable(){
+    this.osTable.reset();
   }
 }

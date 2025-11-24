@@ -270,7 +270,7 @@
                   severity="info"
                   icon="pi pi-check"
                   raised="true"
-                  (click)="openDialog()"
+                  (click)="openDialogOs()"
                 />
                 <p-button
                   label="Verificar Cabeamento"
@@ -741,3 +741,133 @@
     </ng-template>
   </p-dialog>
 </div>
+
+
+
+<p-dialog
+  [header]="'Ofertas Disponíveis'"
+  [resizable]="false"
+  [draggable]="false"
+  [(visible)]="dialogOs"
+  [style]="{ width: '60vw', height: '30vw' }"
+  class="dialogOs"
+>
+  <div class="linhaDropdown">
+    <p-inputgroup>
+      <p-inputgroup-addon>
+        <i class="pi pi-ticket"></i>
+      </p-inputgroup-addon>
+      <p-iftalabel>
+        <p-select
+          [options]="cities"
+          [(ngModel)]="selectedCity"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Selecione"
+          name="planos"
+          required
+          id="plan"
+          (onChange)="reloadTable()"
+        >
+        </p-select>
+        <label for="planos">Cidade</label>
+      </p-iftalabel>
+    </p-inputgroup>
+    <p-inputgroup>
+      <p-inputgroup-addon>
+        <i class="pi pi-ticket"></i>
+      </p-inputgroup-addon>
+      <p-iftalabel>
+        <p-select
+          [options]="typeOs"
+          [(ngModel)]="selectedTypeOs"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Selecione"
+          name="planos"
+          required
+          id="plan"
+          (onChange)="reloadTable()"
+        >
+        </p-select>
+        <label for="planos">Tipo de OS</label>
+      </p-iftalabel>
+    </p-inputgroup>
+    <p-inputgroup>
+      <p-inputgroup-addon>
+        <i class="pi pi-ticket"></i>
+      </p-inputgroup-addon>
+      <p-iftalabel>
+        <p-select
+          [options]="periodsOs"
+          [(ngModel)]="selectedPeriodOs"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Selecione"
+          name="planos"
+          required
+          id="plan"
+          (onChange)="reloadTable()"
+        >
+        </p-select>
+        <label for="planos">Períodos</label>
+      </p-iftalabel>
+    </p-inputgroup>
+  </div>
+  <div class="divider">
+    <p-divider></p-divider>
+  </div>
+  <div class="table">
+    <p-table
+      #osTable
+      header="OS"
+      [paginator]="true"
+      [rows]="8"
+      [lazy]="true"
+      (onLazyLoad)="loadOffers($event)"
+      [value]="offers"
+      [totalRecords]="totalRecords"
+    >
+      <!-- Cabeçalho -->
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Cidade</th>
+          <th>Tipo OS</th>
+          <th>Data</th>
+          <th>Período</th>
+          <th>Quantidade</th>
+          <th></th>
+        </tr>
+      </ng-template>
+
+      <!-- Corpo -->
+      <ng-template pTemplate="body" let-offer>
+        <tr>
+          <td>{{ offer.city }}</td>
+          <td>{{ offer.typeOfOs }}</td>
+          <td>{{ offer.date }}</td>
+          <td>{{ offer.period }}</td>
+          <td>{{ offer.total }}</td>
+          <td>
+             <button
+              pButton
+              size="small"
+              icon="pi pi-stop-circle"
+              severity="info"
+              rounded="true"
+              raised="true"
+            ></button>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="6" class="emptytable">
+            Não foi encontrado nenhum resultado para essa pesquisa.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</p-dialog>
