@@ -552,7 +552,7 @@ export class AlterDateExpiredComponent {
           severity: 'success',
           summary: 'Foto salva com sucesso!',
         });
-        this.limparPreview(); // Fecha o dialog de preview
+        this.limparPreview();
       },
       error: (err) => {
         this.messageService.add({
@@ -662,14 +662,6 @@ export class AlterDateExpiredComponent {
       this.isLoadingTransfer = false;
       this.showError('Erro', 'Falha ao preparar o arquivo para envio. Tente novamente.');
     }
-  }
-
-  private showWarning(summary: string, detail: string, life: number = 5000) {
-    this.messageService.add({ severity: 'warn', summary, detail, life });
-  }
-
-  private showInfo(summary: string, detail: string, life: number = 3000) {
-    this.messageService.add({ severity: 'info', summary, detail, life });
   }
 
   formatCpfCnpj(value: string): string {
