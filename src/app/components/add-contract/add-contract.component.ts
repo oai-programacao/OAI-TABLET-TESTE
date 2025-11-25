@@ -344,7 +344,7 @@ export class AddContractComponent implements OnInit {
   zoom = 15;
 
   selectContract: string | null = null;
-  selectedPlan: string | null = null;
+
   selectedInstallment: string | null = null;
   selectDateOfExpirationCicle: string | null = null;
   selectedResidence: string = '';
@@ -353,7 +353,6 @@ export class AddContractComponent implements OnInit {
     { label: 'Rural', value: 'rural' },
   ];
 
-  plans: { label: string; value: string }[] = [];
   typesOfContractOptions = [
     { label: 'Sem Fidelidade', value: '' },
     { label: 'Com Fidelidade', value: '12' },
@@ -380,6 +379,9 @@ export class AddContractComponent implements OnInit {
     localidade: 'São Paulo',
   };
 
+  selectedPlan: string | null = null;
+  plans: { label: string; value: string }[] = [];
+
   constructor(
     public messageService: MessageService,
     private dateUtils: DateUtilsService
@@ -391,8 +393,10 @@ export class AddContractComponent implements OnInit {
     this.planService.getPlans().subscribe({
       next: (data: Plan[]) => {
         this.plans = data.map((plan) => ({
-          label: plan.nome,
-          value: String(plan.codePlanRBX || ''),
+          label: `${plan.codePlanRBX} - ${plan.nome}`, 
+          value: String(plan.codePlanRBX || ''), 
+          code: String(plan.codePlanRBX || ''), 
+          name: plan.nome, 
         }));
       },
       error: (err) => {

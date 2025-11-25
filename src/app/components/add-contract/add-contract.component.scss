@@ -825,3 +825,12 @@
   }
 }
 
+
+:host ::ng-deep .p-select-overlay .p-select-filter {
+  width: 90% !important;
+  height: 1rem !important;    
+}
+
+:host ::ng-deep .p-select-header svg {
+  display: none !important;
+}
