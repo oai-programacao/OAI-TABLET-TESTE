@@ -73,11 +73,21 @@ export class WebSocketService {
               );
               break;
 
-            case 'ALTER_DATE_EXPIRED':
+            case 'offer_status_accept':
               this.toastService.showWithAnimation(
-                `📆 Vencimento do contrato foi alterado.<br>
-             Cliente: <b>${data.clientName}</b>`,
-                '/calendario.json'
+                `✅ Sua oferta foi <b>aceita</b>!<br>
+                ID: <b>${data.offerId}</b><br>
+                Quem aceitou: <b>${data.actionByName}</b>`,
+                '/sucessordem.json'
+              );
+              break;
+
+            case 'offer_status_reject':
+              this.toastService.showWithAnimation(
+                `❌ Sua oferta foi <b>rejeitada</b>!<br>
+                ID: <b>${data.offerId}</b><br>
+                Quem rejeitou: <b>${data.actionByName}</b>`,
+                '/rejectedordem.json'
               );
               break;
 
@@ -88,6 +98,13 @@ export class WebSocketService {
           }
         });
       });
+  }
+
+  public sendOfferRequest(dto: any): void {
+    this.rxStompService.publish({
+      destination: '/app/offer.request',
+      body: JSON.stringify(dto),
+    });
   }
 
   disconnect() {
