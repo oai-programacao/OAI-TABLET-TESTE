@@ -1,3 +1,4 @@
+import { WebSocketService } from './../../services/webSocket/websocket.service';
 import { BlockOffersRequestService } from './../../services/blockOffer/blockoffer.service';
 import {
   Component,
@@ -103,6 +104,7 @@ export class AddContractComponent implements OnInit {
   @ViewChild('signaturePadInDialog')
   signaturePadInDialog!: SignaturePadComponent;
   @ViewChild('osTable') osTable!: Table;
+  @ViewChild('formNewOs') formNewOs!: NgForm;
 
   private readonly router = inject(Router);
   private readonly offerService = inject(OffersService);
@@ -117,6 +119,7 @@ export class AddContractComponent implements OnInit {
   private readonly attendanceService = inject(AttendancesService);
   private readonly actionsContractsService = inject(ActionsContractsService);
   private readonly blockOfferService = inject(BlockOffersRequestService);
+  private readonly webSocketService = inject(WebSocketService);
   private stopPolling$ = new Subject<void>();
   private destroy$ = new Subject<void>();
 
@@ -165,11 +168,9 @@ export class AddContractComponent implements OnInit {
   ];
 
   selectedTypeNewOs: string = '';
-  typeNewOs = [
-    { label: 'Nova Instalação', value: 'INSTALLATION'}
-  ]
+  typeNewOs = [{ label: 'Nova Instalação', value: 'INSTALLATION' }];
 
-  selectedDate: string | null = null;
+  selectedDateNewOs: string | null = null;
 
   pdfPreviewUrl: string | null = null;
   pdfBlobFinal: Blob | null = null;
@@ -343,7 +344,7 @@ export class AddContractComponent implements OnInit {
   zoom = 15;
 
   selectContract: string | null = null;
-  selectedPlan: string | null = null;
+
   selectedInstallment: string | null = null;
   selectDateOfExpirationCicle: string | null = null;
   selectedResidence: string = '';
@@ -352,7 +353,6 @@ export class AddContractComponent implements OnInit {
     { label: 'Rural', value: 'rural' },
   ];
 
-  plans: { label: string; value: string }[] = [];
   typesOfContractOptions = [
     { label: 'Sem Fidelidade', value: '' },
     { label: 'Com Fidelidade', value: '12' },
@@ -379,6 +379,9 @@ export class AddContractComponent implements OnInit {
     localidade: 'São Paulo',
   };
 
+  selectedPlan: string | null = null;
+  plans: { label: string; value: string }[] = [];
+
   constructor(
     public messageService: MessageService,
     private dateUtils: DateUtilsService
@@ -390,8 +393,10 @@ export class AddContractComponent implements OnInit {
     this.planService.getPlans().subscribe({
       next: (data: Plan[]) => {
         this.plans = data.map((plan) => ({
-          label: plan.nome,
-          value: String(plan.codePlanRBX || ''),
+          label: `${plan.codePlanRBX} - ${plan.nome}`, 
+          value: String(plan.codePlanRBX || ''), 
+          code: String(plan.codePlanRBX || ''), 
+          name: plan.nome, 
         }));
       },
       error: (err) => {
@@ -1483,6 +1488,15 @@ export class AddContractComponent implements OnInit {
       });
   }
 
+  RequestOs(): void {
+    const payload: any = {
+      typeOfOs: this.typeNewOs,
+      city: this.selectedNewOsCity,
+      period: this.selectedNewPeriodOs,
+      date: this.selectedDateNewOs,
+    };
+  }
+
   getOfferBlockPeriodLabel(period: BlockPeriodOffers): string {
     return BlockPeriodOffersLabels[period] || 'Período Desconhecido';
   }
@@ -1501,12 +1515,44 @@ export class AddContractComponent implements OnInit {
     return comparableFormat ? new Date(comparableFormat + 'T00:00:00') : null;
   }
 
-
-
   clearFiltersOs() {
     this.selectedPeriodOs = '';
     this.selectedCity = '';
     this.selectedTypeOs = '';
     this.osTable.reset();
+  }
+
+  solicitarOs() {
+    if (
+      !this.selectedTypeNewOs ||
+      !this.selectedNewOsCity ||
+      !this.selectedPeriodOs ||
+      !this.selectedDateNewOs
+    ) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Campos obrigatórios',
+        detail: 'Preencha todos os campos antes de solicitar.',
+      });
+      return;
+    }
+
+    const payload = {
+      typeOfOs: this.selectedTypeNewOs,
+      city: this.selectedNewOsCity,
+      period: this.selectedPeriodOs,
+      date: this.selectedDateNewOs,
+    };
+
+    this.webSocketService.sendOfferRequest(payload);
+    this.dialogNewOs = false;
+
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Solicitação enviada',
+      detail: 'Sua OS foi enviada para análise!',
+    });
+
+    this.formNewOs.resetForm();
   }
 }

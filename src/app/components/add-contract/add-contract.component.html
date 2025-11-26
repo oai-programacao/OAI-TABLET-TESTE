@@ -44,6 +44,8 @@
                           name="planos"
                           required
                           id="plan"
+                          [filter]="true"
+                          filterBy="label,code,name"
                         >
                         </p-select>
                         <label for="planos">Plano de Internet*</label>
@@ -986,7 +988,14 @@
   [(visible)]="dialogOs"
   (onShow)="onDialogShow()"
   (onHide)="onDialogHide()"
-  [style]="{ width: '60vw', height: '30vw' }"
+  [style]="{
+    width: '700px',
+    height: '600px',
+    minWidth: '700px',
+    maxWidth: '700px',
+    minHeight: '500px',
+    maxHeight: '600px'
+  }"
   class="dialogOs"
 >
   <div class="linhaDropdown">
@@ -1047,8 +1056,14 @@
         <label for="periodsOs">Períodos</label>
       </p-iftalabel>
     </p-inputgroup>
-    <p-button icon="pi pi-eraser" size="large" severity="warn"
-     rounded="true" raised="true" (onClick)="clearFiltersOs()"></p-button>
+    <p-button
+      icon="pi pi-eraser"
+      size="large"
+      severity="warn"
+      rounded="true"
+      raised="true"
+      (onClick)="clearFiltersOs()"
+    ></p-button>
   </div>
   <div class="divider">
     <p-divider></p-divider>
@@ -1115,14 +1130,21 @@
   [draggable]="false"
   [(visible)]="dialogNewOs"
   (onShow)="onDialogNewOs()"
-  [style]="{ width: '25vw', height: '20vw' }"
+  [style]="{
+    width: '400px',
+    height: '400px',
+    minWidth: '400px',
+    maxWidth: '400px',
+    minHeight: '400px',
+    maxHeight: '350px'
+  }"
   class="dialogOs"
 >
   <div class="infoBlockOffers" *ngIf="activeBlock">
     <p>
       <i class="pi pi-info-circle mr-2"></i>
       Lembrete: As solicitações de oferta estão liberadas a partir de
-      <strong>{{ this.activeBlock?.initialDate || "***" }}</strong> no período
+      <strong>{{ this.activeBlock!.initialDate || "***" }}</strong> no período
       <strong>{{
         getOfferBlockPeriodLabel(this.activeBlock!.periodOffer)
       }}</strong
@@ -1130,88 +1152,94 @@
     </p>
   </div>
 
+  <form #formNewOs="ngForm">
     <div class="inputsNewOs">
       <p-inputgroup>
-      <p-inputgroup-addon>
-        <i class="pi pi-ticket"></i>
-      </p-inputgroup-addon>
-      <p-iftalabel>
-        <p-select
-          [options]="typeNewOs"
-          [(ngModel)]="selectedTypeNewOs"
-          optionLabel="label"
-          optionValue="value"
-          placeholder="Selecione"
-          name="typeOsNew"
-          required
-          id="typeOsNew"
-        >
-        </p-select>
-        <label for="typeOsNew">Tipo OS</label>
-      </p-iftalabel>
-    </p-inputgroup>
-    <p-inputgroup>
-      <p-inputgroup-addon>
-        <i class="pi pi-ticket"></i>
-      </p-inputgroup-addon>
-      <p-iftalabel>
-        <p-select
-          [options]="cities"
-          [(ngModel)]="selectedNewOsCity"
-          optionLabel="label"
-          optionValue="value"
-          placeholder="Selecione"
-          name="cidadeOsNew"
-          required
-          id="cidadeOsNew"
-        >
-        </p-select>
-        <label for="cidadeOsNew">Cidade</label>
-      </p-iftalabel>
-    </p-inputgroup>
+        <p-inputgroup-addon>
+          <i class="pi pi-ticket"></i>
+        </p-inputgroup-addon>
+        <p-iftalabel>
+          <p-select
+            [options]="typeNewOs"
+            [(ngModel)]="selectedTypeNewOs"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Selecione"
+            name="typeOsNew"
+            required
+            id="typeOsNew"
+          >
+          </p-select>
+          <label for="typeOsNew">Tipo OS</label>
+        </p-iftalabel>
+      </p-inputgroup>
+      <p-inputgroup>
+        <p-inputgroup-addon>
+          <i class="pi pi-ticket"></i>
+        </p-inputgroup-addon>
+        <p-iftalabel>
+          <p-select
+            [options]="cities"
+            [(ngModel)]="selectedNewOsCity"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Selecione"
+            name="cidadeOsNew"
+            required
+            id="cidadeOsNew"
+          >
+          </p-select>
+          <label for="cidadeOsNew">Cidade</label>
+        </p-iftalabel>
+      </p-inputgroup>
     </div>
-
 
     <div class="inputsNewOs">
       <p-inputgroup>
-      <p-inputgroup-addon>
-        <i class="pi pi-ticket"></i>
-      </p-inputgroup-addon>
-      <p-iftalabel>
-        <p-select
-          [options]="periodsOs"
-          [(ngModel)]="selectedPeriodOs"
-          optionLabel="label"
-          optionValue="value"
-          placeholder="Selecione"
-          name="periodoOsNew"
-          required
-          id="periodoOsNew"
+        <p-inputgroup-addon>
+          <i class="pi pi-ticket"></i>
+        </p-inputgroup-addon>
+        <p-iftalabel>
+          <p-select
+            [options]="periodsOs"
+            [(ngModel)]="selectedPeriodOs"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Selecione"
+            name="periodoOsNew"
+            required
+            id="periodoOsNew"
+          >
+          </p-select>
+          <label for="periodoOsNew">Períodos</label>
+        </p-iftalabel>
+      </p-inputgroup>
+
+      <div class="datepicker-wrapper">
+        <p-datepicker
+          id="date"
+          [(ngModel)]="selectedDateNewOs"
+          name="date"
+          dateFormat="dd/mm/yy"
+          [minDate]="minDateValue"
+          [showIcon]="true"
+          [disabledDays]="[0]"
+          dataType="string"
+          placeholder="Selecione a Data"
+          appendTo="body"
+          required="true"
         >
-        </p-select>
-        <label for="periodoOsNew">Períodos</label>
-      </p-iftalabel>
-    </p-inputgroup>
-
-    <div class="datepicker-wrapper">
-      <p-datepicker
-        id="date"
-        [(ngModel)]="selectedDate"
-        name="date"
-        dateFormat="dd/mm/yy"
-        [minDate]="minDateValue"
-        [showIcon]="true"
-        [disabledDays]="[0]"
-        dataType="string"
-        placeholder="Selecione a Data"
-        appendTo="body"
-      >
-      </p-datepicker>
+        </p-datepicker>
+      </div>
     </div>
-    </div>
-    
 
-  <div class="buttonsNewOs">
-    <p-button label="Solicitar OS" [severity]="'info'" [raised]="true"></p-button>
-  </div>
+    <div class="buttonsNewOs">
+      <p-button
+        label="Solicitar OS"
+        [severity]="'info'"
+        [raised]="true"
+        (onClick)="solicitarOs()"
+      ></p-button>
+    </div>
+  </form>
 </p-dialog>
