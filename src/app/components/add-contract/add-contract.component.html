@@ -989,12 +989,12 @@
   (onShow)="onDialogShow()"
   (onHide)="onDialogHide()"
   [style]="{
-    width: '700px',
-    height: '600px',
-    minWidth: '700px',
-    maxWidth: '700px',
-    minHeight: '500px',
-    maxHeight: '600px'
+    width: '800px',
+    height: '800px',
+    minWidth: '800px',
+    maxWidth: '800px',
+    minHeight: '800px',
+    maxHeight: '800px'
   }"
   class="dialogOs"
 >
@@ -1067,6 +1067,19 @@
   </div>
   <div class="divider">
     <p-divider></p-divider>
+    <div class="os-warning-box">
+      <i class="pi pi-exclamation-triangle icon-alert"></i>
+      <span>
+        As Ordens de Serviço (OS) são recursos únicos do sistema. Quando uma OS
+        aparece como
+        <span class="status-reserved">Reservada</span>, significa que outro
+        vendedor está utilizando-a no processo de venda. Caso a venda não seja
+        concluída dentro de <strong class="limit-time">10 minutos</strong>, a OS
+        será liberada automaticamente e retornará ao estado
+        <span class="status-available">Disponível</span>. <br />Caso não tenha
+        Horário envie uma solicitação para a Torre
+      </span>
+    </div>
   </div>
   <div class="table">
     <p-table
@@ -1087,7 +1100,7 @@
           <th>Tipo OS</th>
           <th>Data</th>
           <th>Período</th>
-          <th>Quantidade</th>
+          <th>Em uso ?</th>
           <th></th>
         </tr>
       </ng-template>
@@ -1099,15 +1112,60 @@
           <td>{{ offer.typeOfOs }}</td>
           <td>{{ offer.date }}</td>
           <td>{{ offer.period }}</td>
-          <td><p-tag [value]="offer.total" severity="success"></p-tag></td>
           <td>
+            <ng-container *ngIf="offer.reserved; else available">
+              <div class="reserved-box">
+                <p-tag severity="warn" value="Reservado"></p-tag>
+
+                <div class="reserved-info">
+                  <div>
+                    <i class="pi pi-user mr-1"></i>
+                    <strong> Por: </strong> {{ offer.reservedByName || "—" }}
+                  </div>
+
+                  <div>
+                    <i class="pi pi-clock mr-1"></i>
+                    <strong> Até: </strong>
+                    {{ offer.reservedUntil | date : "dd/MM/yyyy HH:mm" }}
+                  </div>
+
+                  <div *ngIf="offer.reservedAt">
+                    <i class="pi pi-calendar-plus mr-1"></i>
+                    <strong> Reservado em:</strong>
+                    {{ offer.reservedAt | date : "dd/MM/yyyy HH:mm" }}
+                  </div>
+                </div>
+              </div>
+            </ng-container>
+
+            <ng-template #available>
+              <p-tag severity="success" value="Disponível"></p-tag>
+            </ng-template>
+          </td>
+
+          <td>
+            <!-- SE NÃO ESTÁ RESERVADA -->
             <button
+              *ngIf="!offer.reserved"
               pButton
-              size="small"
-              icon="pi pi-stop-circle"
-              severity="info"
+              icon="pi pi-lock"
+              severity="success"
               rounded="true"
               [raised]="true"
+              size="small"
+              (click)="reserveOffer(offer)"
+            ></button>
+
+            <!-- SE ESTÁ RESERVADA -->
+            <button
+              *ngIf="offer.reserved"
+              pButton
+              icon="pi pi-unlock"
+              severity="danger"
+              rounded="true"
+              [raised]="true"
+              size="small"
+              (click)="unreserveOffer(offer)"
             ></button>
           </td>
         </tr>
