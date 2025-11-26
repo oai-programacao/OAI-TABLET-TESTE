@@ -27,9 +27,7 @@ export class OffersService {
 
     if (typeOfOs) {
       params = params.set('typeOfOs', typeOfOs);
-    }
-    
-    else {
+    } else {
       params = params.set('typeOfOs', 'INSTALLATION,TECHNICAL_VISIT');
     }
 
@@ -49,6 +47,19 @@ export class OffersService {
           number: pageData.page.number,
         }))
       );
+  }
+
+  reserveOffer(id: string, sellerId: string) {
+    return this.http.post(
+      `${this.baseUrl}/${id}/reserve?sellerId=${sellerId}`,
+      {}
+    );
+  }
+
+  unreserveOffer(id: string, sellerId: string) {
+    return this.http.delete(
+      `${this.baseUrl}/${id}/reserve?sellerId=${sellerId}`
+    );
   }
 
   // maps

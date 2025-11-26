@@ -393,10 +393,10 @@ export class AddContractComponent implements OnInit {
     this.planService.getPlans().subscribe({
       next: (data: Plan[]) => {
         this.plans = data.map((plan) => ({
-          label: `${plan.codePlanRBX} - ${plan.nome}`, 
-          value: String(plan.codePlanRBX || ''), 
-          code: String(plan.codePlanRBX || ''), 
-          name: plan.nome, 
+          label: `${plan.codePlanRBX} - ${plan.nome}`,
+          value: String(plan.codePlanRBX || ''),
+          code: String(plan.codePlanRBX || ''),
+          name: plan.nome,
         }));
       },
       error: (err) => {
@@ -1554,5 +1554,61 @@ export class AddContractComponent implements OnInit {
     });
 
     this.formNewOs.resetForm();
+  }
+
+  toggleReservation(offer: any) {
+    if (!offer.reserved) {
+      this.reserveOffer(offer);
+    } else {
+      this.unreserveOffer(offer);
+    }
+  }
+
+  reserveOffer(offer: any) {
+    const sellerId = this.authService.getSellerId()!;
+    const sellerName = this.authService.getUserFromToken()?.name; 
+
+    this.offerService.reserveOffer(offer.id, sellerId).subscribe({
+      next: (updatedOffer: any) => {
+        Object.assign(offer, updatedOffer);
+      },
+      error: (err) => {
+        if (err.status === 409) {
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'OS indisponível',
+            detail: 'Já está reservada por outro vendedor.',
+          });
+        }
+      },
+    });
+
+    offer.reserved = true;
+    offer.reservedBy = sellerId;
+    offer.reservedByName = sellerName;
+    offer.reservedAt = new Date();
+    offer.reservedUntil = new Date(Date.now() + 10 * 60000);
+  }
+
+  unreserveOffer(offer: any) {
+    const sellerId = this.authService.getSellerId()!;
+
+    this.offerService.unreserveOffer(offer.id, sellerId).subscribe({
+      next: () => {
+        offer.reserved = false;
+        offer.reservedBy = null;
+        offer.reservedAt = null;
+        offer.reservedUntil = null;
+      },
+      error: (err) => {
+        if (err.status === 403) {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Ação não permitida',
+            detail: 'Você não pode remover a reserva de outro vendedor.',
+          });
+        }
+      },
+    });
   }
 }

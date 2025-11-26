@@ -8,8 +8,12 @@
           <span class="dot green"></span>
         </div>
 
-        <div class="notification-container" (click)="openNotifications()">
-          <div class="bell" [class.ringing]="temNotificacao">
+        <div class="notification-container">
+          <div
+            class="bell"
+            [class.ringing]="temNotificacao"
+            (click)="openNotifications()"
+          >
             🔔
             <span *ngIf="temNotificacao" class="badge">
               {{ qtdNotificacoes }}
