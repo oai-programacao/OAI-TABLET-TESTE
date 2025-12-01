@@ -45,7 +45,7 @@
   display: flex;
   gap: 1rem;
   margin-left: 2rem;
-  justify-content: space-between;
+  justify-content: left;
 }
 
 .numbersOfInstallments {
@@ -344,7 +344,6 @@
 }
 
 // --- MODAL (DIALOG) ---
-// --- MODAL (DIALOG) ---
 .dialog-content {
   display: flex;
   flex-direction: column;
@@ -511,7 +510,7 @@
   }
 }
 
-// --- OVERLAY DE LOADING ---
+
 :host ::ng-deep .loading-overlay {
   position: fixed;
   top: 0;
@@ -870,3 +869,4 @@
   color: #d35400;
   font-weight: 700;
 }
+

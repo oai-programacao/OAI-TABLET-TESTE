@@ -3,10 +3,10 @@ export interface ContractFormData {
   salesId?: number;
   sellerId: string;
   clientId: string;
+  offerId: string;
   codePlan: number;
   dateStart: string;
   dateSignature: string;
-  dateOfAssignment?: string;
   dateExpired: string;
   adesion: number;
   numberParcels: number;
@@ -14,7 +14,6 @@ export interface ContractFormData {
   address: Address;
   discount: number;
   signature: string;
-  imagesOne?: string;
   observation?: string;
   situationDescription?: string;
   discountFixed?: number;
@@ -22,6 +21,10 @@ export interface ContractFormData {
   cicleFatId?: number;
   cicleBillingDayBase?: number;
   cicleBillingExpired?: number;
+  termConsentSales?: File[] | null;
+  clientType: string;
+  phone: string;
+  typeTechnology: string;
 }
 
 export interface Parcel {

@@ -25,7 +25,9 @@
         <div class="notificacao-texto">
           <h4>
             {{ n.type === 'TERM_ALTER_DATE' ? 'Termo de Alteração de Fatura' : 
-               n.type === 'BILL_PAID_ALTER_DATE' ? 'Boleto Compensado' : n.type }}
+               n.type === 'BILL_PAID_ALTER_DATE' ? 'Boleto Compensado' : 
+               n.type === 'CONTRACT_CANCEL' ? 'Contrato Cancelado' :
+               n.type === 'NEW_CONTRACT' ? 'Novo Contrato' : n.type }}
           </h4>
           <p>{{ n.message }}</p>
           <span class="data">{{ n.createdAt | date : "short" }}</span>

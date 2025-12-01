@@ -3,15 +3,20 @@ import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
 import { filter, take } from 'rxjs/operators';
 import { WebSocketService } from './services/webSocket/websocket.service';
 import { AuthService } from './core/auth.service';
+import { FullScreenLottieComponent } from './shared/components/fullscreen-lottie/fullscreen-lottie-component';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, FullScreenLottieComponent],
 })
 export class AppComponent implements OnInit {
+  globalLottieTrigger = false;
+  globalLottiePath = '';
+  globalLottieDuration = 7000;
+
   constructor(
     private wsService: WebSocketService,
     private authService: AuthService,
@@ -64,4 +69,14 @@ export class AppComponent implements OnInit {
         .catch((err) => console.error('[router.navigate]', err));
     }
   }
+
+  triggerLottie(path: string, duration = 3000) {
+    this.globalLottiePath = path;
+    this.globalLottieDuration = duration;
+    this.globalLottieTrigger = false;
+
+    setTimeout(() => (this.globalLottieTrigger = true), 50);
+  }
+
+  
 }
