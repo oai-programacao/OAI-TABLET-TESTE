@@ -34,8 +34,7 @@ export interface ConsentTermPermanentRequest{
   city: string;
   state: string;
   zipCode: string;
-  discount: string;
-  discountFixed: string;
+  discountFixe: string;
   contractDueDay: string;
   signatureBase64?: string;
 }
@@ -50,8 +49,7 @@ export interface ConsentTermAdesionRequest{
   city: string;
   state: string;
   zipCode: string;
-  discount: string;
-  discountFixed: string;
+  discountFixe: string;
   contractDueDay: string;
   signatureBase64?: string;
 }

@@ -261,7 +261,6 @@ export class AddContractComponent implements OnInit {
     dateExpired: '',
     adesion: 0,
     numberParcels: 0,
-    parcels: [],
     address: {
       zipCode: '',
       state: '',
@@ -271,12 +270,11 @@ export class AddContractComponent implements OnInit {
       complement: '',
       neighborhood: '',
     },
-    discount: 0,
     signature: '',
     observation: '',
     termConsentSales: undefined,
     situationDescription: undefined,
-    discountFixed: undefined,
+    discountFixe: undefined,
     vigencia: 0,
     cicleFatId: 0,
     cicleBillingDayBase: 0,
@@ -381,9 +379,8 @@ export class AddContractComponent implements OnInit {
   center: google.maps.LatLngLiteral = { lat: -23.55052, lng: -46.633308 };
   zoom = 15;
 
-  selectContract: string | null = null;
 
-  selectedInstallment: string | null = null;
+  
   selectDateOfExpirationCicle: string | null = null;
   selectedResidence: string = '';
   typeOfResidenceOptions = [
@@ -391,11 +388,14 @@ export class AddContractComponent implements OnInit {
     { label: 'Rural', value: 'rural' },
   ];
 
+  selectContract: boolean | null = null;
   typesOfContractOptions = [
-    { label: 'Sem Fidelidade', value: '0' },
-    { label: 'Com Fidelidade', value: '12' },
+    { label: 'Sem Fidelidade', value: false },
+    { label: 'Com Fidelidade', value: true },
   ];
 
+
+  selectedInstallment: number | null = null;
   numbersOfInstallments = [
     ...Array.from({ length: 24 }, (_, i) => ({
       label: `${i + 1}x`,
@@ -664,14 +664,13 @@ export class AddContractComponent implements OnInit {
           this.dateUtils.formatToLocalDateString(
             this.dateOfMemberShipExpiration
           ) || '',
-        adesion: Number(this.contractFormData.adesion) || 100.0,
-        numberParcels: Number(this.selectedInstallment),
+        adesion: Number(this.contractFormData.adesion),
+        numberParcels: this.selectedInstallment,
         parcels: [],
         address: { ...this.contractFormData.address },
-        discount: 0.0,
         observation: this.contractFormData.observation || '',
         situationDescription: '',
-        discountFixed: Number(35.0),
+        discountFixe: this.contractFormData.discountFixe || 0.0,
         vigencia: Number(this.contractFormData.vigencia || 12),
         cicleFatId: Number(selectedCycle!.id),
         cicleBillingDayBase: Number(selectedCycle!.dia),
@@ -681,6 +680,7 @@ export class AddContractComponent implements OnInit {
         clientType: this.selectedClientType || '',
         phone: this.contractFormData.phone || '',
         typeTechnology: this.selectedTechnology || '',
+        loyalty: this.selectContract,
       };
 
       const formData = new FormData();
@@ -738,8 +738,7 @@ export class AddContractComponent implements OnInit {
     // --- Step 1 ---
     if (this.activeStep === 1) {
       if (!this.selectedPlan) invalidFields.push('Plano de Internet');
-      if (!this.contractFormData.adesion)
-        invalidFields.push('Desconto de Adesão');
+      if (!this.contractFormData.adesion) invalidFields.push('Preço da Adesão');
       if (!this.dateOfStart) invalidFields.push('Data de Início');
       if (!this.dateOfAssignment) invalidFields.push('Data de Assinatura');
       if (!this.dateOfMemberShipExpiration)
@@ -749,6 +748,7 @@ export class AddContractComponent implements OnInit {
       if (!this.selectContract) invalidFields.push('Tipo de Contrato');
       if (!this.selectedClientType) invalidFields.push('Tipo de Cliente');
       if (!this.selectedTechnology) invalidFields.push('Tipo de Tecnologia');
+      if (!this.selectedInstallment) invalidFields.push('Número de Parcelas Adesão');
 
       this.step1Completed = invalidFields.length === 0;
     }
@@ -866,8 +866,7 @@ export class AddContractComponent implements OnInit {
           this.dateUtils.formatToLocalDateString(
             this.dateOfMemberShipExpiration
           ) || '',
-        discount: this.contractFormData.discount.toString(),
-        discountFixed: this.contractFormData.discountFixed?.toString() || '0',
+        discountFixe: this.contractFormData.discountFixe?.toString() || '0',
       };
 
       const permanenceData: ConsentTermPermanentRequest = {
@@ -880,8 +879,7 @@ export class AddContractComponent implements OnInit {
         state: adesionData.state,
         zipCode: adesionData.zipCode,
         contractDueDay: adesionData.contractDueDay,
-        discount: adesionData.discount,
-        discountFixed: adesionData.discountFixed,
+        discountFixe: adesionData.discountFixe,
       };
 
       const mappedSigners = [
@@ -897,8 +895,6 @@ export class AddContractComponent implements OnInit {
         permanenceData: permanenceData,
         signers: mappedSigners,
       };
-
-      console.log('Enviando para o Autentique');
 
       this.actionsContractsService
         .sendContractSalesAutentique(payload, this.clientId)
@@ -1059,8 +1055,7 @@ export class AddContractComponent implements OnInit {
         codePlanRBX: Number(this.selectedPlan),
         ...this.contractFormData.address,
         complement: this.contractFormData.address.complement || '',
-        discount: this.contractFormData.discount.toString(),
-        discountFixed: this.contractFormData.discountFixed?.toString() || '0',
+        discountFixe: this.contractFormData.discountFixe?.toString() || '0',
         contractDueDay:
           this.dateUtils.formatToLocalDateString(
             this.dateOfMemberShipExpiration
@@ -1114,8 +1109,7 @@ export class AddContractComponent implements OnInit {
         codePlanRBX: Number(this.selectedPlan),
         ...this.contractFormData.address,
         complement: this.contractFormData.address.complement || '',
-        discount: this.contractFormData.discount.toString(),
-        discountFixed: this.contractFormData.discountFixed?.toString() || '0',
+        discountFixe: this.contractFormData.discountFixe?.toString() || '0',
         contractDueDay:
           this.dateUtils.formatToLocalDateString(
             this.dateOfMemberShipExpiration
@@ -1255,8 +1249,7 @@ export class AddContractComponent implements OnInit {
       adesion: this.contractFormData.adesion
         ? Number(this.contractFormData.adesion)
         : null,
-      discount: this.contractFormData.discount || 0,
-      descountFixe: this.contractFormData.discountFixed?.toString() || '0',
+      discountFixe: this.contractFormData.discountFixe?.toString() || '0',
       vigencia: String(this.contractFormData.vigencia || 12),
       cicleFatId: selectedCycle ? Number(selectedCycle.id) : null,
       cicleBillingDayBase: selectedCycle ? Number(selectedCycle.dia) : null,
@@ -1327,9 +1320,9 @@ export class AddContractComponent implements OnInit {
           Object.assign(this.contractFormData, draft);
 
           this.selectedPlan = draft.codeplan || '';
-          this.selectedInstallment = draft.installments || '';
+          this.selectedInstallment = draft.installments || null;
           this.selectDateOfExpirationCicle = draft.expirationCycle || '';
-          this.selectContract = draft.contractType || '';
+          this.selectContract = draft.contractType;
 
           if (draft.startDate) {
             this.dateOfStart = this.dateUtils.parseDate(draft.startDate);

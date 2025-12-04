@@ -51,7 +51,7 @@
                         <label for="plans">Plano de Internet*</label>
                       </p-iftalabel>
                     </p-inputgroup>
-
+                    
                     <div>
                       <p-inputgroup>
                         <p-inputgroup-addon>
@@ -61,8 +61,8 @@
                           <input
                             size="large"
                             pInputText
-                            id="descount"
-                            name="descount"
+                            id="adesion"
+                            name="adesion"
                             type="text"
                             required
                             maxlength="18"
@@ -78,10 +78,40 @@
                             [maxLength]="7"
                             [(ngModel)]="contractFormData.adesion"
                           />
-                          <label for="descount">Preço de Adesão*</label>
+                          <label for="adesion">Preço de Adesão*</label>
                         </p-iftalabel>
                       </p-inputgroup>
                     </div>
+
+                    <div>
+                    <p-inputgroup>
+                      <p-inputgroup-addon>
+                        <i class="pi pi-ticket"></i>
+                      </p-inputgroup-addon>
+                      <p-iftalabel>
+                        <input
+                          size="large"
+                          pInputText
+                          id="discountContract"
+                          name="discountContract"
+                          type="text"
+                          maxlength="18"
+                          [currencyMask]="{
+                            prefix: 'R$ ',
+                            thousands: '.',
+                            decimal: ',',
+                            align: 'left'
+                          }"
+                          inputmode="numeric"
+                          pattern="[0-9]*"
+                          placeholder="R$ 0,00"
+                          [maxLength]="7"
+                          [(ngModel)]="contractFormData.discountFixe"
+                        />
+                        <label for="plans">Desconto Contrato*</label>
+                      </p-iftalabel>
+                    </p-inputgroup>
+                  </div>
                   </div>
 
                   <div class="space-stepper1">
@@ -142,6 +172,7 @@
                             optionValue="value"
                             placeholder="Selecione 1x a 24x"
                             name="parcelas"
+                            required
                           >
                           </p-select>
                           <label for="parcelas"

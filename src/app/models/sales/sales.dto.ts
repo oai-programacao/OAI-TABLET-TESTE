@@ -10,13 +10,11 @@ export interface ContractFormData {
   dateExpired: string;
   adesion: number;
   numberParcels: number;
-  parcels: Parcel[];
   address: Address;
-  discount: number;
   signature: string;
   observation?: string;
   situationDescription?: string;
-  discountFixed?: number;
+  discountFixe?: number;
   vigencia?: number;
   cicleFatId?: number;
   cicleBillingDayBase?: number;
@@ -25,12 +23,7 @@ export interface ContractFormData {
   clientType: string;
   phone: string;
   typeTechnology: string;
-}
-
-export interface Parcel {
-  description: string;
-  dueDate: string;
-  price: number;
+  loyalty?: boolean;
 }
 
 export interface Address {
