@@ -24,12 +24,19 @@ export interface ConsentTermAddressRequest {
   paymentForm: null | string;
 }
 
-export interface ConsentTermPermanentRequest{
+export interface ContractSuspenseRequest {
+  contractId: string;
+  startDate: string;
+  duration: number;
+  signatureBase64: string | null;
+}
+
+export interface ConsentTermPermanentRequest {
   clientId: string;
   codePlanRBX: number;
   street: string;
   number: string;
-  complement?: string;  
+  complement?: string;
   neighborhood: string;
   city: string;
   state: string;
@@ -39,12 +46,12 @@ export interface ConsentTermPermanentRequest{
   signatureBase64?: string;
 }
 
-export interface ConsentTermAdesionRequest{
+export interface ConsentTermAdesionRequest {
   clientId: string;
   codePlanRBX: number;
   street: string;
   number: string;
-  complement?: string;  
+  complement?: string;
   neighborhood: string;
   city: string;
   state: string;
@@ -84,6 +91,12 @@ export class ReportsService {
     requestBody: ConsentTermAddressRequest
   ): Observable<Blob> {
     const url = `${this.baseUrl}/update-address/${clientId}/${contractId}`;
+    return this.http.post(url, requestBody, { responseType: 'blob' });
+  }
+
+  getConsentTermSuspensionContractPdf(requestBody: ContractSuspenseRequest
+  ): Observable<Blob> {
+    const url = `${this.baseUrl}/suspension-contract`;
     return this.http.post(url, requestBody, { responseType: 'blob' });
   }
 
@@ -128,12 +141,12 @@ export class ReportsService {
   }
 
   getContractDisplayPdf(
-    clientId: string, 
+    clientId: string,
     contractData: any): Observable<Blob> {
-  return this.http.post(`${this.baseUrl}/display-contract/${clientId}`, contractData, {
-    responseType: 'blob'
-  });
-}
+    return this.http.post(`${this.baseUrl}/display-contract/${clientId}`, contractData, {
+      responseType: 'blob'
+    });
+  }
 }
 
 

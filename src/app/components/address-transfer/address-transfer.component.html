@@ -367,8 +367,6 @@
             </ng-template>
           </p-step-panel>
 
-        
-
           <p-step-panel [value]="3">
             <ng-template #content let-activateCallback="activateCallback">
                <div *ngIf="isLoadingPreview" class="loading-overlay">
@@ -478,116 +476,115 @@
           </p-step-panel>
 
 
-<p-step-panel [value]="4">
-  <ng-template #content let-activateCallback="activateCallback">
-    
-    <div *ngIf="isSubmitting" class="loading-overlay">
-     <p-progressSpinner
-              styleClass="w-6rem h-6rem"
-              strokeWidth="6"
-              animationDuration=".5s"
-            ></p-progressSpinner>
-      <span class="loading-text">Processando alteração...</span>
-    </div>
-
-    <div *ngIf="finalization; else estadoConfirmacao">
-      <div class="step-finalization">
-        <div class="step-body">
-          
-          <div class="table-finalization">
-            <p-table [value]="[
-                 { campo: 'Cliente', valor: result?.clientName },
-                 { campo: 'CPF/CNPJ', valor: formatCpfCnpj(result?.clientCpf) },
-                 { campo: 'Contrato', valor: result?.contrato },
-                 { campo: 'Novo Endereço', valor: result?.novoEndereco },
-                 { campo: 'Valor da Adesão', valor: result?.adesionValue, isCurrency: true },
-                 { campo: 'Documento', valor: result?.documentoRbx },
-                 { campo: 'Boleto', valor: 'link' }
-               ]">
+          <p-step-panel [value]="4">
+            <ng-template #content let-activateCallback="activateCallback">
               
-              <ng-template pTemplate="header">
-                <tr>
-                  <th>Resumo da Operação</th>
-                  <th> </th>
-                </tr>
+              <div *ngIf="isSubmitting" class="loading-overlay">
+              <p-progressSpinner
+                        styleClass="w-6rem h-6rem"
+                        strokeWidth="6"
+                        animationDuration=".5s"
+                      ></p-progressSpinner>
+                <span class="loading-text">Processando alteração...</span>
+              </div>
+
+              <div *ngIf="finalization; else estadoConfirmacao">
+                <div class="step-finalization">
+                  <div class="step-body">
+                    
+                    <div class="table-finalization">
+                      <p-table [value]="[
+                          { campo: 'Cliente', valor: result?.clientName },
+                          { campo: 'CPF/CNPJ', valor: formatCpfCnpj(result?.clientCpf) },
+                          { campo: 'Contrato', valor: result?.contrato },
+                          { campo: 'Novo Endereço', valor: result?.novoEndereco },
+                          { campo: 'Valor da Adesão', valor: result?.adesionValue, isCurrency: true },
+                          { campo: 'Documento', valor: result?.documentoRbx },
+                          { campo: 'Boleto', valor: 'link' }
+                        ]">
+                        
+                        <ng-template pTemplate="header">
+                          <tr>
+                            <th>Resumo da Operação</th>
+                            <th> </th>
+                          </tr>
+                        </ng-template>
+
+                        <ng-template pTemplate="body" let-row>
+                          <tr>
+                            <td><strong>{{ row.campo }}</strong></td>
+                            
+                            <td *ngIf="row.valor !== 'link'">
+                              <span *ngIf="row.isCurrency">{{ row.valor | currency:'BRL':'symbol':'1.2-2' }}</span>
+                              <span *ngIf="!row.isCurrency">{{ row.valor }}</span>
+                            </td>
+                            
+                            <td *ngIf="row.valor === 'link'">
+                              <a *ngIf="result?.linkBoleto" [href]="result?.linkBoleto" target="_blank">
+                                Clique para abrir o boleto
+                              </a>
+                              <span *ngIf="!result?.linkBoleto" style="color: #999;">
+                                (Sem boleto gerado)
+                              </span>
+                            </td>
+                          </tr>
+                        </ng-template>
+                      </p-table>
+                    </div>
+
+                    <div class="button-finalization">
+                      <p-button 
+                        label="Voltar ao Menu do Cliente" 
+                        icon="pi pi-home" 
+                        severity="success"
+                        [raised]="true" 
+                        [rounded]="true" 
+                        size="large"
+                        (onClick)="navigateToInfoClient()">
+                      </p-button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <ng-template #estadoConfirmacao>
+                <div class="step-footer" style="margin-top: 2rem;">
+                    <div class="proportional-info" style="background-color: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 1.5rem; margin-bottom: 2rem; border-radius: 4px; text-align: center;">
+                      <span class="footer-title" style="font-weight: 600; color: #0c4a6e; font-size: 1.2rem; display: block;">
+                        Deseja confirmar a alteração de endereço?
+                      </span>
+                      <div style="margin-top: 0.5rem; color: #334155;">
+                          Verifique se o termo foi assinado corretamente antes de prosseguir.
+                      </div>
+                    </div>
+                    
+                    <div class="footer-actions" style="display: flex; justify-content: center; gap: 1rem;">
+                      <p-button 
+                          label="Voltar" 
+                          severity="secondary" 
+                          icon="pi pi-arrow-left" 
+                          size="large"
+                          [raised]="true" 
+                          [rounded]="true"
+                          (onClick)="activateCallback(3)">
+                      </p-button>
+                      
+                      <p-button 
+                          label="Confirmar Alteração" 
+                          severity="help" 
+                          icon="pi pi-check" 
+                          size="large"
+                          [raised]="true" 
+                          [rounded]="true"
+                          [disabled]="!(pdfBlobFinal || pdfWasDownloaded)" 
+                          (onClick)="onConfirmAddressChange()">
+                      </p-button>
+                    </div>
+                </div>
               </ng-template>
 
-              <ng-template pTemplate="body" let-row>
-                <tr>
-                  <td><strong>{{ row.campo }}</strong></td>
-                  
-                  <td *ngIf="row.valor !== 'link'">
-                    <span *ngIf="row.isCurrency">{{ row.valor | currency:'BRL':'symbol':'1.2-2' }}</span>
-                    <span *ngIf="!row.isCurrency">{{ row.valor }}</span>
-                  </td>
-                  
-                  <td *ngIf="row.valor === 'link'">
-                    <a *ngIf="result?.linkBoleto" [href]="result?.linkBoleto" target="_blank">
-                      Clique para abrir o boleto
-                    </a>
-                    <span *ngIf="!result?.linkBoleto" style="color: #999;">
-                      (Sem boleto gerado)
-                    </span>
-                  </td>
-                </tr>
-              </ng-template>
-            </p-table>
-          </div>
-
-          <div class="button-finalization">
-            <p-button 
-              label="Voltar ao Menu do Cliente" 
-              icon="pi pi-home" 
-              severity="success"
-              [raised]="true" 
-              [rounded]="true" 
-              size="large"
-              (onClick)="navigateToInfoClient()">
-            </p-button>
-          </div>
-
-        </div>
-      </div>
-    </div>
-
-    <ng-template #estadoConfirmacao>
-       <div class="step-footer" style="margin-top: 2rem;">
-          <div class="proportional-info" style="background-color: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 1.5rem; margin-bottom: 2rem; border-radius: 4px; text-align: center;">
-             <span class="footer-title" style="font-weight: 600; color: #0c4a6e; font-size: 1.2rem; display: block;">
-               Deseja confirmar a alteração de endereço?
-             </span>
-             <div style="margin-top: 0.5rem; color: #334155;">
-                Verifique se o termo foi assinado corretamente antes de prosseguir.
-             </div>
-          </div>
-          
-          <div class="footer-actions" style="display: flex; justify-content: center; gap: 1rem;">
-             <p-button 
-                label="Voltar" 
-                severity="secondary" 
-                icon="pi pi-arrow-left" 
-                size="large"
-                [raised]="true" 
-                [rounded]="true"
-                (onClick)="activateCallback(3)">
-             </p-button>
-             
-             <p-button 
-                label="Confirmar Alteração" 
-                severity="help" 
-                icon="pi pi-check" 
-                size="large"
-                [raised]="true" 
-                [rounded]="true"
-                [disabled]="!(pdfBlobFinal || pdfWasDownloaded)" 
-                (onClick)="onConfirmAddressChange()">
-             </p-button>
-          </div>
-       </div>
-    </ng-template>
-
-  </ng-template>
-</p-step-panel>
+            </ng-template>
+          </p-step-panel>
         </p-step-panels>
       </p-stepper>
     </div>

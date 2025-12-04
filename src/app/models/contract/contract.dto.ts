@@ -35,6 +35,7 @@ export interface Contract {
     cicleBillingDayBase: number | null;
     cicleBillingExpired: number | null;
     vigencia: number | null;
+    suspensionScheduled: number | null;
 }
 
 export interface RequestDateTransfer {
@@ -49,3 +50,7 @@ export interface RequestDateTransfer {
     pdfBytes: string;
 }
 
+export interface RequestContractSuspendDTO {
+    dateInitialSuspension: string;
+    duration: number
+}

@@ -94,7 +94,7 @@ export interface AddressForm {
     SelectModule,
     TooltipModule,
     TableModule
-  
+
   ],
   providers: [MessageService, AttendancesService],
   templateUrl: './address-transfer.component.html',
@@ -147,9 +147,9 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
 
   isPreviewDialogVisible: boolean = false;
 
-   result: any = null;
+  result: any = null;
 
-   pdfWasDownloaded: boolean = false;
+  pdfWasDownloaded: boolean = false;
 
   public currentContract!: Contract;
   public isLoading = false;
@@ -163,7 +163,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   public isEditingAddress = false;
   private originalAddressForm: AddressForm | null = null;
 
-  
+
   public loadingMessage: string | null = null;
 
   private showWarning(summary: string, detail: string, life?: number): void {
@@ -247,7 +247,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     if (clientIdFromRoute && contractIdFromRoute) {
       this.clientId = clientIdFromRoute;
       this.contractId = contractIdFromRoute;
-      
+
       return;
     }
 
@@ -678,18 +678,18 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
 
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
-  if (isIOS) {
-    window.open(this.pdfPreviewUrl, '_blank');
-  } else {
-    const link = document.createElement('a');
-    link.href = this.pdfPreviewUrl;
-    link.download = 'termo_de_consentimento.pdf';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    this.pdfWasDownloaded = true;
+    if (isIOS) {
+      window.open(this.pdfPreviewUrl, '_blank');
+    } else {
+      const link = document.createElement('a');
+      link.href = this.pdfPreviewUrl;
+      link.download = 'termo_de_consentimento.pdf';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      this.pdfWasDownloaded = true;
+    }
   }
-}
 
   isPdfViewerLoaded: boolean = false;
 
@@ -716,7 +716,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     );
   }
 
- async onConfirmAddressChange() {
+  async onConfirmAddressChange() {
     if (!this.currentContract) {
       this.messageService.add({
         severity: 'error',
@@ -738,99 +738,99 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     this.isSubmitting = true;
 
     try {
-    // 2. Converter PDF para Base64
-    let pdfBase64Clean = '';
-    if (this.pdfBlobFinal) {
-      const fullBase64 = await this.blobToBase64(this.pdfBlobFinal);
-      // Remove o prefixo "data:application/pdf;base64," se existir
-      pdfBase64Clean = fullBase64.includes(',') ? fullBase64.split(',')[1] : fullBase64;
-    }
-
-     const payload = {
-      clientId: this.currentContract.clientId,
-      contractId: this.currentContract.id,
-      adesion: this.addressNewForm.adesionValue || 0,
-      pdfBytes: pdfBase64Clean,
-      address: {
-        cep: this.addressNewForm.zipCode,
-        uf: this.addressNewForm.uf,
-        cidade: this.addressNewForm.city,
-        rua: this.addressNewForm.street,
-        numero: this.addressNewForm.numberFromHome,
-        bairro: this.addressNewForm.neighborhood,
-        complemento: this.addressNewForm.complement,
+      // 2. Converter PDF para Base64
+      let pdfBase64Clean = '';
+      if (this.pdfBlobFinal) {
+        const fullBase64 = await this.blobToBase64(this.pdfBlobFinal);
+        // Remove o prefixo "data:application/pdf;base64," se existir
+        pdfBase64Clean = fullBase64.includes(',') ? fullBase64.split(',')[1] : fullBase64;
       }
-    };
 
-    this.contractsService.updateAddressContract(this.currentContract.id, payload).pipe(
-      finalize(() => {
+      const payload = {
+        clientId: this.currentContract.clientId,
+        contractId: this.currentContract.id,
+        adesion: this.addressNewForm.adesionValue || 0,
+        pdfBytes: pdfBase64Clean,
+        address: {
+          cep: this.addressNewForm.zipCode,
+          uf: this.addressNewForm.uf,
+          cidade: this.addressNewForm.city,
+          rua: this.addressNewForm.street,
+          numero: this.addressNewForm.numberFromHome,
+          bairro: this.addressNewForm.neighborhood,
+          complemento: this.addressNewForm.complement,
+        }
+      };
+
+      this.contractsService.updateAddressContract(this.currentContract.id, payload).pipe(
+        finalize(() => {
           this.isLoading = false;
           this.isSubmitting = false;
-      })
-  ).subscribe({
-    next: (response: any) => {
-      
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Sucesso!',
-        detail: 'Endereço atualizado!',
+        })
+      ).subscribe({
+        next: (response: any) => {
+
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Sucesso!',
+            detail: 'Endereço atualizado!',
+          });
+          if (this.pdfBlobFinal) {
+            this.registerAttendance(this.pdfBlobFinal, response.linkBoleto);
+          } else {
+            console.warn("PDF não encontrado, o atendimento não será registrado.");
+          }
+
+          const enderecoCompleto = `${this.addressNewForm.street}, ${this.addressNewForm.numberFromHome} - ${this.addressNewForm.neighborhood}`;
+          const cidadeUF = `${this.addressNewForm.city}/${this.addressNewForm.uf}`;
+          const enderecoFinalizado = `${enderecoCompleto} | ${cidadeUF}`;
+
+          this.result = {
+            clientName: this.client?.name || this.client?.socialName || 'Cliente Indisponível',
+            clientCpf: this.formatCpfCnpj(this.client?.cpf || this.client?.cnpj || 'N/A'),
+            contrato: this.currentContract?.codeContractRbx || this.currentContract?.id,
+            novoEndereco: enderecoFinalizado,
+            cidade: `${this.addressNewForm.city}/${this.addressNewForm.uf}`,
+
+            adesionValue: this.addressNewForm.adesionValue || 0,
+
+            documentoRbx: response?.numeroDocumento || response?.protocolo || 'Processado',
+            linkBoleto: response?.linkBoleto
+          };
+
+          console.log('Final Result Object:', this.result);
+          this.finalization = true;
+        },
+        error: (err) => {
+          this.isLoading = false;
+          const detailMessage =
+            err?.error?.message || 'Falha ao atualizar o endereço.';
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erro',
+            detail: detailMessage,
+          });
+        },
       });
-        if (this.pdfBlobFinal) {
-          this.registerAttendance(this.pdfBlobFinal, response.linkBoleto);
-        } else {
-          console.warn("PDF não encontrado, o atendimento não será registrado.");
-        }
-
-        const enderecoCompleto = `${this.addressNewForm.street}, ${this.addressNewForm.numberFromHome} - ${this.addressNewForm.neighborhood}`;
-        const cidadeUF = `${this.addressNewForm.city}/${this.addressNewForm.uf}`;
-        const enderecoFinalizado = `${enderecoCompleto} | ${cidadeUF}`;
-
-        this.result = {
-          clientName: this.client?.name || this.client?.socialName || 'Cliente Indisponível',
-        clientCpf: this.formatCpfCnpj(this.client?.cpf || this.client?.cnpj || 'N/A'),
-          contrato: this.currentContract?.codeContractRbx || this.currentContract?.id,
-         novoEndereco: enderecoFinalizado,
-         cidade: `${this.addressNewForm.city}/${this.addressNewForm.uf}`,
-
-    adesionValue: this.addressNewForm.adesionValue || 0,
-
-    documentoRbx: response?.numeroDocumento || response?.protocolo || 'Processado',
-    linkBoleto: response?.linkBoleto
-        };
-
-        console.log('Final Result Object:', this.result);
-        this.finalization = true;
-      },
-      error: (err) => {
-        this.isLoading = false;
-        const detailMessage =
-          err?.error?.message || 'Falha ao atualizar o endereço.';
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro',
-          detail: detailMessage,
-        });
-      },
-    });
-  }catch (error) {
-    console.error("Erro ao processar PDF", error);
-    this.isLoading = false;
-    this.isSubmitting = false;
-    this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao processar o arquivo PDF.' });
+    } catch (error) {
+      console.error("Erro ao processar PDF", error);
+      this.isLoading = false;
+      this.isSubmitting = false;
+      this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao processar o arquivo PDF.' });
+    }
   }
- }
 
   blobToBase64(blob: Blob): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
-}
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
 
 
-private registerAttendance(pdfBlob: Blob, linkBoleto: string): void {
+  private registerAttendance(pdfBlob: Blob, linkBoleto: string): void {
     if (!this.clientId || !this.contractId) {
       console.error("registerAttendance: ClientID ou ContractID estão ausentes.");
       return;
@@ -881,7 +881,7 @@ private registerAttendance(pdfBlob: Blob, linkBoleto: string): void {
     return `${numero}`;
   }
 
-    navigateToInfoClient() {
+  navigateToInfoClient() {
     if (this.clientId) {
       this.router.navigate(["info", this.clientId])
     } else {
@@ -893,8 +893,8 @@ private registerAttendance(pdfBlob: Blob, linkBoleto: string): void {
     this.clientService.getClientById(this.clientId).subscribe({
       next: (clientData: Cliente) => {
         this.client = clientData;
-},
-error: (err) => {
+      },
+      error: (err) => {
         console.error("Erro ao carregar dados do cliente:", err);
       }
     });
