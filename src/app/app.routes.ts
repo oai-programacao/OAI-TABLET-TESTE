@@ -111,6 +111,14 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
   },
   {
+    path: 'suspension-temporary/:clientId/:contractId',
+    loadComponent: () =>
+      import(
+        './components/suspension-temporary/suspension-temporary.component'
+      ).then((m) => m.SuspensionTemporaryComponent),
+    canActivate: [AuthGuard]
+  },
+  {
     path: 'transfer-ownership/:clientId/:contractId',
     loadComponent: () =>
       import(
@@ -133,7 +141,7 @@ export const routes: Routes = [
         (m) => m.ConcludeSaleComponent
       ),
     canActivate: [AuthGuard],
-    
+
   },
   {
     path: 'ticket-callcenter/:clientId',

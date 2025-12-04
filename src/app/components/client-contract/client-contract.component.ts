@@ -94,6 +94,7 @@ export class ClientContractComponent implements OnInit {
   upgradeForm!: FormGroup;
   selectedContractForUpgrade: Contract | null = null;
   searchCode: string = '';
+  TemporarySuspensionScheduled: boolean = false;
 
   typesOfDateExpirationCicle = [
     { dia: '1', vencimento: '1', descricao: '01 a 31 / 01 ', value: '1' },
@@ -130,13 +131,14 @@ export class ClientContractComponent implements OnInit {
   ];
 
   // --- MÉTODOS DO CICLO DE VIDA ---
-    ngOnInit() {
+  ngOnInit() {
     const id = this.route.snapshot.paramMap.get('clientId');
     if (id) {
       this.clientId = id;
       this.loadContracts(this.clientId);
       this.loadCurrentClientData(this.clientId);
     }
+    console.log(this.loadContracts(this.clientId))
   }
 
   // --- MÉTODOS DE CARREGAMENTO DE DADOS (Originais) ---
@@ -144,7 +146,9 @@ export class ClientContractComponent implements OnInit {
     this.contractService
       .getContractsActivesAndWaitByClient(clientId)
       .subscribe({
-        next: (data) => (this.contracts = this.sortContractsByStatus(data)),
+        next: (data) => (
+          this.contracts = this.sortContractsByStatus(data)
+        ),
         error: () => {
           this.messageService.add({
             severity: 'error',
@@ -167,7 +171,7 @@ export class ClientContractComponent implements OnInit {
       },
     });
   }
-   loadCurrentClientData(clientId: string): void {
+  loadCurrentClientData(clientId: string): void {
     this.clientService.getClientById(clientId).subscribe({
       next: (data) => {
         this.currentClient = data;
@@ -288,17 +292,21 @@ export class ClientContractComponent implements OnInit {
   }
 
   // --- MÉTODOS DE NAVEGAÇÃO E UTILITÁRIOS (Originais) ---
-    navigateToCreatContract() { 
+  navigateToCreatContract() {
     const clientId = this.route.snapshot.paramMap.get('clientId');
-    this.router.navigate(['add-contract'], { queryParams: { clientId }});
+    this.router.navigate(['add-contract'], { queryParams: { clientId } });
   }
-  
+
   navigateToInfoClient() {
     this.router.navigate(['info', this.clientId]);
   }
 
   navigateToTransferOwnership(contract: Contract): void {
     this.router.navigate(['/transfer-ownership', this.clientId, contract.id]);
+  }
+
+  navigateToSuspension(contract: Contract): void {
+    this.router.navigate(['/suspension-temporary', this.clientId, contract.id])
   }
 
   openUpgradeDialog(contract: Contract, isUpgrade: boolean) {
@@ -309,6 +317,10 @@ export class ClientContractComponent implements OnInit {
       action,
       contract.id,
     ]);
+  }
+
+  suspensionScheduled(contract: Contract): void {
+    this.TemporarySuspensionScheduled = contract.suspensionScheduled == 1;
   }
 
   goToAlterDateExpired(contract: Contract) {
@@ -402,31 +414,31 @@ export class ClientContractComponent implements OnInit {
     const dateString = contract.dateStart;
 
     const today = new Date();
-    const todayISO = today.getFullYear() + '-' + 
-                     String(today.getMonth() + 1).padStart(2, '0') + '-' + 
-                     String(today.getDate()).padStart(2, '0');
+    const todayISO = today.getFullYear() + '-' +
+      String(today.getMonth() + 1).padStart(2, '0') + '-' +
+      String(today.getDate()).padStart(2, '0');
     const todayForComparison = new Date(todayISO);
 
     let contractDateString;
 
     if (dateString.includes('/')) {
-        const parts = dateString.split('/');
-        contractDateString = `${parts[2]}-${parts[1]}-${parts[0]}`;
+      const parts = dateString.split('/');
+      contractDateString = `${parts[2]}-${parts[1]}-${parts[0]}`;
     } else {
-        contractDateString = dateString.substring(0, 10);
+      contractDateString = dateString.substring(0, 10);
     }
     const contractStartDate = new Date(contractDateString);
-    if (contractStartDate.getTime() >= todayForComparison.getTime()) { 
-      
+    if (contractStartDate.getTime() >= todayForComparison.getTime()) {
+
       this.messageService.add({
         severity: 'error',
         summary: 'Ação Bloqueada',
         detail: 'Não é possível realizar a alteração em contratos que iniciam hoje ou em datas futuras.',
         life: 5000
       });
-      
+
     } else {
-      
+
       this.openUpgradeDialog(contract, isUpgrade);
     }
   }

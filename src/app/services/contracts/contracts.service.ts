@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
-import { Contract, RequestDateTransfer,  } from '../../models/contract/contract.dto';
+import { Contract, RequestContractSuspendDTO, RequestDateTransfer, } from '../../models/contract/contract.dto';
 
 @Injectable({
   providedIn: 'root',
@@ -10,6 +10,19 @@ import { Contract, RequestDateTransfer,  } from '../../models/contract/contract.
 export class ContractsService {
   private readonly urlApi = environment.apiUrl;
   private readonly http = inject(HttpClient);
+
+  suspendContract(contractId: string, dto: RequestContractSuspendDTO): Observable<Contract> {
+    return this.http.post<Contract>(
+      `${this.urlApi}/contract/${contractId}/temporary-suspension`,
+      dto
+    );
+  }
+
+  cancelSuspendContract(contractId: string): Observable<Contract> {
+    return this.http.post<Contract>(
+      `${this.urlApi}/contract/${contractId}/cancel-temporary-suspension`, {}
+    );
+  }
 
   getContractsActivesByClient(clientId: string): Observable<Contract[]> {
     return this.http.get<Contract[]>(
