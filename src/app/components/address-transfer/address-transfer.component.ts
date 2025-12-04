@@ -11,6 +11,7 @@ import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TooltipModule } from 'primeng/tooltip';
+import { WebSocketService } from './../../services/webSocket/websocket.service';
 
 import { StepperModule } from 'primeng/stepper';
 import { InputText } from 'primeng/inputtext';
@@ -58,6 +59,7 @@ import { ButtonModule } from 'primeng/button';
 import { BlockPeriodOffers, BlockPeriodOffersLabels, ViewBlockOffersDto } from '../../models/blockoffer/blockOffer.dto';
 import { BlockOffersRequestService } from './../../services/blockOffer/blockoffer.service';
 import { DatePickerModule } from 'primeng/datepicker';
+import { TagModule } from 'primeng/tag';
 
 export interface AddressForm {
   zipCode: string | null;
@@ -102,7 +104,8 @@ export interface AddressForm {
     TooltipModule,
     TableModule,
     ButtonModule,
-    DatePickerModule
+    DatePickerModule,
+    TagModule
   
   ],
   providers: [MessageService, AttendancesService, OffersService],
@@ -118,6 +121,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   signaturePadInDialog!: SignaturePadComponent;
   @ViewChild('pdfIframe') pdfIframe!: ElementRef<HTMLIFrameElement>;
   @ViewChild('osTable') osTable!: Table;
+  @ViewChild('formNewOs') formNewOs!: NgForm;
 
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -131,6 +135,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   private readonly clientService = inject(ClientService);
   private readonly blockOfferService = inject(BlockOffersRequestService);
   private readonly offerService = inject(OffersService);
+  private readonly webSocketService = inject(WebSocketService);
   private originalAddressForm: AddressForm | null = null;
   private stopPolling$ = new Subject<void>();
   private destroy$ = new Subject<void>();
@@ -1026,13 +1031,110 @@ loadOffers(event: any) {
   }
 
 
-
   clearFiltersOs() {
     this.selectedPeriodOs = '';
     this.selectedCity = '';
     this.selectedTypeOs = '';
     this.osTable.reset();
   }
-}
 
+  RequestOs(): void{
+    const payload: any = {
+      typeOfOs: this.typeNewOs,
+      city: this.selectedNewOsCity,
+      period: this.selectedPeriodOs,
+      date: this.selectedDate
+    };
+  }
+
+  solicitarOs() {
+    if (
+      !this.selectedTypeNewOs ||
+      !this.selectedNewOsCity ||
+      !this.selectedPeriodOs ||
+      !this.selectedDate
+    ) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Campos obrigatórios',
+        detail: 'Preencha todos os campos antes de solicitar.',
+      });
+      return;
+    }
+
+    const payload = {
+      typeOfOs: this.selectedTypeNewOs,
+      city: this.selectedNewOsCity,
+      period: this.selectedPeriodOs,
+      date: this.selectedDate,
+    };
+
+    this.webSocketService.sendOfferRequest(payload);
+    this.dialogNewOs = false;
+
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Solicitação enviada',
+      detail: 'Sua OS foi enviada para análise!',
+    });
+
+    this.formNewOs.resetForm();
+  }
+
+   toggleReservation(offer: any) {
+    if (!offer.reserved) {
+      this.reserveOffer(offer);
+    } else {
+      this.unreserveOffer(offer);
+    }
+  }
+
+    reserveOffer(offer: any) {
+    const sellerId = this.authService.getSellerId()!;
+    const sellerName = this.authService.getUserFromToken()?.name; 
+
+    this.offerService.reserveOffer(offer.id, sellerId).subscribe({
+      next: (updatedOffer: any) => {
+        Object.assign(offer, updatedOffer);
+      },
+      error: (err) => {
+        if (err.status === 409) {
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'OS indisponível',
+            detail: 'Já está reservada por outro vendedor.',
+          });
+        }
+      },
+    });
+
+    offer.reserved = true;
+    offer.reservedBy = sellerId;
+    offer.reservedByName = sellerName;
+    offer.reservedAt = new Date();
+    offer.reservedUntil = new Date(Date.now() + 10 * 60000);
+  }
+
+    unreserveOffer(offer: any) {
+    const sellerId = this.authService.getSellerId()!;
+
+    this.offerService.unreserveOffer(offer.id, sellerId).subscribe({
+      next: () => {
+        offer.reserved = false;
+        offer.reservedBy = null;
+        offer.reservedAt = null;
+        offer.reservedUntil = null;
+      },
+      error: (err) => {
+        if (err.status === 403) {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Ação não permitida',
+            detail: 'Você não pode remover a reserva de outro vendedor.',
+          });
+        }
+      },
+    });
+  }
+}
 

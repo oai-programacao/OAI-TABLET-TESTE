@@ -800,7 +800,14 @@
   [(visible)]="dialogOs"
   (onShow)="onDialogShow()"
   (onHide)="onDialogHide()"
-  [style]="{ width: '60vw', height: '30vw' }"
+   [style]="{
+    width: '800px',
+    height: '800px',
+    minWidth: '800px',
+    maxWidth: '800px',
+    minHeight: '800px',
+    maxHeight: '800px'
+  }"
   class="dialogOs"
 >
   <div class="linhaDropdown">
@@ -815,13 +822,13 @@
           optionLabel="label"
           optionValue="value"
           placeholder="Selecione"
-          name="planos"
+          name="cities"
           required
-          id="plan"
+          id="cities"
           (onChange)="reloadTable()"
         >
         </p-select>
-        <label for="planos">Cidade</label>
+        <label for="cities">Cidade</label>
       </p-iftalabel>
     </p-inputgroup>
     <p-inputgroup>
@@ -835,13 +842,13 @@
           optionLabel="label"
           optionValue="value"
           placeholder="Selecione"
-          name="planos"
+          name="typeOs"
           required
-          id="plan"
+          id="typeOs"
           (onChange)="reloadTable()"
         >
         </p-select>
-        <label for="planos">Tipo de OS</label>
+        <label for="typeOs">Tipo de OS</label>
       </p-iftalabel>
     </p-inputgroup>
     <p-inputgroup>
@@ -855,21 +862,41 @@
           optionLabel="label"
           optionValue="value"
           placeholder="Selecione"
-          name="planos"
+          name="periodOs"
           required
-          id="plan"
+          id="periodOs"
           (onChange)="reloadTable()"
         >
         </p-select>
-        <label for="planos">Períodos</label>
+        <label for="periodOs">Períodos</label>
       </p-iftalabel>
     </p-inputgroup>
-      <p-button icon="pi pi-eraser" size="large" severity="warn"
-     rounded="true" raised="true" (onClick)="clearFiltersOs()"></p-button>
+      <p-button 
+      icon="pi pi-eraser" 
+      size="large" 
+      severity="warn"
+     rounded="true" 
+     raised="true" 
+     (onClick)="clearFiltersOs()"
+     ></p-button>
   </div>
   <div class="divider">
     <p-divider></p-divider>
+    <div class="os-warning-box">
+      <i class="pi pi-exclamation-triangle icon-alert"></i>
+      <span>
+        As Ordens de Serviço (OS) são recursos únicos do sistema. Quando uma OS
+        aparece como
+        <span class="status-reserved">Reservada</span>, significa que outro
+        vendedor está utilizando-a no processo de venda. Caso a venda não seja
+        concluída dentro de <strong class="limit-time">10 minutos</strong>, a OS
+        será liberada automaticamente e retornará ao estado
+        <span class="status-available">Disponível</span>. <br />Caso não tenha
+        Horário envie uma solicitação para a Torre
+      </span>
+    </div>
   </div>
+ 
   <div class="table">
     <p-table
       #osTable
@@ -888,7 +915,7 @@
           <th>Tipo OS</th>
           <th>Data</th>
           <th>Período</th>
-          <th>Quantidade</th>
+          <th>Em uso ?</th>
           <th></th>
         </tr>
       </ng-template>
@@ -900,21 +927,67 @@
           <td>{{ offer.typeOfOs }}</td>
           <td>{{ offer.date }}</td>
           <td>{{ offer.period }}</td>
-          <td>{{ offer.total }}</td>
           <td>
+
+             <ng-container *ngIf="offer.reserved; else available">
+              <div class="reserved-box">
+                <p-tag severity="warn" value="Reservado"></p-tag>
+
+                <div class="reserved-info">
+                  <div>
+                    <i class="pi pi-user mr-1"></i>
+                    <strong> Por: </strong> {{ offer.reservedByName || "—" }}
+                  </div>
+
+                  <div>
+                    <i class="pi pi-clock mr-1"></i>
+                    <strong> Até: </strong>
+                    {{ offer.reservedUntil | date : "dd/MM/yyyy HH:mm" }}
+                  </div>
+
+                  <div *ngIf="offer.reservedAt">
+                    <i class="pi pi-calendar-plus mr-1"></i>
+                    <strong> Reservado em:</strong>
+                    {{ offer.reservedAt | date : "dd/MM/yyyy HH:mm" }}
+                  </div>
+                </div>
+              </div>
+            </ng-container>
+
+             <ng-template #available>
+              <p-tag severity="success" value="Disponível"></p-tag>
+            </ng-template>
+          </td>
+
+          <td>
+             <!-- SE NÃO ESTÁ RESERVADA -->
             <button
+              *ngIf="!offer.reserved"
               pButton
-              size="small"
-              icon="pi pi-stop-circle"
-              severity="info"
+              icon="pi pi-lock"
+              severity="success"
               rounded="true"
-              raised="true"
+              [raised]="true"
+              size="small"
+              (click)="reserveOffer(offer)"
+            ></button>
+
+            <!-- SE ESTÁ RESERVADA -->
+            <button
+              *ngIf="offer.reserved"
+              pButton
+              icon="pi pi-unlock"
+              severity="danger"
+              rounded="true"
+              [raised]="true"
+              size="small"
+              (click)="unreserveOffer(offer)"
             ></button>
           </td>
         </tr>
       </ng-template>
 
-      <ng-template pTemplate="emptymessage">
+   <ng-template pTemplate="emptymessage">
         <tr>
           <td colspan="6" class="emptytable">
             Não foi encontrado nenhum resultado para essa pesquisa.
@@ -934,12 +1007,12 @@
   (onShow)="onDialogNewOs()"
   [style]="{ width: '35vw', height: '20vw' }"
   class="dialogOs"
->
+ >
   <div class="infoBlockOffers" *ngIf="activeBlock">
     <p>
       <i class="pi pi-info-circle mr-2"></i>
       Lembrete: As solicitações de oferta estão liberadas a partir de
-      <strong>{{ this.activeBlock?.initialDate || "***" }}</strong> no período
+      <strong>{{ this.activeBlock!.initialDate || "***" }}</strong> no período
       <strong>{{
         getOfferBlockPeriodLabel(this.activeBlock!.periodOffer)
       }}</strong
@@ -947,6 +1020,7 @@
     </p>
   </div>
 
+  <form #formNewOs="ngForm">
     <div class="inputsNewOs">
       <p-inputgroup>
       <p-inputgroup-addon>
@@ -1002,7 +1076,7 @@
           optionValue="value"
           placeholder="Selecione"
           name="periodoOsNew"
-          required
+          required="true"
           id="periodoOsNew"
         >
         </p-select>
@@ -1023,6 +1097,7 @@
         dataType="string"
         placeholder="Selecione a Data"
         appendTo="body"
+        required = "true"
       >
       </p-datepicker>
     </div>
@@ -1030,6 +1105,7 @@
     
 
   <div class="buttonsNewOs">
-    <p-button label="Solicitar OS" [severity]="'info'" [raised]="true"></p-button>
+    <p-button label="Solicitar OS" [severity]="'info'" [raised]="true" (onClick)="solicitarOs()"></p-button>
   </div>
+  </form>
 </p-dialog>
