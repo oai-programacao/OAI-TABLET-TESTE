@@ -1,6 +1,6 @@
 // reports.service.ts
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
@@ -41,8 +41,7 @@ export interface ConsentTermPermanentRequest {
   city: string;
   state: string;
   zipCode: string;
-  discount: string;
-  discountFixed: string;
+  discountFixe: string;
   contractDueDay: string;
   signatureBase64?: string;
 }
@@ -57,8 +56,7 @@ export interface ConsentTermAdesionRequest {
   city: string;
   state: string;
   zipCode: string;
-  discount: string;
-  discountFixed: string;
+  discountFixe: string;
   contractDueDay: string;
   signatureBase64?: string;
 }

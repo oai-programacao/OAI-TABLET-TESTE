@@ -36,15 +36,13 @@ export interface DailyMetricsDto {
 @Injectable({
   providedIn: 'root',
 })
-
-export class SalesService{
-    private readonly urlApi = environment.apiUrl;
-    private readonly http = inject(HttpClient);
-
+export class SalesService {
+  private readonly urlApi = environment.apiUrl;
+  private readonly http = inject(HttpClient);
 
   createSale(formData: FormData): Observable<any> {
-        return this.http.post<any>(`${this.urlApi}/sales/newsale`, formData);
-} 
+    return this.http.post<any>(`${this.urlApi}/sales/new-sale`, formData);
+  }
 
   archiveSale(payload: any): Observable<any> {
     return this.http.post<any>(`${this.urlApi}/sales/archive`, payload);
@@ -53,13 +51,18 @@ export class SalesService{
     return this.http.get<any[]>(`${this.urlApi}/sales/archived`);
   }
 
-  getArchivedSaleForConversion(clientId: string, draftId: string): Observable<any> {
-    return this.http.get<any>(`${this.urlApi}/sales/archived/${clientId}/${draftId}`);
+  getArchivedSaleForConversion(
+    clientId: string,
+    draftId: string
+  ): Observable<any> {
+    return this.http.get<any>(
+      `${this.urlApi}/sales/archived/${clientId}/${draftId}`
+    );
   }
 
-  getTodayMetrics(sellerId: string): Observable<DailyMetricsDto>{
-    return this.http.get<DailyMetricsDto>(`${this.urlApi}/sales/metrics/today/${sellerId}`);
+  getTodayMetrics(sellerId: string): Observable<DailyMetricsDto> {
+    return this.http.get<DailyMetricsDto>(
+      `${this.urlApi}/sales/metrics/today/${sellerId}`
+    );
   }
-
-  
 }

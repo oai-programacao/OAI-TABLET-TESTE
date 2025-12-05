@@ -3,31 +3,27 @@ export interface ContractFormData {
   salesId?: number;
   sellerId: string;
   clientId: string;
+  offerId: string;
   codePlan: number;
   dateStart: string;
   dateSignature: string;
-  dateOfAssignment?: string;
   dateExpired: string;
   adesion: number;
   numberParcels: number;
-  parcels: Parcel[];
   address: Address;
-  discount: number;
   signature: string;
-  imagesOne?: string;
   observation?: string;
   situationDescription?: string;
-  discountFixed?: number;
+  discountFixe?: number;
   vigencia?: number;
   cicleFatId?: number;
   cicleBillingDayBase?: number;
   cicleBillingExpired?: number;
-}
-
-export interface Parcel {
-  description: string;
-  dueDate: string;
-  price: number;
+  termConsentSales?: File[] | null;
+  clientType: string;
+  phone: string;
+  typeTechnology: string;
+  loyalty?: boolean;
 }
 
 export interface Address {
@@ -40,3 +36,9 @@ export interface Address {
   neighborhood: string;
   residenceType?: string;
 }
+
+
+
+
+
+
