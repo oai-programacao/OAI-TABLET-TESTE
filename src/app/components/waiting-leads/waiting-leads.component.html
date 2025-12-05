@@ -33,7 +33,6 @@
         <app-card-leads 
           *ngFor="let sale of archivedSales" 
           [data]="transformToCardData(sale)"
-          (onConvert)="convertToSale(sale)"
           (onCall)="callClient(sale.clientPhone || '')"
           (onEmail)="sendEmail(sale.clientEmail || '')">
         </app-card-leads>

@@ -1419,7 +1419,7 @@
       <p-button
         label="Confirmar"
         icon="pi pi-check"
-        [disabled]="contractFormData.phone?.length !== 11"
+        [disabled]="contractFormData.phone!.length !== 11"
         (onClick)="confirmSendToClient()"
       ></p-button>
     </div>

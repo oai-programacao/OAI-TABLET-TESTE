@@ -273,7 +273,6 @@ export class AddContractComponent implements OnInit {
     signature: '',
     observation: '',
     termConsentSales: undefined,
-    situationDescription: undefined,
     discountFixe: undefined,
     vigencia: 0,
     cicleFatId: 0,
@@ -295,9 +294,9 @@ export class AddContractComponent implements OnInit {
       this.clientId = params['clientId'];
       this.draftId = params['draftId'];
 
-      if (this.draftId) {
-        this.loadDraft(this.clientId!, this.draftId);
-      }
+      // if (this.draftId) {
+      //   this.loadDraft(this.clientId!, this.draftId);
+      // }
     });
     this.loadPlans();
 
@@ -379,8 +378,6 @@ export class AddContractComponent implements OnInit {
   center: google.maps.LatLngLiteral = { lat: -23.55052, lng: -46.633308 };
   zoom = 15;
 
-
-  
   selectDateOfExpirationCicle: string | null = null;
   selectedResidence: string = '';
   typeOfResidenceOptions = [
@@ -393,7 +390,6 @@ export class AddContractComponent implements OnInit {
     { label: 'Sem Fidelidade', value: false },
     { label: 'Com Fidelidade', value: true },
   ];
-
 
   selectedInstallment: number | null = null;
   numbersOfInstallments = [
@@ -632,7 +628,7 @@ export class AddContractComponent implements OnInit {
     this.isSubmitting = true;
 
     try {
-      // Garante que os contratos já foram assinados
+    
       if (!this.adesionBlob || !this.permanenceBlob) {
         this.messageService.add({
           severity: 'warn',
@@ -666,10 +662,8 @@ export class AddContractComponent implements OnInit {
           ) || '',
         adesion: Number(this.contractFormData.adesion),
         numberParcels: this.selectedInstallment,
-        parcels: [],
         address: { ...this.contractFormData.address },
         observation: this.contractFormData.observation || '',
-        situationDescription: '',
         discountFixe: this.contractFormData.discountFixe || 0.0,
         vigencia: Number(this.contractFormData.vigencia || 12),
         cicleFatId: Number(selectedCycle!.id),
@@ -714,7 +708,7 @@ export class AddContractComponent implements OnInit {
       this.router.navigate([`/attendances/${this.clientId}`]).then(() => {
         setTimeout(() => {
           this.app.triggerLottie('/saleSuccess.json', 5000);
-        }, 200); // pequeno delay para garantir que a nova rota renderizou
+        }, 200); 
       });
     } catch (err: any) {
       const detail = err?.error?.message ?? 'Erro ao criar a venda.';
@@ -748,7 +742,8 @@ export class AddContractComponent implements OnInit {
       if (!this.selectContract) invalidFields.push('Tipo de Contrato');
       if (!this.selectedClientType) invalidFields.push('Tipo de Cliente');
       if (!this.selectedTechnology) invalidFields.push('Tipo de Tecnologia');
-      if (!this.selectedInstallment) invalidFields.push('Número de Parcelas Adesão');
+      if (!this.selectedInstallment)
+        invalidFields.push('Número de Parcelas Adesão');
 
       this.step1Completed = invalidFields.length === 0;
     }
@@ -1232,38 +1227,38 @@ export class AddContractComponent implements OnInit {
     const payload = {
       sellerId,
       clientId: this.clientId,
-
       codePlan: this.selectedPlan ? Number(this.selectedPlan) : null,
       dateStart: this.dateUtils.formatToLocalDateString(this.dateOfStart) || '',
       dateSignature:
         this.dateUtils.formatToLocalDateString(this.dateSignature) ||
         this.dateUtils.formatToLocalDateString(this.dateOfStart) ||
         '',
-      dateExpired:
+      dateExpiredAdesion:
         this.dateUtils.formatToLocalDateString(
           this.dateOfMemberShipExpiration
         ) || '',
-      numberParcels: this.selectedInstallment
-        ? Number(this.selectedInstallment)
-        : null,
       adesion: this.contractFormData.adesion
         ? Number(this.contractFormData.adesion)
         : null,
+      numberParcels: this.selectedInstallment
+        ? Number(this.selectedInstallment)
+        : null,
+      address: {
+        ...this.contractFormData.address,
+      },
+      observation: this.contractFormData.observation || '',
+      typeTechnology: this.selectedTechnology || '',
       discountFixe: this.contractFormData.discountFixe?.toString() || '0',
       vigencia: String(this.contractFormData.vigencia || 12),
       cicleFatId: selectedCycle ? Number(selectedCycle.id) : null,
       cicleBillingDayBase: selectedCycle ? Number(selectedCycle.dia) : null,
       cicleBillingExpired: selectedCycle
-        ? Number(selectedCycle.vencimento)
+        ? Number(selectedCycle.vencimento) 
         : null,
-
-      address: {
-        ...this.contractFormData.address,
-      },
-
-      observation: this.contractFormData.observation || '',
+        residenceType: this.selectedResidence || '',
+      clientType: this.selectedClientType || '',
+      loyalty: this.selectContract,
       signature: this.formData.signaturePad || '',
-      residenceType: this.selectedResidence || null,
     };
 
     this.salesService.archiveSale(payload).subscribe({
@@ -1299,73 +1294,73 @@ export class AddContractComponent implements OnInit {
     });
   }
 
-  loadDraft(clientId: string | null, draftId: string | undefined): void {
-    if (!clientId || !draftId) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Erro',
-        detail: 'ClientId ou DraftId ausentes.',
-      });
-      return;
-    }
+  // loadDraft(clientId: string | null, draftId: string | undefined): void {
+  //   if (!clientId || !draftId) {
+  //     this.messageService.add({
+  //       severity: 'error',
+  //       summary: 'Erro',
+  //       detail: 'ClientId ou DraftId ausentes.',
+  //     });
+  //     return;
+  //   }
 
-    this.isLoadingDraft = true;
+  //   this.isLoadingDraft = true;
 
-    this.salesService
-      .getArchivedSaleForConversion(clientId, draftId)
-      .subscribe({
-        next: (draft: DraftSaleResponse) => {
-          this.currentDraftId = draft.draftId;
+  //   this.salesService
+  //     .getArchivedSaleForConversion(clientId, draftId)
+  //     .subscribe({
+  //       next: (draft: DraftSaleResponse) => {
+  //         this.currentDraftId = draft.draftId;
 
-          Object.assign(this.contractFormData, draft);
+  //         Object.assign(this.contractFormData, draft);
 
-          this.selectedPlan = draft.codeplan || '';
-          this.selectedInstallment = draft.installments || null;
-          this.selectDateOfExpirationCicle = draft.expirationCycle || '';
-          this.selectContract = draft.contractType;
+  //         this.selectedPlan = draft.codeplan || '';
+  //         this.selectedInstallment = draft.installments || null;
+  //         this.selectDateOfExpirationCicle = draft.expirationCycle || '';
+  //         this.selectContract = draft.contractType;
 
-          if (draft.startDate) {
-            this.dateOfStart = this.dateUtils.parseDate(draft.startDate);
-          }
+  //         if (draft.startDate) {
+  //           this.dateOfStart = this.dateUtils.parseDate(draft.startDate);
+  //         }
 
-          if (draft.signatureDate) {
-            this.dateOfAssignment = this.dateUtils.parseDate(
-              draft.signatureDate
-            );
-          }
+  //         if (draft.signatureDate) {
+  //           this.dateOfAssignment = this.dateUtils.parseDate(
+  //             draft.signatureDate
+  //           );
+  //         }
 
-          if (draft.expirationDate) {
-            this.dateOfMemberShipExpiration = this.dateUtils.parseDate(
-              draft.expirationDate
-            );
-          }
+  //         if (draft.expirationDate) {
+  //           this.dateOfMemberShipExpiration = this.dateUtils.parseDate(
+  //             draft.expirationDate
+  //           );
+  //         }
 
-          if (draft.residenceType) {
-            this.selectedResidence = draft.residenceType;
-          } else {
-            this.selectedResidence = '';
-          }
+  //         if (draft.residenceType) {
+  //           this.selectedResidence = draft.residenceType;
+  //         } else {
+  //           this.selectedResidence = '';
+  //         }
 
-          this.messageService.add({
-            severity: 'info',
-            summary: 'Rascunho Carregado',
-            detail: 'Dados preenchidos automaticamente.',
-            life: 5000,
-          });
-        },
-        error: (err) => {
-          console.error('❌ Erro ao carregar rascunho:', err);
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erro',
-            detail: 'Falha ao carregar rascunho.',
-          });
-        },
-        complete: () => {
-          this.isLoadingDraft = false;
-        },
-      });
-  }
+  //         this.messageService.add({
+  //           severity: 'info',
+  //           summary: 'Rascunho Carregado',
+  //           detail: 'Dados preenchidos automaticamente.',
+  //           life: 5000,
+  //         });
+  //       },
+  //       error: (err) => {
+  //         console.error('❌ Erro ao carregar rascunho:', err);
+  //         this.messageService.add({
+  //           severity: 'error',
+  //           summary: 'Erro',
+  //           detail: 'Falha ao carregar rascunho.',
+  //         });
+  //       },
+  //       complete: () => {
+  //         this.isLoadingDraft = false;
+  //       },
+  //     });
+  // }
 
   handleCapturaFoto(): void {
     if (this.step4CapturedPhotos.length > 0) {
