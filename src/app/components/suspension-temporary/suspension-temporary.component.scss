@@ -1,12 +1,17 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap");
+
+/* === Reset e Base === */
 :host {
-    font-family: "IBM Plex Mono", monospace;
+  font-family: "IBM Plex Mono", monospace;
 }
 
+/* === Layout Principal === */
 .page-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 2rem;
 }
 
 .content {
@@ -19,167 +24,235 @@
   flex-wrap: wrap;
 }
 
+/* === Botões Superiores === */
+.btn-to-create-another-contract {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  gap: 1rem;
+}
+
+/* === Header do Contrato === */
+.contractNumber__header {
+  background-color: #f8f9fa;
+  padding: 0.5rem;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #dee2e6;
+  margin-bottom: 1.5rem;
+}
+
+.contractNumber__header label {
+  font-weight: 500;
+  color: #575353;
+  font-size: 1.3rem;
+}
+
+.contractNumber__header span {
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: #1c34a0;
+}
+
+/* === Stepper Customizado === */
+:host ::ng-deep .p-stepper {
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: transparent;
+}
+
 :host ::ng-deep .p-stepper .p-step-title {
   font-family: "IBM Plex Mono", monospace;
   font-weight: 400;
-  font-size: 1.1rem !important;
-  background-color: #ffffff;
-  padding: 0.2rem;
+  font-size: 1.05rem;
+  padding: 0.25rem 0.5rem;
   border-radius: 3px;
+  transition: all 0.2s ease-in-out;
 }
 
 :host ::ng-deep .p-stepper .p-step.p-step-active .p-step-title {
   background-color: #5ccdf9;
-  color: #000000;
-  border: 0.5px solid #000000;
-  box-shadow: 0 0 5px rgba(0.1, 0.3, 0.2, 0.4);
-  font-weight: 700 !important;
+  color: #000;
+  border: 1px solid #000;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+  font-weight: 600;
 }
 
-.p-stepper {
+/* === STEP 1 - Instruções === */
+.info-text {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 1rem 0;
+  border: 1px solid #e2e2e2;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  max-height: 18rem;
+  overflow-y: auto;
+}
+
+.info-text-instructions {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e1f5fe 100%);
+  border-radius: 1rem;
+  padding: 0.5rem;
+  margin: 0.5rem 0;
+  border: 2px solid #c5e6ff;
+  box-shadow: 0 6px 20px rgba(0, 123, 217, 0.15);
   position: relative;
-  background-size: cover;
+  overflow: hidden;
+}
+
+.info-text-instructions h2 {
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 700;
+  color: #1c34a0;
+  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.info-text-instructions p {
+  font-family: "IBM Plex Mono", monospace;
+  color: #37474f;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 0.75rem 1rem;
   border-radius: 0.75rem;
-  overflow: hidden;
-  height: auto;
-  --p-stepper-separator-background: #000000;
-  --p-stepper-step-title-color: #4e4d4d;
-  --p-stepper-step-title-active-color: #000000;
-  --p-stepper-step-number-background: #ffffff;
-  --p-stepper-step-number-active-background: #004e9b;
-  --p-stepper-step-number-color: #004e9b;
-  --p-stepper-step-number-active-color: #ffffff;
-  --p-stepper-step-number-font-size: 2rem;
-  --p-stepper-separator-background: #375ca4;
-  --p-stepper-separator-active-background: #000000;
-}
-
-.step-body {
-    width: 100%;
-    max-width: 900px;
-}
-
-.step-finalization {
+  border-left: 4px solid #007bd9;
   position: relative;
-  overflow: hidden;
-  padding: 2rem;
+  z-index: 1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* === Datepicker === */
+.datepicker-container {
   display: flex;
   justify-content: center;
-}
-
-.confirmation-step {
   align-items: center;
-  text-align: center;
-  gap: 1rem;
-  padding: 2.5rem;
-  background-color: #f0fff4;
-  border: 2px solid #34d399;
-  border-radius: 2rem;
-  box-shadow: 0 4px 12px rgba(52, 211, 153, 0.2);
-
-  .success-icon {
-    font-size: 2rem;
-    color: #10b981;
-    animation: pulse 1.5s infinite;
-  }
-
-  h3 {
-    margin: 0;
-    font-size: 1.5rem;
-    color: #059669;
-  }
-
-  p {
-    color: #4b5563;
-  }
+  margin: 1rem 0;
 }
 
-.step-footer {
-  margin-top: 2rem;
-  
-  .proportional-info {
-    background-color: #f0f9ff;
-    border-left: 4px solid #0ea5e9;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-    border-radius: 4px;
-    text-align: center;
-    
-    .footer-title {
-      font-weight: 600;
-      color: #0c4a6e;
-      font-size: 1.2rem;
-      display: block;
-    }
-  }
-
-  .footer-actions {
-      display: flex;
-      justify-content: center;
-      gap: 1.5rem;
-  }
+:host ::ng-deep .p-datepicker {
+  border-radius: 1rem;
+  border: 2px solid #007bd9;
+  box-shadow: 0 4px 12px rgba(0, 123, 217, 0.15);
 }
 
-.btn-to-create-another-contract {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 2rem;
-    gap: 15rem;
+:host ::ng-deep .p-datepicker table td > span {
+  border-radius: 50%;
 }
 
-.contractNumber__header {
-    background-color: #f8f9fa;
-    padding: 0.5rem;
-    border-radius: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border: 1px solid #dee2e6;
-
-    label {
-        font-weight: 500;
-        color: #575353;
-        font-size: 1.3rem;
-    }
-
-    span {
-        font-weight: 700;
-        font-size: 1.3rem;
-        color: #1c34a0;
-    }
+:host ::ng-deep .p-datepicker table td > span.p-highlight {
+  background: #007bd9;
+  color: white;
 }
 
-.info-text {
-    max-width: 60rem;
-    max-height: 25rem;
-    margin: 1.5rem 0;
-    overflow-y: auto;
-    padding-right: 1rem;
-
-    h2 {
-        font-size: 1.2rem;
-        font-weight: 600;
-        color: #1c34a0;
-        border-bottom: 2px solid #dee2e6;
-        padding-bottom: 0.3rem;
-        margin-top: 1.5rem;
-
-        margin-bottom: 0.5rem;
-    }
-
-    p {
-        color: #495057;
-        font-size: 1rem;
-        line-height: 1.6;
-        margin-bottom: 1rem;
-        background-color: transparent;
-    }
+/* === Knob (Controle de Duração) === */
+.card.flex.justify-center {
+  display: flex;
+  justify-content: center;
+  margin: 0.5rem 0;
 }
 
+.knob-large {
+  width: 14rem !important;
+  height: 14rem !important;
+}
+
+:host ::ng-deep .p-knob.knob-large {
+  width: 14rem !important;
+  height: 14rem !important;
+}
+
+:host ::ng-deep .p-knob.knob-large svg {
+  width: 14rem !important;
+  height: 14rem !important;
+}
+
+:host ::ng-deep .p-knob.knob-large .p-knob-text {
+  font-size: 3rem !important;
+}
+
+:host ::ng-deep .p-knob {
+  width: 180px !important;
+  height: 180px !important;
+}
+
+:host ::ng-deep .p-knob .p-knob-range {
+  stroke: #8400ff4d;
+  stroke-width: 10;
+  stroke-linecap: round;
+}
+
+:host ::ng-deep .p-knob .p-knob-value {
+  stroke: #4061f1;
+  stroke-width: 10;
+  stroke-linecap: round;
+}
+
+:host ::ng-deep .p-knob .p-knob-text {
+  fill: #1c34a0;
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 700;
+  font-size: 1.8rem;
+}
+
+/* === Resumo Simples (Data de término e Proporcional) === */
+.simple-summary {
+  margin: 1rem 0;
+  padding: 1rem;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e3f2fd 100%);
+  border-radius: 0.75rem;
+  border: 2px solid #1976d2;
+  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.15);
+}
+
+.simple-line {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.simple-line > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 0.5rem;
+  border-left: 4px solid #1976d2;
+}
+
+.simple-line strong {
+  color: #1c34a0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.simple-value {
+  color: #111827;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+/* === Botão Footer Step 1 === */
+.button-footer-step1 {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* === STEP 2 - Fluxo (Online e Presencial) === */
 .fluxo-container {
   display: flex;
   gap: 25px;
-  margin-top: 20px;
+  margin-top: 5px;
   flex-wrap: wrap;
   justify-content: center;
   padding: 1rem;
@@ -187,7 +260,7 @@
 
 .fluxo-card {
   width: 320px;
-  min-height: 600px;
+  min-height: 570px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -195,11 +268,15 @@
   padding: 20px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  /* efeito vidro */
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
   border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.fluxo-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
 .fluxo-card.online {
@@ -229,6 +306,7 @@
   margin-top: 10px;
   font-size: 1.5rem;
   font-weight: 600;
+  color: #1f2937;
 }
 
 .fluxo-body {
@@ -243,97 +321,521 @@
 }
 
 .fluxo-body p {
-  line-height: 1.4;
+  line-height: 1.6;
 }
 
 .fluxo-footer {
   display: flex;
   justify-content: center;
+  margin-top: 20px;
 }
 
-
-.buttons-footer {
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
+/* === Botão Voltar Step 2 === */
+.btn-to-back-step {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 2rem;
 }
 
-.dialog-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 32px 40px;
-    gap: 40px;
-    background: linear-gradient(180deg, #ffffff, #f7f9fc);
-    border-radius: 16px;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-    border: 1px solid #eef1f5;
+/* === STEP 3 - Preview PDF === */
+.loading-oberlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  min-height: 400px;
 }
 
-.slider-day label {
-    color: #2c3e50;
-    font-weight: 600;
-    font-size: 1.05rem;
-    margin-bottom: 8px;
-    letter-spacing: 0.3px;
+.loading-text {
+  margin-top: 1rem;
+  color: #575353;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 1.1rem;
+  font-weight: 500;
 }
 
-.date-select {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    background-color: #ffffff;
-    padding: 12px 16px;
-    border-radius: 10px;
-    border: 1px solid #dfe4ea;
-    box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.05);
-}
-.calendar-spacing {
-    margin-top: 12px;
+.pdf-preview-section {
+  background: white;
+  border-radius: 8px;
+  padding: 0;
 }
 
-.p-calendar .p-inputtext {
-    height: 42px;
-    border-radius: 8px !important;
-    border: 1px solid #cfd6e1 !important;
-    transition: all 0.2s ease;
+.pdf-wrapper {
+  position: relative;
+  margin-bottom: 1rem;
 }
 
-.p-calendar .p-inputtext:focus {
-    border-color: #6aa9ff !important;
-    box-shadow: 0 0 0 3px rgba(100, 149, 255, 0.25) !important;
+.pdf-wrapper iframe {
+  width: 100%;
+  height: 500px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.know-day {
-    width: 260px;
-    text-align: center;
-    padding: 10px 0;
-    border-radius: 10px;
-    background: #f1f5f9;
-    color: #1e293b;
-    font-weight: 600;
-    border: 1px solid #e2e8f0;
+.btn-signature {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 0.5rem;
 }
 
-.duration-display {
-    margin: 16px 0;
-    font-size: 1.1rem;
-    color: #475569;
+/* === Erro de Preview === */
+.p-mt-2.text-center.p-text-danger {
+  border: 1px solid #fecaca;
+  background-color: #fef2f2;
+  padding: 1.5rem;
+  border-radius: 8px;
+  max-width: 600px;
+  width: 90%;
+  margin: 2rem auto;
 }
 
-.duration-display strong {
-    font-size: 1.6rem;
-    color: #007ad9;
+.p-mt-2.text-center.p-text-danger i {
+  margin-right: 0.5rem;
 }
 
-.card.flex.justify-center {
-    display: flex;
-    justify-content: center;
-    margin: 0;
+/* === Navegação entre Steps === */
+.btn-to-navigate {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
 }
 
-.buttons-footer{
+/* === STEP 4 - Finalização === */
+.loading-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  min-height: 300px;
+}
+
+.step-finalization {
+  position: relative;
+  overflow: hidden;
+  padding: 2rem;
   display: flex;
   justify-content: center;
-  border-top: 1rem;
+}
+
+.step-finalization::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 150%;
+  height: 150%;
+  background: radial-gradient(circle at 30% 30%, rgba(74, 108, 232, 0.04) 0%, transparent 50%),
+    radial-gradient(circle at 70% 70%, rgba(148, 85, 211, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 50% 20%, rgba(59, 130, 246, 0.02) 0%, transparent 50%);
+  z-index: 0;
+}
+
+.step-body {
+  width: 100%;
+  max-width: 900px;
+  position: relative;
+  z-index: 1;
+}
+
+/* === Tabela de Finalização === */
+.table-finalization {
+  margin: 2rem;
+  border-radius: 24px;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(117, 0, 250, 0.95) 0%, rgba(43, 6, 252, 0.85) 100%);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(174, 0, 255, 0.3);
+  box-shadow: 0 25px 50px -12px rgba(102, 126, 234, 0.25),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.8),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  position: relative;
+}
+
+:host ::ng-deep .table-finalization .p-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: transparent;
+  border-radius: 24px;
+  overflow: hidden;
+  position: relative;
+}
+
+:host ::ng-deep .table-finalization .p-table .p-table-thead > tr > th {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.95) 0%, rgba(118, 75, 162, 0.9) 100%);
+  backdrop-filter: blur(10px);
+  color: white;
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 700;
+  font-size: 1.3rem;
+  padding: 1.5rem;
+  text-align: left;
+  border: none;
+  position: relative;
+  overflow: hidden;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+:host ::ng-deep .table-finalization .p-table .p-table-tbody > tr {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+:host ::ng-deep .table-finalization .p-table .p-table-tbody > tr::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, #002efd, #fbff01, #7d03f7);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+:host ::ng-deep .table-finalization .p-table .p-table-tbody > tr:hover::before {
+  opacity: 1;
+}
+
+:host ::ng-deep .table-finalization .p-table .p-table-tbody > tr:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+:host ::ng-deep .table-finalization .p-table .p-table-tbody > tr > td {
+  padding: 1.3rem 1.5rem;
+  border: none;
+  font-size: 1.05rem;
+  position: relative;
+  transition: all 0.3s ease;
+  color: white;
+}
+
+:host ::ng-deep .table-finalization .p-table .p-table-tbody > tr > td:first-child {
+  font-weight: 700;
+  color: white;
+  background: linear-gradient(135deg, rgba(0, 72, 255, 0.9) 0%, rgba(13, 20, 70, 0.8) 100%);
+  border-right: 1px solid rgba(102, 126, 234, 0.2);
+  width: 35%;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 1rem;
+  position: relative;
+}
+
+:host ::ng-deep .table-finalization .p-table .p-table-tbody > tr > td:first-child::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2px;
+  height: 60%;
+  background: linear-gradient(180deg, transparent, #d302fd, transparent);
+  opacity: 0.6;
+}
+
+:host ::ng-deep .table-finalization .p-table .p-table-tbody > tr > td a {
+  color: #5ccdf9;
+  text-decoration: underline;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+:host ::ng-deep .table-finalization .p-table .p-table-tbody > tr > td a:hover {
+  color: #fbff01;
+}
+
+/* === Botões de Finalização === */
+.button-finalization {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  width: 100%;
+  margin-top: 2.5rem;
+  margin-bottom: 2.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+:host ::ng-deep .button-finalization .p-button {
+  background: linear-gradient(135deg, rgba(69, 102, 248, 0.95) 0%, rgba(174, 105, 243, 0.9) 100%);
+  border: none;
+  padding: 1.2rem 2.5rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  border-radius: 16px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 0 20px rgba(102, 126, 234, 0.3);
+  position: relative;
+  overflow: hidden;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  backdrop-filter: blur(10px);
+}
+
+:host ::ng-deep .button-finalization .p-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(102, 126, 234, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    0 0 30px rgba(102, 126, 234, 0.4);
+}
+
+/* === Estado de Confirmação === */
+.step-footer {
+  margin-top: 2rem;
+}
+
+.proportional-info {
+  background-color: #f0f9ff;
+  border-left: 4px solid #0ea5e9;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.footer-title {
+  font-weight: 600;
+  color: #0c4a6e;
+  font-size: 1.2rem;
+  display: block;
+}
+
+.footer-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+/* === Diálogos === */
+:host ::ng-deep .p-dialog {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+:host ::ng-deep .p-dialog .p-dialog-header {
+  background: linear-gradient(90deg, #1c34a0 0%, #375ca4 100%);
+  color: white;
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 600;
+  padding: 1.5rem;
+}
+
+:host ::ng-deep .p-dialog .p-dialog-content {
+  padding: 2rem;
+  background: white;
+  font-family: "IBM Plex Mono", monospace;
+}
+
+:host ::ng-deep .p-dialog .p-dialog-footer {
+  background: #f8f9fa;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e2e2e2;
+}
+
+:host ::ng-deep .p-dialog-mask {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* === Dialog WhatsApp === */
+.dialog-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 1rem;
+  gap: 1.5rem;
+}
+
+.icon-container {
+  display: flex;
+  justify-content: center;
+}
+
+.whatsapp-icon {
+  font-size: 3.5rem;
+  background-color: #25d366;
+  color: white;
+  padding: 1.25rem;
+  border-radius: 50%;
+  box-shadow: 0 0 15px rgba(37, 211, 102, 0.6);
+}
+
+.alert-box {
+  display: flex;
+  align-items: center;
+  background-color: rgba(255, 230, 0, 0.3);
+  padding: 15px;
+  border-radius: 8px;
+  gap: 15px;
+  margin-top: 15px;
+  padding-left: 20px;
+  border-left: 5px solid #ff8800;
+}
+
+.alert-icon-circle {
+  width: 40px;
+  height: 40px;
+  background-color: rgba(245, 127, 23, 0.5);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.alert-text {
+  margin: 0;
+  color: #000;
+  font-size: 16px;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.info-text {
+  font-size: 1rem;
+  color: #000;
+  line-height: 1.6;
+  margin: 0;
+}
+
+:host ::ng-deep .p-inputgroup {
+  width: 100%;
+  max-width: 400px;
+  margin-top: 1rem;
+}
+
+/* === Dialog Assinatura === */
+.signature-pad-container {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+}
+
+.signature-input {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.signature-input app-signature-pad {
+  flex-grow: 1;
+  display: block;
+}
+
+.btn-to-capture {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.btn-to-generate-contract {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/* === Alertas === */
+.alert-warning {
+  background-color: #fff3cd;
+  border: 1px solid #ffeaa7;
+  color: #856404;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  text-align: center;
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 500;
+  margin: 1rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+/* === Animações === */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* === Responsividade === */
+@media (max-width: 768px) {
+  .page-container {
+    padding: 1rem;
+  }
+
+  .btn-to-create-another-contract {
+    gap: 1rem;
+  }
+
+  .fluxo-container {
+    gap: 10px;
+  }
+
+  .fluxo-card {
+    width: 100%;
+    min-height: auto;
+  }
+
+  .fluxo-header {
+    font-size: 3.5rem;
+  }
+
+  .contractNumber__header {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+  }
+
+  .simple-line > div {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .table-finalization {
+    margin: 1rem;
+  }
+
+  :host ::ng-deep .table-finalization .p-table .p-table-tbody > tr > td:first-child {
+    width: 100%;
+  }
+
+  .footer-actions {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .btn-to-navigate {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .pdf-wrapper iframe {
+    height: 400px;
+  }
 }

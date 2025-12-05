@@ -173,8 +173,12 @@
                   <span>{{
                     att.flow === "26"
                       ? "26 • Mudança de DV"
-                      : att.flow
+                      : att.flow === "36"
+                      ? "36 • Susp. de contrato"
+                      : att.flow === "37"
                       ? "37 • Venda"
+                      : att.flow 
+                      ? "17 • Cancel. Contrato"
                       : att.flow
                   }}</span>
                 </div>

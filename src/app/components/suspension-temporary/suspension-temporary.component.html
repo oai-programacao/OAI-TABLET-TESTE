@@ -36,47 +36,50 @@
             <p-step-panel [value]="1">
                 <div class="info-text">
                     <ng-template #content let-activateCallback="activateCallback">
-                        <h2> ⚫ Instruções </h2>
-                        <p>
-                            Caro vendedor, essa etapa de suspensão de contrato funciona da seguinte maneira,
-                            ao Cliente solicitar suspensão do contrato ele pode agendar o dia que ira começar
-                            a suspensão do contrato e quantos dias ira durar sendo esses dias 30 60 90 e 120 dias.
-                            É de extrema importancia que caso o cliente não queira mais que seja suspenso o Contrato
-                            e ja esteja agendado deve fazer o cancelamento de suspenção do contrato.
-                            caso haja duvidas entrar em contato com seu superior.
-                        </p>
-                        <h2> ⚫ Informação </h2>
-                        <p>
-                            O atendimento será aberto e registrado certifique-se se as informações estejam corretas.
-                        </p>
-                        <div>
-                            <p-datepicker [(ngModel)]="suspensionData.dateInitialSuspension" [showIcon]="true" inputId="buttondisplay" [showOnFocus]="false" />
+                        <div class="info-text-instructions">
+                            <h2> ⚫ Instruções </h2>
+                            <p>
+                                Caro vendedor, essa etapa de suspensão de contrato funciona da seguinte maneira,
+                                ao Cliente solicitar suspensão do contrato ele pode agendar o dia que ira começar
+                                a suspensão do contrato e quantos dias ira durar sendo esses dias 30 60 90 e 120 dias.
+                                É de extrema importancia que caso o cliente não queira mais que seja suspenso o Contrato
+                                e ja esteja agendado deve fazer o cancelamento de suspenção do contrato.
+                                caso haja duvidas entrar em contato com seu superior.
+                            </p>
+                            <h2> ⚫ Informação </h2>
+                            <p>
+                                O atendimento será aberto e registrado certifique-se se as informações estejam corretas.
+                            </p>
+                        </div>
+                        <div class="datepicker-container">
+                            <p-datepicker [(ngModel)]="suspensionData.dateInitialSuspension"  (ngModelChange)="onValuesChange()" [showIcon]="true" inputId="buttondisplay" [showOnFocus]="false" />
                         </div>
                         <div class="card flex justify-center">
-                            <p-knob [(ngModel)]="duration" [step]="30" [max]="120"  (ngModelChange)="onValuesChange()"/>
+                            <p-knob [(ngModel)]="suspensionData.duration" [step]="30" [max]="120"  (ngModelChange)="onValuesChange()" styleClass="knob-large"/>
                         </div>
-                        <div>
-                            <strong>Data de término: </strong>
-                            {{ finishDate | date:'dd/MM/yyyy' }}
+                        <div class="simple-summary">
+                            <div class="simple-line">
+                                <div>
+                                    <strong>Data de término: </strong>
+                                    <span class="simple-value">{{ finishDate | date:'dd/MM/yyyy' }}</span>
+                                </div>
+                                <div>
+                                    <strong> Proporcional a pagar: </strong>
+                                    <span class="simple-value">{{ proportionalBoleto | currency : "BRL" : "symbol" : "1.2-2" }}</span>
+                                </div>    
+                            </div>
                         </div>
-                        <div>
-                            <i class="pi pi-dollar"></i>
-                            <span>
-                                Proporcional a ser pago pelos dias utilizados até inicio da suspensão:
-                                {{
-                                    proportionalBoleto | currency : "BRL" : "symbol" : "1.2-2"
-                                }}
-                            </span>
+                        <div class="button-footer-step1">
+                            <p-button 
+                                label="Proximo" 
+                                severity="primary" 
+                                icon="pi pi-arrow-right" 
+                                size="large"
+                                [raised]="true" 
+                                [rounded]="true"
+                                (onClick)="activateCallback(2)">
+                            </p-button>
                         </div>
-                        <p-button 
-                            label="Proximo" 
-                            severity="primary" 
-                            icon="pi pi-arrow-right" 
-                            size="large"
-                            [raised]="true" 
-                            [rounded]="true"
-                            (onClick)="activateCallback(2)">
-                        </p-button>
                     </ng-template>
                 </div>
             </p-step-panel>
@@ -138,7 +141,7 @@
                         <p-button
                         label="Voltar"
                         icon="pi pi-arrow-left"
-                        severity="secondary"
+                        severity="info"
                         rounded="true"
                         size="large"
                         [raised]="true"
@@ -384,7 +387,7 @@
 </p-dialog>
 
  <p-dialog
-    header="Assinatura Online 🖋️"
+    header="Assinatura 🖋️"
     [(visible)]="signDialogVisible"
     (onShow)="forceSignatureRedraw()"
     (onHide)="resetSignaturePad()"

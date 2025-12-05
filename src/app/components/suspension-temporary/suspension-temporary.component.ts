@@ -26,6 +26,8 @@ import { IftaLabelModule } from "primeng/iftalabel";
 import { SignaturePadComponent } from "../../shared/components/signature-pad/signature-pad.component";
 import { DividerModule } from "primeng/divider";
 import { TableModule } from "primeng/table";
+import { Client } from '@stomp/stompjs';
+import { AttendancesService } from '../../services/attendances/attendance.service';
 
 @Component({
   selector: 'app-suspension-temporary',
@@ -60,6 +62,8 @@ export class SuspensionTemporaryComponent {
 
   private readonly router = inject(Router);
   private readonly reportsService = inject(ReportsService);
+  private readonly attendancesService = inject(AttendancesService);
+
   private contractService = inject(ContractsService);
   private clienteService = inject(ClientService);
   private messageService = inject(MessageService);
@@ -185,16 +189,24 @@ export class SuspensionTemporaryComponent {
   }
 
   onValuesChange() {
+    this.startDate = this.suspensionData.dateInitialSuspension!;
+    this.duration = this.suspensionData.duration;
+
+    console.log("   - startDate =", this.startDate);
+    console.log("   - duration =", this.duration);
+
     if (!this.startDate || !this.duration) {
       return;
     }
 
     this.calculateFinishDate();
+
     this.proportionalBoleto = this.calculateProportional(
       this.contract.liquidPrice!,
       this.contract.cicleBillingExpired!,
       this.startDate
     );
+    console.log("   - proportionalBoleto =", this.proportionalBoleto);
   }
 
   onFotoCapturada(event: Event): void {
@@ -224,8 +236,6 @@ export class SuspensionTemporaryComponent {
     end.setDate(start.getDate() + this.duration);
 
     this.finishDate = end.toISOString().split("T")[0];
-
-    console.log(this.finishDate)
   }
 
   calculateProportional(
@@ -254,7 +264,6 @@ export class SuspensionTemporaryComponent {
     const diffMs = suspension.getTime() - cycleDate.getTime();
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24)) + 1;
 
-    this.proportionalBoleto = Number((dailyPrice * diffDays).toFixed(2));
     return Number((dailyPrice * diffDays).toFixed(2));
   }
 
@@ -546,16 +555,8 @@ export class SuspensionTemporaryComponent {
       return;
     }
 
-    console.log("📌 [check] Dados atuais:");
-    console.log(" - dateInitialSuspension:", this.suspensionData.dateInitialSuspension);
-    console.log(" - duration:", this.suspensionData.duration);
-    console.log(" - startDate:", this.startDate);
-    console.log(" - finishDate:", this.finishDate);
-    console.log(" - proportionalBoleto:", this.proportionalBoleto);
-    console.log(" - pdfBlobFinal:", this.pdfBlobFinal);
-
     const dto = {
-      dateInitialSuspension: this.suspensionData.dateInitialSuspension .toISOString().split("T")[0],
+      dateInitialSuspension: this.suspensionData.dateInitialSuspension.toISOString().split("T")[0],
       dateFinishSuspension: this.finishDate,
       duration: this.suspensionData.duration,
       proporcional: this.proportionalBoleto,
@@ -563,18 +564,32 @@ export class SuspensionTemporaryComponent {
     };
 
     this.contractService.suspendContract(this.contractId, dto).subscribe({
-      next: (res) => {
+      next: (res: any) => {
         this.messageService.add({
           severity: 'success',
           summary: 'Sucesso',
           detail: 'Suspensão temporária agendada com sucesso!'
         });
+        if (this.pdfBlobFinal) {
+          this.registerAttendance(this.pdfBlobFinal, res.linkBoleto);
+        } else {
+          console.warn("PDF não encontrado, o atendimento não será registrado.");
+        }
 
+        this.result = {
+          clientName: this.client?.name || this.client?.socialName || 'Cliente Indisponível',
+          clientCpf: this.formatCpfCnpj(this.client?.cpf || this.client?.cnpj || 'N/A'),
+          contrato: this.contract?.codeContractRbx || this.contract?.id,
+          proporcional: this.proportionalBoleto,
+          linkBoleto: res?.linkBoleto
+        }
         this.openSuspender = false;
         this.tocarCheck = true;
         this.loadContract();
+        this.finalization = true;
       },
       error: (err) => {
+        this.isSubmiting = false;
         this.messageService.add({
           severity: 'error',
           summary: 'Erro',
@@ -585,6 +600,45 @@ export class SuspensionTemporaryComponent {
         this.isSubmiting = false;
       }
     });
+  }
+
+  event: string = "temporary-suspension";
+  private registerAttendance(pdfBlob: Blob, linkBoleto: string): void {
+    if (!this.clientId || !this.contractId) {
+      console.error("registerAttendance: ClientID ou ContractID estão ausentes.");
+      return;
+    }
+    const data = {
+      event: this.event as string,
+      cliente: this.clientId,
+      contrato: this.contractId,
+      linkBoleto: linkBoleto
+    };
+
+    const jsonBlob = new Blob([JSON.stringify(data)], { type: "application/json" });
+
+    const formData = new FormData();
+    formData.append('data', jsonBlob, 'data.json');
+    formData.append('arquivo', pdfBlob, 'termo_transferencia_assinado.pdf');
+
+    this.attendancesService.registerAttendance(formData).subscribe({
+      next: (response) => {
+        console.log("Atendimento registrado com sucesso:", response);
+        this.showInfo("Registro de Atendimento", "Atendimento registrado com sucesso no sistema.");
+      },
+      error: (err) => {
+        console.error("Falha ao registrar atendimento:", err);
+        this.showWarning("Aviso", "A transferência foi concluída, mas houve um erro ao registrar o atendimento no histórico.");
+      }
+    });
+  }
+
+  private showWarning(summary: string, detail: string, life?: number): void {
+    this.messageService.add({ severity: 'warn', summary, detail, life });
+  }
+
+  private showInfo(summary: string, detail: string, life: number = 3000) {
+    this.messageService.add({ severity: 'info', summary, detail, life });
   }
 
 
@@ -638,8 +692,11 @@ export class SuspensionTemporaryComponent {
     });
   }
 
-  formatCpfCnpj(value: string): string {
+  formatCpfCnpj(value: string | null | undefined): string {
+    if (!value) return ''; // ⛔ impede erro de .replace()
+
     const numbers = value.replace(/\D/g, '');
+
     if (numbers.length <= 11) {
       // CPF → 000.000.000-00
       return numbers
