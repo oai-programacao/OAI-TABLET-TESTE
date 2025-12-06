@@ -121,6 +121,7 @@ export class WaitingLeadsComponent implements OnInit {
   // O cards-leads é um componente genérico que pode ser usado em vários contextos
   transformToCardData(sale: DraftSaleResponse) {
     return {
+      archivedAt: sale.archivedAt,
       draftId: sale.draftId,
       clientName: sale.clientName,
       sellerName: sale.sellerName,
@@ -131,9 +132,6 @@ export class WaitingLeadsComponent implements OnInit {
       email: sale.clientEmail,
       phone: sale.clientPhone,
       observation: sale.observation,
-
-      archivedAt: this.formatDate(sale.dateSignature),
-
       address: {
         street: sale.address?.street,
         number: sale.address?.number,

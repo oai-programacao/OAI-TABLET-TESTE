@@ -60,4 +60,5 @@ export class CardLeadsComponent implements OnInit {
   sendEmail(): void {
     this.onEmail.emit();
   }
+
 }

@@ -739,7 +739,7 @@ export class AddContractComponent implements OnInit {
         invalidFields.push('Data de Vencimento da Adesão');
       if (!this.selectDateOfExpirationCicle)
         invalidFields.push('Dia de Vencimento');
-      if (!this.selectContract) invalidFields.push('Tipo de Contrato');
+      if (this.selectContract == null) invalidFields.push('Tipo de Contrato');
       if (!this.selectedClientType) invalidFields.push('Tipo de Cliente');
       if (!this.selectedTechnology) invalidFields.push('Tipo de Tecnologia');
       if (!this.selectedInstallment)

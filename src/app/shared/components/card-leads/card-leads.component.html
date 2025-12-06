@@ -42,8 +42,9 @@
   </div>
 
   <div class="last-contact" *ngIf="data.archivedAt">
-    <strong>Arquivado em: </strong>
-    {{ data.archivedAt | date : "dd/MM/yyyy" }}
+    <strong>Arquivado em:</strong>&nbsp;{{
+      data.archivedAt | date : "dd/MM/yyyy"
+    }}
   </div>
 
   <div class="actions">

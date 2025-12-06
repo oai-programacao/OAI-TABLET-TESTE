@@ -37,6 +37,7 @@ export interface DraftSaleResponse {
   dateStart?: string;
   dateSignature?: string;
   dateExpiredAdesion?: string;
+  archivedAt?: string;
   observation?: string;
   address?: AddressResponse;
   residenceType?: string;
