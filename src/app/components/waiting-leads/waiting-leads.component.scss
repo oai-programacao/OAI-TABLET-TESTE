@@ -25,7 +25,7 @@
 
 .card-container > * {
   flex: 0 0 auto;           
-  max-width: 500px;
+  max-width: 100%;
   scroll-snap-align: start; 
 }
 
@@ -39,19 +39,10 @@
 }
 
 
-@media (max-width: 480px) {
+
+// essa media query é para ajustar o tamanho dos cards em tablets by gs #SEARCHQUERY
+@media (min-width: 768px) and (max-width: 1366px) {
   .card-container {
-    gap: 1rem;
-    max-width: 90%;
+    max-width: 90vw;
   }
 }
-
-@media (min-width: 768px) and (max-width: 1024px) {
-  .card-container {
-
-    max-width: 80rem;
-    padding: 0;
-  }
-}
-
-

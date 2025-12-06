@@ -164,3 +164,11 @@
     border-radius: 50%;
    }
 }
+
+
+// essa media query é para ajustar o tamanho dos cards em tablets by gs #SEARCHQUERY
+@media (min-width: 768px) and (max-width: 1366px) {
+  .card-container {
+    max-width: 35vw;    /* <<< AQUI ESTÁ A CURA */
+  }
+}
