@@ -1,5 +1,5 @@
 <div class="leads-container">
-  <app-card-base header="Clientes Em Espera" width="auto" height="auto">
+  <app-card-base header="📦 Gestão de Vendas Arquivadas" width="auto" height="auto">
     <div class="btn-to-back">
       <p-button 
         icon="pi pi-arrow-left" 
@@ -11,11 +11,7 @@
     </div>
 
     <div class="container">
-      <div class="title">
-        <h1>📦 Gestão de Vendas Arquivadas</h1>        
-      </div>
-
-   
+  
       <div *ngIf="isLoading" class="loading-container">
         <p-progressSpinner></p-progressSpinner>
         <p>Carregando vendas arquivadas...</p>
@@ -34,7 +30,8 @@
           *ngFor="let sale of archivedSales" 
           [data]="transformToCardData(sale)"
           (onCall)="callClient(sale.clientPhone || '')"
-          (onEmail)="sendEmail(sale.clientEmail || '')">
+          (onEmail)="sendEmail(sale.clientEmail || '')"
+          (onDelete)="deleteSale(sale)">
         </app-card-leads>
       </div>
     </div>

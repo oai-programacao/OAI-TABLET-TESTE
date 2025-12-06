@@ -7,18 +7,6 @@
   box-sizing: border-box;
 }
 
-.title {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-}
-
-.title > h1 {
-  font-size: 2rem;
-  color: #3c83f6;
-  
-}
 
 .card-container {
   display: flex;
@@ -29,8 +17,10 @@
   width: 100%;
   max-width: 100%;         
   box-sizing: border-box;
-  padding-bottom: 1rem;
-  padding-left: 0;          
+  padding: 1rem;
+  background-color: rgb(245, 245, 245);     
+  border: 1px solid #ccc; 
+  margin-top: 5rem;    
 }
 
 .card-container > * {

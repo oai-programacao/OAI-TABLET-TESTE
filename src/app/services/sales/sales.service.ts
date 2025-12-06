@@ -26,8 +26,9 @@ export class SalesService {
     return this.http.get<DraftSaleResponse[]>(`${this.urlApi}/archived`);
   }
 
-
-
+  deleteArchivedSale(draftId: string): Observable<any> {
+    return this.http.delete<any>(`${this.urlApi}/archived/${draftId}`);
+  }
 
   getTodayMetrics(sellerId: string): Observable<DailyMetricsDto> {
     return this.http.get<DailyMetricsDto>(

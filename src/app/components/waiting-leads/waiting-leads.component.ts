@@ -39,7 +39,6 @@ export class WaitingLeadsComponent implements OnInit {
     this.isLoading = true;
     this.saleService.getArchivedSales().subscribe({
       next: (sales) => {
-
         if (Array.isArray(sales)) {
           sales.forEach((s, i) => console.log(`📦 Sale[${i}] =`, s));
         } else {
@@ -58,15 +57,36 @@ export class WaitingLeadsComponent implements OnInit {
     });
   }
 
-  // convertToSale(sale: DraftSaleResponse): void {
-  //   console.log('🔄 Convertendo venda:', sale);
-  //   this.router.navigate(['/add-contract'], {
-  //     queryParams: {
-  //       clientId: sale.clientId,
-  //       draftId: sale.draftId,
-  //     },
-  //   });
-  // }
+  //deletar venda arquivada, assim é possível liberar espaço e também excluir vendas que não são mais necessárias.
+  deleteSale(sale: DraftSaleResponse): void {
+    const draftId = sale.draftId;
+
+    if (!draftId) {
+      console.error('❌ draftId não encontrado!');
+      return;
+    }
+
+    this.saleService.deleteArchivedSale(draftId).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Removido',
+          detail: 'Venda arquivada excluída com sucesso!',
+        });
+
+        this.archivedSales = this.archivedSales.filter(
+          (s) => s.draftId !== sale.draftId
+        );
+
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('❌ Erro ao excluir venda arquivada', err);
+        this.isLoading = false;
+      },
+    });
+  }
+
 
   callClient(phone: string): void {
     if (phone) {
@@ -94,27 +114,32 @@ export class WaitingLeadsComponent implements OnInit {
     this.router.navigate(['search']);
   }
 
+  // passar para o card-leads os dados no formato esperado
+  // pois o card-leads espera um objeto com uma estrutura específica
+  // enquanto o DraftSaleResponse tem uma estrutura diferente
+  // essa função faz a transformação dos dados
+  // O cards-leads é um componente genérico que pode ser usado em vários contextos
   transformToCardData(sale: DraftSaleResponse) {
-  return {
-    clientName: sale.clientName,
-    sellerName: sale.sellerName,
+    return {
+      draftId: sale.draftId,
+      clientName: sale.clientName,
+      sellerName: sale.sellerName,
 
-    planCode: sale.codePlan,
-    planName: sale.namePlan,
+      planCode: sale.codePlan,
+      planName: sale.namePlan,
 
-    email: sale.clientEmail,
-    phone: sale.clientPhone,
-    observation: sale.observation,
+      email: sale.clientEmail,
+      phone: sale.clientPhone,
+      observation: sale.observation,
 
-    archivedAt: this.formatDate(sale.dateSignature), 
+      archivedAt: this.formatDate(sale.dateSignature),
 
-    address: {
-      street: sale.address?.street,
-      number: sale.address?.number,
-      neighborhood: sale.address?.neighborhood,
-      UF: sale.address?.state,
-    },
-  };
-}
-
+      address: {
+        street: sale.address?.street,
+        number: sale.address?.number,
+        neighborhood: sale.address?.neighborhood,
+        UF: sale.address?.state,
+      },
+    };
+  }
 }
