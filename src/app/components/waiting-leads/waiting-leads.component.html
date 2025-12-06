@@ -1,37 +1,61 @@
 <div class="leads-container">
-  <app-card-base header="📦 Gestão de Vendas Arquivadas" width="auto" height="auto">
+  <app-card-base
+    header="📦 Gestão de Vendas Arquivadas"
+    width="auto"
+    height="auto"
+  >
     <div class="btn-to-back">
-      <p-button 
-        icon="pi pi-arrow-left" 
-        [rounded]="true" 
-        severity="danger" 
+      <p-button
+        icon="pi pi-arrow-left"
+        [rounded]="true"
+        severity="danger"
         [size]="'large'"
-        (onClick)="backToSearch()">
+        (onClick)="backToSearch()"
+      >
       </p-button>
     </div>
 
+    <div class="header-card">
+      <div class="rainbow-wrapper">
+        <div class="header-content">
+          <i class="pi pi-box header-icon"></i>
+
+          <div class="header-text">
+            <h2>Vendas Arquivadas</h2>
+            <p>Gerencie e acompanhe as vendas armazenadas.</p>
+          </div>
+
+          <div class="totalizer">
+            <span class="value">{{ archivedSales.length }}</span>
+            <span class="label">Total</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="container">
-  
       <div *ngIf="isLoading" class="loading-container">
         <p-progressSpinner></p-progressSpinner>
         <p>Carregando vendas arquivadas...</p>
       </div>
 
-    
       <div *ngIf="!isLoading && archivedSales.length === 0" class="empty-state">
-        <i class="pi pi-inbox" style="font-size: 4rem; color: #ccc;"></i>
+        <i class="pi pi-inbox" style="font-size: 4rem; color: #ccc"></i>
         <h3>Nenhuma venda arquivada</h3>
         <p>As vendas arquivadas aparecerão aqui.</p>
       </div>
 
-    
-      <div *ngIf="!isLoading && archivedSales.length > 0" class="card-container">
-        <app-card-leads 
-          *ngFor="let sale of archivedSales" 
+      <div
+        *ngIf="!isLoading && archivedSales.length > 0"
+        class="card-container"
+      >
+        <app-card-leads
+          *ngFor="let sale of archivedSales"
           [data]="transformToCardData(sale)"
           (onCall)="callClient(sale.clientPhone || '')"
           (onEmail)="sendEmail(sale.clientEmail || '')"
-          (onDelete)="deleteSale(sale)">
+          (onDelete)="deleteSale(sale)"
+        >
         </app-card-leads>
       </div>
     </div>
