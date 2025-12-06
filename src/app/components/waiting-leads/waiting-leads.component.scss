@@ -7,30 +7,28 @@
   box-sizing: border-box;
 }
 
-
 .card-container {
   display: flex;
-  flex-direction: row;      
-  gap: 2rem;                
-  overflow-x: auto;        
+  flex-direction: row;
+  gap: 2rem;
+  overflow-x: auto;
   overflow-y: hidden;
   width: 100%;
-  max-width: 100%;         
+  max-width: 100%;
   box-sizing: border-box;
   padding: 1rem;
-  background-color: rgb(245, 245, 245);     
-  border: 1px solid #ccc; 
-  margin-top: 2rem;    
+  background-color: rgb(245, 245, 245);
+  border: 1px solid #ccc;
+  margin-top: 2rem;
 }
-
 
 .card-container > * {
-  flex: 0 0 auto;           
+  flex: 0 0 auto;
   max-width: 100%;
-  scroll-snap-align: start; 
+  scroll-snap-align: start;
 }
 
-.empty-state{
+.empty-state {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -38,7 +36,6 @@
   height: auto;
   width: auto;
 }
-
 
 /* WRAPPER DA BORDA RAINBOW */
 .rainbow-wrapper {
@@ -59,11 +56,16 @@
 
 /* ANIMAÇÃO */
 @keyframes rainbow {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
-
 
 .header-content {
   display: flex;
@@ -73,8 +75,7 @@
   border-radius: 1rem;
   background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(8px);
-  box-shadow:
-    0 4px 10px rgba(0, 0, 0, 0.5),
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5),
     inset 0 0 15px rgba(255, 255, 255, 0.3);
 
   transform: translateZ(0);
@@ -108,7 +109,7 @@
   padding: 0.7rem 1rem;
   background: #ffffffb0;
   border-radius: 0.8rem;
-  box-shadow: inset 0 0 10px rgba(0,0,0,1);
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 1);
 }
 
 .totalizer .value {
@@ -124,17 +125,25 @@
 }
 
 .header-card {
-  width: 100%;
-  margin-top: 2rem;
   display: flex;
-  justify-content: center; 
-  gap: 2rem;              
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  margin-top: 1rem;
 }
-
 
 // essa media query é para ajustar o tamanho dos cards em tablets by gs #SEARCHQUERY
 @media (min-width: 768px) and (max-width: 1366px) {
   .card-container {
-    max-width: 90vw;
+    max-width: 95vw;
+  }
+
+  .header-card {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap; // permite quebrar a linha
+    align-items: flex-start; // força todos a alinhar pelo topo
   }
 }
