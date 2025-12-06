@@ -16,18 +16,47 @@
     </div>
 
     <div class="header-card">
+      <!-- Card 1: Total de Vendas -->
       <div class="rainbow-wrapper">
         <div class="header-content">
           <i class="pi pi-box header-icon"></i>
-
           <div class="header-text">
             <h2>Vendas Arquivadas</h2>
-            <p>Gerencie e acompanhe as vendas armazenadas.</p>
+            <p>Total de vendas arquivadas</p>
           </div>
-
           <div class="totalizer">
             <span class="value">{{ archivedSales.length }}</span>
-            <span class="label">Total</span>
+            <span class="label">Vendas</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2: Clientes Diferentes -->
+      <div class="rainbow-wrapper">
+        <div class="header-content">
+          <i class="pi pi-users header-icon"></i>
+          <div class="header-text">
+            <h2>Clientes</h2>
+            <p>Total de clientes distintos</p>
+          </div>
+          <div class="totalizer">
+            <span class="value">{{ totalUniqueClients }}</span>
+            <span class="label">Clientes</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3: Planos Diferentes -->
+      <div class="rainbow-wrapper">
+        <div class="header-content">
+          <i class="pi pi-tag header-icon"></i>
+          <div class="header-text">
+            <h2>Planos</h2>
+            <p>Total de planos diferentes</p>
+          </div>
+          <div class="totalizer">
+            <span class="value">{{ totalUniquePlans }}</span>
+            <span class="label">Planos</span>
           </div>
         </div>
       </div>

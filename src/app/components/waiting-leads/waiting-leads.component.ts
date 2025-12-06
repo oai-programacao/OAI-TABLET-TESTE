@@ -87,7 +87,6 @@ export class WaitingLeadsComponent implements OnInit {
     });
   }
 
-
   callClient(phone: string): void {
     if (phone) {
       window.location.href = `tel:${phone}`;
@@ -139,5 +138,15 @@ export class WaitingLeadsComponent implements OnInit {
         UF: sale.address?.state,
       },
     };
+  }
+
+  get totalUniquePlans(): number {
+    const planSet = new Set(this.archivedSales.map((s) => s.codePlan));
+    return planSet.size;
+  }
+
+  get totalUniqueClients(): number {
+    const clientSet = new Set(this.archivedSales.map((s) => s.clientId));
+    return clientSet.size;
   }
 }
