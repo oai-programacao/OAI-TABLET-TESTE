@@ -26,7 +26,7 @@ export class DateUtilsService {
     }
   }
 
-  formatToISODateString(date: Date | null | undefined): string | null {
+  formatToISODateString(date: Date | string | number | null | undefined): string | null{
     if (!date) return null;
 
     try {
@@ -37,7 +37,11 @@ export class DateUtilsService {
         return null;
       }
 
-      return validDate.toISOString().split('T')[0];
+      const day = validDate.getDate().toString().padStart(2, '0');
+      const month = (validDate.getMonth() + 1).toString().padStart(2, '0');
+      const year = validDate.getFullYear();
+
+     return `${year}-${month}-${day}`; 
     } catch (error) {
       console.error('❌ Erro ao formatar data ISO:', error);
       return null;

@@ -151,4 +151,12 @@ export const routes: Routes = [
       ),
     canActivate: [AuthGuard],
   },
+  {
+    path: 'cancel-contract/:contractId',
+    loadComponent: () =>
+      import('./components/cancel-contract/cancel-contract.component').then(
+        (m) => m.CancelContractComponent
+      ),
+    canActivate: [AuthGuard],
+  }
 ];

@@ -1,0 +1,1053 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap");
+
+$border-radius-sm: 6px;
+$border-radius-md: 10px;
+$border-radius-lg: 12px;
+$border-radius-xl: 14px;
+
+$spacing-xs: 0.25rem;
+$spacing-sm: 0.5rem;
+$spacing-md: 0.5rem;
+$spacing-lg: 0.5rem;
+$spacing-xl: 0.5rem;
+$spacing-2xl: 0.5rem;
+$spacing-3xl: 0.5rem;
+
+$font-size-sm: 1rem;
+$font-size-base: 1rem;
+$font-size-md: 0.9rem;
+$font-size-lg: 1rem;
+$font-size-xl: 0.9rem;
+$font-size-2xl: 0.9rem;
+$font-size-3xl: 0.9rem;
+$font-size-icon: 0.9rem;
+$font-size-emoji: 0.9rem;
+
+$transition-fast: 0.2s ease-in-out;
+$transition-base: 0.3s ease;
+
+/* === Layout Principal === */
+.page-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 88vh;
+  padding: 0.5rem;
+}
+
+
+.content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  width: 100%;
+  height: auto;
+  flex-wrap: wrap;
+}
+
+.help-text {
+  display: block;    
+  margin-top: 0.5rem;  
+  color: #6b7280;       
+  font-size: 0.8rem;
+}
+
+/* --- Estilos do Step 1 Rico --- */
+
+.title-section {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: 0.2rem;
+  margin-top: -0.5rem;
+  h2 { font-size: 1.6rem; color: #1c34a0; font-weight: 700; margin-bottom: 0.2rem; }
+  p { color: #6b7280; font-size: 1rem; }
+}
+
+/* Valor com Ícones */
+.value-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  i { 
+    font-size: 0.9rem; 
+  }
+
+  span {
+    font-size: 0.9rem; 
+  }
+}
+
+/* Destaques de Texto */
+.text-green-500 { color: #10b981; }
+.text-red-500 { color: #ef4444; }
+.text-blue-500 { color: #3b82f6; }
+.font-bold { font-weight: 700; color: #111827 !important; }
+
+/* Badge de Vigência */
+.badge-vigencia {
+  background-color: #e0f2fe;
+  color: #0369a1;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-left: 0.5rem;
+}
+
+/* Box de Destaque (Ciclo de Faturamento) */
+.highlight {
+    display: inline-block; 
+    background: #fffbeb;  
+    color: #92400e;        
+    padding: 0.5rem 1rem;  
+    border-radius: 6px;    
+    align-self: flex-end;
+    font-size: 1rem;
+
+    strong {
+        font-size: inherit; 
+        
+    } 
+}
+
+.btn-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin: -0.6rem;
+}
+
+/* Caixa de Resultados (Simulação) */
+.simulation-results-container {
+  margin-top: 1rem;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.simulation-box {
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  border-top: 4px solid #1c34a0; 
+}
+
+.sim-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.7rem;
+  font-size: 1.1rem;
+  color: #4b5563;
+}
+
+.sim-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+
+  span { 
+    font-size: 1.3rem; 
+    font-weight: 600; 
+}
+
+  .total-value { 
+    color: #1c34a0; 
+    font-size: 1.6rem; 
+    font-weight: 800; 
+}
+}
+
+.divider-dashed {
+  height: 0.5px;
+  background-image: linear-gradient(to right, #e5e7eb 50%, rgba(255,255,255,0) 0%);
+  background-position: bottom;
+  background-size: 10px 1px;
+  background-repeat: repeat-x;
+  margin-top: 1rem;
+}
+
+.tag-isento {
+  background-color: #dcfce7;
+  color: #166534;
+  padding: 0.6rem;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  border: 1px solid #86efac;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+
+/* === Stepper (PrimeNG) === */
+.p-stepper {
+  --p-stepper-step-number-font-size: 2rem;
+  --p-stepper-step-number-background: #fff;
+  --p-stepper-step-number-color: #004e9b;
+  --p-stepper-step-number-active-background: #004e9b;
+  --p-stepper-step-number-active-color: #fff;
+  --p-stepper-separator-background: #375ca4;
+  --p-stepper-separator-active-background: #000;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: transparent;
+}
+
+:host ::ng-deep .p-stepper .p-step-title {
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 400;
+  font-size: $font-size-md !important;
+  padding: $spacing-xs $spacing-sm;
+  border-radius: 3px;
+  transition: all $transition-fast;
+}
+
+:host ::ng-deep .p-stepper .p-step.p-step-active .p-step-title {
+  background-color: #5ccdf9;
+  color: #000;
+  border: 1px solid #000;
+  box-shadow: 0 0 5px rgba(0.1, 0.3, 0.2, 0.4);
+  font-weight: 600 !important;
+}
+
+/* === Botões Superiores === */
+.btn-to-back {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: $spacing-lg;
+  gap: $spacing-md;
+}
+
+/* === Botões Inferiores (Navegação de Step) === */
+.btn-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.btn-to-back-step{
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 10px;
+  margin-left: 2px;
+}
+
+
+
+.contractNumber__header {
+  background-color: #f8f9fa;
+  padding: 0.5rem;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #dee2e6;
+
+  label {
+    font-weight: 500;
+    color: #575353;
+    font-size: 1.3rem;
+  }
+
+  span {
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: #1c34a0;
+  }
+}
+
+.step {
+  width: 100%;
+  max-width: 700px;
+  margin: 0.5rem auto;
+  padding: 2rem;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease-in-out;
+
+  &.active {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  }
+
+  .step-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+}
+
+/* === Info Item === */
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px dashed #d4d4d4;
+  padding-bottom: $spacing-md;
+  gap: 0.5rem;
+
+  .label {
+    color: #1a3b73;
+    font-weight: 600;
+    font-size: $font-size-lg;
+    min-width: 200px;
+  }
+
+  .value {
+    color: #111827;
+    font-size: $font-size-md;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: 0.2rem;
+    flex: 1;
+
+    .value-row {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+
+      i.pi-dollar {
+        color: #16a34a;
+        font-size: $font-size-base;
+      }
+    }
+  }
+}
+
+.badge-vigencia {
+  background-color: #e0f2fe; /* Azul claro */
+  color: #0369a1;            /* Azul escuro */
+  padding: 0.6rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+
+  /* Estilo quando a vigência é 0 (Fidelidade Cumprida) */
+  &.vencido {
+    background-color: #dcfce7; /* Verde claro */
+    color: #166534;            /* Verde escuro */
+    border: 1px solid #86efac;
+  }
+}
+
+
+  .highlight{
+    display: flex;
+    align-items: center;
+    background: #fef3c7;
+    color: #92400e;
+    padding: 0.5rem 1.4rem;
+    border-radius: 6px;
+    font-weight: 500;
+    strong {
+        font-weight: 700;
+        color: #78350f;
+        margin-left: 0.3rem;
+    }
+}
+
+/* === Nova Data Selecionada === */
+.selected-info {
+  margin-top: 0rem;
+  text-align: center;
+  color: #004e9b;
+  font-weight: 600;
+  font-size: 0.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.1rem;
+  background: #e3f2fd;
+  border-radius: 0.5rem;
+  border: 2px solid #1976d2;
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.15);
+
+  i {
+    color: #1976d2;
+    font-size: $font-size-2xl;
+  }
+
+  span {
+    line-height: 1.4;
+  }
+}
+
+/* === Estilos PrimeNG (Ajustes para Diálogos) === */
+:host ::ng-deep {
+  .p-select {
+    --p-select-option-selected-background: #4da3ff;
+    --p-select-option-selected-color: white;
+    --p-select-option-selected-focus-background: #377ad6;
+    --p-select-option-selected-focus-color: white;
+    width: 100%;
+    font-size: $font-size-md;
+
+    &.p-component.p-focus {
+      border-color: #4da3ff !important;
+      box-shadow: 0 0 0 0.2rem rgba(77, 163, 255, 0.3) !important;
+    }
+  }
+
+  .p-float-label>label {
+    left: $spacing-md;
+    color: #64748b;
+    transition: all $transition-fast;
+  }
+
+  .p-float-label:has(.p-focus)>label,
+  .p-float-label:has(input:not(:placeholder-shown))>label,
+  .p-float-label:has(.p-inputwrapper-filled)>label {
+    top: -0.5rem;
+    font-size: $font-size-sm;
+    color: #1976d2;
+    background: white;
+    padding: 0 $spacing-xs;
+  }
+
+  :host ::ng-deep .p-dialog {
+    background-color: #ffffff;
+    border-color: black;
+  }
+
+  :host ::ng-deep .p-dialog-header {
+    color: rgb(0, 0, 0);
+  }
+
+  .dialog-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: $spacing-lg;
+    gap: $spacing-xl;
+  }
+
+  .p-inputgroup {
+    width: 100%;
+    max-width: 400px;
+    margin-top: $spacing-lg;
+  }
+
+  p-progressspinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+  }
+
+  .select-item-layout {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
+  .select-item-codigo {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: #6c757d;
+    font-size: 0.9rem;
+
+    .pi-tag {
+      font-size: 0.75rem;
+    }
+  }
+}
+
+// DIALOG ENVIAR WHATSAPP
+.alert-warning {
+  padding: 1rem;
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+  border-radius: 0.5rem;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.alert-warning i {
+  font-size: 1.2rem;
+}
+
+/* === Estilos de Dialog (Geral) === */
+.dialog-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0.5rem;
+}
+
+.icon-container {
+  display: flex;
+  justify-content: center;
+}
+
+.whatsapp-icon {
+  font-size: $font-size-icon;
+  background-color: #25d366;
+  color: white;
+  padding: 1.25rem;
+  border-radius: 50%;
+  box-shadow: 0 0 15px rgba(37, 211, 102, 0.6);
+}
+
+.alert-box {
+  display: flex;
+  align-items: center;
+  background-color: rgba(255, 230, 0, 0.3);
+  /* fundo translúcido */
+  padding: 5px;
+  border-radius: 8px;
+  gap: 15px;
+  margin-top: 15px;
+  padding-left: 20px;
+  border-left: 5px solid rgb(255, 136, 0);
+}
+
+.alert-icon-circle {
+  width: 40px;
+  height: 40px;
+  background-color: rgba(245, 127, 23, 0.5);
+  color: rgb(255, 255, 255);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.alert-text {
+  margin: 0;
+  color: #000000;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.info-text {
+  font-size: 1rem;
+  color: #000000;
+  line-height: 1.6;
+  margin: 0;
+}
+
+//ENCERRA DIALOG ENVIAR WHATSAPP
+
+/* === Estilos de Fluxo (Step 2) === */
+.fluxo-container {
+  display: flex;
+  gap: 25px;
+  margin-top: 25px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.fluxo-card {
+  width: 300px;
+  min-height: 600px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  /* efeito vidro */
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Cores individuais com translucidez */
+.fluxo-card.online {
+  background: rgba(255, 230, 0, 0.05);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-top: 5px solid #fbc02d;
+}
+
+.fluxo-card.presencial {
+  background: rgba(13, 197, 243, 0.05);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-top: 5px solid #19cefc;
+}
+
+.fluxo-header {
+  font-size: 5rem;
+  text-align: center;
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.fluxo-header h3 {
+  margin-top: 10px;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.fluxo-body {
+  flex: 1;
+  text-align: center;
+  color: #333;
+  font-size: 0.9rem;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fluxo-body p {
+  line-height: 1.4;
+}
+
+.fluxo-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+/* === REFACTOR: Estilos de PDF Preview (Step 3) === */
+.pdf-preview-section {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.pdf-viewer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  iframe {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 0rem;
+    width: 100%;
+    height: 550px;
+    max-height: 70vh;
+  }
+}
+
+.btn-signature {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 0.5rem;
+  border-radius: $border-radius-md;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.btn-to-navigate {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0;
+  margin-top: 0rem;
+}
+
+/* === REFACTOR: Estilos de Confirmação (Step 4) === */
+.confirmation-step {
+  align-items: center;
+  text-align: center;
+  gap: $spacing-lg !important;
+  padding: $spacing-3xl;
+  background-color: #f0fff4;
+  border-radius: $border-radius-xl;
+  border: 2px solid #34d399;
+  box-shadow: 0 4px 12px rgba(52, 211, 153, 0.2);
+
+  .success-icon {
+    font-size: $font-size-3xl * 1.5;
+    color: #10b981;
+    animation: pulse 1.5s infinite;
+  }
+
+  h3 {
+    margin: 0;
+    font-size: $font-size-2xl;
+    color: #059669;
+  }
+
+  p {
+    font-size: $font-size-lg;
+    color: #4b5563;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.step-footer {
+  display: flex;
+  justify-content: center;
+}
+
+/* === Estilos de Proporcional === */
+.proportional-explanation {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #000000;
+  line-height: 1.5;
+  text-align: center;
+  background-color: rgb(255, 255, 229);
+  border: dashed gray 0.5px;
+  border-radius: 0.5rem;
+}
+
+.proportional-info {
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  background-color: #f0f9ff;
+  color: #002efd;
+  font-weight: 1000;
+
+  i {
+    font-size: 2rem;
+    color: #2f9102;
+  }
+
+  span {
+    font-size: 2rem;
+  }
+}
+
+.signature-input app-signature-pad {
+  flex-grow: 1;
+  display: block;
+}
+
+.signature-input ng-container {
+  flex-grow: 1;
+  display: flex;
+}
+
+.btn-to-capture {
+  display: flex;
+  justify-content: center;
+  margin-top: $spacing-lg;
+}
+
+.btn-to-generate-contract {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+::ng-deep .p-dialog-mask {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+.step-footer {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #f7fbfc;
+  border-radius: 12px;
+  border: 1px solid #d6e9ef;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  .proportional-info {
+
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .proportional-value {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #167f95;
+    display: inline-block;
+    margin-top: 0.3rem;
+  }
+}
+
+.footer-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+
+/* === Estilo para Erro de Preview === */
+.p-mt-2.text-center.p-text-danger {
+  border: 1px solid var(--red-200);
+  background-color: var(--red-50);
+  padding: $spacing-xl;
+  border-radius: 8px;
+  max-width: 600px;
+  width: 90%;
+  margin: $spacing-2xl auto;
+
+  i {
+    margin-right: $spacing-sm;
+  }
+
+  p-button {
+    margin-top: $spacing-lg;
+  }
+}
+
+.step-finalization {
+  position: relative;
+  overflow: hidden;
+}
+
+.step-finalization::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 150%;
+  height: 150%;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(74, 108, 232, 0.04) 0%, transparent 50%),
+    radial-gradient(circle at 70% 70%, rgba(148, 85, 211, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 50% 20%, rgba(59, 130, 246, 0.02) 0%, transparent 50%);
+  z-index: 0;
+}
+
+.table-finalization {
+  margin-top: 2rem;
+  margin-left:  2rem;
+  margin-right:  2rem;
+  margin-bottom:  2rem;
+  border-radius: 24px;
+  overflow: hidden;
+  background: linear-gradient(135deg,
+      rgba(117, 0, 250, 0.95) 0%,
+      rgba(43, 6, 252, 0.85) 100%);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(174, 0, 255, 0.3);
+  box-shadow:
+    0 25px 50px -12px rgba(102, 126, 234, 0.25),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.8),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  position: relative;
+  z-index: 1;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+:host ::ng-deep .table-finalization .p-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: transparent;
+  border-radius: 24px;
+  overflow: hidden;
+  position: relative;
+}
+
+:host ::ng-deep .table-finalization .p-table .p-table-thead>tr>th {
+  background: linear-gradient(135deg,
+      rgba(102, 126, 234, 0.95) 0%,
+      rgba(118, 75, 162, 0.9) 100%) !important;
+  backdrop-filter: blur(10px);
+  color: white !important;
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 700;
+  font-size: 1.3rem;
+  padding: 1.5rem 1.5rem;
+  text-align: left;
+  border: none;
+  position: relative;
+  overflow: hidden;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+:host ::ng-deep .table-finalization .p-table .p-table-tbody>tr::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, #002efd, #fbff01, #7d03f7);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+:host ::ng-deep .table-finalization .p-table .p-table-tbody>tr:hover::before {
+  opacity: 1;
+}
+
+:host ::ng-deep .table-finalization .p-table .p-table-tbody>tr>td {
+  padding: 1.3rem 1.5rem;
+  border: none;
+  font-size: 1.05rem;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+:host ::ng-deep .table-finalization .p-table .p-table-tbody>tr>td:first-child {
+  font-weight: 700;
+  color: #1f2937;
+  background: linear-gradient(135deg,
+      rgba(0, 72, 255, 0.9) 0%,
+      rgba(13, 20, 70, 0.8) 100%);
+  border-right: 1px solid rgba(102, 126, 234, 0.2);
+  width: 35%;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 1rem;
+  position: relative;
+}
+
+:host ::ng-deep .table-finalization .p-table .p-table-tbody>tr>td:first-child::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2px;
+  height: 60%;
+  background: linear-gradient(180deg, transparent, #d302fd, transparent);
+  opacity: 0.6;
+}
+
+.button-finalization {
+  gap: 1rem;
+  width: 100%;
+  margin-top: 2.5rem;
+  margin-bottom: 2.5rem;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+:host ::ng-deep .button-finalization .p-button {
+  background: linear-gradient(135deg,
+      rgba(69, 102, 248, 0.95) 0%,
+      rgba(174, 105, 243, 0.9) 100%);
+  border: none;
+  padding: 1.2rem 2.5rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  border-radius: 16px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow:
+    0 8px 30px rgba(102, 126, 234, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 0 20px rgba(102, 126, 234, 0.3);
+  position: relative;
+  overflow: hidden;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  backdrop-filter: blur(10px);
+}
+
+/* --- Layout do Formulário (Lado a Lado) --- */
+.form-row {
+  display: flex;
+  gap: 1.5rem;       /* Espaço entre os campos */
+  width: 100%;
+  flex-wrap: wrap;   /* Permite quebrar linha em celular */
+}
+
+.form-group {
+  flex: 1;           /* Faz os dois ocuparem o mesmo tamanho (50%/50%) */
+  min-width: 250px;  /* Largura mínima para não espremer */
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+.input-label {
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.help-text {
+  margin-top: 0.4rem;
+  color: #6b7280;
+  display: block;
+}
+
+/* --- Box de Destaque (Ciclo de Faturamento) --- */
+.highlight-box {
+    display: flex;
+    width: 100%;                /* Estica a caixa */
+    justify-content: flex-end;  /* Joga o texto para a direita */
+    align-items: center;
+    
+    background-color: #fffbeb; 
+    color: #92400e;            
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: 1px solid #fcd34d; 
+    font-weight: 500;
+    
+    strong {
+        font-weight: 700;
+        color: #78350f;
+        margin-left: 5px;
+    }
+}
+
+/* Ajuste para o DatePicker ocupar 100% */
+::ng-deep .p-datepicker {
+    width: 100%;
+    input { width: 100%; }
+}
+
+.btn-to-signature {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  width: 50%;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}

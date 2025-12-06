@@ -1,8 +1,12 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
 import { Contract, RequestDateTransfer,  } from '../../models/contract/contract.dto';
+import { CancelContractComponent } from '../../components/cancel-contract/cancel-contract.component';
+import { CancelSimulationDTO } from '../../models/contract/cancel-contract.dto';
+import { DateUtilsService } from '../../shared/utils/date.utils';
+import { BoletoInfo, ContractDataCancelResponse } from '../../models/contract/cancel-contract.dto';
 
 @Injectable({
   providedIn: 'root',
@@ -10,6 +14,7 @@ import { Contract, RequestDateTransfer,  } from '../../models/contract/contract.
 export class ContractsService {
   private readonly urlApi = environment.apiUrl;
   private readonly http = inject(HttpClient);
+  private readonly dateUtils = inject(DateUtilsService);
 
   getContractsActivesByClient(clientId: string): Observable<Contract[]> {
     return this.http.get<Contract[]>(
@@ -131,4 +136,53 @@ export class ContractsService {
       { params: { codeContractRbx } }
     );
   }
+
+  simulateCancellation(
+    contractId: string,
+    dataRescisao: Date,
+    valorProporcionalCalculador: number
+  ): Observable<CancelSimulationDTO> {
+
+    let params = new HttpParams()
+    .set('valorProporcional', valorProporcionalCalculador.toString());
+
+    if (dataRescisao) {
+        const dataFormatada = this.dateUtils.formatToISODateString(dataRescisao);
+
+        if (dataFormatada) {
+            params = params.set('dataRescisao', dataFormatada);
+        }
+    }
+
+    return this.http.get<CancelSimulationDTO>(
+      `${this.urlApi}/contract/${contractId}/simulation`,
+      { params }
+    );
+  }
+
+  generateSlip(contractId: string, payload: any): Observable<BoletoInfo[]> {
+    return this.http.post<BoletoInfo[]>(
+      `${this.urlApi}/contract/${contractId}/generateSlip`, 
+      payload
+
+    );
+  }
+
+  cancelWithDebt(contractId: string, payload: any, file: File):
+   Observable<any> {
+    const formData: FormData = new FormData();
+    formData.append('data', JSON.stringify(payload));
+    formData.append('file', file);
+
+    return this.http.post(`${this.urlApi}/contract/${contractId}/cancel`, formData);
+}
+
+  cancelNoDebt(contractId: string, payload: any, file: File): 
+  Observable<any> {
+    const formData: FormData = new FormData();
+    formData.append('data', JSON.stringify(payload));
+    formData.append('file', file);
+
+    return this.http.post(`${this.urlApi}/contract/${contractId}/finalize-no-debt`, formData);
+}
 }
