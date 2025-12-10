@@ -3,14 +3,14 @@
 
   <app-card-base header="Cancelamento de Contrato" width="auto" height="auto">
     <div class="btn-to-back">
-            <p-button
-              severity="danger"
-              [rounded]="true"
-              [raised]="true"
-              icon="pi pi-arrow-left"
-              (onClick)="backToSearch()"
-            />
-          </div>
+      <p-button
+        severity="danger"
+        [rounded]="true"
+        [raised]="true"
+        icon="pi pi-arrow-left"
+        (onClick)="backToSearch()"
+      />
+    </div>
 
     <p-stepper [(value)]="activeStep">
       <p-step-list>
@@ -23,53 +23,70 @@
       <p-step-panels>
         <p-step-panel [value]="1">
           <ng-template #content let-activateCallback="activateCallback">
-            
             <div class="step step1">
-              
               <div class="title-section">
-                 <h2 class="text-center">✨ Simulador de Cancelamento ✨</h2>
-                
+                <h2 class="text-center">✨ Simulador de Cancelamento ✨</h2>
               </div>
 
               <div class="step-content">
-                
                 <div class="info-item">
-
                   <span class="label">Valores do Contrato</span>
                   <div class="value">
                     <div class="value-row font-bold">
                       <i class="pi pi-dollar text-green-500"></i>
-                      <span>Valor bruto: {{ contract.brutePrice | number : "1.2-2" }}</span>
+                      <span
+                        >Valor bruto:
+                        {{ contract.brutePrice | number : "1.2-2" }}</span
+                      >
                     </div>
                     <div class="value-row font-bold">
                       <i class="pi pi-minus-circle text-red-500"></i>
-                      <span>Adesão: {{ contract.adesion| number : "1.2-2" }}</span>
+                      <span
+                        >Adesão: {{ contract.adesion | number : "1.2-2" }}</span
+                      >
                     </div>
                     <div class="value-row font-bold">
                       <i class="pi pi-wallet text-blue-500"></i>
-                      <span>Mensal: {{ contract.liquidPrice | number : "1.2-2" }}</span>
+                      <span
+                        >Mensal:
+                        {{ contract.liquidPrice | number : "1.2-2" }}</span
+                      >
                     </div>
                   </div>
                 </div>
 
-               <div class="info-item">
+                <div class="info-item info-vigencia">
   <span class="label">Vigência Restante</span>
   <span class="value">
-    
-    <ng-container *ngIf="contract.loyalty">
-        {{ contract.dateSignature | date : "dd/MM/yyyy" }} até {{ contract.dateExpired | date : "dd/MM/yyyy" }}
-        
-        <span class="badge-vigencia" [ngClass]="{'vencido': vigenciaRestante === 0}">
-          <i class="pi pi-hourglass"></i>
-          {{ vigenciaRestante > 0 ? 'Restam ' + vigenciaRestante + ' meses' : 'Fidelidade Cumprida' }}
-        </span>
+
+    <ng-container *ngIf="statusFidelidade.situacao === 'VIGENTE'">
+
+      <span>
+      {{ contract.dateSignature | date : "dd/MM/yyyy" }} até 
+      {{ contract.dateExpired | date : "dd/MM/yyyy" }}
+      </span>
+
+      <span class="badge-vigencia ativo">
+        <i class="pi pi-hourglass"></i>
+        Restam {{ statusFidelidade.mesesRestantes }} meses
+      </span>
+
     </ng-container>
-    
-    <ng-container *ngIf="!contract.loyalty">
-        
-        <span class="badge-vigencia">
-          <i class="pi pi-check-circle"></i> Isento de Fidelidade
-        </span>
+
+    <ng-container *ngIf="statusFidelidade.situacao === 'CUMPRIDA'">
+      
+      {{ contract.dateSignature | date : "dd/MM/yyyy" }} até 
+      {{ contract.dateExpired | date : "dd/MM/yyyy" }}
+
+      <span class="badge-vigencia vencido">
+        <i class="pi pi-check-circle"></i> Fidelidade Cumprida
+      </span>
+    </ng-container>
+
+    <ng-container *ngIf="statusFidelidade.situacao === 'ISENTO'">
+      <span class="badge-vigencia isento">
+        <i class="pi pi-thumbs-up"></i> Isento de Fidelidade
+      </span>
     </ng-container>
 
   </span>
@@ -78,105 +95,156 @@
                 <div class="info-item">
                   <span class="label">Ciclo de Faturamento</span>
                   <span class="highlight">
-                    Dia Vencimento: <strong>{{ contract.cicleBillingDayBase }}</strong> 
+                    Dia Vencimento:
+                    <strong>{{ contract.cicleBillingDayBase }}</strong>
                   </span>
                 </div>
 
-               <div class="info-item ">
-                <span class="label">Data do Cancelamento</span>
-  
-                <div class="input-wrapper p-fluid" style="width: 100%;">
-    
-    <p-datepicker
-        inputId="dataRescisao"
-        name="dataRescisao" 
-        [(ngModel)]="dataRescisao" 
-        [showIcon]="true"       
-        iconDisplay="input"     
-        dateFormat="dd/mm/yy"
-        appendTo="body"
-        (ngModelChange)="simularValores()" 
-        placeholder="Selecione a data"
-        [style]="{'width':'100%'}"
-        [inputStyle]="{'width':'50%'}"
-        [minDate]="minDate">
-    </p-datepicker>
+                <div class="info-item">
+                  <span class="label">Data do Cancelamento</span>
 
-    
-    
-    <small class="help-text">
-        A alteração da data calcula automaticamente a multa e o proporcional.
-    </small>
-  </div>
-</div>
+                  <div class="input-wrapper p-fluid" style="width: 100%">
+                    <p-datepicker
+                      inputId="dataRescisao"
+                      name="dataRescisao"
+                      [(ngModel)]="dataRescisao"
+                      [showIcon]="true"
+                      iconDisplay="input"
+                      dateFormat="dd/mm/yy"
+                      appendTo="body"
+                      (ngModelChange)="simularValores()"
+                      placeholder="Selecione a data"
+                      [style]="{ width: '100%' }"
+                      [inputStyle]="{ width: '50%' }"
+                      [minDate]="minDate"
+                    >
+                    </p-datepicker>
 
-        <div class="info-item">
-              
-                    <span class="label">Motivo do Cancelamento</span>
+                    <small class="help-text">
+                      A alteração da data calcula automaticamente a multa e o
+                      proporcional.
+                    </small>
+                  </div>
+                </div>
 
-                     <div class="input-wrapper p-fluid" style="width: 100%;">
-                    <p-select 
-                        [options]="cancellationReasons" 
-                        [(ngModel)]="selectedCancelReason" 
-                        optionLabel="label" 
-                        optionValue="value" 
-                        placeholder="Selecione o motivo..."
-                        (onChange)="simularValores()"
-                        [style]="{'width':'100%'}"
-                        appendTo="body">
+                <div class="info-item">
+                  <span class="label">Motivo do Cancelamento</span>
+
+                  <div class="input-wrapper p-fluid" style="width: 100%">
+                    <p-select
+                      [options]="cancellationReasons"
+                      [(ngModel)]="selectedCancelReason"
+                      optionLabel="label"
+                      optionValue="value"
+                      placeholder="Selecione o motivo..."
+                      (onChange)="simularValores()"
+                      [style]="{ width: '100%' }"
+                      appendTo="body"
+                    >
                     </p-select>
 
-                      <small class="help-text">O motivo será anexado ao atendimento juntamente com "Confirmada retirada de kit".</small>
-        </div>
-        </div>
+                    <small class="help-text"
+                      >O motivo será anexado ao atendimento juntamente com
+                      "Confirmada retirada de kit".</small
+                    >
+                  </div>
+                </div>
+                <div class="info-item">
+                  <span class="label">Condição de Pagamento</span>
 
+                  <div class="input-wrapper p-fluid" style="width: 100%">
+                    <p-select
+                      [options]="installmentOptions"
+                      [(ngModel)]="selectedInstallments"
+                      optionLabel="label"
+                      optionValue="value"
+                      placeholder="À Vista (1x)"
+                      (onChange)="simularValores()"
+                      [style]="{ width: '100%' }"
+                      appendTo="body"
+                    >
+                    </p-select>
+                  </div>
+                </div>
 
-                <div class="simulation-results-container" *ngIf="simulationResult">
-                  
-                  <!-- <div *ngIf="simulationResult.isIsentoMulta" class="tag-isento">
-                    <i class="pi pi-check-circle"></i> Cliente isento de multa contratual.
-                  </div> -->
-
+                <div
+                  class="simulation-results-container"
+                  *ngIf="simulationResult"
+                >
                   <div class="simulation-box">
+
                     <div class="sim-row">
-                        <span>Multa Contratual:</span>
-                        <strong [class.text-red-600]="simulationResult.valorMulta > 0">
-                            {{ simulationResult.valorMulta | currency : "BRL" }}
-                        </strong>
+                      <span>Multa Contratual:</span>
+                      <strong
+                        [class.text-red-600]="simulationResult.valorMulta > 0"
+                      >
+                        {{ simulationResult.valorMulta | currency : "BRL" }}
+                      </strong>
                     </div>
-                    
+
                     <div class="sim-row">
-                        <span>Proporcional (Dias utilizados):</span>
-                        <strong>{{ simulationResult.valorProporcional | currency : "BRL" }}</strong>
+                      <span>Proporcional (Dias utilizados):</span>
+                      <strong>{{
+                        simulationResult.valorProporcional | currency : "BRL"
+                      }}</strong>
+                    </div>
+
+                    <div
+                      class="sim-row"
+                      *ngIf="simulationResult.valorFaturasEmAberto > 0"
+                    >
+                      <span class="flex align-items-center gap-2 text-red-500">
+                        <i class="pi pi-exclamation-circle"></i>
+                        Faturas em Aberto (Não inclusas):
+                      </span>
+                      <strong class="text-red-600">
+                        {{
+                          simulationResult.valorFaturasEmAberto
+                            | currency : "BRL"
+                        }}
+                      </strong>
                     </div>
 
                     <div class="divider-dashed"></div>
 
                     <div class="sim-total">
-                        <span>Total a Pagar:</span>
-                        <span class="total-value">{{ simulationResult.valorTotal | currency : "BRL" }}</span>
-                    </div>
-                  </div>
-                  
-                  <!-- <div class="info-obs" *ngIf="simulationResult.mensagemCalculo">
-                    <i class="pi pi-info-circle"></i> {{ simulationResult.mensagemCalculo }}
-                  </div> -->
+  <span>Total a Pagar:</span>
 
+  <div class="flex flex-column align-items-end">
+    
+    <ng-container *ngIf="selectedInstallments > 1 && simulationResult.valorParcelaEstimado">
+      <span class="total-value text-blue-600">
+        {{ selectedInstallments }}x de {{ simulationResult.valorParcelaEstimado | currency : "BRL" }}
+      </span>
+      
+    
+    </ng-container>
+
+    <ng-container *ngIf="selectedInstallments <= 1 || !simulationResult.valorParcelaEstimado">
+      <span class="total-value">
+        {{ simulationResult.valorTotal | currency : "BRL" }}
+      </span>
+    </ng-container>
+
+  </div>
+</div>
+
+                  </div>
                 </div>
               </div>
             </div>
-
             <div class="btn-actions p-mt-4">
-              <p-button 
-                severity="success" 
-                rounded="true" 
-                raised="true" 
-                size="large" 
-                icon="pi pi-arrow-right" 
-                iconPos="right" 
-                label="Próximo" 
-                (onClick)="activeStep = 2" 
-                [disabled]="!simulationResult">
+              <p-button
+                severity="success"
+                rounded="true"
+                raised="true"
+                size="large"
+                icon="pi pi-arrow-right"
+                iconPos="right"
+                label="Próximo"
+                (onClick)="activeStep = 2"
+                [disabled]="!simulationResult"
+              >
               </p-button>
             </div>
           </ng-template>
@@ -204,7 +272,7 @@
                       icon="pi pi-check"
                       severity="success"
                       [raised]="true"
-                      [loading]="isLoading" 
+                      [loading]="isLoading"
                       (onClick)="selecionarFluxoLoja()"
                       [style]="{ padding: '2rem 4rem' }"
                     ></p-button>
@@ -236,17 +304,17 @@
                 </div>
               </div>
             </div>
-            <div class="btn-to-back-step">
-                <p-button
-                  label="Voltar"
-                  icon="pi pi-arrow-left"
-                  severity="secondary"
-                  rounded="true"
-                  size="large"
-                  [raised]="true"
-                    (onClick)="activeStep = 1"
-                ></p-button>
-              </div>
+            <div class="btn-to-step">
+              <p-button
+                label="Voltar"
+                icon="pi pi-arrow-left"
+                severity="secondary"
+                rounded="true"
+                size="large"
+                [raised]="true"
+                (onClick)="activeStep = 1"
+              ></p-button>
+            </div>
             <ng-template #noDateSelected>
               <div class="alert-warning">
                 ⚠️ Para acessar este passo, volte ao passo anterior e selecione
@@ -258,142 +326,381 @@
 
         <p-step-panel [value]="3">
           <ng-template #content>
+            <div
+              *ngIf="true || boletoGeradoUrl; else emptyState"
+              class="step step1"
+            >
+              <div class="step-content text-center p-5">
+                <div class="cobranca p-mb-4">
+                  <i
+                    class="pi pi-check-circle text-green-500"
+                    style="font-size: 4rem"
+                  ></i>
+                  <h2>Cobrança Gerada com Sucesso!</h2>
+                </div>
+
+                <p class="text-secondary p-mb-4">
+                  O boleto está pronto. Realize o pagamento no caixa para
+                  liberar a assinatura.
+                </p>
+                <div class="divider-dashed"></div>
+
+                <div class="link-slip" *ngIf="true || boletoGeradoUrl">
+                  <a
+                    [href]="boletoGeradoUrl"
+                    target="_blank"
+                    class="text-blue-600 font-bold text-xl no-underline hover:underline cursor-pointer flex align-items-center justify-content-center"
+                  >
+                    <i class="pi pi-external-link mr-2"></i>
+                    Clique para abrir o boleto
+                  </a>
+                </div>
+
+                <div class="info-box p-mt-4 bg-blue-50 p-3 border-round">
+                  <span class="text text-blue-500">
+                    <i class="pi pi-info-circle text-blue-500 p-mr-2"></i>
+                    Após receber o valor, clique em "Gerar Termo Sem Débito"
+                    abaixo.</span
+                  >
+                </div>
+              </div>
+
+              <div class="divider-dashed"></div>
+              <div class="btn-to-confirm-cancel">
+                <p-button
+                  label="Gerar Termo Sem Débito"
+                  icon="pi pi-check-circle"
+                  severity="success"
+                  size="large"
+                  [raised]="true"
+                  (onClick)="confirmarPagamentoEAvancar()"
+                >
+                </p-button>
+
+                <p-button
+                  label="Problemas com o pagamento"
+                  icon="pi pi-exclamation-triangle"
+                  severity="danger"
+                  size="large"
+                  [raised]="true"
+                  (onClick)="abrirDialogMudancaFluxo()"
+                >
+                </p-button>
+              </div>
+            </div>
+
+            <div class="btn-to-step">
+              <p-button
+                label="Voltar"
+                icon="pi pi-arrow-left"
+                severity="secondary"
+                (onClick)="activeStep = 2"
+                [rounded]="true"
+                [raised]="true"
+              >
+              </p-button>
+            </div>
+
+            <ng-template #emptyState>
               
-              <div class="step step1"> <div class="step-content text-center p-5">
-                      
-                      <div class="p-mb-4">
-                          <i class="pi pi-check-circle text-green-500" style="font-size: 4rem"></i>
-                      </div>
-                      
-                      <h2>Cobrança Gerada com Sucesso!</h2>
-                      <p class="text-secondary p-mb-4">O boleto está pronto. Realize o pagamento no caixa para liberar a assinatura.</p>
 
-                      <div class="p-my-4" *ngIf="boletoGeradoUrl">
-                          <a [href]="boletoGeradoUrl" target="_blank" class="p-button p-component p-button-lg p-button-outlined p-button-info no-underline">
-                              <i class="pi pi-print p-mr-2 text-xl"></i> 
-                              <span class="font-bold text-xl">Visualizar / Imprimir Boleto</span>
-                          </a>
-                      </div>
-
-                      <div class="info-box p-mt-4 bg-blue-50 p-3 border-round">
-                          <i class="pi pi-info-circle text-blue-500 p-mr-2"></i>
-                          <span class="text-blue-700">Após receber o valor, clique em "Confirmar Pagamento" abaixo.</span>
-                      </div>
-
-                  </div>
-              </div>
-
-              <div class="btn-to-back-step">
-                  <p-button label="Voltar" 
-                  icon="pi pi-arrow-left" 
-                  severity="secondary" 
-                  (onClick)="activeStep = 2"
-                  rounded="true"
-                  raised="true"
-                  />
-                  
-                  <p-button 
-                    label="Confirmar Pagamento & Avançar" 
-                    icon="pi pi-check-circle" 
-                    iconPos="right"
-                    severity="success" 
-                    size="large"
-                    [raised]="true"
-                    (onClick)="confirmarPagamentoEAvancar()">
-                  </p-button>
-              </div>
-
-           </ng-template>
+                <div *ngIf="!loadingBoleto">
+                  <i
+                    class="pi pi-exclamation-triangle text-orange-500"
+                    style="font-size: 3rem"
+                  ></i>
+                  <h3 class="mt-3">Nenhum boleto encontrado</h3>
+                  <p>
+                    Volte para a etapa anterior e selecione a opção de pagamento
+                    novamente.
+                  </p>
+                </div>
+            
+            </ng-template>
+          </ng-template>
         </p-step-panel>
 
         <p-step-panel [value]="4">
           <ng-template #content>
-            
-            <div class="step-header text-center p-mb-3">
-                <div *ngIf="tipoCancelamento === 'NO_DEBT'">
-                    <h2 class="text-green-600"><i class="pi pi-check-circle"></i> Termo de Quitação</h2>
-                    <p>O pagamento foi identificado. Assine para finalizar.</p>
-                </div>
-                <div *ngIf="tipoCancelamento === 'WITH_DEBT'">
-                    <h2 class="text-orange-600"><i class="pi pi-file-edit"></i> Confissão de Dívida</h2>
-                    <p>Assine para formalizar o parcelamento.</p>
-                </div>
-            </div>
-
-            <div *ngIf="isLoadingPreview" class="loading-spinner">
-                <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
-                <span>Gerando Documento...</span>
-            </div>
 
             <div *ngIf="pdfSrc && !isLoadingPreview" class="pdf-container">
-               <iframe [src]="pdfSrc" width="100%" height="600px"></iframe>
+              <iframe [src]="pdfSrc" width="100%" height="600px"></iframe>
             </div>
 
             <div class="btn-to-signature">
-               <p-button 
-                  label="Assinar" 
-                  icon="pi pi-pencil" 
-                  severity="info"
-                  raised="true"
-                  rounded="true"
-                  (onClick)="abrirAssinatura()">
-               </p-button>
-            
-               <p-button 
-                  label="Finalizar Cancelamento" 
-                  icon="pi pi-check" 
-                  raised="true"
-                  rounded="true"
-                  (onClick)="avancarParaConclusao()" 
-                  [disabled]="!capturedSignature"
-                  [severity]="tipoCancelamento === 'NO_DEBT' ? 'success' : 'warn'">
-               </p-button>
+              <p-button
+                label="Assinar"
+                icon="pi pi-pencil"
+                severity="info"
+                raised="true"
+                styleClass="p-button-sm"
+                rounded="true"
+                (onClick)="abrirAssinatura()"
+              >
+              </p-button>
+              <p-button
+                label="Capturar"
+                icon="pi pi-camera"
+                (click)="cameraInput.click()"
+                styleClass="p-button-sm"
+                severity="info"
+                rounded="true"
+                raised="true"
+              ></p-button>
+              <p-button
+                label="Salvar"
+                icon="pi pi-download"
+                styleClass="p-button-sm p-button-success"
+                (click)="savePdf()"
+                [disabled]="!pdfSrc"
+                rounded="true"
+                raised="true"
+              ></p-button>
+              <p-button
+                label="Finalizar"
+                icon="pi pi-check"
+                raised="true"
+                rounded="true"
+                styleClass="p-button-sm"
+                (onClick)="avancarParaConclusao()"
+                [disabled]="!capturedSignature"
+                [severity]="tipoCancelamento === 'NO_DEBT' ? 'success' : 'warn'"
+              >
+              </p-button>
+            </div>
+
+            <div class="camera-section p-mt-4 p-mb-3">
+              <input
+                type="file"
+                accept="image/*"
+                capture="environment"
+                (change)="onFotoCapturada($event)"
+                style="display: none"
+                #cameraInput
+              />
             </div>
 
             <div class="btn-to-back-step">
-                <p-button label="Voltar" 
-                icon="pi pi-arrow-left" 
-                severity="secondary" 
-                [rounded]="true" 
+              <p-button
+                label="Voltar"
+                icon="pi pi-arrow-left"
+                severity="secondary"
+                [rounded]="true"
                 raised="true"
-                (onClick)="voltarDoStep4()"/>
+                (onClick)="voltarDoStep4()"
+              />
             </div>
-
           </ng-template>
         </p-step-panel>
-
       </p-step-panels>
     </p-stepper>
   </app-card-base>
 
+  <div *ngIf="isRedirecting" class="redirect-overlay">
+    
+    
+        <i class="pi pi-exclamation-triangle text-orange-500 text-5xl mb-3"></i>
+        
+        <h2 class="text-xl font-bold mb-3">Contrato Não Ativo</h2>
+        <div class="loading-text">
+        <p class="text-center text-lg mb-4">
+            Este contrato ainda <strong>não possui instalação realizada</strong>.
+            <br><br>
+            Você será redirecionado automaticamente para o 
+            <strong>Termo de Isenção (Sem Débito)</strong>.
+        </p>
+        </div>
+
+        <p-progressSpinner 
+        styleClass="w-4rem h-4rem" 
+        strokeWidth="5"
+        animationDuration=".5s">
+    </p-progressSpinner>
+   
+
+</div>
+
+  <div *ngIf="isLoading" class="loading-overlay">
+    <p-progressSpinner
+      styleClass="w-6rem h-6rem"
+      strokeWidth="6"
+      animationDuration=".5s"
+    >
+    </p-progressSpinner>
+
+    <span class="loading-text">Processando solicitação...Aguarde...</span>
+  </div>
+
+  <!-- ✅ Dialog de Preview com Galeria de Thumbnails -->
   <p-dialog
-    header="Assinatura Digital"
-    [(visible)]="signDialogVisible"
+    header="Fotos do Contrato"
+    [(visible)]="isPreviewDialogVisible"
     [modal]="true"
     [style]="{ width: '90vw', 'max-width': '700px' }"
+    [closable]="true"
+    (onHide)="limparPreview()"
+  >
+    <!-- ✅ Preview da foto capturada (grande) -->
+    <div
+      *ngIf="thumbnailPreview"
+      class="text-center"
+      style="margin-bottom: 1.5rem"
+    >
+      <h5 style="margin-bottom: 0.5rem; color: #495057">Preview da Foto</h5>
+      <img
+        [src]="thumbnailPreview"
+        alt="Preview da foto capturada"
+        style="
+          width: 100%;
+          height: auto;
+          max-height: 50vh;
+          border: 2px solid #ddd;
+          border-radius: 8px;
+        "
+      />
+    </div>
+
+    <!-- ✅ Galeria de thumbnails (fotos já salvas) -->
+    <div class="captured-photos-gallery-dialog">
+      <h5>Fotos Adicionadas ({{ step4CapturedPhotos.length }})</h5>
+      <div class="thumbnails-row-dialog">
+        <div
+          class="thumbnail-item-dialog"
+          *ngFor="let photo of step4CapturedPhotos; let i = index"
+        >
+          <img [src]="photo.preview" alt="Foto {{ i + 1 }}" />
+          <button
+            type="button"
+            class="remove-thumbnail-btn-dialog"
+            (click)="removerFotoStep4(i)"
+            title="Remover foto"
+          >
+            ✕
+          </button>
+          <span class="thumbnail-number-dialog">{{ i + 1 }}</span>
+        </div>
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <p-button
+        label="Descartar"
+        icon="pi pi-times"
+        (click)="limparPreview()"
+        styleClass="p-button-danger p-button-text"
+      >
+      </p-button>
+
+      <p-button
+        label="Tirar Outra"
+        icon="pi pi-camera"
+        (click)="tirarOutraFoto()"
+        styleClass="p-button-secondary"
+      >
+      </p-button>
+
+      <p-button
+        label="Salvar Foto"
+        icon="pi pi-check"
+        (click)="salvarFotoContratoCapturada()"
+        styleClass="p-button-success"
+        [disabled]="!fotoCapturadaFile"
+      >
+      </p-button>
+
+      <!-- ✅ Botão para fechar quando já tem fotos salvas -->
+      <p-button
+        label="Concluir"
+        icon="pi pi-check-circle"
+        (click)="isPreviewDialogVisible = false"
+        styleClass="p-button-info"
+      >
+      </p-button>
+    </ng-template>
+  </p-dialog>
+
+  <p-dialog
+    header="Alteração de Fluxo"
+    [(visible)]="dialogMudancaFluxoVisible"
+    [modal]="true"
+    [style]="{ width: '450px' }"
+    [draggable]="false"
+    [resizable]="false"
+    [closable]="true"
+  >
+    <div class="change-flow-layout">
+      <div class="warning-icon-container">
+        <i class="pi pi-exclamation-triangle"></i>
+      </div>
+
+      <div class="text-dialog">
+        <p class="confirm-title">Tem certeza que deseja alterar?</p>
+
+        <p class="confirm-description">
+          O boleto atual será <b>cancelado imediatamente</b>, qual ação você
+          deseja realizar?
+        </p>
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <div class="footer-buttons-centered">
+        <p-button
+          label="Cancelar Boleto"
+          icon="pi pi-times"
+          severity="info"
+          [raised]="true"
+          styleClass="p-button-text p-button-secondary"
+          (onClick)="cancelarBoletoAtual()"
+        >
+        </p-button>
+
+        <p-button
+          label="Alterar para Termo com Débito"
+          icon="pi pi-check"
+          severity="danger"
+          [raised]="true"
+          styleClass="p-button-text p-button-secondary"
+          (onClick)="confirmarTrocaParaDivida()"
+        >
+        </p-button>
+      </div>
+    </ng-template>
+  </p-dialog>
+
+  <p-dialog
+    header="Assinatura Online 🖋️"
+    [(visible)]="signDialogVisible"
     (onShow)="forceSignatureRedraw()"
     (onHide)="resetSignaturePad()"
   >
     <div class="signature-pad-container">
       <div class="signature-input">
-        <p>Assine no campo abaixo:</p>
-        <ng-container *ngIf="signatureVisibleFlag">
-           <app-signature-pad #signaturePadInDialog></app-signature-pad>
-        </ng-container>
+        <p-iftalabel>
+          <label for="signature">Assinatura Online (Opcional):</label>
+          <ng-container *ngIf="signatureVisibleFlag">
+            <app-signature-pad #signaturePadInDialog> </app-signature-pad>
+          </ng-container>
+        </p-iftalabel>
       </div>
     </div>
 
-    <p-divider></p-divider>
+    <p-divider layout="horizontal" styleClass="p-my-3"></p-divider>
 
-    <ng-template pTemplate="footer">
-        <p-button label="Cancelar" icon="pi pi-times" styleClass="p-button-text" (onClick)="signDialogVisible = false"></p-button>
-        <p-button 
-            label="Confirmar e Gerar PDF" 
-            icon="pi pi-check" 
-            [loading]="isLoadingPreview"
-            (onClick)="captureAndGenerate()">
-        </p-button>
-    </ng-template>
+    <div class="btn-to-capture">
+      <div class="btn-to-generate-contract">
+        <p-button
+          label="Gerar Termo Final com Assinatura"
+          icon="pi pi-file-pdf"
+          [outlined]="true"
+          size="large"
+          severity="info"
+          variant="outlined"
+          [loading]="isLoadingPreview"
+          (onClick)="captureAndGenerate()"
+        ></p-button>
+      </div>
+    </div>
   </p-dialog>
 
   <p-dialog

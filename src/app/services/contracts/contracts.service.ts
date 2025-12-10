@@ -140,11 +140,13 @@ export class ContractsService {
   simulateCancellation(
     contractId: string,
     dataRescisao: Date,
-    valorProporcionalCalculador: number
+    valorProporcionalCalculador: number,
+    numberParcels: number = 1
   ): Observable<CancelSimulationDTO> {
 
     let params = new HttpParams()
-    .set('valorProporcional', valorProporcionalCalculador.toString());
+    .set('valorProporcional', valorProporcionalCalculador.toString())
+    .set('numberParcels', numberParcels.toString());
 
     if (dataRescisao) {
         const dataFormatada = this.dateUtils.formatToISODateString(dataRescisao);
@@ -168,20 +170,38 @@ export class ContractsService {
     );
   }
 
-  cancelWithDebt(contractId: string, payload: any, file: File):
-   Observable<any> {
+  cancelStoreSlip(contractId: string): Observable<void>{
+    return this.http.delete<void>(
+      `${this.urlApi}/contract/${contractId}/cancel-slip`
+    );
+  }
+
+  cancelWithDebt(contractId: string, payload: any, pdfFile: File, photoFiles: File[]): Observable<any> {
     const formData: FormData = new FormData();
     formData.append('data', JSON.stringify(payload));
-    formData.append('file', file);
+  
+    formData.append('files', pdfFile);
+
+    if (photoFiles && photoFiles.length > 0) {
+        photoFiles.forEach(photo => {
+            formData.append('files', photo);
+        });
+    }
 
     return this.http.post(`${this.urlApi}/contract/${contractId}/cancel`, formData);
 }
 
-  cancelNoDebt(contractId: string, payload: any, file: File): 
-  Observable<any> {
+cancelNoDebt(contractId: string, payload: any, pdfFile: File, photoFiles: File[]): Observable<any> {
     const formData: FormData = new FormData();
     formData.append('data', JSON.stringify(payload));
-    formData.append('file', file);
+    
+    formData.append('files', pdfFile);
+
+    if (photoFiles && photoFiles.length > 0) {
+        photoFiles.forEach(photo => {
+            formData.append('files', photo);
+        });
+    }
 
     return this.http.post(`${this.urlApi}/contract/${contractId}/finalize-no-debt`, formData);
 }

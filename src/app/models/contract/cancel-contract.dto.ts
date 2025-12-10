@@ -4,6 +4,8 @@ export interface CancelSimulationDTO{
     valorTotal: number;
     isIsentoMulta: boolean;
     mensagemCalculo: string;
+    valorFaturasEmAberto: number;
+    valorParcelaEstimado?: number; 
 }
 
 export interface BoletoInfo {

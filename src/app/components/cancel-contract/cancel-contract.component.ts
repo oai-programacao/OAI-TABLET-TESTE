@@ -1,7 +1,7 @@
-import { Component, OnInit, inject, ViewChild } from '@angular/core';
+import { Component, OnInit, inject, ViewChild, ElementRef } from '@angular/core';
 import { MessageService } from 'primeng/api';
-
-import { NgModule } from '@angular/core';
+import { ConfirmationService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -18,6 +18,7 @@ import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { TableModule } from 'primeng/table';
 import { IftaLabelModule } from 'primeng/iftalabel';
 import { Router, ActivatedRoute } from '@angular/router';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 import { ReportsService } from '../../services/reports/reports.service';
 
@@ -33,6 +34,12 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 import { SignaturePadComponent } from '../../shared/components/signature-pad/signature-pad.component';
 
+import { MidiaService } from '../../services/midia/midia.service';
+
+export interface StatusFidelidade {
+    situacao: 'ISENTO' | 'CUMPRIDA' | 'VIGENTE';
+    mesesRestantes: number;
+  }
 
 @Component({
   selector: 'app-cancel-contract',
@@ -55,17 +62,25 @@ import { SignaturePadComponent } from '../../shared/components/signature-pad/sig
     CardBaseComponent,
     NgxMaskPipe,
     DatePickerModule,
-    SignaturePadComponent
+    SignaturePadComponent,
+    ConfirmDialogModule,
+    ProgressSpinnerModule
+    
 
   ],
   templateUrl: './cancel-contract.component.html',
   styleUrl: './cancel-contract.component.scss',
-  providers: [MessageService, provideNgxMask()],
+  providers: [MessageService, provideNgxMask(), ConfirmationService],
 })
+
+
 export class CancelContractComponent implements OnInit {
 
   @ViewChild('signaturePadInDialog') signaturePadInDialog!: SignaturePadComponent;
+  @ViewChild(SignaturePadComponent) signaturePadComponent!: SignaturePadComponent;
+  @ViewChild('cameraInput') cameraInput!: ElementRef<HTMLInputElement>;
 
+ 
   // --- INJEÇÕES ---
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -75,7 +90,8 @@ export class CancelContractComponent implements OnInit {
   private readonly reportsService = inject(ReportsService);
   private readonly sanitizer = inject(DomSanitizer);
   private readonly service = inject(ReportsService);
-
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly midiaService = inject(MidiaService);
 
 
 // --- DADOS ---
@@ -83,15 +99,22 @@ export class CancelContractComponent implements OnInit {
     id: 'uuid-do-contrato',
     codeContractRbx: '',
     liquidPrice: 0.0,
+    loyalty: false,
+    dateExpired: null,  
+    situationDescription: ''
   };
+
+
   minDate: Date = new Date(); 
   activeStep: number = 1;
   isLoading: boolean = false;
+  isRedirecting: boolean = false;
 
   // Step 1
   simulationResult: CancelSimulationDTO | null = null;
   dataRescisao: Date | null = new Date();
   selectedCancelReason: string = '';
+  selectedInstallments: number = 1;
 
   // Step 2 (Controle de Fluxo)
   tipoCancelamento: 'WITH_DEBT' | 'NO_DEBT' = 'WITH_DEBT'; 
@@ -101,6 +124,7 @@ export class CancelContractComponent implements OnInit {
   formaPagamentoSelecionada: any = null;
   boletoGeradoUrl: string | null = null;
   loadingBoleto: boolean = false;
+  
 
   // Step 4 (PDF e Assinatura)
   isLoadingPreview: boolean = false;
@@ -112,7 +136,14 @@ export class CancelContractComponent implements OnInit {
   signatureVisibleFlag: boolean = false;
   capturedSignature: string | null = null;
 
+  fotoCapturadaFile: File | null = null;
+  thumbnailPreview: string | ArrayBuffer | null = null;
+   isPreviewDialogVisible: boolean = false;
+  step4CapturedPhotos: Array<{ file: File; preview: string }> = [];
+  dialogMudancaFluxoVisible: boolean = false;
 
+  loadingMessage: string = 'Processando, por favor aguarde...';
+  
   // Listas
   formasPagamento = [
     { label: 'Dinheiro', value: 'DINHEIRO' },
@@ -130,43 +161,76 @@ export class CancelContractComponent implements OnInit {
     { label: 'Outros', value: 'Cliente não quis especificar o motivo' }
   ];
 
+  installmentOptions: any[] = [];
 
-  ngOnInit() {
+ngOnInit() {
+    this.generateInstallmentOptions();
+  
+    this.installmentOptions = Array.from({ length: 3 }, (_, i) => ({
+        label: `${i + 1}x ${i === 0 ? '' : ''}`,
+        value: i + 1
+    }));
+
     const contractId = this.route.snapshot.paramMap.get('contractId');
 
     if (contractId) {
-      this.isLoading = true;
+        this.isLoading = true;
 
-      this.contractService.getContractById(contractId).subscribe({
-        next: (dadosContrato) => {          
-          this.contract = dadosContrato; 
-          
-          this.dataRescisao = null;
-          this.selectedCancelReason = '';
-          this.simulationResult = null; 
+        this.contractService.getContractById(contractId).subscribe({
+            next: (dadosContrato) => {
+                this.contract = dadosContrato;
 
-          
-          this.isLoading = false;
-        },
-        error: (err) => {
-          console.error(err);
-          this.messageService.add({
-            severity: 'error', 
-            summary: 'Erro', 
-            detail: 'Falha ao carregar dados do contrato.'
-          });
-          this.isLoading = false;
-        }
-      });
+                if (this.contract.situationDescription === 'AGUARDANDO_INSTALACAO') {
+
+                    this.isLoading = false; 
+                    this.isRedirecting = true;
+
+                    this.tipoCancelamento = 'NO_DEBT';
+
+                    setTimeout(() => {
+                        this.activeStep = 4;
+
+                        this.carregarPreviewPdf();
+
+                        this.isRedirecting = false;
+                    }, 6000);
+
+                    return; 
+                }
+
+
+                console.log('🔍 Dados do Contrato Carregados:');
+                console.log('Loyalty (Fidelidade):', this.contract.loyalty);
+                console.log('Data Expiração:', this.contract.dateExpired);
+                console.log('Cálculo Vigência:', this.statusFidelidade); 
+
+
+                this.dataRescisao = null;
+                this.selectedCancelReason = '';
+                this.simulationResult = null;
+                this.isLoading = false;
+            },
+            
+            error: (err: any) => {
+                console.error(err);
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Erro',
+                    detail: 'Falha ao carregar dados do contrato.'
+                });
+                this.isLoading = false;
+            }
+        });
 
     } else {
-      this.messageService.add({
-        severity: 'error', 
-        summary: 'Erro', 
-        detail: 'ID do contrato não fornecido na URL.'
-      });
+        this.messageService.add({
+            severity: 'error',
+            summary: 'Erro',
+            detail: 'ID do contrato não fornecido na URL.'
+        });
     }
-  }
+}
+
 
   // --- AÇÕES DO STEP 1 ---
 simularValores() {
@@ -177,45 +241,108 @@ simularValores() {
 
     console.log('📅 Data selecionada:', this.dataRescisao);
     console.log('📝 Motivo selecionado:', this.selectedCancelReason);
+    console.log('🔢 Parcelas selecionadas:', this.selectedInstallments); 
 
     const valorProporcionalFront = this.calcularProporcional(this.dataRescisao);
+    
+    const MINIMUM_SPINNER_TIME = 700; 
+    this.isLoading = true;            
+    const startTime = Date.now();    
 
-    this.isLoading = true;
 
     this.contractService.simulateCancellation(
         this.contract.id, 
         this.dataRescisao, 
-        valorProporcionalFront
+        valorProporcionalFront,
+        this.selectedInstallments 
     ).subscribe({
         next: (res) => {
             this.simulationResult = res;
-            this.isLoading = false;
+
+            const duration = Date.now() - startTime;
+            const delay = Math.max(0, MINIMUM_SPINNER_TIME - duration);
+           
+            setTimeout(() => {
+                this.isLoading = false;
+            }, delay);
         },
         error: (err) => {
+            console.error(err);
             this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Falha na simulação.' });
-            this.isLoading = false;
+            const duration = Date.now() - startTime;
+            const delay = Math.max(0, MINIMUM_SPINNER_TIME - duration);
+
+            setTimeout(() => {
+                this.isLoading = false; 
+            }, delay);
         }
     });
 }
 
-  get vigenciaRestante(): number {
-    if (!this.contract?.loyalty) { 
+get statusFidelidade(): StatusFidelidade {
+    if (this.contract?.situationDescription === 'AGUARDANDO_INSTALACAO') {
+        return { situacao: 'ISENTO', mesesRestantes: 0 };
+    }
+
+  
+    if (this.contract?.loyalty !== true) {
+        return { situacao: 'ISENTO', mesesRestantes: 0 };
+    }
+
+    if (!this.contract?.dateExpired) {
+        return { situacao: 'ISENTO', mesesRestantes: 0 };
+    }
+  
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+
+    const dataFim = new Date(this.contract.dateExpired);
+    dataFim.setHours(0, 0, 0, 0);
+
+    if (hoje >= dataFim) {
+        return { situacao: 'CUMPRIDA', mesesRestantes: 0 };
+    }
+
+
+    let meses = (dataFim.getFullYear() - hoje.getFullYear()) * 12;
+    meses -= hoje.getMonth();
+    meses += dataFim.getMonth();
+
+
+    const mesesFinais = meses <= 0 ? 0 : meses;
+
+    return { situacao: 'VIGENTE', mesesRestantes: mesesFinais };
+}
+
+ get vigenciaRestante(): number {
+    if (this.contract?.loyalty !== true) { 
         return 0; 
     }
 
     if (!this.contract?.dateExpired) return 0;
 
     const hoje = new Date();
+    hoje.setHours(0,0,0,0); 
+    
     const dataFim = new Date(this.contract.dateExpired);
+    dataFim.setHours(0,0,0,0);
 
-    if (hoje > dataFim) return 0;
-
+    if (hoje >= dataFim) return 0;
 
     let meses = (dataFim.getFullYear() - hoje.getFullYear()) * 12;
     meses -= hoje.getMonth();
     meses += dataFim.getMonth();
-    
+
     return meses <= 0 ? 0 : meses;
+}
+
+  generateInstallmentOptions() {
+    const maxInstallments = 12; 
+    
+    this.installmentOptions = Array.from({ length: maxInstallments }, (_, i) => {
+      const value = i + 1;
+      return { label: `${value}x`, value: value };
+    });
   }
 
 
@@ -236,7 +363,11 @@ simularValores() {
       return;
     }
 
+    const MINIMUM_SPINNER_TIME = 700;
     this.isLoading = true; 
+    const startTime = Date.now();
+    
+    
     this.tipoCancelamento = 'NO_DEBT';
 
     const requestPayload = {
@@ -267,7 +398,14 @@ simularValores() {
       });
   }
 
+
   selecionarFluxoComDebito(){
+     if(!this.simulationResult){
+      this.messageService.add({
+        severity:'warn', detail: 'Simulação necessária.'
+      })
+      return;
+    }
     this.tipoCancelamento = 'WITH_DEBT';
 
     this.carregarPreviewPdf();
@@ -275,51 +413,152 @@ simularValores() {
     this.activeStep = 4;
   }
 
+
   // --- AÇÕES DO STEP 3 ---
 
-  confirmarPagamentoEAvancar() {
-    // O usuário confirmou que pagou. Agora vamos para a Assinatura.
-    // Carregamos o PDF de "Termo de Quitação" (sem dívida)
-    // this.carregarPreviewPdf(); 
-    this.activeStep = 4; // Vai para o Step de Assinatura
-  }
+ confirmarPagamentoEAvancar() {
+    console.log('🚀 Avançando para Step 4 (Fluxo Loja)...');
+    
+    this.modalPagamentoVisible = false;
+    
+    this.tipoCancelamento = 'NO_DEBT'; 
 
+    this.activeStep = 4;
+
+    setTimeout(() => {
+        this.carregarPreviewPdf();
+    }, 100);
+  } 
   
     gerarBoletoLoja() {
-    if (!this.simulationResult) return;
-    
-    this.loadingBoleto = true;
+  if (!this.simulationResult) return;
 
-    const requestPayload = {
-        clientCodeRbx: 0,       
-        contractRbxCode: 0,     
-        cancelReason: this.selectedCancelReason,
-        numberParcels: 1, 
-        parcels: [],    
-        proportionalValue: this.simulationResult.valorProporcional, 
-        pdfBytes: null    
-    };
 
-    this.contractService.generateSlip(this.contract.id, requestPayload)
-      .subscribe({
-        next: (res) => {
-          if (res && res.length > 0) {
-             this.boletoGeradoUrl = res[0].link;
-          }
-          this.loadingBoleto = false;
-        },
-        error: (err) => {
-          this.messageService.add({severity:'error', summary:'Erro', detail:'Erro ao gerar boleto'});
-          this.loadingBoleto = false;
+  const MINIMUM_SPINNER_TIME = 700;
+  this.isLoading = true; 
+  const startTime = Date.now();
+
+  const requestPayload = {
+      clientCodeRbx: 0,
+      contractRbxCode: 0,
+      cancelReason: this.selectedCancelReason,
+      numberParcels: this.selectedInstallments || 1, 
+      proportionalValue: this.simulationResult.valorProporcional,
+      pdfBytes: null
+  };
+
+  this.contractService.generateSlip(this.contract.id, requestPayload)
+    .subscribe({
+      next: (res) => {
+        if (res && res.length > 0) {
+           this.boletoGeradoUrl = res[0].link;
         }
-      });
-  }
-  // --- AÇÕES DO STEP 4 ---
-  carregarPreviewPdf() {
-    this.isLoadingPreview = true;
+        const duration = Date.now() - startTime;
+        const delay = Math.max(0, MINIMUM_SPINNER_TIME - duration);
 
-    if(this.pdfSrc){
-      this.isLoadingPreview = false;
+        setTimeout(() => {
+          this.isLoading = false; 
+        }, delay);
+      },
+      error: (err) => {
+        this.messageService.add({severity:'error', summary:'Erro', detail:'Erro ao gerar boleto'});
+
+        const duration = Date.now() - startTime;
+        const delay = Math.max(0, MINIMUM_SPINNER_TIME - duration);
+
+        setTimeout(() => {
+          this.isLoading = false; 
+        }, delay);
+      }
+    });
+}
+
+  executarTrocaParaDivida(){
+    this.isLoading = true;
+
+    this.contractService.cancelStoreSlip(this.contract.id).subscribe({
+      next:() => {
+        this.messageService.add({
+          severity:'success',
+          summary:'Sucesso',
+          detail: 'Boleto cancelado. Gerando confissão de dívida...'
+        });
+
+        this.tipoCancelamento = 'WITH_DEBT';
+        this.boletoGeradoUrl = null;
+        this.pdfSrc = null;
+
+        this.carregarPreviewPdf();
+
+        this.activeStep = 4;
+
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error(err);
+        this.isLoading = false;
+        this.messageService.add({ 
+            severity: 'error', 
+            summary: 'Erro', 
+            detail: 'Não foi possível cancelar o boleto automaticamente.' 
+        });
+      }
+    });
+  }
+
+abrirDialogMudancaFluxo() {
+    this.dialogMudancaFluxoVisible = true;
+  }
+
+confirmarTrocaParaDivida() {
+    this.dialogMudancaFluxoVisible = false; 
+    this.executarTrocaParaDivida(); 
+  }
+
+cancelarBoletoAtual() {
+  this.isLoading = true;
+
+  this.contractService.cancelStoreSlip(this.contract.id).subscribe({
+    next: () => {
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Cancelado',
+        detail: 'Boleto cancelado com sucesso.'
+    });
+
+    this.boletoGeradoUrl = null;
+
+    this.dialogMudancaFluxoVisible = false;
+
+    this.isLoading = false;
+},
+  error: (err) => {
+    console.error(err);
+    this.isLoading = false;
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Erro',
+      detail: 'Não foi possível cancelar o boleto.'
+  });
+}
+  });
+}
+
+
+  // --- AÇÕES DO STEP 4 ---
+
+  carregarPreviewPdf() {
+   if (this.isLoading) return;
+
+ 
+    const MINIMUM_SPINNER_TIME = 700;
+    this.isLoading = true; 
+    const startTime = Date.now();
+
+
+
+    if (this.pdfSrc && typeof this.pdfSrc === 'string') {
+        URL.revokeObjectURL(this.pdfSrc); 
     }
 
     this.pdfSrc = null;
@@ -346,7 +585,6 @@ simularValores() {
         const objectUrl = URL.createObjectURL(blob);
         this.pdfSrc = this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl);
 
-        this.isLoadingPreview = false;
 
         if(this.signDialogVisible){
           this.signDialogVisible = false;
@@ -356,18 +594,30 @@ simularValores() {
             detail: 'Assinatura capturada com sucesso.'
           });
         }
-      },
-      error: (err) => {
-        console.error(err);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro',
-          detail: 'Erro ao carregar preview do PDF.'
-        });
-        this.isLoadingPreview = false;
-      }
+            const duration = Date.now() - startTime;
+            const delay = Math.max(0, MINIMUM_SPINNER_TIME - duration);
+
+            setTimeout(() => {
+                this.isLoading = false;
+            }, delay);
+        },
+        error: (err) => {
+            console.error(err);
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Erro',
+                detail: 'Erro ao carregar preview do PDF.'
+            });
+
+            const duration = Date.now() - startTime;
+            const delay = Math.max(0, MINIMUM_SPINNER_TIME - duration);
+
+            setTimeout(() => {
+                this.isLoading = false;
+            }, delay);
+        }
     });
-  }
+}
 
   avancarParaConclusao() {
     if(!this.pdfBlob) {
@@ -379,46 +629,85 @@ simularValores() {
       return;
     }
 
-   this.isLoading = true;
+ 
+    const MINIMUM_SPINNER_TIME = 700; 
+    this.isLoading = true;            
+    const startTime = Date.now();    
+
 
    const fileToSend = new File([this.pdfBlob], 'termo_cancelamento.pdf', { type: 'application/pdf' });
+   const photoFile = this.fotoCapturadaFile ? this.fotoCapturadaFile : null;const photoFiles: File[] = [];
+
+    console.log("=== DEBUG ENVIO ===");
+    console.log("Tem PDF?", !!this.pdfBlob);
+    console.log("Tem Foto?", !!this.fotoCapturadaFile);
+    console.log("Objeto Foto:", photoFile);
+
+    if (this.step4CapturedPhotos && this.step4CapturedPhotos.length > 0) {
+        this.step4CapturedPhotos.forEach(photo => {
+            if (photo.file) {
+                photoFiles.push(photo.file);
+            }
+        });
+        console.log(`📸 Preparando ${photoFiles.length} fotos para envio.`);
+    } else {
+        console.warn('⚠️ Nenhuma foto capturada na galeria step4CapturedPhotos.');
+    }
 
    const payload = {
     clientCodeRbx: 0,
     contractRbxCode: 0,
     cancelReason: this.selectedCancelReason,
     proportionalValue: this.simulationResult ? this.simulationResult.valorProporcional : 0.0,
-    numberParcels: 1,
+    numberParcels: this.selectedInstallments || 1,
     parcels: [],
     pdfBytes: null
-   };
+   }; 
 
    let request$;
 
    if(this.tipoCancelamento === 'NO_DEBT') {
-      request$ = this.contractService.cancelNoDebt(this.contract.id, payload, fileToSend);
+      request$ = this.contractService.cancelNoDebt(this.contract.id, payload, fileToSend, photoFiles);
     } else {
-      request$ = this.contractService.cancelWithDebt(this.contract.id, payload, fileToSend);
+      request$ = this.contractService.cancelWithDebt(this.contract.id, payload, fileToSend, photoFiles);
     }
 
    request$.subscribe({
     next: (res) => {
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Sucesso', 
-        detail: 'Cancelamento concluído com sucesso.'
-      });
-      this.router.navigate(['search']);
-    },
-    error: (err) => {
-      this.messageService.add({
-        severity: 'error',
-        detail: 'Erro ao concluir o cancelamento.'
-      });
-      this.isLoading = false;
-    }
-      });
-    }
+
+      const duration = Date.now() - startTime;
+      const delay = Math.max(0, MINIMUM_SPINNER_TIME - duration);
+
+            setTimeout(() => {
+                this.isLoading = false; 
+
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Sucesso',
+                    detail: 'Cancelamento concluído com sucesso!',
+                    life: 3000 
+                });
+
+                setTimeout(() => {
+                    this.router.navigate(['search']);
+                }, 1500); 
+
+            }, delay);
+        },
+        error: (err) => {
+            const duration = Date.now() - startTime;
+            const delay = Math.max(0, MINIMUM_SPINNER_TIME - duration);
+
+            setTimeout(() => {
+                this.messageService.add({
+                    severity: 'error',
+                    detail: 'Erro ao concluir o cancelamento.'
+                });
+                this.isLoading = false; 
+            }, delay);
+        }
+    });
+}
 
 
   savePdf() {
@@ -457,7 +746,7 @@ simularValores() {
     this.forceSignatureRedraw();
   }
 
-  // Hack para o Canvas renderizar corretamente dentro do Modal (display:none issues)
+
   forceSignatureRedraw() {
     this.signatureVisibleFlag = false;
     setTimeout(() => {
@@ -466,32 +755,31 @@ simularValores() {
   }
 
   resetSignaturePad() {
-    // Limpa o pad visualmente ao fechar, se necessário
     if (this.signaturePadInDialog) {
-        this.signaturePadInDialog.clearPad(); // Ajuste conforme método do seu componente
+        this.signaturePadInDialog.clearPad(); 
     }
   }
 
 
-  // Ação do botão "Confirmar" no Modal
   captureAndGenerate() {
     if (!this.signaturePadInDialog) return;
 
-    // Pega o base64 do componente filho
-    const signature = this.signaturePadInDialog.getSignatureAsBase64(); // Ajuste conforme método do seu componente
+    const signature = this.signaturePadInDialog.getSignatureAsBase64(); 
 
     if (!signature) {
         this.messageService.add({severity:'warn', detail:'Por favor, assine antes de confirmar.'});
         return;
     }
 
-    this.capturedSignature = signature; // Salva na variável da classe
-    this.carregarPreviewPdf(); // Recarrega o PDF enviando a assinatura
+    this.capturedSignature = signature; 
+    this.signDialogVisible = false;
+
+    this.carregarPreviewPdf(); 
   }
 
   limparAssinaturaEGerarNovamente() {
       this.capturedSignature = null;
-      this.carregarPreviewPdf(); // Gera o PDF limpo novamente
+      this.carregarPreviewPdf(); 
   }
 
   voltarDoStep4() {
@@ -506,6 +794,83 @@ simularValores() {
     this.router.navigate(['search']);
   }
 
+  
+  onFotoCapturada(event: Event): void {
+    const input = event.target as HTMLInputElement;
+
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      this.fotoCapturadaFile = file;
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        this.thumbnailPreview = e.target?.result ?? null;
+
+        this.isPreviewDialogVisible = true;
+      };
+
+      reader.readAsDataURL(file);
+    }
+  }
+
+  limparPreview(): void {
+    this.thumbnailPreview = null;
+    this.fotoCapturadaFile = null;
+
+    this.isPreviewDialogVisible = false;
+  }
+  
+  cancelarCaptura() {
+    this.limparPreview(); 
+}
+
+   salvarFotoContratoCapturada(): void {
+    if (!this.fotoCapturadaFile || !this.thumbnailPreview) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Nenhuma foto',
+        detail: 'Tire uma foto antes de salvar.',
+      });
+      return;
+    }
+
+    this.isPreviewDialogVisible = false;
+
+    this.step4CapturedPhotos.push({
+      file: this.fotoCapturadaFile,
+      preview: this.thumbnailPreview as string,
+    });
+
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Foto Adicionada',
+      detail: `Foto ${this.step4CapturedPhotos.length} salva!`,
+    });
+
+    this.thumbnailPreview = null;
+    this.fotoCapturadaFile = null;
+  }
+
+    removerFotoStep4(index: number): void {
+    this.step4CapturedPhotos.splice(index, 1);
+
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Foto Removida',
+      detail: 'Foto excluída da galeria.',
+    });
+  }
+
+tirarOutraFoto(): void {
+    this.thumbnailPreview = null;
+    this.fotoCapturadaFile = null;
+    setTimeout(() => {
+      if (this.cameraInput?.nativeElement) {
+        this.cameraInput.nativeElement.click();
+        console.log('📷 Câmera reaberta');
+      }
+    }, 100);
+  }
 
   // --- LÓGICA DE CÁLCULO PROPORCIONAL (NO FRONTEND) ---
   private calcularProporcional(dataRescisao: Date): number {

@@ -53,6 +53,7 @@ $transition-base: 0.3s ease;
   font-size: 0.8rem;
 }
 
+
 /* --- Estilos do Step 1 Rico --- */
 
 .title-section {
@@ -64,7 +65,6 @@ $transition-base: 0.3s ease;
   p { color: #6b7280; font-size: 1rem; }
 }
 
-/* Valor com Ícones */
 .value-row {
   display: flex;
   align-items: center;
@@ -79,7 +79,7 @@ $transition-base: 0.3s ease;
   }
 }
 
-/* Destaques de Texto */
+
 .text-green-500 { color: #10b981; }
 .text-red-500 { color: #ef4444; }
 .text-blue-500 { color: #3b82f6; }
@@ -94,6 +94,21 @@ $transition-base: 0.3s ease;
   font-size: 0.9rem;
   font-weight: 600;
   margin-left: 0.5rem;
+
+  &.ativo {
+    background-color: #fff3cd; /* Amarelo */
+    color: #856404;
+  }
+
+  &.vencido {
+    background-color: #d4edda; /* Verde */
+    color: #155724;
+  }
+
+  &.isento {
+    background-color: #e0f2fe; /* Cinza */
+    color: #0369a1;
+  }
 }
 
 /* Box de Destaque (Ciclo de Faturamento) */
@@ -108,7 +123,6 @@ $transition-base: 0.3s ease;
 
     strong {
         font-size: inherit; 
-        
     } 
 }
 
@@ -118,7 +132,7 @@ $transition-base: 0.3s ease;
   margin: -0.6rem;
 }
 
-/* Caixa de Resultados (Simulação) */
+
 .simulation-results-container {
   margin-top: 1rem;
   animation: fadeIn 0.4s ease-out;
@@ -231,13 +245,12 @@ $transition-base: 0.3s ease;
   margin-top: 0.5rem;
 }
 
-.btn-to-back-step{
+.btn-to-step{
   display: flex;
   justify-content: flex-start;
-  margin-top: 10px;
+  margin-top: 15px;
   margin-left: 2px;
 }
-
 
 
 .contractNumber__header {
@@ -294,6 +307,12 @@ $transition-base: 0.3s ease;
   padding-bottom: $spacing-md;
   gap: 0.5rem;
 
+  &.info-vigencia {
+    .value {
+      align-items: center; 
+    }
+  }
+
   .label {
     color: #1a3b73;
     font-weight: 600;
@@ -307,7 +326,7 @@ $transition-base: 0.3s ease;
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
-    gap: 0.2rem;
+    gap: 0.5rem;
     flex: 1;
 
     .value-row {
@@ -324,8 +343,8 @@ $transition-base: 0.3s ease;
 }
 
 .badge-vigencia {
-  background-color: #e0f2fe; /* Azul claro */
-  color: #0369a1;            /* Azul escuro */
+  background-color: #e0f2fe; 
+  color: #0369a1;            
   padding: 0.6rem 0.8rem;
   border-radius: 6px;
   font-size: 0.9rem;
@@ -334,10 +353,9 @@ $transition-base: 0.3s ease;
   align-items: center;
   gap: 0.3rem;
 
-  /* Estilo quando a vigência é 0 (Fidelidade Cumprida) */
   &.vencido {
-    background-color: #dcfce7; /* Verde claro */
-    color: #166534;            /* Verde escuro */
+    background-color: #dcfce7; 
+    color: #166534;            
     border: 1px solid #86efac;
   }
 }
@@ -513,7 +531,6 @@ $transition-base: 0.3s ease;
   display: flex;
   align-items: center;
   background-color: rgba(255, 230, 0, 0.3);
-  /* fundo translúcido */
   padding: 5px;
   border-radius: 8px;
   gap: 15px;
@@ -549,7 +566,7 @@ $transition-base: 0.3s ease;
   margin: 0;
 }
 
-//ENCERRA DIALOG ENVIAR WHATSAPP
+
 
 /* === Estilos de Fluxo (Step 2) === */
 .fluxo-container {
@@ -570,15 +587,12 @@ $transition-base: 0.3s ease;
   padding: 20px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-
-  /* efeito vidro */
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-/* Cores individuais com translucidez */
 .fluxo-card.online {
   background: rgba(255, 230, 0, 0.05);
   backdrop-filter: blur(15px);
@@ -757,27 +771,6 @@ $transition-base: 0.3s ease;
   }
 }
 
-.signature-input app-signature-pad {
-  flex-grow: 1;
-  display: block;
-}
-
-.signature-input ng-container {
-  flex-grow: 1;
-  display: flex;
-}
-
-.btn-to-capture {
-  display: flex;
-  justify-content: center;
-  margin-top: $spacing-lg;
-}
-
-.btn-to-generate-contract {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-}
 
 ::ng-deep .p-dialog-mask {
   background-color: rgba(0, 0, 0, 0.5) !important;
@@ -987,17 +980,17 @@ $transition-base: 0.3s ease;
   backdrop-filter: blur(10px);
 }
 
-/* --- Layout do Formulário (Lado a Lado) --- */
+
 .form-row {
   display: flex;
-  gap: 1.5rem;       /* Espaço entre os campos */
+  gap: 1.5rem;       
   width: 100%;
-  flex-wrap: wrap;   /* Permite quebrar linha em celular */
+  flex-wrap: wrap;  
 }
 
 .form-group {
-  flex: 1;           /* Faz os dois ocuparem o mesmo tamanho (50%/50%) */
-  min-width: 250px;  /* Largura mínima para não espremer */
+  flex: 1;           
+  min-width: 250px;  
   display: flex;
   flex-direction: column;
   margin-bottom: 1rem;
@@ -1016,11 +1009,10 @@ $transition-base: 0.3s ease;
   display: block;
 }
 
-/* --- Box de Destaque (Ciclo de Faturamento) --- */
 .highlight-box {
     display: flex;
-    width: 100%;                /* Estica a caixa */
-    justify-content: flex-end;  /* Joga o texto para a direita */
+    width: 100%;                
+    justify-content: flex-end;  
     align-items: center;
     
     background-color: #fffbeb; 
@@ -1037,8 +1029,8 @@ $transition-base: 0.3s ease;
     }
 }
 
-/* Ajuste para o DatePicker ocupar 100% */
-::ng-deep .p-datepicker {
+
+:host ::ng-deep .p-datepicker {
     width: 100%;
     input { width: 100%; }
 }
@@ -1050,4 +1042,365 @@ $transition-base: 0.3s ease;
   width: 50%;
   gap: 1rem;
   margin: 1.5rem 0;
+}
+
+.btn-to-confirm-cancel{
+display: flex;
+margin-top: 2rem;
+gap: 0.5rem;
+align-items: center;      
+justify-content: center;
+}
+
+.cobranca {
+    display: flex;
+    align-items: center;     
+    justify-content: center;  
+    gap: 1rem;                
+
+    h2 {
+        margin: 0;   
+        font-size: 1.5rem;        
+    }
+}
+
+.text-secondary{
+   display: flex;
+    align-items: center;      
+    justify-content: center;
+    margin-top: 0.5rem;
+}
+
+.divider-dashed {
+  width: 100%;
+  border-bottom: 1px dashed #e2e8f0;
+  height: 0;
+  margin-top: 1rem;
+}
+
+.link-slip{
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  background-color:  #e3f2fd;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.text{
+  align-items: center;      
+  justify-content: center;
+  display: flex;
+  font-size: 0.8rem;
+  gap: 0.5rem;
+}
+
+// --- ASSINATURA ---
+.signature-pad-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  max-width: 60rem;
+  width: 100%;
+  height: auto;
+}
+
+.signature-input {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+
+  label {
+    width: 100%;
+    text-align: start;
+  }
+}
+
+.signature-input app-signature-pad {
+  flex-grow: 1;
+  display: block;
+}
+
+
+.signature-input ng-container {
+  flex-grow: 1;
+  display: flex;
+}
+
+.btn-to-capture {
+  display: flex;
+  justify-content: center;
+  margin-top: $spacing-lg;
+}
+
+.btn-to-generate-contract {
+  width: 100%;
+  display: flex;
+  justify-content: start;
+}
+
+// ========== GALERIA DENTRO DO DIALOG ==========
+
+.captured-photos-gallery-dialog {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+
+  h5 {
+    margin: 0 0 1rem 0;
+    color: #495057;
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+}
+
+.thumbnails-row-dialog {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 0.5rem 0;
+}
+
+.thumbnail-item-dialog {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 2px solid #ced4da;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+
+  &:hover {
+    border-color: #007bff;
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+    transform: scale(1.05);
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .remove-thumbnail-btn-dialog {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: rgba(220, 53, 69, 0.9);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+
+    &:hover {
+      background: rgba(220, 53, 69, 1);
+      transform: scale(1.15);
+    }
+  }
+
+  &:hover .remove-thumbnail-btn-dialog {
+    opacity: 1;
+  }
+
+  .thumbnail-number-dialog {
+    position: absolute;
+    bottom: 3px;
+    left: 3px;
+    background: rgba(0, 0, 0, 0.75);
+    color: white;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: bold;
+  }
+}
+
+// ========== SCROLLBAR CUSTOMIZADO ==========
+
+.thumbnails-row-dialog {
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+
+    &:hover {
+      background: #555;
+    }
+  }
+}
+
+// ========== RESPONSIVIDADE ==========
+
+@media (max-width: 768px) {
+  .thumbnail-item-dialog {
+    width: 70px;
+    height: 70px;
+  }
+
+  .thumbnails-row-dialog {
+    gap: 0.5rem;
+    max-height: 150px;
+  }
+}
+
+@media (max-width: 480px) {
+  .thumbnail-item-dialog {
+    width: 60px;
+    height: 60px;
+  }
+
+  .remove-thumbnail-btn-dialog {
+    width: 18px !important;
+    height: 18px !important;
+    font-size: 9px !important;
+  }
+
+  .thumbnail-number-dialog {
+    font-size: 9px;
+    padding: 1px 3px;
+  }
+}
+
+
+.change-flow-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;     
+  justify-content: center;
+  padding: 1rem;
+}
+
+.warning-icon-container {
+  background-color: #fff7ed; 
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  border: 1px solid #ffedd5; 
+  i {
+    font-size: 3rem !important; 
+    color: #f97316; 
+    animation: pulse-warning 2s infinite;
+  }
+}
+
+.confirm-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #374151; 
+}
+
+.confirm-description {
+  margin: 0;
+  color: #6b7280; 
+  font-size: 0.95rem;
+  line-height: 1.6;
+  max-width: 90%;
+  
+  .highlight {
+    color: #c2410c; 
+    font-weight: 700;
+    background-color: #fff7ed;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+}
+
+.footer-buttons-centered {
+    display: flex;
+    justify-content: center; 
+    align-items: center;     
+    gap: 0.5rem;             
+    width: 100%;             
+}
+
+.text-dialog {
+  display: flex;          
+  flex-direction: column;  
+  align-items: center;     
+  text-align: center;      
+  width: 100%;             
+}
+
+@keyframes pulse-warning {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+// --- OVERLAY DE LOADING ---
+:host ::ng-deep .loading-overlay,
+:host ::ng-deep .redirect-overlay {
+  // Posição
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  // Aparência
+  background-color: rgba(255, 255, 255, 0.7);
+  z-index: 9999;
+  // Alinhamento
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  // Animação
+  animation: fadeIn 0.3s ease-out;
+}
+
+:host ::ng-deep .loading-overlay .p-progressspinner {
+  z-index: 10000;
+}
+
+:host ::ng-deep .loading-overlay .loading-text,
+:host ::ng-deep .redirect-overlay .loading-text {
+  color: #2d11c9; // <-- Cor do texto
+  margin-top: 1rem;
+  font-size: 1.2rem;
+  font-weight: 500;
+  z-index: 10000;
+  text-align: center;
+  max-width: 600px;
+  line-height: 1.5;
+}
+
+:host ::ng-deep .redirect-overlay i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #f59e0b; 
 }
