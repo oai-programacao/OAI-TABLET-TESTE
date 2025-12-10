@@ -119,6 +119,14 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
+    path: 'cancel-suspension/:clientId/:contractId',
+    loadComponent: () =>
+      import(
+        './components/cancel-suspension/cancel-suspension.component'
+      ).then((m) => m.CancelSuspensionComponent),
+    canActivate: [AuthGuard]
+  },
+  {
     path: 'transfer-ownership/:clientId/:contractId',
     loadComponent: () =>
       import(

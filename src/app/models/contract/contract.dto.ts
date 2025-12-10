@@ -52,5 +52,10 @@ export interface RequestDateTransfer {
 
 export interface RequestContractSuspendDTO {
     dateInitialSuspension: string;
-    duration: number
+    duration: number;
+}
+
+export interface RequestCancelContractSuspendDTO {
+    startSuspension: string | null;
+    proportional: number;
 }

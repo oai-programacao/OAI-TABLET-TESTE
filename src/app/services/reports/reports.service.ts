@@ -31,6 +31,13 @@ export interface ContractSuspenseRequest {
   signatureBase64: string | null;
 }
 
+export interface CancelSuspenseContractRequest {
+  contractId: string;
+  startSuspension: string;
+  proportional: number;
+  signatureBase64: string | null;
+}
+
 export interface ConsentTermPermanentRequest {
   clientId: string;
   codePlanRBX: number;
@@ -97,6 +104,12 @@ export class ReportsService {
   getConsentTermSuspensionContractPdf(requestBody: ContractSuspenseRequest
   ): Observable<Blob> {
     const url = `${this.baseUrl}/suspension-contract`;
+    return this.http.post(url, requestBody, { responseType: 'blob' });
+  }
+
+  getConsentTermCancelSuspensionContractPdf(requestBody: CancelSuspenseContractRequest
+  ): Observable<Blob> {
+    const url = `${this.baseUrl}/cancel-suspension-contract`;
     return this.http.post(url, requestBody, { responseType: 'blob' });
   }
 

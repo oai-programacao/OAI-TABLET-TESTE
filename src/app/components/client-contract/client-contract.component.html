@@ -94,6 +94,7 @@
                   waiting: contract.situationDescription == 'AGUARDANDO_INSTALACAO',
                   blocked: contract.situationDescription == 'BLOQUEADO',
                   transfer: contract.situationDescription == 'TRANSFERIDO',
+                  suspense: contract.situationDescription == 'SUSPENSO',
                 }"
               ></span>
               <label
@@ -175,27 +176,17 @@
         </div>
         <div class="contract-buttons">
           <div class="contract-actions">
-            <p-button  
-              icon="pi pi-file-excel"
-              (onClick)="navigateToSuspension(contract)"
-              severity="contrast" 
+           <p-button
+              icon="pi pi-home"
+              (onClick)="navigateToAddressTransfer(contract)"
+              severity="warn"
               [rounded]="true"
               [text]="true"
-              pTooltip="Suspenção do Contrato"
+              pTooltip="Transferir Endereço"
               tooltipPosition="top"
               [disabled]="contract.situationDescription !== 'ATIVO'"
             />
-            <p-button
-              icon="pi pi-arrow-up"
-              (onClick)="handleOpenDialogValidation(contract, true)"
-              severity="success"
-              [rounded]="true"
-              [text]="true"
-              pTooltip="Fazer Upgrade"
-              tooltipPosition="top"
-              [disabled]="contract.situationDescription !== 'ATIVO'"
-            />
-          </div> 
+          </div>
           <div class="contract-actions" > 
             <p-button
               icon="pi pi-arrow-down"
@@ -208,12 +199,12 @@
               [disabled]="contract.situationDescription !== 'ATIVO'"
             />
             <p-button
-              icon="pi pi-home"
-              (onClick)="navigateToAddressTransfer(contract)"
-              severity="warn"
+              icon="pi pi-arrow-up"
+              (onClick)="handleOpenDialogValidation(contract, true)"
+              severity="success"
               [rounded]="true"
               [text]="true"
-              pTooltip="Transferir Endereço"
+              pTooltip="Fazer Upgrade"
               tooltipPosition="top"
               [disabled]="contract.situationDescription !== 'ATIVO'"
             />
@@ -240,6 +231,28 @@
               [disabled]="contract.situationDescription !== 'ATIVO'"
             />
           </div>
+          <div class="contract-actions">
+            <p-button  
+              icon="pi pi-file-excel"
+              (onClick)="navigateToSuspension(contract)"
+              severity="contrast" 
+              [rounded]="true"
+              [text]="true"
+              pTooltip="Suspenção do Contrato"
+              tooltipPosition="top"
+              [disabled]="contract.situationDescription !== 'ATIVO'"
+            />
+            <p-button  
+              icon="pi pi-times"
+              (onClick)="navigateToCancelSuspension(contract)"
+              severity="help" 
+              [rounded]="true"
+              [text]="true"
+              pTooltip="Cancelar agendamento da Suspenção"
+              tooltipPosition="top"
+              [disabled]="contract?.suspensionScheduled == 0 || contract?.situationDescription !== 'ATIVO'"
+            />
+          </div> 
         </div>
       </div>
       } }

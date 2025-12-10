@@ -458,6 +458,7 @@ export class SuspensionTemporaryComponent {
         },
       });
   }
+
   generateConsentTermWithSignature() {
     if (!this.capturedSignature) {
       alert('Capture a assinatura antes de gerar o termo.');
@@ -639,40 +640,6 @@ export class SuspensionTemporaryComponent {
 
   private showInfo(summary: string, detail: string, life: number = 3000) {
     this.messageService.add({ severity: 'info', summary, detail, life });
-  }
-
-
-  confirmCancelSuspension() {
-    console.log('Cancelamento de suspensão confirmado para o contrato:', this.contractId);
-
-    this.contractService.cancelSuspendContract(this.contractId).subscribe({
-      next: (response) => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Sucesso',
-          detail: 'Suspensão cancelada com sucesso!'
-        });
-        this.openCancelSuspender = false;
-        this.tocarCheck = true;
-        this.loadContract();
-      },
-      error: (err) => {
-        console.error('Erro ao cancelar suspensão', err);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro',
-          detail: 'Falha ao cancelar suspensão.'
-        });
-      }
-    });
-
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Sucesso',
-      detail: 'Suspensão cancelada com sucesso!'
-    });
-
-    this.openCancelSuspender = false;
   }
 
   navigateToInfoClient() {

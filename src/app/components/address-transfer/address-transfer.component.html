@@ -370,15 +370,15 @@
           <p-step-panel [value]="3">
             <ng-template #content let-activateCallback="activateCallback">
                <div *ngIf="isLoadingPreview" class="loading-overlay">
-            <p-progressSpinner
-              styleClass="w-6rem h-6rem"
-              strokeWidth="6"
-              animationDuration=".5s"
-            ></p-progressSpinner>
-            <span class="loading-text">
-              Aguarde enquanto o PDF é gerado...</span
-            >
-          </div>
+                <p-progressSpinner
+                  styleClass="w-6rem h-6rem"
+                  strokeWidth="6"
+                  animationDuration=".5s"
+                ></p-progressSpinner>
+                <span class="loading-text">
+                  Aguarde enquanto o PDF é gerado...</span
+                >
+              </div>
               <div *ngIf="formIsValid; else avisoInvalido">
                 <div class="pdf-preview-section p-mb-3">
                   <div

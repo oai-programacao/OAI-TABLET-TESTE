@@ -309,6 +309,10 @@ export class ClientContractComponent implements OnInit {
     this.router.navigate(['/suspension-temporary', this.clientId, contract.id])
   }
 
+  navigateToCancelSuspension(contract: Contract): void {
+    this.router.navigate(['/cancel-suspension', this.clientId, contract.id])
+  }
+
   openUpgradeDialog(contract: Contract, isUpgrade: boolean) {
     const action = isUpgrade ? 'upgrade' : 'downgrade';
     this.router.navigate([

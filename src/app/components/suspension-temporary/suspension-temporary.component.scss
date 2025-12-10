@@ -118,9 +118,8 @@
 }
 
 .info-text-instructions p {
-  font-family: "IBM Plex Mono", monospace;
   color: #37474f;
-  font-size: 0.9rem;
+  font-size: 1rem;
   line-height: 1.6;
   background: rgba(255, 255, 255, 0.7);
   padding: 0.75rem 1rem;
@@ -145,11 +144,11 @@
   box-shadow: 0 4px 12px rgba(0, 123, 217, 0.15);
 }
 
-:host ::ng-deep .p-datepicker table td > span {
+:host ::ng-deep .p-datepicker table td>span {
   border-radius: 50%;
 }
 
-:host ::ng-deep .p-datepicker table td > span.p-highlight {
+:host ::ng-deep .p-datepicker table td>span.p-highlight {
   background: #007bd9;
   color: white;
 }
@@ -193,7 +192,7 @@
 
 :host ::ng-deep .p-knob .p-knob-value {
   stroke: #4061f1;
-  stroke-width: 10;
+  stroke-width: 15;
   stroke-linecap: round;
 }
 
@@ -220,7 +219,7 @@
   gap: 0.75rem;
 }
 
-.simple-line > div {
+.simple-line>div {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -407,15 +406,27 @@
 
 /* === STEP 4 - Finalização === */
 .loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.5);
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
-  padding: 3rem;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 8px;
-  min-height: 300px;
+  align-items: center;
+  z-index: 10;
+  backdrop-filter: blur(3px);
+
+  .loading-message {
+    margin-top: 1.5rem;
+    font-weight: 700;
+    color: #1c34a0;
+    font-size: 1.1rem;
+  }
 }
+
 
 .step-finalization {
   position: relative;
@@ -468,7 +479,7 @@
   position: relative;
 }
 
-:host ::ng-deep .table-finalization .p-table .p-table-thead > tr > th {
+:host ::ng-deep .table-finalization .p-table .p-table-thead>tr>th {
   background: linear-gradient(135deg, rgba(102, 126, 234, 0.95) 0%, rgba(118, 75, 162, 0.9) 100%);
   backdrop-filter: blur(10px);
   color: white;
@@ -485,12 +496,12 @@
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-:host ::ng-deep .table-finalization .p-table .p-table-tbody > tr {
+:host ::ng-deep .table-finalization .p-table .p-table-tbody>tr {
   position: relative;
   transition: all 0.3s ease;
 }
 
-:host ::ng-deep .table-finalization .p-table .p-table-tbody > tr::before {
+:host ::ng-deep .table-finalization .p-table .p-table-tbody>tr::before {
   content: '';
   position: absolute;
   top: 0;
@@ -502,15 +513,15 @@
   transition: opacity 0.3s ease;
 }
 
-:host ::ng-deep .table-finalization .p-table .p-table-tbody > tr:hover::before {
+:host ::ng-deep .table-finalization .p-table .p-table-tbody>tr:hover::before {
   opacity: 1;
 }
 
-:host ::ng-deep .table-finalization .p-table .p-table-tbody > tr:hover {
+:host ::ng-deep .table-finalization .p-table .p-table-tbody>tr:hover {
   background: rgba(255, 255, 255, 0.05);
 }
 
-:host ::ng-deep .table-finalization .p-table .p-table-tbody > tr > td {
+:host ::ng-deep .table-finalization .p-table .p-table-tbody>tr>td {
   padding: 1.3rem 1.5rem;
   border: none;
   font-size: 1.05rem;
@@ -519,7 +530,7 @@
   color: white;
 }
 
-:host ::ng-deep .table-finalization .p-table .p-table-tbody > tr > td:first-child {
+:host ::ng-deep .table-finalization .p-table .p-table-tbody>tr>td:first-child {
   font-weight: 700;
   color: white;
   background: linear-gradient(135deg, rgba(0, 72, 255, 0.9) 0%, rgba(13, 20, 70, 0.8) 100%);
@@ -530,7 +541,7 @@
   position: relative;
 }
 
-:host ::ng-deep .table-finalization .p-table .p-table-tbody > tr > td:first-child::after {
+:host ::ng-deep .table-finalization .p-table .p-table-tbody>tr>td:first-child::after {
   content: '';
   position: absolute;
   right: 0;
@@ -542,14 +553,14 @@
   opacity: 0.6;
 }
 
-:host ::ng-deep .table-finalization .p-table .p-table-tbody > tr > td a {
+:host ::ng-deep .table-finalization .p-table .p-table-tbody>tr>td a {
   color: #5ccdf9;
   text-decoration: underline;
   font-weight: 600;
   transition: color 0.3s ease;
 }
 
-:host ::ng-deep .table-finalization .p-table .p-table-tbody > tr > td a:hover {
+:host ::ng-deep .table-finalization .p-table .p-table-tbody>tr>td a:hover {
   color: #fbff01;
 }
 
@@ -772,10 +783,12 @@
     transform: scale(1);
     opacity: 1;
   }
+
   50% {
     transform: scale(1.05);
     opacity: 0.8;
   }
+
   100% {
     transform: scale(1);
     opacity: 1;
@@ -811,7 +824,7 @@
     text-align: center;
   }
 
-  .simple-line > div {
+  .simple-line>div {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
@@ -821,7 +834,7 @@
     margin: 1rem;
   }
 
-  :host ::ng-deep .table-finalization .p-table .p-table-tbody > tr > td:first-child {
+  :host ::ng-deep .table-finalization .p-table .p-table-tbody>tr>td:first-child {
     width: 100%;
   }
 

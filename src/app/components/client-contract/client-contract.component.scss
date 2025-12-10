@@ -41,25 +41,6 @@
   overflow-y: auto;
   padding: 0.5rem;
   background-color: #fcfafa;
-
-  /* Scroll personalizado */
-  &::-webkit-scrollbar {
-    width: 8px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: #ffe6f0;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: #ff69b4;
-    border-radius: 8px;
-    border: 2px solid #ffe6f0;
-  }
-
-  &::-webkit-scrollbar-thumb:hover {
-    background-color: #ff3399;
-  }
 }
 
 .contract-card {
@@ -115,6 +96,12 @@
         box-shadow: 0 0 5px #32383a, 0 0 10px #008cff;
         animation: pulse 1.5s infinite;
       }
+
+      &.suspense {
+        background-color: #ff4081;
+        box-shadow: 0 0 20px rgba(253, 19, 19, 0.6),0 0 10px #fa2a6f;
+        animation: pulse 1.5s infinite;
+      }
     }
   }
 
@@ -154,10 +141,10 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  background-color: rgba(236, 232, 232, 0); 
+  background-color: rgba(236, 232, 232, 0);
   margin-left: 0.5rem;
-  border-radius:  8px;
-  box-shadow: 
+  border-radius: 8px;
+  box-shadow:
     0 2px 4px rgba(0, 0, 0, 0),
     inset 0 0 6px rgba(0, 0, 0, 0.075);
   backdrop-filter: blur(2px);
@@ -339,22 +326,25 @@
 }
 
 @keyframes alert-blink {
-  0%, 100% { 
-    opacity: 1; 
-    text-shadow: 0 0 5px rgba(212, 0, 255, 0.8); 
+
+  0%,
+  100% {
+    opacity: 1;
+    text-shadow: 0 0 5px rgba(212, 0, 255, 0.8);
   }
-  50% { 
-    opacity: 0.1; 
+
+  50% {
+    opacity: 0.1;
     text-shadow: none;
   }
 }
 
 .suspension-alert-icon.pi-exclamation-circle {
-  color: #af0367 !important; 
-  font-size: 1.8rem !important; 
+  color: #af0367 !important;
+  font-size: 1.8rem !important;
   animation: alert-blink 3s ease-in-out infinite alternate;
 }
 
-.icon-suspense{
-  color: #af0367 !important; 
+.icon-suspense {
+  color: #af0367 !important;
 }
