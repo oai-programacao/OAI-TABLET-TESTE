@@ -2,16 +2,16 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
-import { DailyMetricsDto, DraftSaleResponse } from '../../models/sales/draftSale.dto';
-
-
+import {
+  DailyMetricsDto,
+  DraftSaleResponse,
+} from '../../models/sales/draftSale.dto';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SalesService {
-
-  private readonly urlApi = environment.apiUrl + "/sales";
+  private readonly urlApi = environment.apiUrl + '/sales';
   private readonly http = inject(HttpClient);
 
   createSale(formData: FormData): Observable<any> {
@@ -30,11 +30,21 @@ export class SalesService {
     return this.http.delete<any>(`${this.urlApi}/archived/${draftId}`);
   }
 
+
+  convertAndDeleteDraft(draftId: string): Observable<any> {
+    return this.http.post<any>(
+      `${this.urlApi}/convert/${draftId}`,
+      {}
+    );
+  }
+
+
   getTodayMetrics(sellerId: string): Observable<DailyMetricsDto> {
     return this.http.get<DailyMetricsDto>(
       `${this.urlApi}/sales/metrics/today/${sellerId}`
     );
   }
+
 
 
 }

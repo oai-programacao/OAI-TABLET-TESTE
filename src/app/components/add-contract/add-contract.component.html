@@ -105,7 +105,7 @@
                           inputmode="numeric"
                           pattern="[0-9]*"
                           placeholder="R$ 0,00"
-                          [maxLength]="7"
+                          [maxLength]="10"
                           [(ngModel)]="contractFormData.discountFixe"
                         />
                         <label for="plans">Desconto Contrato*</label>
@@ -139,22 +139,22 @@
 
                     <p-iftalabel>
                       <p-datepicker
-                        name="dateOfAssignment"
-                        [(ngModel)]="dateOfAssignment"
-                        inputId="dateOfAssignment"
+                        name="dateSignature"
+                        [(ngModel)]="dateSignature"
+                        inputId="dateSignature"
                         showIcon
                         iconDisplay="input"
                         appendTo="body"
-                        #dateofAssignment="ngModel"
+                        #dateOfSignature="ngModel"
                         placeholder="dd/mm/aaaa"
                         [minDate]="minDate"
                         required
                       />
-                      <label for="dateOfAssignment">Data de Assinatura*</label>
+                      <label for="dateSignature">Data de Assinatura*</label>
                     </p-iftalabel>
 
                     <app-message-valid-forms
-                      [control]="dateofAssignment"
+                      [control]="dateOfSignature"
                       error="minDate"
                       text="A data de assinatura não pode ser menor que a data atual."
                     ></app-message-valid-forms>

@@ -207,7 +207,6 @@ export class AddContractComponent implements OnInit {
   private mergedContractBlob!: Blob;
   activeStep: number = 1;
   isSubmitting = false;
-  currentDraftId: string | null = null;
   phone: string = '';
   step1Completed: boolean = false;
   step2Completed: boolean = false;
@@ -242,7 +241,6 @@ export class AddContractComponent implements OnInit {
   isLoading = false;
   dateSignature: Date | null = null;
   dateOfStart: Date | null = null;
-  dateOfAssignment: Date | null = null;
   dateOfMemberShipExpiration: Date | null = null;
   refreshInterval: any;
 
@@ -290,24 +288,31 @@ export class AddContractComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe((params) => {
-      this.clientId = params['clientId'];
-      this.draftId = params['draftId'];
+    const clientId = this.route.snapshot.queryParamMap.get('clientId');
+    const draftId = this.route.snapshot.queryParamMap.get('draftId');
 
-      // if (this.draftId) {
-      //   this.loadDraft(this.clientId!, this.draftId);
-      // }
-    });
+    if (clientId) {
+      this.clientId = clientId;
+      this.contractFormData.clientId = clientId;
+    }
+
+    if (draftId) {
+      this.draftId = draftId;
+      this.loadDraft(draftId);
+    }
+
     this.loadPlans();
 
-    const fromQuery = this.route.snapshot.queryParamMap.get('clientId');
-    this.clientId = fromQuery;
-
-    if (this.clientId) {
-      this.contractFormData.clientId = this.clientId;
-    }
     this.minDate = new Date();
     this.minDate.setHours(0, 0, 0, 0);
+  }
+
+  // Novo método para carregar rascunho
+  private loadDraft(draftId: string): void {
+    this.salesService.convertAndDeleteDraft(draftId).subscribe({
+      next: (saleData) => this.loadDraftData(saleData),
+      error: (err) => console.error('❌ Erro ao carregar rascunho', err),
+    });
   }
 
   ngOnDestroy() {
@@ -378,7 +383,6 @@ export class AddContractComponent implements OnInit {
   center: google.maps.LatLngLiteral = { lat: -23.55052, lng: -46.633308 };
   zoom = 15;
 
-  selectDateOfExpirationCicle: string | null = null;
   selectedResidence: string = '';
   typeOfResidenceOptions = [
     { label: 'Urbana', value: 'urbana' },
@@ -391,7 +395,7 @@ export class AddContractComponent implements OnInit {
     { label: 'Com Fidelidade', value: true },
   ];
 
-  selectedInstallment: number | null = null;
+  selectedInstallment: string | null = null;
   numbersOfInstallments = [
     ...Array.from({ length: 24 }, (_, i) => ({
       label: `${i + 1}x`,
@@ -399,6 +403,7 @@ export class AddContractComponent implements OnInit {
     })),
   ];
 
+  selectDateOfExpirationCicle: string | null = null;
   typesOfDateExpirationCicle = Array.from({ length: 31 }, (_, i) => ({
     id: `${i + 1}`,
     dia: `${i + 1}`,
@@ -575,8 +580,6 @@ export class AddContractComponent implements OnInit {
   onSignatureData(signatureData: string): void {
     this.formData.signaturePad = signatureData;
 
-    this.dateSignature = new Date();
-
     this.messageService.add({
       severity: 'success',
       summary: 'Assinatura Capturada',
@@ -628,7 +631,6 @@ export class AddContractComponent implements OnInit {
     this.isSubmitting = true;
 
     try {
-    
       if (!this.adesionBlob || !this.permanenceBlob) {
         this.messageService.add({
           severity: 'warn',
@@ -653,9 +655,7 @@ export class AddContractComponent implements OnInit {
         dateStart:
           this.dateUtils.formatToLocalDateString(this.dateOfStart) || '',
         dateSignature:
-          this.dateUtils.formatToLocalDateString(this.dateSignature) ||
-          this.dateUtils.formatToLocalDateString(this.dateOfStart) ||
-          '',
+          this.dateUtils.formatToLocalDateString(this.dateSignature) || '',
         dateExpiredAdesion:
           this.dateUtils.formatToLocalDateString(
             this.dateOfMemberShipExpiration
@@ -669,7 +669,7 @@ export class AddContractComponent implements OnInit {
         cicleFatId: Number(selectedCycle!.id),
         cicleBillingDayBase: Number(selectedCycle!.dia),
         cicleBillingExpired: Number(selectedCycle!.vencimento),
-        draftId: this.currentDraftId || null,
+        draftId: this.draftId || null,
         residenceType: this.selectedResidence || '',
         clientType: this.selectedClientType || '',
         phone: this.contractFormData.phone || '',
@@ -708,7 +708,7 @@ export class AddContractComponent implements OnInit {
       this.router.navigate([`/attendances/${this.clientId}`]).then(() => {
         setTimeout(() => {
           this.app.triggerLottie('/saleSuccess.json', 5000);
-        }, 200); 
+        }, 200);
       });
     } catch (err: any) {
       const detail = err?.error?.message ?? 'Erro ao criar a venda.';
@@ -734,7 +734,7 @@ export class AddContractComponent implements OnInit {
       if (!this.selectedPlan) invalidFields.push('Plano de Internet');
       if (!this.contractFormData.adesion) invalidFields.push('Preço da Adesão');
       if (!this.dateOfStart) invalidFields.push('Data de Início');
-      if (!this.dateOfAssignment) invalidFields.push('Data de Assinatura');
+      if (!this.dateSignature) invalidFields.push('Data de Assinatura');
       if (!this.dateOfMemberShipExpiration)
         invalidFields.push('Data de Vencimento da Adesão');
       if (!this.selectDateOfExpirationCicle)
@@ -766,7 +766,6 @@ export class AddContractComponent implements OnInit {
       this.step2Completed = invalidFields.length === 0;
     }
 
-    // Se houver erros, não avança
     if (invalidFields.length > 0) {
       this.messageService.add({
         severity: 'warn',
@@ -802,7 +801,7 @@ export class AddContractComponent implements OnInit {
       plans: 'Plano de Internet',
       descount: 'Desconto de Adesão',
       dateOfStart: 'Data de Início',
-      dateOfAssignment: 'Data de Assinatura',
+      dateSignature: 'Data de Assinatura',
       cicloFaturamento: 'Dia de Vencimento',
       tipoContrato: 'Tipo de Contrato',
       clientTypes: 'Tipo de Cliente',
@@ -1148,7 +1147,6 @@ export class AddContractComponent implements OnInit {
       this.capturedSignatureAdesion = signatureBase64;
       this.capturedSignaturePermanence = signatureBase64;
       this.formData.signaturePad = signatureBase64;
-      this.dateSignature = new Date();
 
       this.messageService.add({
         severity: 'success',
@@ -1228,15 +1226,11 @@ export class AddContractComponent implements OnInit {
       sellerId,
       clientId: this.clientId,
       codePlan: this.selectedPlan ? Number(this.selectedPlan) : null,
-      dateStart: this.dateUtils.formatToLocalDateString(this.dateOfStart) || '',
-      dateSignature:
-        this.dateUtils.formatToLocalDateString(this.dateSignature) ||
-        this.dateUtils.formatToLocalDateString(this.dateOfStart) ||
-        '',
-      dateExpiredAdesion:
-        this.dateUtils.formatToLocalDateString(
-          this.dateOfMemberShipExpiration
-        ) || '',
+      dateStart: this.dateUtils.formatToLocalDateString(this.dateOfStart),
+      dateSignature: this.dateUtils.formatToLocalDateString(this.dateSignature),
+      dateExpiredAdesion: this.dateUtils.formatToLocalDateString(
+        this.dateOfMemberShipExpiration
+      ),
       adesion: this.contractFormData.adesion
         ? Number(this.contractFormData.adesion)
         : null,
@@ -1253,9 +1247,9 @@ export class AddContractComponent implements OnInit {
       cicleFatId: selectedCycle ? Number(selectedCycle.id) : null,
       cicleBillingDayBase: selectedCycle ? Number(selectedCycle.dia) : null,
       cicleBillingExpired: selectedCycle
-        ? Number(selectedCycle.vencimento) 
+        ? Number(selectedCycle.vencimento)
         : null,
-        residenceType: this.selectedResidence || '',
+      residenceType: this.selectedResidence || '',
       clientType: this.selectedClientType || '',
       loyalty: this.selectContract,
       signature: this.formData.signaturePad || '',
@@ -1293,74 +1287,6 @@ export class AddContractComponent implements OnInit {
       },
     });
   }
-
-  // loadDraft(clientId: string | null, draftId: string | undefined): void {
-  //   if (!clientId || !draftId) {
-  //     this.messageService.add({
-  //       severity: 'error',
-  //       summary: 'Erro',
-  //       detail: 'ClientId ou DraftId ausentes.',
-  //     });
-  //     return;
-  //   }
-
-  //   this.isLoadingDraft = true;
-
-  //   this.salesService
-  //     .getArchivedSaleForConversion(clientId, draftId)
-  //     .subscribe({
-  //       next: (draft: DraftSaleResponse) => {
-  //         this.currentDraftId = draft.draftId;
-
-  //         Object.assign(this.contractFormData, draft);
-
-  //         this.selectedPlan = draft.codeplan || '';
-  //         this.selectedInstallment = draft.installments || null;
-  //         this.selectDateOfExpirationCicle = draft.expirationCycle || '';
-  //         this.selectContract = draft.contractType;
-
-  //         if (draft.startDate) {
-  //           this.dateOfStart = this.dateUtils.parseDate(draft.startDate);
-  //         }
-
-  //         if (draft.signatureDate) {
-  //           this.dateOfAssignment = this.dateUtils.parseDate(
-  //             draft.signatureDate
-  //           );
-  //         }
-
-  //         if (draft.expirationDate) {
-  //           this.dateOfMemberShipExpiration = this.dateUtils.parseDate(
-  //             draft.expirationDate
-  //           );
-  //         }
-
-  //         if (draft.residenceType) {
-  //           this.selectedResidence = draft.residenceType;
-  //         } else {
-  //           this.selectedResidence = '';
-  //         }
-
-  //         this.messageService.add({
-  //           severity: 'info',
-  //           summary: 'Rascunho Carregado',
-  //           detail: 'Dados preenchidos automaticamente.',
-  //           life: 5000,
-  //         });
-  //       },
-  //       error: (err) => {
-  //         console.error('❌ Erro ao carregar rascunho:', err);
-  //         this.messageService.add({
-  //           severity: 'error',
-  //           summary: 'Erro',
-  //           detail: 'Falha ao carregar rascunho.',
-  //         });
-  //       },
-  //       complete: () => {
-  //         this.isLoadingDraft = false;
-  //       },
-  //     });
-  // }
 
   handleCapturaFoto(): void {
     if (this.step4CapturedPhotos.length > 0) {
@@ -1582,6 +1508,38 @@ export class AddContractComponent implements OnInit {
         }
       },
     });
+  }
+
+  //carrega uma venda arquivada do banco de dados e preenche os formulários.
+  private loadDraftData(saleData: any): void {
+    if (!saleData) return;
+
+    // Campos básicos
+    this.contractFormData.clientId = saleData.clientId;
+    this.contractFormData.adesion = saleData.adesion;
+    this.contractFormData.address = saleData.address || {};
+    this.contractFormData.observation = saleData.observation || '';
+    this.contractFormData.discountFixe = saleData.discountFixe || 0;
+    this.contractFormData.vigencia = saleData.vigencia || 12;
+
+    // Datas
+    this.dateOfStart = this.dateUtils.parseDate(saleData.dateStart);
+    this.dateSignature = this.dateUtils.parseDate(saleData.dateSignature);
+    this.dateOfMemberShipExpiration = this.dateUtils.parseDate(
+      saleData.dateExpiredAdesion
+    );
+
+    // Seleções
+    this.selectedPlan = saleData.codePlan ? String(saleData.codePlan) : null;
+    this.selectedInstallment =
+      saleData.numberParcels != null ? String(saleData.numberParcels) : null;
+
+    this.selectedTechnology = saleData.typeTechnology || '';
+    this.selectedResidence = saleData.residenceType || '';
+    this.selectedClientType = saleData.clientType || '';
+    this.selectContract = saleData.loyalty;
+    this.selectDateOfExpirationCicle =
+      saleData.cicleFatId != null ? String(saleData.cicleFatId) : null;
   }
 
   openPhoneModal() {

@@ -149,4 +149,19 @@ export class WaitingLeadsComponent implements OnInit {
     const clientSet = new Set(this.archivedSales.map((s) => s.clientId));
     return clientSet.size;
   }
+
+  convertDraft(sale: DraftSaleResponse): void {
+    if (!sale.draftId || !sale.clientId) {
+      console.error('❌ draftId ou clientId não encontrados!');
+      return;
+    }
+
+    this.isLoading = true;
+
+    this.router.navigate(['/add-contract'], {
+      queryParams: { clientId: sale.clientId, draftId: sale.draftId },
+    });
+
+    this.isLoading = false;
+  }
 }
