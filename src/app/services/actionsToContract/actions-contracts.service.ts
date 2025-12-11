@@ -16,11 +16,10 @@ export interface CreateTransferConsentPayload {
 @Injectable({
   providedIn: 'root',
 })
-
 export class ActionsContractsService {
   apiUrl = environment.apiUrl + '/autentique';
 
-  constructor(private http: HttpClient, private authService: AuthService) { }
+  constructor(private http: HttpClient, private authService: AuthService) {}
 
   sendAlterDateAutentique(
     payload: any,
@@ -44,7 +43,7 @@ export class ActionsContractsService {
       headers: new HttpHeaders({
         'Content-Type': 'application/json',
       }),
-      responseType: 'text' as 'text' // O 'as text' é só para o compilador
+      responseType: 'text' as 'text', // O 'as text' é só para o compilador
     };
     return this.http.post(url, finalPayload, finalOptions);
   }
@@ -71,7 +70,6 @@ export class ActionsContractsService {
     oldClientId: string,
     contractId: string
   ): Observable<string> {
-
     const url = `${this.apiUrl}/create-consent-document-transfer/${oldClientId}/${contractId}`;
     return this.http.post(url, payload, { responseType: 'text' });
   }
@@ -104,13 +102,8 @@ export class ActionsContractsService {
     return this.http.post(url, finalPayload, { responseType: 'text' });
   }
 
-  sendContractSalesAutentique(
-    payload: any,
-    clientId: string,
-  ): Observable<any> {
-    const sellerId = this.authService.getSellerId();
-    const finalPayload = { ...payload, sellerId };
+  sendContractSalesAutentique(payload: any, clientId: string): Observable<any> {
     const url = `${this.apiUrl}/create-contract-sale/${clientId}`;
-    return this.http.post(url, finalPayload, { responseType: 'text' });
+    return this.http.post(url, payload, { responseType: 'text' });
   }
 }
