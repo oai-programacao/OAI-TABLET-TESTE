@@ -839,7 +839,7 @@ export class AddContractComponent implements OnInit {
       this.messageService.add({
         severity: 'error',
         summary: 'Erro',
-        detail: 'ID do vendedor não encontrado.',
+        detail: 'Você está deslogado. Faça login novamente.',
       });
       return;
     }
@@ -879,7 +879,7 @@ export class AddContractComponent implements OnInit {
       const mappedSigners = [
         {
           name: this.client?.name || 'Cliente',
-          phone: '+55' + (this.phone || ''),
+          phone: '+55' + (this.phoneAutentique || ''),
         },
       ];
 
@@ -925,6 +925,8 @@ export class AddContractComponent implements OnInit {
         typeTechnology: this.selectedTechnology || '',
         loyalty: this.selectContract,
       };
+
+      console.log('📤 Enviando payload para Autentique:', payload);
 
       this.actionsContractsService
         .sendContractSalesAutentique(payload, this.clientId)
@@ -1248,7 +1250,7 @@ export class AddContractComponent implements OnInit {
       this.messageService.add({
         severity: 'error',
         summary: 'Erro',
-        detail: 'SellerId não encontrado.',
+        detail: 'Você está deslogado. Faça login novamente.',
       });
       return;
     }
