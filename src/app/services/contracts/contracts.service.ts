@@ -162,20 +162,6 @@ export class ContractsService {
     );
   }
 
-  generateSlip(contractId: string, payload: any): Observable<BoletoInfo[]> {
-    return this.http.post<BoletoInfo[]>(
-      `${this.urlApi}/contract/${contractId}/generateSlip`, 
-      payload
-
-    );
-  }
-
-  cancelStoreSlip(contractId: string): Observable<void>{
-    return this.http.delete<void>(
-      `${this.urlApi}/contract/${contractId}/cancel-slip`
-    );
-  }
-
   cancelWithDebt(contractId: string, payload: any, pdfFile: File, photoFiles: File[]): Observable<any> {
     const formData: FormData = new FormData();
     formData.append('data', JSON.stringify(payload));

@@ -28,6 +28,7 @@ import { NgxMaskDirective, NgxMaskPipe, provideNgxMask } from 'ngx-mask';
 import { CancelSimulationDTO } from '../../models/contract/cancel-contract.dto';
 import { AuthService } from '../../core/auth.service';
 import { ContractsService } from '../../services/contracts/contracts.service';
+import { BankSlipService } from '../../services/bankSlip/bank-slip.service';
 
 import { DatePickerModule } from 'primeng/datepicker';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -35,6 +36,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { SignaturePadComponent } from '../../shared/components/signature-pad/signature-pad.component';
 
 import { MidiaService } from '../../services/midia/midia.service';
+import { TooltipModule } from 'primeng/tooltip';
 
 export interface StatusFidelidade {
     situacao: 'ISENTO' | 'CUMPRIDA' | 'VIGENTE';
@@ -64,7 +66,8 @@ export interface StatusFidelidade {
     DatePickerModule,
     SignaturePadComponent,
     ConfirmDialogModule,
-    ProgressSpinnerModule
+    ProgressSpinnerModule,
+    TooltipModule
     
 
   ],
@@ -92,7 +95,7 @@ export class CancelContractComponent implements OnInit {
   private readonly service = inject(ReportsService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly midiaService = inject(MidiaService);
-
+  private readonly bankSlipService = inject(BankSlipService);
 
 // --- DADOS ---
   contract: any = {
@@ -113,11 +116,12 @@ export class CancelContractComponent implements OnInit {
   // Step 1
   simulationResult: CancelSimulationDTO | null = null;
   dataRescisao: Date | null = new Date();
-  selectedCancelReason: string = '';
+  selectedCancelReason: { label: string; value: string; idRbx?: number } | null = null;
   selectedInstallments: number = 1;
+  isSimulating: boolean = false;
 
   // Step 2 (Controle de Fluxo)
-  tipoCancelamento: 'WITH_DEBT' | 'NO_DEBT' = 'WITH_DEBT'; 
+ tipoCancelamento: 'WITH_DEBT' | 'NO_DEBT' | null = null; 
  
   // Step 3 (Pagamento Loja)
   modalPagamentoVisible: boolean = false;
@@ -152,13 +156,15 @@ export class CancelContractComponent implements OnInit {
   ];
 
   cancellationReasons = [
-    { label: 'Insatisfação com o Valor', value: 'Cliente insatisfeito e não quis realizar upgrade/downgrade' },
+    { label: 'Insatisfação com o Valor', value: 'Cliente insatisfeito e não quis realizar upgrade/downgrade', idRbx: 8  },
     { label: 'Insatisfação Técnica (Lentidão/Queda)', value: 'Cliente insatisfeito com a qualidade da internet' },
-    { label: 'Mudança de Endereço', value: 'Cliente mudou de endereço e não deseja continuar conosco' },
-    { label: 'Concorrência (Oferta Melhor)', value: 'Cliente recebeu uma oferta de outra operadora' },
-    { label: 'Falecimento do Titular', value: 'Cliente faleceu' },
-    { label: 'Não necessita mais do serviço', value: 'Cliente alegou não precisar mais do serviço' },
-    { label: 'Outros', value: 'Cliente não quis especificar o motivo' }
+    { label: 'Mudança de Endereço', value: 'Cliente mudou de endereço e não deseja continuar conosco', idRbx: 8 },
+    { label: 'Troca de Provedor (Oferta Melhor)', value: 'Cliente recebeu uma oferta de outra operadora', idRbx: 2 },
+    { label: 'Falecimento do Titular', value: 'Cliente faleceu', idRbx: 23 },
+    { label: 'Não necessita mais do serviço', value: 'Cliente alegou não precisar mais do serviço', idRbx: 8 },
+    { label: 'Outros', value: 'Cliente não quis especificar o motivo', idRbx: 8 },
+    { label: 'Cancelamento - Não Instalado', value: 'Cliente Cancelou Pedido de Instalação', idRbx: 6 },
+    { label: 'Finalizou a Faculdade e Mudou-se de Estado', value: 'Cliente mudou-se de estado após o término da Faculdade', idRbx: 8 }
   ];
 
   installmentOptions: any[] = [];
@@ -182,21 +188,31 @@ ngOnInit() {
 
                 if (this.contract.situationDescription === 'AGUARDANDO_INSTALACAO') {
 
-                    this.isLoading = false; 
-                    this.isRedirecting = true;
+                const motivoAutomatico = { 
+                    label: 'Cancelamento - Não Instalado', 
+                    value: 'Cliente Cancelou Pedido de Instalação', 
+                    idRbx: 6 
+                };
 
-                    this.tipoCancelamento = 'NO_DEBT';
 
-                    setTimeout(() => {
-                        this.activeStep = 4;
+                this.cancellationReasons.push(motivoAutomatico);
 
-                        this.carregarPreviewPdf();
+                this.selectedCancelReason = motivoAutomatico;
 
-                        this.isRedirecting = false;
-                    }, 6000);
+                this.isLoading = false;
+                this.isRedirecting = true;
+                this.tipoCancelamento = 'NO_DEBT';
 
-                    return; 
-                }
+                setTimeout(() => {
+                    this.activeStep = 4;
+                    
+                    this.carregarPreviewPdf();
+                    
+                    this.isRedirecting = false;
+                }, 6000);
+
+                return; 
+            }
 
 
                 console.log('🔍 Dados do Contrato Carregados:');
@@ -206,7 +222,7 @@ ngOnInit() {
 
 
                 this.dataRescisao = null;
-                this.selectedCancelReason = '';
+                this.selectedCancelReason = null;
                 this.simulationResult = null;
                 this.isLoading = false;
             },
@@ -249,6 +265,7 @@ simularValores() {
     this.isLoading = true;            
     const startTime = Date.now();    
 
+    this.isSimulating = true;
 
     this.contractService.simulateCancellation(
         this.contract.id, 
@@ -356,12 +373,16 @@ get statusFidelidade(): StatusFidelidade {
 
 // --- AÇÃO DO BOTÃO "SEM DÉBITO" (STEP 2) ---
   selecionarFluxoLoja() {
-    if(!this.simulationResult){
+    if (!this.simulationResult || !this.selectedCancelReason) {
       this.messageService.add({
-        severity:'warn', detail: 'Simulação necessária.'
-      })
+        severity: 'warn', detail: 'Simulação e Motivo são obrigatórios.'
+      });
       return;
     }
+
+    const textoMotivo = this.selectedCancelReason.value;
+    const idMotivo = this.selectedCancelReason.idRbx || 8;
+
 
     const MINIMUM_SPINNER_TIME = 700;
     this.isLoading = true; 
@@ -373,14 +394,15 @@ get statusFidelidade(): StatusFidelidade {
     const requestPayload = {
         clientCodeRbx: 0, 
         contractRbxCode: 0, 
-        cancelReason: this.selectedCancelReason,
+       cancelReason: textoMotivo,
+       cancelReasonId: idMotivo,
         numberParcels: 1,
         parcels: [],
         proportionalValue: this.simulationResult.valorProporcional,
         pdfBytes: null
     };
 
-    this.contractService.generateSlip(this.contract.id, requestPayload)
+    this.bankSlipService.generateSlip(this.contract.id, requestPayload)
       .subscribe({
         next: (res) => {
           if (res && res.length > 0) {
@@ -447,7 +469,7 @@ get statusFidelidade(): StatusFidelidade {
       pdfBytes: null
   };
 
-  this.contractService.generateSlip(this.contract.id, requestPayload)
+  this.bankSlipService.generateSlip(this.contract.id, requestPayload)
     .subscribe({
       next: (res) => {
         if (res && res.length > 0) {
@@ -476,7 +498,7 @@ get statusFidelidade(): StatusFidelidade {
   executarTrocaParaDivida(){
     this.isLoading = true;
 
-    this.contractService.cancelStoreSlip(this.contract.id).subscribe({
+    this.bankSlipService.cancelStoreSlip(this.contract.id).subscribe({
       next:() => {
         this.messageService.add({
           severity:'success',
@@ -518,7 +540,7 @@ confirmarTrocaParaDivida() {
 cancelarBoletoAtual() {
   this.isLoading = true;
 
-  this.contractService.cancelStoreSlip(this.contract.id).subscribe({
+  this.bankSlipService.cancelStoreSlip(this.contract.id).subscribe({
     next: () => {
       this.messageService.add({
         severity: 'success',
@@ -620,96 +642,76 @@ cancelarBoletoAtual() {
 }
 
   avancarParaConclusao() {
-    if(!this.pdfBlob) {
-      this.messageService.add({
-        severity: 'warn', 
-        summary: 'Atenção', 
-        detail: 'O documento não foi gerado.'
-      });
-      return;
+    if (!this.pdfBlob) {
+        this.messageService.add({ severity: 'warn', summary: 'Atenção', detail: 'O documento não foi gerado.' });
+        return;
     }
 
- 
-    const MINIMUM_SPINNER_TIME = 700; 
-    this.isLoading = true;            
-    const startTime = Date.now();    
+    if (!this.selectedCancelReason || !this.selectedCancelReason.value) {
+        this.messageService.add({ severity: 'warn', summary: 'Atenção', detail: 'Selecione um motivo de cancelamento.' });
+        return;
+    }
 
+    const MINIMUM_SPINNER_TIME = 700;
+    this.isLoading = true;
+    const startTime = Date.now();
 
-   const fileToSend = new File([this.pdfBlob], 'termo_cancelamento.pdf', { type: 'application/pdf' });
-   const photoFile = this.fotoCapturadaFile ? this.fotoCapturadaFile : null;const photoFiles: File[] = [];
-
-    console.log("=== DEBUG ENVIO ===");
-    console.log("Tem PDF?", !!this.pdfBlob);
-    console.log("Tem Foto?", !!this.fotoCapturadaFile);
-    console.log("Objeto Foto:", photoFile);
+    const fileToSend = new File([this.pdfBlob], 'termo_cancelamento.pdf', { type: 'application/pdf' });
+    const photoFiles: File[] = [];
 
     if (this.step4CapturedPhotos && this.step4CapturedPhotos.length > 0) {
         this.step4CapturedPhotos.forEach(photo => {
-            if (photo.file) {
-                photoFiles.push(photo.file);
-            }
+            if (photo.file) photoFiles.push(photo.file);
         });
-        console.log(`📸 Preparando ${photoFiles.length} fotos para envio.`);
+    }
+    const idParaEnvio = this.selectedCancelReason.idRbx || 8;
+    const textoParaEnvio = this.selectedCancelReason.value;
+
+    console.log('🔍 DEBUG ENVIO REAL:');
+    console.log('Texto:', textoParaEnvio);
+    console.log('ID:', idParaEnvio);
+
+    const payload = {
+        clientCodeRbx: 0,
+        contractRbxCode: 0,
+        cancelReason: textoParaEnvio,    
+        cancelReasonId: idParaEnvio,     
+        proportionalValue: this.simulationResult ? this.simulationResult.valorProporcional : 0.0,
+        numberParcels: this.selectedInstallments || 1,
+        parcels: [],
+        pdfBytes: null
+    };
+
+   
+    let request$;
+    if (this.tipoCancelamento === 'NO_DEBT') {
+        request$ = this.contractService.cancelNoDebt(this.contract.id, payload, fileToSend, photoFiles);
     } else {
-        console.warn('⚠️ Nenhuma foto capturada na galeria step4CapturedPhotos.');
+        request$ = this.contractService.cancelWithDebt(this.contract.id, payload, fileToSend, photoFiles);
     }
 
-   const payload = {
-    clientCodeRbx: 0,
-    contractRbxCode: 0,
-    cancelReason: this.selectedCancelReason,
-    proportionalValue: this.simulationResult ? this.simulationResult.valorProporcional : 0.0,
-    numberParcels: this.selectedInstallments || 1,
-    parcels: [],
-    pdfBytes: null
-   }; 
-
-   let request$;
-
-   if(this.tipoCancelamento === 'NO_DEBT') {
-      request$ = this.contractService.cancelNoDebt(this.contract.id, payload, fileToSend, photoFiles);
-    } else {
-      request$ = this.contractService.cancelWithDebt(this.contract.id, payload, fileToSend, photoFiles);
-    }
-
-   request$.subscribe({
-    next: (res) => {
-
-      const duration = Date.now() - startTime;
-      const delay = Math.max(0, MINIMUM_SPINNER_TIME - duration);
-
-            setTimeout(() => {
-                this.isLoading = false; 
-
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Sucesso',
-                    detail: 'Cancelamento concluído com sucesso!',
-                    life: 3000 
-                });
-
-                setTimeout(() => {
-                    this.router.navigate(['search']);
-                }, 1500); 
-
-            }, delay);
-        },
-        error: (err) => {
+    request$.subscribe({
+        next: (res) => {
             const duration = Date.now() - startTime;
             const delay = Math.max(0, MINIMUM_SPINNER_TIME - duration);
 
             setTimeout(() => {
+                this.isLoading = false;
                 this.messageService.add({
-                    severity: 'error',
-                    detail: 'Erro ao concluir o cancelamento.'
+                    severity: 'success', summary: 'Sucesso', detail: 'Cancelamento concluído com sucesso!', life: 3000
                 });
-                this.isLoading = false; 
+                setTimeout(() => {
+                    this.router.navigate(['search']);
+                }, 1500);
             }, delay);
+        },
+        error: (err) => {
+            console.error(err);
+            this.isLoading = false;
+            this.messageService.add({ severity: 'error', detail: 'Erro ao concluir o cancelamento.' });
         }
     });
 }
-
-
   savePdf() {
     if (!this.pdfBlob) {
       this.messageService.add({
@@ -833,8 +835,6 @@ cancelarBoletoAtual() {
       });
       return;
     }
-
-    this.isPreviewDialogVisible = false;
 
     this.step4CapturedPhotos.push({
       file: this.fotoCapturadaFile,
