@@ -12,7 +12,6 @@ import { CardBaseComponent } from '../../shared/components/card-base/card-base.c
 import { StepperModule } from 'primeng/stepper';
 import { ButtonModule } from 'primeng/button';
 import {
-  AbstractControl,
   FormsModule,
   NgForm,
   NgModelGroup,
@@ -54,7 +53,6 @@ import {
 import { AttendancesService } from '../../services/attendances/attendance.service';
 import { ContractFormData } from '../../models/sales/sales.dto';
 import { switchMap, takeUntil } from 'rxjs/operators';
-import { DraftSaleResponse } from '../../models/sales/draftSale.dto';
 import { Table, TableModule } from 'primeng/table';
 import { OfferProjection } from '../../models/offer/offer-projection.model';
 import { OffersService } from '../../services/offers/offers.service';
@@ -66,6 +64,7 @@ import {
 } from '../../models/blockoffer/blockOffer.dto';
 import { AppComponent } from '../../app.component';
 import { MessagesValidFormsComponent } from '../../shared/components/message-valid-forms/message-valid-forms.component';
+import { CheckComponent } from '../../shared/components/check-component/check-component.component';
 
 @Component({
   selector: 'app-add-contract',
@@ -95,6 +94,7 @@ import { MessagesValidFormsComponent } from '../../shared/components/message-val
     TableModule,
     TagModule,
     MessagesValidFormsComponent,
+    CheckComponent
   ],
   templateUrl: './add-contract.component.html',
   styleUrl: './add-contract.component.scss',
@@ -197,9 +197,7 @@ export class AddContractComponent implements OnInit {
 
   selectedTypeNewOs: string = '';
   typeNewOs = [{ label: 'Nova Instalação', value: 'INSTALLATION' }];
-
   selectedDateNewOs: string | null = null;
-
   pdfPreviewUrl: string | null = null;
   pdfBlobFinal: Blob | null = null;
   private adesionBlob!: Blob;
@@ -208,6 +206,7 @@ export class AddContractComponent implements OnInit {
   activeStep: number = 1;
   isSubmitting = false;
   phone: string = '';
+  phoneAutentique: string = '';
   step1Completed: boolean = false;
   step2Completed: boolean = false;
   pdfWasDownloaded: boolean = false;
@@ -248,6 +247,7 @@ export class AddContractComponent implements OnInit {
   minDateValue: Date = new Date();
 
   showPhoneDialog: boolean = false;
+  tocarCheck: boolean = false;
 
   public contractFormData: ContractFormData = {
     sellerId: '',
@@ -817,7 +817,7 @@ export class AddContractComponent implements OnInit {
   }
 
   async sendToAutentiqueSubmit() {
-    if (!this.phone) {
+    if (!this.phoneAutentique) {
       this.messageService.add({
         severity: 'warn',
         summary: 'Aviso',
@@ -884,10 +884,46 @@ export class AddContractComponent implements OnInit {
       ];
 
       const payload = {
-        sellerId: sellerId,
+        signers: mappedSigners,
         adesionData: adesionData,
         permanenceData: permanenceData,
-        signers: mappedSigners,
+        sellerId: sellerId,
+        offerId: this.selectedOfferId,
+        clientId: this.clientId,
+        codePlan: Number(this.selectedPlan),
+        dateStart: this.dateUtils.formatToLocalDateString(this.dateOfStart),
+        dateSignature: this.dateUtils.formatToLocalDateString(
+          this.dateSignature
+        ),
+        dateExpiredAdesion: this.dateUtils.formatToLocalDateString(
+          this.dateOfMemberShipExpiration
+        ),
+        adesion: Number(this.contractFormData.adesion),
+        numberParcels: Number(this.selectedInstallment),
+        address: { ...this.contractFormData.address },
+        observation: this.contractFormData.observation || '',
+        discountFixe: this.contractFormData.discountFixe,
+        vigencia: Number(this.contractFormData.vigencia || 12),
+        cicleFatId: Number(
+          this.typesOfDateExpirationCicle.find(
+            (c) => c.value === this.selectDateOfExpirationCicle
+          )!.id
+        ),
+        cicleBillingDayBase: Number(
+          this.typesOfDateExpirationCicle.find(
+            (c) => c.value === this.selectDateOfExpirationCicle
+          )!.dia
+        ),
+        cicleBillingExpired: Number(
+          this.typesOfDateExpirationCicle.find(
+            (c) => c.value === this.selectDateOfExpirationCicle
+          )!.vencimento
+        ),
+        residenceType: this.selectedResidence || '',
+        clientType: this.selectedClientType || '',
+        phone: this.phoneAutentique || '',
+        typeTechnology: this.selectedTechnology || '',
+        loyalty: this.selectContract,
       };
 
       this.actionsContractsService
@@ -902,7 +938,8 @@ export class AddContractComponent implements OnInit {
               detail: `${res}. Aguarde o cliente assinar, todo o processo será feito de forma automática.`,
               life: 10000,
             });
-
+            this.tocarCheck = true;
+            setTimeout(() => (this.tocarCheck = false), 10);
             this.modalVisible = false;
           },
           error: (err) => {

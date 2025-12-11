@@ -1032,7 +1032,7 @@
           id="telefone"
           name="telefone"
           placeholder="+55 (DDD) 00000-0000"
-          [(ngModel)]="phone"
+          [(ngModel)]="phoneAutentique"
           required
           [style]="{ height: '40px', 'font-size': '20px' }"
           mask="00000000000"
@@ -1053,7 +1053,7 @@
         label="Enviar"
         icon="pi pi-send"
         severity="success"
-        [disabled]="!phone || phone.trim().length < 10"
+        [disabled]="!phoneAutentique || phoneAutentique.trim().length < 10"
         (onClick)="sendToAutentiqueSubmit()"
       ></p-button>
     </ng-template>
@@ -1425,4 +1425,7 @@
     </div>
 
   </div>
+
+  <app-check [trigger]="tocarCheck"/>
+  
 </p-dialog>
