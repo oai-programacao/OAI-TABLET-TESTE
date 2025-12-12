@@ -152,7 +152,7 @@ export class AnimatedToastComponent implements AfterViewInit {
         container: this.lottieContainer.nativeElement,
         path: value,
         renderer: 'svg',
-        loop: false,
+        loop: true,
         autoplay: true,
       });
     }
