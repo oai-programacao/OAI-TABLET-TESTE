@@ -55,6 +55,18 @@ export interface RequestContractSuspendDTO {
     duration: number;
 }
 
+export interface ActiveRequestContract {
+    proportional: number;
+    activationDate: string;
+}
+
+export interface ActiveResponseContract {
+  id: string;
+  situationDescription: string;
+  clienteId: string;
+  boletoUrl: string;
+}
+
 export interface RequestCancelContractSuspendDTO {
     startSuspension: string | null;
     proportional: number;

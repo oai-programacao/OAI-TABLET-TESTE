@@ -127,6 +127,14 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
+    path: 'activate-contract/:clientId/:contractId',
+    loadComponent: () =>
+      import(
+        './components/activate-contract/activate-contract.component'
+      ).then((m) => m.ActivateContractComponent),
+    canActivate: [AuthGuard]
+  },
+  {
     path: 'transfer-ownership/:clientId/:contractId',
     loadComponent: () =>
       import(

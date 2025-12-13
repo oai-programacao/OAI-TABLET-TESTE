@@ -81,6 +81,7 @@ export class ClientContractComponent implements OnInit {
   private readonly authService = inject(AuthService);
 
   private currentClient: ClientData | null = null;
+  
   contracts: Contract[] = [];
   loadingBillingDialog: boolean = false;
   isLoading = false;
@@ -313,6 +314,28 @@ export class ClientContractComponent implements OnInit {
     this.router.navigate(['/cancel-suspension', this.clientId, contract.id])
   }
 
+  navigateToActivateContract(contract: Contract): void {
+    this.router.navigate(['/activate-contract', this.clientId, contract.id])
+  }
+
+  navigateToAddressTransfer(contract: Contract) {
+    const sellerId = this.authService.getSellerId();
+    if (!sellerId) {
+      console.error('Id do vendedor não encontrado');
+      return;
+    }
+    this.router.navigate(['address-transfer'], {
+      queryParams: {
+        fromClient: contract.clientId,
+        contractId: contract.id,
+      },
+
+      state: {
+        contractData: contract,
+      },
+    });
+  }
+
   openUpgradeDialog(contract: Contract, isUpgrade: boolean) {
     const action = isUpgrade ? 'upgrade' : 'downgrade';
     this.router.navigate([
@@ -354,23 +377,7 @@ export class ClientContractComponent implements OnInit {
   listTransferContracts() {
     this.loadContractsTransfer(this.clientId);
   }
-  navigateToAddressTransfer(contract: Contract) {
-    const sellerId = this.authService.getSellerId();
-    if (!sellerId) {
-      console.error('Id do vendedor não encontrado');
-      return;
-    }
-    this.router.navigate(['address-transfer'], {
-      queryParams: {
-        fromClient: contract.clientId,
-        contractId: contract.id,
-      },
 
-      state: {
-        contractData: contract,
-      },
-    });
-  }
 
   searchContractByRbxCode() {
     if (!this.searchCode.trim()) {

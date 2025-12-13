@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
-import { Contract, RequestCancelContractSuspendDTO, RequestContractSuspendDTO, RequestDateTransfer, } from '../../models/contract/contract.dto';
+import { ActiveRequestContract, ActiveResponseContract, Contract, RequestCancelContractSuspendDTO, RequestContractSuspendDTO, RequestDateTransfer, } from '../../models/contract/contract.dto';
 import { ContractSuspenseDTO } from '../../models/contract/contractSuspense.dto';
 
 @Injectable({
@@ -15,6 +15,13 @@ export class ContractsService {
   suspendContract(contractId: string, dto: RequestContractSuspendDTO): Observable<Contract> {
     return this.http.post<Contract>(
       `${this.urlApi}/contract/${contractId}/temporary-suspension`,
+      dto
+    );
+  }
+
+  activateContract(contractId: string, dto: ActiveRequestContract) {
+    return this.http.post<ActiveResponseContract>(
+      `${this.urlApi}/contract/${contractId}/activate`,
       dto
     );
   }

@@ -282,14 +282,14 @@
                                                     <td><strong>{{ row.campo }}</strong></td>
                                                     
                                                     <td *ngIf="row.campo !== 'Boleto'">
-                                                            <span *ngIf="row.isCurrency">
-                                                                {{ row.valor | currency:'BRL':'symbol':'1.2-2' }}
-                                                            </span>
+                                                        <span *ngIf="row.isCurrency">
+                                                            {{ row.valor | currency:'BRL':'symbol':'1.2-2' }}
+                                                        </span>
 
-                                                            <span *ngIf="!row.isCurrency">
-                                                                {{ row.valor }}
-                                                            </span>
-                                                        </td>
+                                                        <span *ngIf="!row.isCurrency">
+                                                            {{ row.valor }}
+                                                        </span>
+                                                    </td>
                                                                                             
                                                         <td *ngIf="row.campo === 'Boleto'">
                                                             <a *ngIf="row.valor"

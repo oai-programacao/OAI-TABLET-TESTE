@@ -52,6 +52,7 @@ export class CancelSuspensionComponent {
   private readonly messageService = inject(MessageService);
   private readonly sanitizer = inject(DomSanitizer);
   private readonly reportsService = inject(ReportsService);
+  private readonly attendancesService = inject(AttendancesService);
 
   private clienteService = inject(ClientService);
 
@@ -207,7 +208,7 @@ export class CancelSuspensionComponent {
     return proportionalValue;
   }
 
-  
+
   calculateProportionalBefore() {
     const liquidPrice = this.contract?.liquidPrice ?? 0;
     const proportional = this.proportionalBoleto ?? 0;
@@ -484,10 +485,6 @@ export class CancelSuspensionComponent {
             console.warn("PDF não encontrado, o atendimento não será registrado.");
           }
 
-          console.log("CLIENTE CARREGADO:", this.client);
-          console.log("CONTRATO CARREGADO:", this.currentContract);
-          console.log("calculo de boleto: ", this.calculateProportionalRemainder())
-
           this.result = {
             clientName: this.client?.name || this.client?.socialName || 'Cliente Indisponível',
             clientCpf: this.formatCpfCnpj(this.client?.cpf || this.client?.cnpj || 'N/A'),
@@ -514,8 +511,6 @@ export class CancelSuspensionComponent {
         }
       });
   }
-
-  private readonly attendancesService = inject(AttendancesService);
 
   event: string = "temporary-suspension";
   private registerAttendance(pdfBlob: Blob, linkBoleto: string): void {
@@ -607,7 +602,7 @@ export class CancelSuspensionComponent {
   }
 
   calculateProportionalRemainder(): number {
-    const proportionalPaid = this.proportionalBoleto; 
+    const proportionalPaid = this.proportionalBoleto;
     return proportionalPaid;
   }
 

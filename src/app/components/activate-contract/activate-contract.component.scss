@@ -1,0 +1,572 @@
+.page-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 1rem;
+}
+
+:host {
+    font-family: "IBM Plex Mono", monospace;
+}
+
+.btn-to-create-another-contract {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.title {
+    font-family: "IBM Plex Mono", monospace !important;
+    font-weight: 400;
+}
+
+::ng-deep p-divider .p-divider-content,
+::ng-deep p-divider .p-divider-content b {
+    font-family: "IBM Plex Mono", monospace;
+    color: #575353;
+    font-weight: 400;
+    font-size: medium;
+}
+
+.contractNumber__header {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #dee2e6;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+
+    label {
+        font-weight: 500;
+        color: #575353;
+        font-size: clamp(1rem, 3vw, 1.3rem);
+    }
+
+    span {
+        font-weight: 700;
+        font-size: clamp(1rem, 3vw, 1.3rem);
+        color: #1c34a0;
+    }
+}
+
+/* === Stepper Customizado === */
+:host ::ng-deep .p-stepper {
+    border-radius: 0.75rem;
+    overflow: hidden;
+    background: transparent;
+}
+
+:host ::ng-deep .p-stepper .p-step-title {
+    font-family: "IBM Plex Mono", monospace;
+    font-weight: 400;
+    font-size: clamp(0.85rem, 2vw, 1.05rem);
+    padding: 0.25rem 0.5rem;
+    border-radius: 3px;
+    transition: all 0.2s ease-in-out;
+}
+
+:host ::ng-deep .p-stepper .p-step.p-step-active .p-step-title {
+    background-color: #5ccdf9;
+    color: #000;
+    border: 1px solid #000;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+    font-weight: 600;
+}
+
+/* === STEP 1 - Instruções === */
+.info-text {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 8px;
+    padding: clamp(1rem, 3vw, 1.5rem);
+    margin: 1rem 0;
+    border: 1px solid #e2e2e2;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    max-height: none;
+    overflow-y: visible;
+}
+
+.info-text-instructions {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e1f5fe 100%);
+    border-radius: 1rem;
+    padding: clamp(0.75rem, 2vw, 1.5rem);
+    margin: 0.5rem 0;
+    border: 2px solid #c5e6ff;
+    box-shadow: 0 6px 20px rgba(0, 123, 217, 0.15);
+    position: relative;
+    overflow: hidden;
+}
+
+.info-text-instructions h2 {
+    font-family: "IBM Plex Mono", monospace;
+    font-weight: 700;
+    color: #1c34a0;
+    font-size: clamp(1rem, 2.5vw, 1.1rem);
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative;
+    z-index: 1;
+    flex-wrap: wrap;
+}
+
+.info-text-instructions p {
+    color: #37474f;
+    font-size: clamp(0.85rem, 2vw, 1rem);
+    line-height: 1.6;
+    background: rgba(255, 255, 255, 0.7);
+    padding: clamp(0.5rem, 2vw, 0.75rem) clamp(0.75rem, 2vw, 1rem);
+    border-radius: 0.75rem;
+    border-left: 4px solid #007bd9;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.suspension-info-summary {
+    background: linear-gradient(135deg, #f9f9f9 0%, #eef7ff 100%);
+    border-radius: 1rem;
+    padding: clamp(1rem, 3vw, 1.5rem);
+    margin: 1rem 0;
+    border: 2px solid #a8c4e4;
+    box-shadow: 0 4px 15px rgba(0, 50, 100, 0.1);
+    font-family: "IBM Plex Mono", monospace;
+}
+
+.suspension-info-summary h3 {
+    font-weight: 700;
+    color: #1c34a0;
+    font-size: clamp(1rem, 2.5vw, 1.25rem);
+    margin-bottom: 1.2rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #5ccdf9;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    word-wrap: break-word;
+}
+
+.suspension-info-summary .info-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.6rem 0.5rem;
+    border-bottom: 1px dashed #ced4da;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.suspension-info-summary .info-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.suspension-info-summary .info-item strong {
+    font-weight: 500;
+    color: #37474f;
+    font-size: clamp(0.85rem, 2vw, 1rem);
+    flex: 1 1 auto;
+    min-width: 150px;
+}
+
+.suspension-info-summary .info-item span {
+    font-weight: 600;
+    color: #007bd9;
+    font-size: clamp(0.9rem, 2vw, 1.05rem);
+    text-align: right;
+    flex: 0 1 auto;
+}
+
+.suspension-info-summary .info-item:last-child span {
+    background-color: #d1ecf1;
+    padding: 0.2rem 0.6rem;
+    border-radius: 5px;
+    color: #004085;
+    border: 1px solid #bee5eb;
+}
+
+.info-warning {
+    background: linear-gradient(135deg, #fff5f5 0%, #ffe6e6 100%);
+    border-radius: 1rem;
+    padding: clamp(1rem, 3vw, 1.5rem);
+    margin: 1rem 0;
+    border: 2px solid #fc5252;
+    box-shadow: 0 4px 12px rgba(252, 82, 82, 0.1);
+    font-family: "IBM Plex Mono", monospace;
+    color: #a31c1c;
+}
+
+.btn-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    padding: 1rem;
+
+    .loading-text {
+        margin-top: 2rem;
+        color: #3b82f6;
+        font-size: clamp(1rem, 3vw, 1.2rem);
+        font-weight: 600;
+        animation: fadeInOut 2s infinite;
+        text-align: center;
+    }
+
+    @keyframes fadeInOut {
+        0%, 100% {
+            opacity: 0.5;
+        }
+        50% {
+            opacity: 1;
+        }
+    }
+
+    ::ng-deep .p-progress-spinner-circle {
+        stroke: #3b82f6 !important;
+        filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.6));
+    }
+}
+
+/* === STEP 4 - Finalização === */
+.step-finalization {
+    position: relative;
+    overflow: hidden;
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+}
+
+.step-finalization::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 150%;
+    height: 150%;
+    background: radial-gradient(circle at 30% 30%, rgba(74, 108, 232, 0.04) 0%, transparent 50%),
+        radial-gradient(circle at 70% 70%, rgba(148, 85, 211, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 50% 20%, rgba(59, 130, 246, 0.02) 0%, transparent 50%);
+    z-index: 0;
+}
+
+.step-body {
+    width: 100%;
+    max-width: 900px;
+    position: relative;
+    z-index: 1;
+}
+
+/* === Tabela de Finalização === */
+.table-finalization {
+    margin: 2rem;
+    border-radius: 24px;
+    overflow: hidden;
+    background: linear-gradient(135deg, rgba(117, 0, 250, 0.95) 0%, rgba(43, 6, 252, 0.85) 100%);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(174, 0, 255, 0.3);
+    box-shadow: 0 25px 50px -12px rgba(102, 126, 234, 0.25),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.8),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+    position: relative;
+}
+
+:host ::ng-deep .table-finalization .p-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: transparent;
+    border-radius: clamp(12px, 3vw, 24px);
+    overflow: hidden;
+    position: relative;
+}
+
+:host ::ng-deep .table-finalization .p-table .p-table-thead>tr>th {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.95) 0%, rgba(118, 75, 162, 0.9) 100%);
+    backdrop-filter: blur(10px);
+    color: white;
+    font-family: "IBM Plex Mono", monospace;
+    font-weight: 700;
+    font-size: clamp(1rem, 2.5vw, 1.3rem);
+    padding: clamp(0.75rem, 2vw, 1.5rem);
+    text-align: left;
+    border: none;
+    position: relative;
+    overflow: hidden;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+:host ::ng-deep .table-finalization .p-table .p-table-tbody>tr {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+:host ::ng-deep .table-finalization .p-table .p-table-tbody>tr::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, #002efd, #fbff01, #7d03f7);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+:host ::ng-deep .table-finalization .p-table .p-table-tbody>tr:hover::before {
+    opacity: 1;
+}
+
+:host ::ng-deep .table-finalization .p-table .p-table-tbody>tr:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+:host ::ng-deep .table-finalization .p-table .p-table-tbody>tr>td {
+    padding: clamp(0.75rem, 2vw, 1.3rem) clamp(0.75rem, 2vw, 1.5rem);
+    border: none;
+    font-size: clamp(0.85rem, 2vw, 1.05rem);
+    position: relative;
+    transition: all 0.3s ease;
+    color: white;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+:host ::ng-deep .table-finalization .p-table .p-table-tbody>tr>td:first-child {
+    font-weight: 700;
+    color: white;
+    background: linear-gradient(135deg, rgba(0, 72, 255, 0.9) 0%, rgba(13, 20, 70, 0.8) 100%);
+    border-right: 1px solid rgba(102, 126, 234, 0.2);
+    width: auto;
+    min-width: 120px;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: clamp(0.85rem, 2vw, 1rem);
+    position: relative;
+}
+
+:host ::ng-deep .table-finalization .p-table .p-table-tbody>tr>td:first-child::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 2px;
+    height: 60%;
+    background: linear-gradient(180deg, transparent, #d302fd, transparent);
+    opacity: 0.6;
+}
+
+:host ::ng-deep .table-finalization .p-table .p-table-tbody>tr>td a {
+    color: #5ccdf9;
+    text-decoration: underline;
+    font-weight: 600;
+    transition: color 0.3s ease;
+    word-break: break-all;
+}
+
+:host ::ng-deep .table-finalization .p-table .p-table-tbody>tr>td a:hover {
+    color: #fbff01;
+}
+
+/* === Botões de Finalização === */
+.button-finalization {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    width: 100%;
+    margin-top: 2.5rem;
+    margin-bottom: 2.5rem;
+    position: relative;
+    z-index: 1;
+    flex-wrap: wrap;
+}
+
+:host ::ng-deep .button-finalization .p-button {
+    background: linear-gradient(135deg, rgba(69, 102, 248, 0.95) 0%, rgba(174, 105, 243, 0.9) 100%);
+    border: none;
+    padding: clamp(0.75rem, 2vw, 1.2rem) clamp(1.5rem, 3vw, 2.5rem);
+    font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+    font-weight: 700;
+    border-radius: clamp(8px, 2vw, 16px);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3),
+        0 0 20px rgba(102, 126, 234, 0.3);
+    position: relative;
+    overflow: hidden;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    backdrop-filter: blur(10px);
+    white-space: nowrap;
+}
+
+:host ::ng-deep .button-finalization .p-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(102, 126, 234, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4),
+        0 0 30px rgba(102, 126, 234, 0.4);
+}
+
+/* === Footer confirmação === */
+.step-footer {
+    margin-top: 2rem;
+    width: 100%;
+}
+
+.proportional-info {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(147, 51, 234, 0.15) 100%);
+    border: 2px solid rgba(59, 130, 246, 0.3);
+    border-left: 6px solid #3b82f6;
+    border-radius: 12px;
+    padding: clamp(1rem, 3vw, 2rem);
+    margin-bottom: 2rem;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(59, 130, 246, 0.2);
+    position: relative;
+    overflow: hidden;
+
+    .footer-title {
+        font-weight: 700;
+        color: #1c34a0;
+        font-size: clamp(1rem, 3vw, 1.3rem);
+        display: block;
+        margin-bottom: 0.5rem;
+        word-wrap: break-word;
+    }
+
+    > div {
+        margin-top: 1rem;
+        color: #37474f;
+        font-size: clamp(0.85rem, 2vw, 1rem);
+        line-height: 1.5;
+    }
+}
+
+.footer-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+
+    ::ng-deep .p-button {
+        padding: clamp(0.75rem, 2vw, 1rem) clamp(1.25rem, 3vw, 2rem);
+        font-size: clamp(0.85rem, 2vw, 1rem);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        border-radius: 8px;
+        white-space: nowrap;
+        min-width: 140px;
+
+        &:hover {
+            transform: translateY(-2px);
+        }
+
+        &.p-button-secondary:hover {
+            box-shadow: 0 8px 30px rgba(100, 116, 139, 0.5);
+        }
+
+        &.p-button-help:hover {
+            box-shadow: 0 8px 30px rgba(168, 85, 247, 0.5);
+        }
+    }
+}
+
+/* === Responsividade adicional === */
+@media (max-width: 768px) {
+    .page-container {
+        padding: 0.5rem;
+    }
+
+    .btn-to-create-another-contract {
+        gap: 0.5rem;
+    }
+
+    .contractNumber__header {
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+    }
+
+    .suspension-info-summary .info-item {
+        flex-direction: column;
+        align-items: flex-start;
+
+        span {
+            text-align: left;
+        }
+    }
+
+    :host ::ng-deep .table-finalization .p-table .p-table-tbody>tr>td:first-child {
+        width: 100%;
+        display: block;
+    }
+
+    .footer-actions {
+        flex-direction: column;
+        
+        ::ng-deep .p-button {
+            width: 100%;
+        }
+    }
+
+    .button-finalization {
+        flex-direction: column;
+
+        ::ng-deep .p-button {
+            width: 100%;
+        }
+    }
+}
+
+@media (max-width: 480px) {
+    .info-text {
+        padding: 0.75rem;
+    }
+
+    .info-text-instructions {
+        padding: 0.75rem;
+    }
+
+    .suspension-info-summary {
+        padding: 0.75rem;
+    }
+
+    .step-finalization {
+        padding: 0.5rem;
+    }
+
+    .table-finalization {
+        margin: 0.5rem 0;
+    }
+
+    :host ::ng-deep .p-stepper .p-step-title {
+        font-size: 0.75rem;
+        padding: 0.2rem 0.3rem;
+    }
+}

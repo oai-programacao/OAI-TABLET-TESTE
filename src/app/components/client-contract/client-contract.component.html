@@ -186,6 +186,16 @@
               tooltipPosition="top"
               [disabled]="contract.situationDescription !== 'ATIVO'"
             />
+            <p-button
+              icon="pi pi-check-circle"
+              (onClick)="navigateToActivateContract(contract)"
+              severity="success"
+              [rounded]="true"
+              [text]="true"
+              pTooltip="Ativar Contrato"
+              tooltipPosition="top"
+              [disabled]="contract.situationDescription !== 'SUSPENSO'"
+            />
           </div>
           <div class="contract-actions" > 
             <p-button

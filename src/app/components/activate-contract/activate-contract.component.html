@@ -1,0 +1,217 @@
+<div class="page-container">
+    <app-card-base width="auto" heigth="auto" header="Cancelamento de suspensão de contratos">
+        <div class="btn-to-create-another-contract">
+            <p-button
+                [rounded]="true"
+                [raised]="true"
+                (onClick)="navigateToListContracts()"
+                icon="pi pi-arrow-left"
+                severity="danger"
+                size="large"
+            />
+            <p-button
+                icon="pi pi-home"
+                [rounded]="true"
+                severity="info"
+                raised="true"
+                size="large"
+                (onClick)="backToHome()"
+            />
+        </div>
+
+        <div class="contractNumber__header">
+            <label>Contrato a ser alterado:</label>
+            <span>#{{ contract?.codeContractRbx }}</span>
+        </div>
+
+        <p-stepper [(value)]="activeStep">
+            <p-step-list>
+                <p-step [value]="1">Ativar Contrato</p-step>
+                <p-step [value]="2">Finalizar Ativação</p-step>
+            </p-step-list>
+
+            <p-step-panels>
+                <p-step-panel [value]="1">
+                    <div class="info-text">
+
+                        <ng-template #content let-activateCallback="activateCallback">
+                            <div class="info-text-instructions">
+                                <h2> ⚫ Instruções </h2>
+                                <p>
+                                    Caro vendedor, esta etapa de Ativação de Contrato permite restabelecer um contrato que estava suspenso.
+                                    A partir da data de ativação informada, o cliente volta a ter seu serviço funcionando normalmente e a cobrança proporcional será gerada conforme o período utilizado.
+                                    Antes de prosseguir, revise atentamente todas as informações, pois após confirmada a ativação, não será possível desfazer a operação.
+                                    Em caso de dúvidas, entre em contato com seu superior.
+                                </p>
+                                <h2> ⚫ Informação </h2>
+                                <p>
+                                    O atendimento será aberto e registrado. certifique-se de que as informações estejam corretas.
+                                </p>
+                            </div>
+                            <div *ngIf="hasSuspensionData() && !loadTheRbx" class="suspension-info-summary">
+                                <h3>Detalhes da Suspensão Atual</h3>
+                                  
+                                    <div class="info-item">
+                                        <strong>Data de Início da suspensão:</strong>
+                                        <span>{{ contractSuspense.startDate | date:'dd/MM/yyyy' }}</span>
+                                    </div>
+
+                                    <div class="info-item">
+                                        <strong>Data prevista de Término da suspensão:</strong>
+                                        <span>{{ contractSuspense.finishDate | date:'dd/MM/yyyy' }}</span>
+                                    </div>
+
+                                    <div class="info-item">
+                                        <strong>Duração esperada:</strong>
+                                        <span>{{ calculateDuration(contractSuspense.startDate, contractSuspense.finishDate) }} dias</span>
+                                    </div>
+
+                                    <div class="info-item">
+                                        <strong>Dias suspenso:</strong>
+                                        <span>{{ daysSuspended }} dias</span>
+                                    </div>
+
+                                    <div class="info-item">
+                                        <strong>Valor Proporcional gerado para ativação:</strong>
+                                        <span>{{ proportionalBoletoBefore | currency : 'BRL' : 'symbol' : '1.2-2' }}</span>
+                                    </div>
+                            </div>
+                            <div *ngIf="loadTheRbx" class="suspension-info-summary">
+                                <h3>Detalhes da Suspensão Atual</h3>
+                                    <div class="info-item">
+                                        <strong>Data de Início da suspensão:</strong>
+                                        <span>{{ contractSuspense.startDate | date:'dd/MM/yyyy' }}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <strong>Valor Proporcional gerado para ativação:</strong>
+                                        <span>{{ proportionalBoletoBefore | currency : 'BRL' : 'symbol' : '1.2-2' }}</span>
+                                    </div>
+                            </div>
+                            
+                            <div class="btn-actions">
+                                <p-button
+                                    severity="success"
+                                    rounded="true"
+                                    raised="true"
+                                    size="large"
+                                    icon="pi pi-arrow-right"
+                                    iconPos="right"
+                                    label="Próximo"
+                                    (onClick)="activateCallback(2)"/>
+                            </div>
+                        </ng-template>
+                        
+                    </div>
+                </p-step-panel>
+                <p-step-panel [value]="2">
+                    <ng-template #content let-activateCallback="activateCallback">
+                        <div *ngIf="isSubmitting" class="loading-overlay">
+                            <p-progressSpinner
+                                styleClass="w-6rem h-6rem"
+                                strokeWidth="6"
+                                animationDuration=".5s"
+                            ></p-progressSpinner>    
+                            <span class="loading-text">Processando alteração...</span>
+                        </div>
+                        <div *ngIf="finalization; else estadoConfirmacao">
+                            <div class="step-finalization">
+                                <div class="step-body">
+                                    <div class="table-finalization">
+                                        <p-table [value]="[
+                                            { campo: 'Cliente', valor: result?.clientName },
+                                            { campo: 'CPF/CNPJ', valor: formatCpfCnpj(result?.clientCpf) },
+                                            { campo: 'Contrato', valor: result?.contrato },
+                                            { campo: 'Boleto', valor: result?.linkBoleto }
+                                        ]">
+                                            <ng-template pTemplate="header">
+                                                <tr>
+                                                    <th>Resumo da Operação</th>
+                                                    <th> </th>
+                                                </tr>
+                                            </ng-template>
+                                            <ng-template pTemplate="body" let-row>
+                                                <tr>
+                                                    <td><strong>{{ row.campo }}</strong></td>
+                                                    
+                                                    <td *ngIf="row.campo !== 'Boleto'">
+                                                        <span *ngIf="row.isCurrency">
+                                                            {{ row.valor | currency:'BRL':'symbol':'1.2-2' }}
+                                                        </span>
+
+                                                        <span *ngIf="!row.isCurrency">
+                                                            {{ row.valor }}
+                                                        </span>
+                                                    </td>
+                                                    <td *ngIf="row.campo === 'Boleto'">
+                                                        <a *ngIf="row.valor"
+                                                        [href]="row.valor"
+                                                        target="_blank">
+                                                        Clique para abrir o boleto
+                                                        </a>
+
+                                                        <span *ngIf="!row.valor" style="color:#999;">
+                                                             (Sem boleto gerado)
+                                                         </span>
+                                                    </td>
+                                                </tr>
+                                            </ng-template>
+                                        </p-table>
+                                    </div>
+                                    <div class="button-finalization">
+                                        <p-button
+                                            label="Voltar ao Menu do Cliente"
+                                            icon="pi pi-home"
+                                            severity="success"
+                                            [raised]="true"
+                                            [rounded]="true"
+                                            size="large"
+                                            (onClick)="navigateToInfoClient()">
+                                        </p-button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                          
+
+                        <ng-template #estadoConfirmacao>
+                            <div class="step-footer" style="margin-top: 2rem;">
+                                <div class="proportional-info" style="background-color: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 1.5rem; margin-bottom: 2rem; border-radius: 4px; text-align: center;">
+                                    <span class="footer-title" style="font-weight: 600; color: #0c4a6e; font-size: 1.2rem; display: block;">
+                                        Deseja confirmar a alteração de endereço?
+                                    </span>
+                                    <div style="margin-top: 0.5rem; color: #334155;">
+                                        Verifique se o termo foi assinado corretamente antes de prosseguir.
+                                    </div>
+                                </div>
+                                
+                                <div class="footer-actions" style="display: flex; justify-content: center; gap: 1rem;">
+                                    <p-button 
+                                        label="Voltar" 
+                                        severity="secondary" 
+                                        icon="pi pi-arrow-left" 
+                                        size="large"
+                                        [raised]="true" 
+                                        [rounded]="true"
+                                        (onClick)="activateCallback(1)">
+                                    </p-button>
+                                    
+                                    <p-button 
+                                        label="Confirmar Alteração" 
+                                        severity="help" 
+                                        icon="pi pi-check" 
+                                        size="large"
+                                        [raised]="true" 
+                                        [rounded]="true" 
+                                        (onClick)="confirmSuspension()">
+                                    </p-button>
+                                </div>
+                            </div>
+                        </ng-template>
+
+                    </ng-template>        
+                </p-step-panel>
+            </p-step-panels>
+        </p-stepper>
+
+    </app-card-base>
+</div>
