@@ -25,6 +25,7 @@ import { IftaLabel } from 'primeng/iftalabel';
 import { MessageService } from 'primeng/api';
 
 import { MessageModule } from 'primeng/message';
+import { NgxCurrencyDirective } from 'ngx-currency';
 
 import { NgxMaskDirective } from 'ngx-mask';
 import { CardBaseComponent } from '../../shared/components/card-base/card-base.component';
@@ -49,17 +50,23 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
-import { TableModule, Table } from "primeng/table";
+import { TableModule, Table } from 'primeng/table';
 import { AttendancesService } from '../../services/attendances/attendance.service';
 import { interval, Subject, of } from 'rxjs';
 import { finalize, switchMap, takeUntil } from 'rxjs/operators';
 import { OffersService } from '../../services/offers/offers.service';
 import { OfferProjection } from '../../models/offer/offer-projection.model';
 import { ButtonModule } from 'primeng/button';
-import { BlockPeriodOffers, BlockPeriodOffersLabels, ViewBlockOffersDto } from '../../models/blockoffer/blockOffer.dto';
+import {
+  BlockPeriodOffers,
+  BlockPeriodOffersLabels,
+  ViewBlockOffersDto,
+} from '../../models/blockoffer/blockOffer.dto';
 import { BlockOffersRequestService } from './../../services/blockOffer/blockoffer.service';
 import { DatePickerModule } from 'primeng/datepicker';
 import { TagModule } from 'primeng/tag';
+
+import { DateUtilsService } from '../../shared/utils/date.utils';
 
 export interface AddressForm {
   zipCode: string | null;
@@ -105,15 +112,14 @@ export interface AddressForm {
     TableModule,
     ButtonModule,
     DatePickerModule,
-    TagModule
-  
+    TagModule,
+    NgxCurrencyDirective,
   ],
   providers: [MessageService, AttendancesService, OffersService],
   templateUrl: './address-transfer.component.html',
   styleUrls: ['./address-transfer.component.scss'],
 })
 export class AddressTransferComponent implements OnInit, OnDestroy {
-  
   @ViewChild('addressNewNgForm') addressNewNgForm!: NgForm;
   @ViewChild(SignaturePadComponent)
   signaturePadComponent!: SignaturePadComponent;
@@ -122,6 +128,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   @ViewChild('pdfIframe') pdfIframe!: ElementRef<HTMLIFrameElement>;
   @ViewChild('osTable') osTable!: Table;
   @ViewChild('formNewOs') formNewOs!: NgForm;
+  @ViewChild('cameraInput') cameraInput!: ElementRef<HTMLInputElement>;
 
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -131,7 +138,6 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   private readonly actionsContractsService = inject(ActionsContractsService);
   private readonly reportsService = inject(ReportsService);
   private readonly midiaService = inject(MidiaService);
-  private readonly attendancesService = inject(AttendancesService);
   private readonly clientService = inject(ClientService);
   private readonly blockOfferService = inject(BlockOffersRequestService);
   private readonly offerService = inject(OffersService);
@@ -139,7 +145,6 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   private originalAddressForm: AddressForm | null = null;
   private stopPolling$ = new Subject<void>();
   private destroy$ = new Subject<void>();
-
 
   contract!: Contract;
   client!: Cliente;
@@ -171,25 +176,30 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   contractId!: string;
   isEditingAddress = false;
   loadingMessage: string | null = null;
-  event: string = "update_address";
+  event: string = 'update_address';
   avisoInvalido: boolean = true;
   thumbnailPreview: string | ArrayBuffer | null = null;
   fotoCapturadaFile: File | null = null;
   isPdfViewerLoaded: boolean = false;
+  step4CapturedPhotos: Array<{ file: File; preview: string }> = [];
+  selectedInstallments: number = 1;
+  installmentOptions: any[] = [];
 
   dialogOs: boolean = false;
   dialogNewOs: boolean = false;
   loadingOs: boolean = false;
   offers: OfferProjection[] = [];
+  photoFiles: File[] = [];
   totalRecords: number = 0;
   offerNothing: boolean = false;
   activeBlock: ViewBlockOffersDto | null = null;
-
-  selectedOs: string | null = null; // IRÁ RECEBER O UUID DA OS SOLICITADA
+  selectedOfferId: string | null = null;
+  selectedOs: string | null = null;
   minDateValue: Date = new Date();
-
+  selectedDate: Date | null = null;
   selectedCity: string = '';
   selectedNewOsCity: string = '';
+
   cities = [
     { label: 'Assis', value: 'ASSIS' },
     { label: 'Cândido Mota', value: 'CANDIDO_MOTA' },
@@ -202,24 +212,37 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   ];
 
   selectedTypeOs: string = '';
-  typeOs = [
-    { label: 'Mudança de Endereço', value: 'CHANGE_OF_ADDRESS' },
-    { label: 'Visita Técnica', value: 'TECHNICAL_VISIT' },
+  typeOs = [{ label: 'Mudança de Endereço', value: 'CHANGE_OF_ADDRESS' }];
+
+  selectedClientType: string = '';
+  clientTypes = [
+    { label: 'B2B', value: 'B2B' },
+    { label: 'B2B ESPECIAL', value: 'B2B ESPECIAL' },
+    { label: 'B2C', value: 'B2C' },
+    { label: 'B2G', value: 'B2G' },
+    { label: 'Interno', value: 'INTERN' },
+    { label: 'Temporário', value: 'TEMPORARY' },
+    { label: 'Condomínio', value: 'CONDOMINIUM' },
   ];
 
-  selectedPeriodOs: string = '';
+  selectedPeriodOs: string | null = null;
   periodsOs = [
     { label: 'Manhã', value: 'MORNING' },
     { label: 'Tarde', value: 'AFTERNOON' },
     { label: 'Noite', value: 'NIGHT' },
   ];
 
-  selectedTypeNewOs: string = '';
+  selectedTypeNewOs: string = 'CHANGE_OF_ADDRESS';
   typeNewOs = [
-    { label: 'Mudança de Endereço de Instalação', value: 'CHANGE_OF_ADDRESS'}
-  ]
+    { label: 'Mudança de Endereço de Instalação', value: 'CHANGE_OF_ADDRESS' },
+  ];
 
-  selectedDate: string | null = null;
+  paymentMethods = [
+    { label: 'Dinheiro', value: 'Dinheiro' },
+    { label: 'Cartão de Crédito', value: 'Cartão de Crédito' },
+    { label: 'Pix', value: 'Pix' },
+    { label: 'Boleto', value: 'Boleto' },
+  ];
 
   addressNewForm: AddressForm = {
     zipCode: null,
@@ -259,9 +282,12 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     }
   }
 
-  
-
   ngOnInit(): void {
+    this.installmentOptions = Array.from({ length: 3 }, (_, i) => ({
+      label: `${i + 1}x`,
+      value: i + 1,
+    }));
+
     if (!this.currentContract) {
       const saved = sessionStorage.getItem('contractData');
       if (saved) {
@@ -298,7 +324,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     if (clientIdFromRoute && contractIdFromRoute) {
       this.clientId = clientIdFromRoute;
       this.contractId = contractIdFromRoute;
-      
+
       return;
     }
 
@@ -315,12 +341,11 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-     this.stopPolling$.next();
+    this.stopPolling$.next();
     this.stopPolling$.complete();
     if (this.pdfPreviewUrl) {
       URL.revokeObjectURL(this.pdfPreviewUrl);
     }
-    
   }
 
   onDialogShow() {
@@ -346,7 +371,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
           return this.offerService.getOffersChangeAddress(
             this.selectedCity,
             this.selectedTypeOs,
-            this.selectedPeriodOs,
+            this.selectedPeriodOs || '',
             page,
             size
           );
@@ -360,7 +385,6 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
         error: (err) => console.error(err),
       });
   }
-
 
   loadPdfPreview(): void {
     if (this.isLoadingPreview) return;
@@ -508,7 +532,6 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     this.phone = '';
   }
 
-
   meuMetodoExtra(): void {
     this.formIsValid = true;
     this.avisoInvalido = false;
@@ -573,7 +596,6 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       this.loadPdfPreview();
     }
   }
-
 
   clearSignature() {
     this.signaturePadComponent.clearPad();
@@ -677,8 +699,6 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     this.generateConsentTermWithSignature();
   }
 
-
-
   onFotoCapturada(event: Event): void {
     const input = event.target as HTMLInputElement;
 
@@ -751,12 +771,11 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     }
   }
 
-  paymentMethods = [
-    { label: 'Dinheiro', value: 'Dinheiro' },
-    { label: 'Cartão de Crédito', value: 'Cartão de Crédito' },
-    { label: 'Pix', value: 'Pix' },
-    { label: 'Boleto', value: 'Boleto' },
-  ];
+  onPaymentMethodChange() {
+    if (this.addressNewForm.paymentForm !== 'Boleto') {
+      this.selectedInstallments = 1;
+    }
+  }
 
   savePdf() {
     if (!this.pdfPreviewUrl) {
@@ -766,19 +785,18 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
 
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
-  if (isIOS) {
-    window.open(this.pdfPreviewUrl, '_blank');
-  } else {
-    const link = document.createElement('a');
-    link.href = this.pdfPreviewUrl;
-    link.download = 'termo_de_consentimento.pdf';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    this.pdfWasDownloaded = true;
+    if (isIOS) {
+      window.open(this.pdfPreviewUrl, '_blank');
+    } else {
+      const link = document.createElement('a');
+      link.href = this.pdfPreviewUrl;
+      link.download = 'termo_de_consentimento.pdf';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      this.pdfWasDownloaded = true;
+    }
   }
-}
-
 
   onPdfViewerLoad(): void {
     console.log('O Iframe do PDF está 100% carregado e pronto.');
@@ -793,17 +811,17 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       this.addressNewForm.zipCode !== this.originalAddressForm.zipCode ||
       this.addressNewForm.street !== this.originalAddressForm.street ||
       this.addressNewForm.numberFromHome !==
-      this.originalAddressForm.numberFromHome ||
+        this.originalAddressForm.numberFromHome ||
       this.addressNewForm.complement !== this.originalAddressForm.complement ||
       this.addressNewForm.uf !== this.originalAddressForm.uf ||
       this.addressNewForm.neighborhood !==
-      this.originalAddressForm.neighborhood ||
+        this.originalAddressForm.neighborhood ||
       this.addressNewForm.city !== this.originalAddressForm.city ||
       this.addressNewForm.observation !== this.originalAddressForm.observation
     );
   }
 
- async onConfirmAddressChange() {
+  async onConfirmAddressChange() {
     if (!this.currentContract) {
       this.messageService.add({
         severity: 'error',
@@ -816,7 +834,8 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       this.messageService.add({
         severity: 'error',
         summary: 'Erro',
-        detail: 'O termo de transferência precisa ser gerado e assinado antes de continuar!',
+        detail:
+          'O termo de transferência precisa ser gerado e assinado antes de continuar!',
       });
       return;
     }
@@ -825,90 +844,188 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     this.isSubmitting = true;
 
     try {
-    let pdfBase64Clean = '';
-    if (this.pdfBlobFinal) {
-      const fullBase64 = await this.blobToBase64(this.pdfBlobFinal);
-      pdfBase64Clean = fullBase64.includes(',') ? fullBase64.split(',')[1] : fullBase64;
-    }
+      const pdfFile = new File(
+        [this.pdfBlobFinal],
+        'termo_mudanca_endereco.pdf',
+        { type: 'application/pdf' }
+      );
 
-     const payload = {
-      clientId: this.currentContract.clientId,
-      contractId: this.currentContract.id,
-      adesion: this.addressNewForm.adesionValue || 0,
-      pdfBytes: pdfBase64Clean,
-      address: {
-        cep: this.addressNewForm.zipCode,
-        uf: this.addressNewForm.uf,
-        cidade: this.addressNewForm.city,
-        rua: this.addressNewForm.street,
-        numero: this.addressNewForm.numberFromHome,
-        bairro: this.addressNewForm.neighborhood,
-        complemento: this.addressNewForm.complement,
-      }
-    };
+      const photoFiles: File[] = [];
 
-    this.contractsService.updateAddressContract(this.currentContract.id, payload).pipe(
-      finalize(() => {
-          this.isLoading = false;
-          this.isSubmitting = false;
-      })
-  ).subscribe({
-    next: (response: any) => {
-      
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Sucesso!',
-        detail: 'Endereço atualizado!',
-      });
-        
-        const enderecoCompleto = `${this.addressNewForm.street}, ${this.addressNewForm.numberFromHome} - ${this.addressNewForm.neighborhood}`;
-        const cidadeUF = `${this.addressNewForm.city}/${this.addressNewForm.uf}`;
-        const enderecoFinalizado = `${enderecoCompleto} | ${cidadeUF}`;
-
-        this.result = {
-          clientName: this.client?.name || this.client?.socialName || 'Cliente Indisponível',
-        clientCpf: this.formatCpfCnpj(this.client?.cpf || this.client?.cnpj || 'N/A'),
-          contrato: this.currentContract?.codeContractRbx || this.currentContract?.id,
-         novoEndereco: enderecoFinalizado,
-         cidade: `${this.addressNewForm.city}/${this.addressNewForm.uf}`,
-
-    adesionValue: this.addressNewForm.adesionValue || 0,
-
-    documentoRbx: response?.numeroDocumento || response?.protocolo || 'Processado',
-    linkBoleto: response?.linkBoleto
-        };
-
-        console.log('Final Result Object:', this.result);
-        this.finalization = true;
-      },
-      error: (err) => {
-        this.isLoading = false;
-        const detailMessage =
-          err?.error?.message || 'Falha ao atualizar o endereço.';
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro',
-          detail: detailMessage,
+      if (this.step4CapturedPhotos && this.step4CapturedPhotos.length > 0) {
+        this.step4CapturedPhotos.forEach((photo) => {
+          if (photo.file) {
+            photoFiles.push(photo.file);
+          }
         });
-      },
-    });
-  }catch (error) {
-    console.error("Erro ao processar PDF", error);
-    this.isLoading = false;
-    this.isSubmitting = false;
-    this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao processar o arquivo PDF.' });
+      } else if (this.fotoCapturadaFile) {
+        photoFiles.push(this.fotoCapturadaFile);
+      }
+
+      const payload = {
+        clientId: this.currentContract.clientId,
+        contractId: this.currentContract.id,
+        offerId: this.selectedOfferId,
+        adesion: this.addressNewForm.adesionValue || 0,
+        numParcels: this.selectedInstallments || 1,
+        clientType: this.selectedClientType,
+        observation: this.addressNewForm.observation || '',
+        address: {
+          cep: this.addressNewForm.zipCode,
+          uf: this.addressNewForm.uf,
+          cidade: this.addressNewForm.city,
+          rua: this.addressNewForm.street,
+          numero: this.addressNewForm.numberFromHome,
+          bairro: this.addressNewForm.neighborhood,
+          complemento: this.addressNewForm.complement,
+        },
+      };
+
+      console.log('Payload enviado:', payload);
+
+      this.contractsService
+        .updateAddressContract(
+          this.currentContract.id,
+          payload,
+          pdfFile,
+          photoFiles
+        )
+        .pipe(
+          finalize(() => {
+            this.isLoading = false;
+            this.isSubmitting = false;
+          })
+        )
+        .subscribe({
+          next: (response: any) => {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Sucesso!',
+              detail: 'Endereço atualizado!',
+            });
+
+            const enderecoCompleto = `${this.addressNewForm.street}, ${this.addressNewForm.numberFromHome} - ${this.addressNewForm.neighborhood}`;
+            const cidadeUF = `${this.addressNewForm.city}/${this.addressNewForm.uf}`;
+            const enderecoFinalizado = `${enderecoCompleto} | ${cidadeUF}`;
+
+            console.log('RESPOSTA BACKEND:', response);
+
+            this.result = {
+              clientName:
+                this.client?.name ||
+                this.client?.socialName ||
+                'Cliente Indisponível',
+              clientCpf: this.formatCpfCnpj(
+                this.client?.cpf || this.client?.cnpj || 'N/A'
+              ),
+              contrato:
+                this.currentContract?.codeContractRbx ||
+                this.currentContract?.id,
+              novoEndereco: enderecoFinalizado,
+              cidade: `${this.addressNewForm.city}/${this.addressNewForm.uf}`,
+
+              adesionValue: this.addressNewForm.adesionValue || 0,
+
+              documentoRbx:
+                response?.numeroDocumento ||
+                response?.protocolo ||
+                'Processado',
+              linkBoleto: response?.linkBoleto,
+              linksBoletos: response?.linksBoletos || [],
+            };
+
+            console.log('Final Result Object:', this.result);
+            this.finalization = true;
+          },
+          error: (err) => {
+            this.isLoading = false;
+            const detailMessage =
+              err?.error?.message || 'Falha ao atualizar o endereço.';
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Erro',
+              detail: detailMessage,
+            });
+          },
+        });
+    } catch (error) {
+      console.error('Erro ao processar PDF', error);
+      this.isLoading = false;
+      this.isSubmitting = false;
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erro',
+        detail: 'Erro ao processar o arquivo PDF.',
+      });
+    }
   }
- }
 
   blobToBase64(blob: Blob): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
-}
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
 
+  public extrairLink(textoCompleto: string): string {
+    if (!textoCompleto) return '';
+
+    // Se vier no formato "Doc: ... - Link: http...", pegamos a segunda parte
+    if (textoCompleto.includes('Link: ')) {
+      return textoCompleto.split('Link: ')[1].trim();
+    }
+
+    // Se já vier o link limpo (http...), retorna ele mesmo
+    return textoCompleto;
+  }
+
+  removerFotoStep4(index: number): void {
+    this.step4CapturedPhotos.splice(index, 1);
+
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Foto Removida',
+      detail: 'Foto excluída da galeria.',
+    });
+  }
+
+  tirarOutraFoto(): void {
+    this.thumbnailPreview = null;
+    this.fotoCapturadaFile = null;
+    setTimeout(() => {
+      if (this.cameraInput?.nativeElement) {
+        this.cameraInput.nativeElement.click();
+        console.log('📷 Câmera reaberta');
+      }
+    }, 100);
+  }
+
+  salvarFotoContratoCapturada(): void {
+    if (!this.fotoCapturadaFile || !this.thumbnailPreview) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Nenhuma foto',
+        detail: 'Tire uma foto antes de salvar.',
+      });
+      return;
+    }
+
+    this.step4CapturedPhotos.push({
+      file: this.fotoCapturadaFile,
+      preview: this.thumbnailPreview as string,
+    });
+
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Foto Adicionada',
+      detail: `Foto ${this.step4CapturedPhotos.length} salva!`,
+    });
+
+    this.thumbnailPreview = null;
+    this.fotoCapturadaFile = null;
+  }
 
   formatCpfCnpj(value: string): string {
     const numbers = value.replace(/\D/g, '');
@@ -931,11 +1048,11 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     return `${numero}`;
   }
 
-    navigateToInfoClient() {
+  navigateToInfoClient() {
     if (this.clientId) {
-      this.router.navigate(["info", this.clientId])
+      this.router.navigate(['info', this.clientId]);
     } else {
-      this.router.navigate(["/"])
+      this.router.navigate(['/']);
     }
   }
 
@@ -943,18 +1060,18 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     this.clientService.getClientById(this.clientId).subscribe({
       next: (clientData: Cliente) => {
         this.client = clientData;
-},
-error: (err) => {
-        console.error("Erro ao carregar dados do cliente:", err);
-      }
+      },
+      error: (err) => {
+        console.error('Erro ao carregar dados do cliente:', err);
+      },
     });
   }
 
-  openDialogOs(): void{
+  openDialogOs(): void {
     this.dialogOs = true;
   }
 
-loadOffers(event: any) {
+  loadOffers(event: any) {
     this.loadingOs = true;
 
     const page = event.first / event.rows;
@@ -964,29 +1081,29 @@ loadOffers(event: any) {
       .getOffersChangeAddress(
         this.selectedCity,
         this.selectedTypeOs,
-        this.selectedPeriodOs,
+        this.selectedPeriodOs || '',
         page,
         size
       )
       .subscribe({
         next: (pageData) => {
           this.offers = pageData.content;
-          this.totalRecords = pageData.totalElements; 
+          this.totalRecords = pageData.totalElements;
           this.loadingOs = false;
         },
         error: () => (this.loadingOs = false),
       });
   }
 
-  reloadTable(){
+  reloadTable() {
     this.osTable.reset();
   }
 
-   onDialogNewOs() {
+  onDialogNewOs() {
     this.loadExistingBlocks();
   }
 
-   private loadExistingBlocks(): void {
+  private loadExistingBlocks(): void {
     this.blockOfferService
       .getAllBlockOffers()
       .pipe(takeUntil(this.destroy$))
@@ -1030,20 +1147,19 @@ loadOffers(event: any) {
     return comparableFormat ? new Date(comparableFormat + 'T00:00:00') : null;
   }
 
-
   clearFiltersOs() {
-    this.selectedPeriodOs = '';
+    this.selectedPeriodOs = null;
     this.selectedCity = '';
     this.selectedTypeOs = '';
     this.osTable.reset();
   }
 
-  RequestOs(): void{
+  RequestOs(): void {
     const payload: any = {
       typeOfOs: this.typeNewOs,
       city: this.selectedNewOsCity,
       period: this.selectedPeriodOs,
-      date: this.selectedDate
+      date: this.selectedDate,
     };
   }
 
@@ -1081,7 +1197,7 @@ loadOffers(event: any) {
     this.formNewOs.resetForm();
   }
 
-   toggleReservation(offer: any) {
+  toggleReservation(offer: any) {
     if (!offer.reserved) {
       this.reserveOffer(offer);
     } else {
@@ -1089,13 +1205,14 @@ loadOffers(event: any) {
     }
   }
 
-    reserveOffer(offer: any) {
+  reserveOffer(offer: any) {
     const sellerId = this.authService.getSellerId()!;
-    const sellerName = this.authService.getUserFromToken()?.name; 
+    const sellerName = this.authService.getUserFromToken()?.name;
 
     this.offerService.reserveOffer(offer.id, sellerId).subscribe({
       next: (updatedOffer: any) => {
         Object.assign(offer, updatedOffer);
+        this.selectedOfferId = offer.id;
       },
       error: (err) => {
         if (err.status === 409) {
@@ -1115,7 +1232,7 @@ loadOffers(event: any) {
     offer.reservedUntil = new Date(Date.now() + 10 * 60000);
   }
 
-    unreserveOffer(offer: any) {
+  unreserveOffer(offer: any) {
     const sellerId = this.authService.getSellerId()!;
 
     this.offerService.unreserveOffer(offer.id, sellerId).subscribe({
@@ -1137,4 +1254,3 @@ loadOffers(event: any) {
     });
   }
 }
-
