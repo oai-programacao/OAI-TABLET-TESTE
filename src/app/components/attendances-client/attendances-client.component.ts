@@ -34,7 +34,7 @@ import { LinkifyPipe } from '../../shared/pipes/linkify.pipe';
     ToastModule,
     CheckComponent,
     ConfirmDialogModule,
-    LinkifyPipe
+    LinkifyPipe,
   ],
   templateUrl: './attendances-client.component.html',
   styleUrl: './attendances-client.component.scss',
@@ -153,24 +153,23 @@ export class AttendancesClientComponent implements OnInit {
   imagemUrl: string | null = null;
 
   openMidia(filePath: string) {
-  const fileName = filePath.split('/').pop();
-  if (!fileName) return;
+    const fileName = filePath.split('/').pop();
+    if (!fileName) return;
 
-  const ext = fileName.split('.').pop()?.toLowerCase();
+    const ext = fileName.split('.').pop()?.toLowerCase();
 
-  if (ext === 'pdf') {
-    this.tipoMidia = 'pdf';
-    this.pdfUrl = `${environment.apiUrl}/pdf/${fileName}`;
-    this.imagemUrl = null;
-  } else {
-    this.tipoMidia = 'imagem';
-    this.imagemUrl = `${environment.apiUrl}/imagem/${fileName}`;
-    this.pdfUrl = null;
+    if (ext === 'pdf') {
+      this.tipoMidia = 'pdf';
+      this.pdfUrl = `${environment.apiUrl}/pdf/${fileName}`;
+      this.imagemUrl = null;
+    } else {
+      this.tipoMidia = 'imagem';
+      this.imagemUrl = `${environment.apiUrl}/midias/imagem/${fileName}`;
+      this.pdfUrl = null;
+    }
+
+    this.pdfDialogVisible = true;
   }
-
-  this.pdfDialogVisible = true;
-}
-
 
   backToClient() {
     this.router.navigate(['info', this.clientId]);
@@ -210,7 +209,7 @@ export class AttendancesClientComponent implements OnInit {
       next: (res) => {
         this.tocarCheck = true;
         setTimeout(() => (this.tocarCheck = false), 3);
-         this.messageService.add({
+        this.messageService.add({
           severity: 'sucess',
           summary: 'Sucesso',
           detail: 'Atendimento cancelado com sucesso!',
