@@ -99,6 +99,7 @@ export class TicketCallcenterComponent {
 
         this.attendanceService.createAttendance(payload).subscribe({
           next: (response) => {
+            
             this.messageService.add({
               severity: 'success',
               summary: 'Sucesso',

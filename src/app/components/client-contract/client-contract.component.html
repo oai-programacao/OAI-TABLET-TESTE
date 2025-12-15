@@ -26,6 +26,9 @@
       <p><span class="status-dot canceled"></span> Cancelado</p>
       <p><span class="status-dot blocked"></span> Bloqueado</p>
       <p><span class="status-dot transfer"></span> Transferido</p>
+      <p>
+        <span class="pi pi-exclamation-circle icon-suspense"></span> Suspenso
+      </p>
     </div>
 
     <div class="headerlist">
@@ -90,10 +93,9 @@
                 class="status-dot"
                 [ngClass]="{
                   active: contract.situationDescription == 'ATIVO',
-                  waiting:
-                    contract.situationDescription == 'AGUARDANDO_INSTALACAO',
+                  waiting: contract.situationDescription == 'AGUARDANDO_INSTALACAO',
                   blocked: contract.situationDescription == 'BLOQUEADO',
-                  transfer: contract.situationDescription == 'TRANSFERIDO'
+                  transfer: contract.situationDescription == 'TRANSFERIDO',
                 }"
               ></span>
               <label
@@ -101,6 +103,13 @@
                 →</label
               >
               <span>{{ contract.codeContractRbx }}</span>
+
+              <i
+                *ngIf="contract?.suspensionScheduled == 1"
+                class="pi pi-exclamation-circle suspension-alert-icon"
+                pTooltip="Suspensão agendada para o contrato!"
+                tooltipPosition="top"
+              ></i>
             </div>
           </div>
           <div class="addresscontract">
@@ -122,14 +131,11 @@
               <span>{{ contract.neighborhood }}</span>
               <label>📪 CEP:</label>
               <span>{{ contract.zipCode }}</span>
+              <label>🌆 Cidade:</label>
+              <span>{{ contract.city }}, {{ contract.state }}</span>
             </div>
 
-            <div class="section section-inline">
-              <div class="group">
-                <label>🌆 Cidade:</label>
-                <span>{{ contract.city }}, {{ contract.state }}</span>
-              </div>
-
+            <div class="section-inline">
               <div class="group">
                 <label>Vigência:</label>
                 <span>{{ contract.vigencia }} </span>
@@ -143,6 +149,11 @@
               <div class="group">
                 <label>Dia Vencimento:</label>
                 <span>{{ contract.cicleBillingExpired }}</span>
+              </div>
+
+              <div class="group">
+                <label>💵 Adesão:</label>
+                <span>{{ contract.adesion | currency : "BRL" }}</span>
               </div>
             </div>
 
@@ -165,59 +176,73 @@
             </div>
           </div>
         </div>
-
-        <div class="contract-actions">
-          <p-button
-            icon="pi pi-arrow-up"
-            (onClick)="handleOpenDialogValidation(contract, true)"
-            severity="success"
-            [rounded]="true"
-            [text]="true"
-            pTooltip="Fazer Upgrade"
-            tooltipPosition="top"
-            [disabled]="contract.situationDescription !== 'ATIVO'"
-          />
-          <p-button
-            icon="pi pi-arrow-down"
-            (onClick)="handleOpenDialogValidation(contract, false)"
-            severity="danger"
-            [rounded]="true"
-            [text]="true"
-            pTooltip="Fazer Downgrade"
-            tooltipPosition="top"
-            [disabled]="contract.situationDescription !== 'ATIVO'"
-          />
-
-          <p-button
-            icon="pi pi-home"
-            (onClick)="navigateToAddressTransfer(contract)"
-            severity="warn"
-            [rounded]="true"
-            [text]="true"
-            pTooltip="Transferir Endereço"
-            tooltipPosition="top"
-            [disabled]="contract.situationDescription !== 'ATIVO'"
-          />
-          <p-button
-            icon="pi pi-calendar"
-            (onClick)="goToAlterDateExpired(contract)"
-            severity="success"
-            [rounded]="true"
-            [text]="true"
-            pTooltip="Alterar Vencimento"
-            tooltipPosition="top"
-            [disabled]="contract.situationDescription !== 'ATIVO'"
-          />
-          <p-button
-            icon="pi pi-users"
-            (onClick)="navigateToTransferOwnership(contract)"
-            severity="info"
-            [rounded]="true"
-            [text]="true"
-            pTooltip="Transferir Titularidade"
-            tooltipPosition="top"
-            [disabled]="contract.situationDescription !== 'ATIVO'"
-          />
+        <div class="contract-buttons">
+          <div class="contract-actions">
+            <p-button
+              icon="pi pi-arrow-down"
+              (onClick)="handleOpenDialogValidation(contract, false)"
+              severity="danger"
+              [rounded]="true"
+              [text]="true"
+              pTooltip="Fazer Downgrade"
+              tooltipPosition="top"
+              [disabled]="contract.situationDescription !== 'ATIVO'"
+            />
+            <p-button
+              icon="pi pi-arrow-up"
+              (onClick)="handleOpenDialogValidation(contract, true)"
+              severity="success"
+              [rounded]="true"
+              [text]="true"
+              pTooltip="Fazer Upgrade"
+              tooltipPosition="top"
+              [disabled]="contract.situationDescription !== 'ATIVO'"
+            />
+          </div>
+          <div class="contract-actions">
+            <p-button
+              icon="pi pi-file-excel"
+              (onClick)="navigateToSuspension(contract)"
+              severity="contrast"
+              [rounded]="true"
+              [text]="true"
+              pTooltip="Suspenção do Contrato"
+              tooltipPosition="top"
+              [disabled]="contract.situationDescription !== 'ATIVO'"
+            />
+            <p-button
+              icon="pi pi-home"
+              (onClick)="navigateToAddressTransfer(contract)"
+              severity="warn"
+              [rounded]="true"
+              [text]="true"
+              pTooltip="Transferir Endereço"
+              tooltipPosition="top"
+              [disabled]="contract.situationDescription !== 'ATIVO'"
+            />
+          </div>
+          <div class="contract-actions">
+            <p-button
+              icon="pi pi-calendar"
+              (onClick)="goToAlterDateExpired(contract)"
+              severity="success"
+              [rounded]="true"
+              [text]="true"
+              pTooltip="Alterar Vencimento"
+              tooltipPosition="top"
+              [disabled]="contract.situationDescription !== 'ATIVO'"
+            />
+            <p-button
+              icon="pi pi-users"
+              (onClick)="navigateToTransferOwnership(contract)"
+              severity="info"
+              [rounded]="true"
+              [text]="true"
+              pTooltip="Transferir Titularidade"
+              tooltipPosition="top"
+              [disabled]="contract.situationDescription !== 'ATIVO'"
+            />
+          </div>
         </div>
       </div>
       } }

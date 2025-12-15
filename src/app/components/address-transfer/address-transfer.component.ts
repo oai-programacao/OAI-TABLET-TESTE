@@ -325,6 +325,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       this.clientId = clientIdFromRoute;
       this.contractId = contractIdFromRoute;
 
+
       return;
     }
 
@@ -822,6 +823,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   }
 
   async onConfirmAddressChange() {
+  async onConfirmAddressChange() {
     if (!this.currentContract) {
       this.messageService.add({
         severity: 'error',
@@ -968,6 +970,13 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       reader.readAsDataURL(blob);
     });
   }
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
 
   public extrairLink(textoCompleto: string): string {
     if (!textoCompleto) return '';
@@ -1048,6 +1057,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     return `${numero}`;
   }
 
+  navigateToInfoClient() {
   navigateToInfoClient() {
     if (this.clientId) {
       this.router.navigate(['info', this.clientId]);

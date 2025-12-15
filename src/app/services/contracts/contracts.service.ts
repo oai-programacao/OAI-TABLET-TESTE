@@ -12,6 +12,19 @@ import { DateUtilsService } from '../../shared/utils/date.utils';
 export class ContractsService {
   private readonly urlApi = environment.apiUrl;
   private readonly http = inject(HttpClient);
+
+  suspendContract(contractId: string, dto: RequestContractSuspendDTO): Observable<Contract> {
+    return this.http.post<Contract>(
+      `${this.urlApi}/contract/${contractId}/temporary-suspension`,
+      dto
+    );
+  }
+
+  cancelSuspendContract(contractId: string): Observable<Contract> {
+    return this.http.post<Contract>(
+      `${this.urlApi}/contract/${contractId}/cancel-temporary-suspension`, {}
+    );
+  }
   private readonly dateUtils = inject(DateUtilsService);
 
   getContractsActivesByClient(clientId: string): Observable<Contract[]> {

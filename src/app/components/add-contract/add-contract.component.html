@@ -2,33 +2,33 @@
   <p-toast position="top-center"></p-toast>
   <app-card-base>
     <div class="card">
-      <form #contractForm="ngForm" novalidate>
-        <p-stepper [(value)]="activeStep">
-          <div class="btn-to-back">
-            <p-button
-              label="Voltar"
-              severity="danger"
-              icon="pi pi-arrow-left"
-              (onClick)="backToSearch()"
-            />
-          </div>
+      
+      <p-stepper [(value)]="activeStep">
+        <div class="btn-to-back">
+          <p-button
+            label="Voltar"
+            severity="danger"
+            icon="pi pi-arrow-left"
+            (onClick)="backToSearch()"
+          />
+        </div>
 
-          <!-- Aviso Global -->
-          <div class="content">
-            <ng-template #avisoInvalido>
-              <div class="alert-warning">
-                ⚠️ Para prosseguir, volte ao passo anterior e preencha todos os
-                campos obrigatórios.
-              </div>
-            </ng-template>
-          </div>
+        <!-- Aviso Global -->
+        <div class="content">
+          <ng-template #avisoInvalido>
+            <div class="alert-warning">
+              ⚠️ Para prosseguir, volte ao passo anterior e preencha todos os
+              campos obrigatórios.
+            </div>
+          </ng-template>
+        </div>
 
-          <!-- STEP 1 -->
+        <!-- STEP 1 -->
+        <form #contractForm="ngForm">
           <p-step-item [value]="1">
             <p-step>• Dados do Contrato </p-step>
             <p-step-panel>
               <ng-template #content let-activateCallback="activateCallback">
-                <div ngModelGroup="step1Group" #step1Group="ngModelGroup">
                   <div class="space-stepper1">
                     <p-inputgroup>
                       <p-inputgroup-addon>
@@ -41,17 +41,17 @@
                           optionLabel="label"
                           optionValue="value"
                           placeholder="Selecione"
-                          name="planos"
+                          name="plans"
                           required
                           id="plan"
                           [filter]="true"
                           filterBy="label,code,name"
                         >
                         </p-select>
-                        <label for="planos">Plano de Internet*</label>
+                        <label for="plans">Plano de Internet*</label>
                       </p-iftalabel>
                     </p-inputgroup>
-
+                    
                     <div>
                       <p-inputgroup>
                         <p-inputgroup-addon>
@@ -61,8 +61,8 @@
                           <input
                             size="large"
                             pInputText
-                            id="descount"
-                            name="descount"
+                            id="adesion"
+                            name="adesion"
                             type="text"
                             required
                             maxlength="18"
@@ -75,13 +75,43 @@
                             inputmode="numeric"
                             pattern="[0-9]*"
                             placeholder="R$ 0,00"
-                            [maxLength]="7"
+                            [maxLength]="10"
                             [(ngModel)]="contractFormData.adesion"
                           />
-                          <label for="descount">Desconto de Adesão*</label>
+                          <label for="adesion">Preço de Adesão*</label>
                         </p-iftalabel>
                       </p-inputgroup>
                     </div>
+
+                    <div>
+                    <p-inputgroup>
+                      <p-inputgroup-addon>
+                        <i class="pi pi-ticket"></i>
+                      </p-inputgroup-addon>
+                      <p-iftalabel>
+                        <input
+                          size="large"
+                          pInputText
+                          id="discountContract"
+                          name="discountContract"
+                          type="text"
+                          maxlength="18"
+                          [currencyMask]="{
+                            prefix: 'R$ ',
+                            thousands: '.',
+                            decimal: ',',
+                            align: 'left'
+                          }"
+                          inputmode="numeric"
+                          pattern="[0-9]*"
+                          placeholder="R$ 0,00"
+                          [maxLength]="10"
+                          [(ngModel)]="contractFormData.discountFixe"
+                        />
+                        <label for="plans">Desconto Contrato*</label>
+                      </p-iftalabel>
+                    </p-inputgroup>
+                  </div>
                   </div>
 
                   <div class="space-stepper1">
@@ -95,25 +125,39 @@
                         appendTo="body"
                         #dateofStart="ngModel"
                         placeholder="dd/mm/aaaa"
+                        [minDate]="minDate"
                         required
                       />
                       <label for="dateOfStart">Data de Início*</label>
                     </p-iftalabel>
 
+                    <app-message-valid-forms
+                      [control]="dateofStart"
+                      error="minDate"
+                      text="A data de início não pode ser menor que a data atual."
+                    ></app-message-valid-forms>
+
                     <p-iftalabel>
                       <p-datepicker
-                        name="dateOfAssignment"
-                        [(ngModel)]="dateOfAssignment"
-                        inputId="dateOfAssignment"
+                        name="dateSignature"
+                        [(ngModel)]="dateSignature"
+                        inputId="dateSignature"
                         showIcon
                         iconDisplay="input"
                         appendTo="body"
-                        #dateofAssignment="ngModel"
+                        #dateOfSignature="ngModel"
                         placeholder="dd/mm/aaaa"
+                        [minDate]="minDate"
                         required
                       />
-                      <label for="dateOfAssignment">Data de Assinatura*</label>
+                      <label for="dateSignature">Data de Assinatura*</label>
                     </p-iftalabel>
+
+                    <app-message-valid-forms
+                      [control]="dateOfSignature"
+                      error="minDate"
+                      text="A data de assinatura não pode ser menor que a data atual."
+                    ></app-message-valid-forms>
 
                     <div class="numbersOfInstallments">
                       <p-inputgroup>
@@ -190,22 +234,65 @@
                   </div>
 
                   <div class="space-stepper3">
-                    <p-iftalabel>
-                      <p-datepicker
-                        name="dateOfMemberShipExpiration"
-                        [(ngModel)]="dateOfMemberShipExpiration"
-                        inputId="dateOfMemberShipExpiration"
-                        showIcon
-                        iconDisplay="input"
-                        appendTo="body"
-                        #dateofExpiration="ngModel"
-                        placeholder="dd/mm/aaaa"
-                        required
-                      ></p-datepicker>
-                      <label for="dateOfMemberShipExpiration"
-                        >Data de Vencimento da Adesão*</label
-                      >
-                    </p-iftalabel>
+                    <div class="field-left">
+                      <p-iftalabel>
+                        <p-datepicker
+                          name="dateOfMemberShipExpiration"
+                          [(ngModel)]="dateOfMemberShipExpiration"
+                          inputId="dateOfMemberShipExpiration"
+                          showIcon
+                          iconDisplay="input"
+                          appendTo="body"
+                          #dateofExpiration="ngModel"
+                          placeholder="dd/mm/aaaa"
+                          required
+                          [minDate]="minDate"
+                        ></p-datepicker>
+                        <label for="dateOfMemberShipExpiration"
+                          >Data de Vencimento da Adesão*</label
+                        >
+                      </p-iftalabel>
+                    </div>
+
+                    <div class="field-right">
+                      <p-inputgroup>
+                        <p-inputgroup-addon>
+                          <i class="pi pi-file"></i>
+                        </p-inputgroup-addon>
+                        <p-iftalabel>
+                          <p-select
+                            name="clientTypes"
+                            [(ngModel)]="selectedClientType"
+                            [options]="clientTypes"
+                            placeholder="Selecione o tipo Cliente"
+                            inputId="clientTypes"
+                            required
+                          ></p-select>
+                          <label for="clientTypes">Tipo de Cliente*</label>
+                        </p-iftalabel>
+                      </p-inputgroup>
+                    </div>
+
+                    <div class="field-right">
+                      <p-inputgroup>
+                        <p-inputgroup-addon>
+                          <i class="pi pi-file"></i>
+                        </p-inputgroup-addon>
+                        <p-iftalabel>
+                          <p-select
+                            name="typeTechnology"
+                            [(ngModel)]="selectedTechnology"
+                            [options]="technologyTypes"
+                            placeholder="Selecione a tecnologia"
+                            inputId="typeTechnology"
+                            required
+                          ></p-select>
+                          <label for="typeTechnology"
+                            >Tipo de Tecnologia*</label
+                          >
+                        </p-iftalabel>
+                      </p-inputgroup>
+                    </div>
                   </div>
 
                   <p-divider></p-divider>
@@ -279,13 +366,13 @@
                       [raised]="true"
                     />
                   </div>
-                </div>
+                
               </ng-template>
             </p-step-panel>
           </p-step-item>
 
           <!-- STEP 2 -->
-          <p-step-item [value]="2" class="step-locked">
+          <p-step-item [value]="2">
             <p-step>• Endereço do Contrato</p-step>
             <p-step-panel>
               <ng-template #content let-activateCallback="activateCallback">
@@ -500,7 +587,7 @@
                       />
                       <p-button
                         [size]="'large'"
-                        label="Visualizar O.S"
+                        label="Ver Ofertas"
                         raised="true"
                         severity="warn"
                         icon="pi pi-bell"
@@ -508,7 +595,7 @@
                       />
                       <p-button
                         [size]="'large'"
-                        label="Solicitar O.S"
+                        label="Solicitar Oferta"
                         raised="true"
                         severity="warn"
                         icon="pi pi-bell"
@@ -536,7 +623,6 @@
                         label="Próximo"
                         icon="pi pi-arrow-down"
                         iconPos="right"
-                        [disabled]="!isStep2Valid"
                         (onClick)="goToStep(3)"
                       />
                     </div>
@@ -545,240 +631,233 @@
               </ng-template>
             </p-step-panel>
           </p-step-item>
+        </form>
 
-          <!-- STEP 3 -->
-          <p-step-item [value]="3">
-            <p-step>• Assinatura Digital</p-step>
-            <p-step-panel>
-              <ng-template #content let-activateCallback="activateCallback">
-                <div
-                  *ngIf="step1Completed && step2Completed; else avisoInvalido"
-                >
-                  <div class="space-stepper1">
-                    <div class="fluxo-container">
-                      <!-- CARD 1 -->
-                      <div class="fluxo-card online">
-                        <div class="fluxo-header">
-                          🖥️
-                          <h3>Atendimento Online</h3>
-                        </div>
-                        <div class="fluxo-body">
-                          <p>
-                            Envie o termo diretamente para assinatura online via
-                            Autentique. Ideal para clientes atendidos por
-                            WhatsApp ou Telefone
-                          </p>
-                        </div>
-                        <div class="fluxo-footer">
-                          <p-button
-                            label="Enviar Contrato"
-                            icon="pi pi-send"
-                            severity="warn"
-                            [raised]="true"
-                            (onClick)="abrirModal()"
-                            [style]="{ padding: '2rem 4rem' }"
-                          ></p-button>
-                        </div>
+        <!-- STEP 3 -->
+        <p-step-item [value]="3">
+          <p-step>• Assinatura Digital</p-step>
+          <p-step-panel>
+            <ng-template #content let-activateCallback="activateCallback">
+              <div *ngIf="step1Completed && step2Completed; else avisoInvalido">
+                <div class="space-stepper1">
+                  <div class="fluxo-container">
+                    <!-- CARD 1 -->
+                    <div class="fluxo-card online">
+                      <div class="fluxo-header">
+                        🖥️
+                        <h3>Atendimento Online</h3>
                       </div>
-
-                      <!-- CARD 2 -->
-                      <div class="fluxo-card presencial">
-                        <div class="fluxo-header">
-                          🤝
-                          <h3>Atendimento Presencial</h3>
-                        </div>
-                        <div class="fluxo-body">
-                          <p>Gere o termo para assinatura manual presencial.</p>
-                        </div>
-                        <div class="fluxo-footer">
-                          <p-button
-                            label="Assinatura Manual"
-                            icon="pi pi-file-edit"
-                            severity="success"
-                            [raised]="true"
-                            [style]="{ padding: '2rem 4rem' }"
-                            (onClick)="goToStep(4)"
-                          ></p-button>
-                        </div>
+                      <div class="fluxo-body">
+                        <p>
+                          Envie o termo diretamente para assinatura online via
+                          Autentique. Ideal para clientes atendidos por WhatsApp
+                          ou Telefone
+                        </p>
                       </div>
-                    </div>
-                  </div>
-
-                  <div class="btn-to-actions">
-                    <p-button
-                      label="Voltar"
-                      severity="secondary"
-                      icon="pi pi-arrow-up"
-                      (onClick)="activateCallback(2)"
-                    />
-                  </div>
-                </div>
-              </ng-template>
-            </p-step-panel>
-          </p-step-item>
-
-          <!-- STEP 4: Visualização do Contrato -->
-          <p-step-item [value]="4">
-            <p-step>• Visualização do Contrato</p-step>
-            <p-step-panel>
-              <ng-template #content let-activateCallback="activateCallback">
-                <div *ngIf="isLoadingPreview" class="loading-overlay">
-                  <p-progressSpinner
-                    styleClass="w-6rem h-6rem"
-                    strokeWidth="6"
-                    animationDuration=".5s"
-                  ></p-progressSpinner>
-                  <span class="loading-text">
-                    Aguarde enquanto o PDF é gerado...
-                  </span>
-                </div>
-                <div *ngIf="isSubmitting" class="loading-overlay">
-                  <p-progressSpinner
-                    styleClass="w-6rem h-6rem"
-                    strokeWidth="6"
-                    animationDuration=".5s"
-                  ></p-progressSpinner>
-                  <span class="loading-text">
-                    Finalizando a venda, aguarde...
-                  </span>
-                </div>
-
-                <div
-                  *ngIf="step1Completed && step2Completed; else avisoInvalido"
-                >
-                  <div
-                    *ngIf="previewLoadFailed && !isLoadingPreview"
-                    class="p-mt-2 text-center p-text-danger"
-                  >
-                    <p>
-                      <i class="pi pi-exclamation-triangle p-mr-1"></i>
-                      Falha ao carregar o preview do contrato.
-                    </p>
-                    <p-button
-                      label="Tentar Novamente"
-                      icon="pi pi-refresh"
-                      severity="danger"
-                      [outlined]="true"
-                      size="small"
-                      (click)="loadPdfPreview()"
-                    >
-                    </p-button>
-                  </div>
-
-                  <div class="pdf-preview-section">
-                    <div class="pdf-viewer p-mt-2">
-                      <iframe
-                        *ngIf="safePdfPreviewUrl"
-                        [src]="safePdfPreviewUrl"
-                        width="100%"
-                        height="600px"
-                        title="Visualização do Contrato"
-                      >
-                      </iframe>
-
-                      <div class="btn-signature">
+                      <div class="fluxo-footer">
                         <p-button
-                          label="Assinar"
-                          icon="pi pi-pencil"
+                          label="Enviar Contrato"
+                          icon="pi pi-send"
                           severity="warn"
-                          [rounded]="true"
                           [raised]="true"
-                          size="small"
-                          (click)="abrirAssinatura()"
-                        >
-                        </p-button>
-
-                        <p-button
-                          [label]="
-                            step4CapturedPhotos.length > 0
-                              ? 'Ver Fotos (' + step4CapturedPhotos.length + ')'
-                              : 'Capturar Foto'
-                          "
-                          [icon]="
-                            step4CapturedPhotos.length > 0
-                              ? 'pi pi-images'
-                              : 'pi pi-camera'
-                          "
-                          [severity]="
-                            step4CapturedPhotos.length > 0
-                              ? 'info'
-                              : 'secondary'
-                          "
-                          [rounded]="true"
-                          [raised]="true"
-                          size="small"
-                          (click)="handleCapturaFoto()"
-                        >
-                        </p-button>
-
-                        <p-button
-                          label="Salvar PDF"
-                          icon="pi pi-download"
-                          severity="secondary"
-                          [rounded]="true"
-                          [raised]="true"
-                          size="small"
-                          (click)="savePdf()"
-                        >
-                        </p-button>
+                          (onClick)="abrirModal()"
+                          [style]="{ padding: '2rem 4rem' }"
+                        ></p-button>
                       </div>
+                    </div>
 
-                      <div class="finalizar">
+                    <!-- CARD 2 -->
+                    <div class="fluxo-card presencial">
+                      <div class="fluxo-header">
+                        🤝
+                        <h3>Atendimento Presencial</h3>
+                      </div>
+                      <div class="fluxo-body">
+                        <p>Gere o termo para assinatura manual presencial.</p>
+                      </div>
+                      <div class="fluxo-footer">
                         <p-button
-                          label="Finalizar Venda"
-                          icon="pi pi-check"
+                          label="Assinatura Manual"
+                          icon="pi pi-file-edit"
                           severity="success"
-                          [rounded]="true"
                           [raised]="true"
-                          size="large"
-                          [disabled]="
-                            !(
-                              capturedSignatureAdesion &&
-                              capturedSignaturePermanence
-                            ) && !pdfWasDownloaded
-                          "
-                          (onClick)="submitContract()"
-                        >
-                        </p-button>
+                          [style]="{ padding: '2rem 4rem' }"
+                          (onClick)="goToStep(4)"
+                        ></p-button>
                       </div>
                     </div>
                   </div>
+                </div>
 
-                  <div class="camera-section">
-                    <input
-                      type="file"
-                      #cameraInput
-                      accept="image/*"
-                      capture="environment"
-                      (change)="processarFotoCapturada($event)"
-                      style="display: none"
-                    />
-                  </div>
+                <div class="btn-to-actions">
+                  <p-button
+                    label="Voltar"
+                    severity="secondary"
+                    icon="pi pi-arrow-up"
+                    (onClick)="activateCallback(2)"
+                  />
+                </div>
+              </div>
+            </ng-template>
+          </p-step-panel>
+        </p-step-item>
 
-                  <div class="py-6">
-                    <p-button
-                      label="Voltar"
-                      icon="pi pi-arrow-left"
-                      severity="secondary"
-                      (onClick)="activateCallback(3)"
+        <!-- STEP 4: Visualização do Contrato -->
+        <p-step-item [value]="4">
+          <p-step>• Visualização do Contrato</p-step>
+          <p-step-panel>
+            <ng-template #content let-activateCallback="activateCallback">
+              <div *ngIf="isLoadingPreview" class="loading-overlay">
+                <p-progressSpinner
+                  styleClass="w-6rem h-6rem"
+                  strokeWidth="6"
+                  animationDuration=".5s"
+                ></p-progressSpinner>
+                <span class="loading-text">
+                  Aguarde enquanto o PDF é gerado...
+                </span>
+              </div>
+              <div *ngIf="isSubmitting" class="loading-overlay">
+                <p-progressSpinner
+                  styleClass="w-6rem h-6rem"
+                  strokeWidth="6"
+                  animationDuration=".5s"
+                ></p-progressSpinner>
+                <span class="loading-text">
+                  Finalizando a venda, aguarde...
+                </span>
+              </div>
+
+              <div *ngIf="step1Completed && step2Completed; else avisoInvalido">
+                <div
+                  *ngIf="previewLoadFailed && !isLoadingPreview"
+                  class="p-mt-2 text-center p-text-danger"
+                >
+                  <p>
+                    <i class="pi pi-exclamation-triangle p-mr-1"></i>
+                    Falha ao carregar o preview do contrato.
+                  </p>
+                  <p-button
+                    label="Tentar Novamente"
+                    icon="pi pi-refresh"
+                    severity="danger"
+                    [outlined]="true"
+                    size="small"
+                    (click)="loadPdfPreview()"
+                  >
+                  </p-button>
+                </div>
+
+                <div class="pdf-preview-section">
+                  <div class="pdf-viewer p-mt-2">
+                    <iframe
+                      *ngIf="safePdfPreviewUrl"
+                      [src]="safePdfPreviewUrl"
+                      width="100%"
+                      height="600px"
+                      title="Visualização do Contrato"
                     >
-                    </p-button>
+                    </iframe>
+
+                    <div class="btn-signature">
+                      <p-button
+                        label="Assinar"
+                        icon="pi pi-pencil"
+                        severity="warn"
+                        [rounded]="true"
+                        [raised]="true"
+                        size="small"
+                        (click)="abrirAssinatura()"
+                      >
+                      </p-button>
+
+                      <p-button
+                        [label]="
+                          step4CapturedPhotos.length > 0
+                            ? 'Ver Fotos (' + step4CapturedPhotos.length + ')'
+                            : 'Capturar Foto'
+                        "
+                        [icon]="
+                          step4CapturedPhotos.length > 0
+                            ? 'pi pi-images'
+                            : 'pi pi-camera'
+                        "
+                        [severity]="
+                          step4CapturedPhotos.length > 0 ? 'info' : 'secondary'
+                        "
+                        [rounded]="true"
+                        [raised]="true"
+                        size="small"
+                        (click)="handleCapturaFoto()"
+                      >
+                      </p-button>
+
+                      <p-button
+                        label="Salvar PDF"
+                        icon="pi pi-download"
+                        severity="secondary"
+                        [rounded]="true"
+                        [raised]="true"
+                        size="small"
+                        (click)="savePdf()"
+                      >
+                      </p-button>
+                    </div>
+
+                    <div class="finalizar">
+                      <p-button
+                        label="Finalizar Venda"
+                        icon="pi pi-check"
+                        severity="success"
+                        [rounded]="true"
+                        [raised]="true"
+                        size="large"
+                        [disabled]="
+                          !(
+                            capturedSignatureAdesion &&
+                            capturedSignaturePermanence
+                          ) && !pdfWasDownloaded
+                        "
+                        (onClick)="openPhoneModal()"
+                      ></p-button>
+                    </div>
                   </div>
                 </div>
 
-                <ng-template #avisoInvalido>
-                  <div class="alert-warning">
-                    <span>
-                      ⚠️ Complete os passos anteriores para visualizar o
-                      contrato.</span
-                    >
-                  </div>
-                </ng-template>
+                <div class="camera-section">
+                  <input
+                    type="file"
+                    #cameraInput
+                    accept="image/*"
+                    capture="environment"
+                    (change)="processarFotoCapturada($event)"
+                    style="display: none"
+                  />
+                </div>
+
+                <div class="py-6">
+                  <p-button
+                    label="Voltar"
+                    icon="pi pi-arrow-left"
+                    severity="secondary"
+                    (onClick)="activateCallback(3)"
+                  >
+                  </p-button>
+                </div>
+              </div>
+
+              <ng-template #avisoInvalido>
+                <div class="alert-warning">
+                  <span>
+                    ⚠️ Complete os passos anteriores para visualizar o
+                    contrato.</span
+                  >
+                </div>
               </ng-template>
-            </p-step-panel>
-          </p-step-item>
-        </p-stepper>
-      </form>
+            </ng-template>
+          </p-step-panel>
+        </p-step-item>
+      </p-stepper>
     </div>
   </app-card-base>
 
@@ -953,7 +1032,7 @@
           id="telefone"
           name="telefone"
           placeholder="+55 (DDD) 00000-0000"
-          [(ngModel)]="phone"
+          [(ngModel)]="phoneAutentique"
           required
           [style]="{ height: '40px', 'font-size': '20px' }"
           mask="00000000000"
@@ -974,7 +1053,7 @@
         label="Enviar"
         icon="pi pi-send"
         severity="success"
-        [disabled]="!phone || phone.trim().length < 10"
+        [disabled]="!phoneAutentique || phoneAutentique.trim().length < 10"
         (onClick)="sendToAutentiqueSubmit()"
       ></p-button>
     </ng-template>
@@ -1070,12 +1149,12 @@
     <div class="os-warning-box">
       <i class="pi pi-exclamation-triangle icon-alert"></i>
       <span>
-        As Ordens de Serviço (OS) são recursos únicos do sistema. Quando uma OS
+        As Ofertas de Serviço são recursos únicos do sistema. Quando uma Oferta
         aparece como
         <span class="status-reserved">Reservada</span>, significa que outro
         vendedor está utilizando-a no processo de venda. Caso a venda não seja
-        concluída dentro de <strong class="limit-time">10 minutos</strong>, a OS
-        será liberada automaticamente e retornará ao estado
+        concluída dentro de <strong class="limit-time">10 minutos</strong>, a
+        Oferta poderá ser utilizada por outro vendedor tornando ela
         <span class="status-available">Disponível</span>. <br />Caso não tenha
         Horário envie uma solicitação para a Torre
       </span>
@@ -1100,7 +1179,7 @@
           <th>Tipo OS</th>
           <th>Data</th>
           <th>Período</th>
-          <th>Em uso ?</th>
+          <th>Status</th>
           <th></th>
         </tr>
       </ng-template>
@@ -1118,21 +1197,20 @@
                 <p-tag severity="warn" value="Reservado"></p-tag>
 
                 <div class="reserved-info">
-                  <div>
-                    <i class="pi pi-user mr-1"></i>
-                    <strong> Por: </strong> {{ offer.reservedByName || "—" }}
+                  <div *ngIf="offer.reservedAt">
+                    <i class="pi pi-calendar-plus mr-1"></i>
+                    <strong> Reservado em:</strong>
+                    {{ offer.reservedAt | date : "dd/MM/yyyy HH:mm" }}
                   </div>
-
                   <div>
                     <i class="pi pi-clock mr-1"></i>
                     <strong> Até: </strong>
                     {{ offer.reservedUntil | date : "dd/MM/yyyy HH:mm" }}
                   </div>
 
-                  <div *ngIf="offer.reservedAt">
-                    <i class="pi pi-calendar-plus mr-1"></i>
-                    <strong> Reservado em:</strong>
-                    {{ offer.reservedAt | date : "dd/MM/yyyy HH:mm" }}
+                  <div>
+                    <i class="pi pi-user mr-1"></i>
+                    <strong> Por: </strong> {{ offer.reservedByName || "—" }}
                   </div>
                 </div>
               </div>
@@ -1183,7 +1261,7 @@
 </p-dialog>
 
 <p-dialog
-  [header]="'Solicitar OS'"
+  [header]="'Solicitar Oferta'"
   [resizable]="false"
   [draggable]="false"
   [(visible)]="dialogNewOs"
@@ -1293,7 +1371,7 @@
 
     <div class="buttonsNewOs">
       <p-button
-        label="Solicitar OS"
+        label="Solicitar Oferta"
         [severity]="'info'"
         [raised]="true"
         (onClick)="solicitarOs()"
@@ -1301,3 +1379,52 @@
     </div>
   </form>
 </p-dialog>
+
+<p-dialog
+  header="Enviar informações ao cliente"
+  [(visible)]="showPhoneDialog"
+  [modal]="true"
+  [closable]="false"
+  [style]="{ width: '25rem' }"
+>
+  <div class="flex flex-column gap-3">
+
+    <p class="m-0">
+      Por favor, informe o número de telefone do cliente para que possamos
+      enviar o link de acesso da <strong>Central do Assinante</strong>.
+      <br />
+      Para confirmar a venda é necessário informar um número de telefone.
+      <br/>
+      No seguinte formato <strong>+55 (DD) Número</strong>
+    </p>
+
+    <input
+      type="text"
+      pInputText
+      [(ngModel)]="contractFormData.phone"
+      mask="00000000000"
+      prefix="+55"
+      placeholder="(00) 00000-0000"
+    />
+
+    <p-divider></p-divider>
+
+    <div class="flex justify-content-end gap-2 mt-3">
+      <p-button
+        label="Cancelar"
+        severity="secondary"
+        (onClick)="showPhoneDialog = false"
+      ></p-button>
+
+      <p-button
+        label="Confirmar"
+        icon="pi pi-check"
+        [disabled]="contractFormData.phone!.length !== 11"
+        (onClick)="confirmSendToClient()"
+      ></p-button>
+    </div>
+
+  </div>
+  
+</p-dialog>
+<app-check [trigger]="tocarCheck"/>

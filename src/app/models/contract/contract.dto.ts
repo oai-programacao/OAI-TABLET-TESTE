@@ -50,3 +50,7 @@ export interface RequestDateTransfer {
     pdfBytes: string;
 }
 
+export interface RequestContractSuspendDTO {
+    dateInitialSuspension: string;
+    duration: number
+}

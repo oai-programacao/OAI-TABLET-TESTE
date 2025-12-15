@@ -91,6 +91,17 @@ export class WebSocketService {
               );
               break;
 
+            case 'NEW_SALE':
+              this.toastService.showWithAnimation(
+                `🚀 <b>Nova venda registrada com sucesso!</b><br>
+                Cliente: <b>${data.clientName}</b><br>
+                CPF: <b>${this.formatCPF(data.clientCpf)}</b><br>
+                Plano contratado: <b>${data.codePlan}</b><br>
+                Nº do contrato: <b>#${data.numberContractRbx}</b>`,
+                '/saleRocket.json'
+              );
+              break;
+
             default:
               this.toastService.show(
                 `🔔 Notificação recebida: <b>${event}</b>`
@@ -118,3 +129,5 @@ export class WebSocketService {
     return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
   }
 }
+
+//.

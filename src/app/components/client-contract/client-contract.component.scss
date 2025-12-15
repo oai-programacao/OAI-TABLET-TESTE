@@ -150,10 +150,22 @@
   }
 }
 
+.contract-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background-color: rgba(236, 232, 232, 0); 
+  margin-left: 0.5rem;
+  border-radius:  8px;
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0),
+    inset 0 0 6px rgba(0, 0, 0, 0.075);
+  backdrop-filter: blur(2px);
+}
+
 .contract-actions {
   display: flex;
-  justify-content: flex-end;
-  margin-top: 1rem;
+  justify-content: center;
 
   ::ng-deep .p-button .p-button-icon {
     font-size: 1rem;
@@ -173,8 +185,10 @@
 }
 
 .status span {
-  font-weight: 1000; 
-  color: #313131; 
+  font-weight: 1000;
+  color: #313131;
+  display: flex;
+  justify-content: space-between;
 }
 
 .addresscontract {
@@ -271,12 +285,8 @@
 .addresscontract .section-inline {
   display: flex;
   flex-wrap: wrap;
-  /* quebra linha se ficar muito longo */
   align-items: center;
-  justify-content: space-between;
-  /* distribui bem os blocos */
-  gap: 1rem;
-  /* espaço entre cada grupo */
+  gap: 5rem;
   padding: 0.25rem 0;
   border-bottom: 1px solid #eee;
 }
@@ -284,11 +294,10 @@
 .addresscontract .section-inline .group {
   display: flex;
   align-items: center;
-  gap: 0.15rem;
-  /* entre label e valor */
   flex-shrink: 0;
-  /* evita que quebre desnecessariamente */
+  gap: 0.5rem;
 }
+
 
 .addresscontract .section-inline label {
   font-weight: bold;
@@ -322,4 +331,25 @@
       font-size: 0.9rem;
     }
   }
+}
+
+@keyframes alert-blink {
+  0%, 100% { 
+    opacity: 1; 
+    text-shadow: 0 0 5px rgba(212, 0, 255, 0.8); 
+  }
+  50% { 
+    opacity: 0.1; 
+    text-shadow: none;
+  }
+}
+
+.suspension-alert-icon.pi-exclamation-circle {
+  color: #af0367 !important; 
+  font-size: 1.8rem !important; 
+  animation: alert-blink 3s ease-in-out infinite alternate;
+}
+
+.icon-suspense{
+  color: #af0367 !important; 
 }

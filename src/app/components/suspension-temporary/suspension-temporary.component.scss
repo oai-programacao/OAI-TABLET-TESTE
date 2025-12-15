@@ -1,0 +1,339 @@
+:host {
+    font-family: "IBM Plex Mono", monospace;
+}
+
+.page-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  width: 100%;
+  height: auto;
+  flex-wrap: wrap;
+}
+
+:host ::ng-deep .p-stepper .p-step-title {
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 400;
+  font-size: 1.1rem !important;
+  background-color: #ffffff;
+  padding: 0.2rem;
+  border-radius: 3px;
+}
+
+:host ::ng-deep .p-stepper .p-step.p-step-active .p-step-title {
+  background-color: #5ccdf9;
+  color: #000000;
+  border: 0.5px solid #000000;
+  box-shadow: 0 0 5px rgba(0.1, 0.3, 0.2, 0.4);
+  font-weight: 700 !important;
+}
+
+.p-stepper {
+  position: relative;
+  background-size: cover;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  height: auto;
+  --p-stepper-separator-background: #000000;
+  --p-stepper-step-title-color: #4e4d4d;
+  --p-stepper-step-title-active-color: #000000;
+  --p-stepper-step-number-background: #ffffff;
+  --p-stepper-step-number-active-background: #004e9b;
+  --p-stepper-step-number-color: #004e9b;
+  --p-stepper-step-number-active-color: #ffffff;
+  --p-stepper-step-number-font-size: 2rem;
+  --p-stepper-separator-background: #375ca4;
+  --p-stepper-separator-active-background: #000000;
+}
+
+.step-body {
+    width: 100%;
+    max-width: 900px;
+}
+
+.step-finalization {
+  position: relative;
+  overflow: hidden;
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.confirmation-step {
+  align-items: center;
+  text-align: center;
+  gap: 1rem;
+  padding: 2.5rem;
+  background-color: #f0fff4;
+  border: 2px solid #34d399;
+  border-radius: 2rem;
+  box-shadow: 0 4px 12px rgba(52, 211, 153, 0.2);
+
+  .success-icon {
+    font-size: 2rem;
+    color: #10b981;
+    animation: pulse 1.5s infinite;
+  }
+
+  h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #059669;
+  }
+
+  p {
+    color: #4b5563;
+  }
+}
+
+.step-footer {
+  margin-top: 2rem;
+  
+  .proportional-info {
+    background-color: #f0f9ff;
+    border-left: 4px solid #0ea5e9;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border-radius: 4px;
+    text-align: center;
+    
+    .footer-title {
+      font-weight: 600;
+      color: #0c4a6e;
+      font-size: 1.2rem;
+      display: block;
+    }
+  }
+
+  .footer-actions {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+  }
+}
+
+.btn-to-create-another-contract {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    gap: 15rem;
+}
+
+.contractNumber__header {
+    background-color: #f8f9fa;
+    padding: 0.5rem;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #dee2e6;
+
+    label {
+        font-weight: 500;
+        color: #575353;
+        font-size: 1.3rem;
+    }
+
+    span {
+        font-weight: 700;
+        font-size: 1.3rem;
+        color: #1c34a0;
+    }
+}
+
+.info-text {
+    max-width: 60rem;
+    max-height: 25rem;
+    margin: 1.5rem 0;
+    overflow-y: auto;
+    padding-right: 1rem;
+
+    h2 {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #1c34a0;
+        border-bottom: 2px solid #dee2e6;
+        padding-bottom: 0.3rem;
+        margin-top: 1.5rem;
+
+        margin-bottom: 0.5rem;
+    }
+
+    p {
+        color: #495057;
+        font-size: 1rem;
+        line-height: 1.6;
+        margin-bottom: 1rem;
+        background-color: transparent;
+    }
+}
+
+.fluxo-container {
+  display: flex;
+  gap: 25px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.fluxo-card {
+  width: 320px;
+  min-height: 600px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  /* efeito vidro */
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.fluxo-card.online {
+  background: rgba(255, 230, 0, 0.05);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-top: 5px solid #fbc02d;
+}
+
+.fluxo-card.presencial {
+  background: rgba(13, 197, 243, 0.05);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-top: 5px solid #19cefc;
+}
+
+.fluxo-header {
+  font-size: 5rem;
+  text-align: center;
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.fluxo-header h3 {
+  margin-top: 10px;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.fluxo-body {
+  flex: 1;
+  text-align: center;
+  color: #333;
+  font-size: 0.9rem;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fluxo-body p {
+  line-height: 1.4;
+}
+
+.fluxo-footer {
+  display: flex;
+  justify-content: center;
+}
+
+
+.buttons-footer {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+}
+
+.dialog-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 40px;
+    gap: 40px;
+    background: linear-gradient(180deg, #ffffff, #f7f9fc);
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    border: 1px solid #eef1f5;
+}
+
+.slider-day label {
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 1.05rem;
+    margin-bottom: 8px;
+    letter-spacing: 0.3px;
+}
+
+.date-select {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background-color: #ffffff;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid #dfe4ea;
+    box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.05);
+}
+.calendar-spacing {
+    margin-top: 12px;
+}
+
+.p-calendar .p-inputtext {
+    height: 42px;
+    border-radius: 8px !important;
+    border: 1px solid #cfd6e1 !important;
+    transition: all 0.2s ease;
+}
+
+.p-calendar .p-inputtext:focus {
+    border-color: #6aa9ff !important;
+    box-shadow: 0 0 0 3px rgba(100, 149, 255, 0.25) !important;
+}
+
+.know-day {
+    width: 260px;
+    text-align: center;
+    padding: 10px 0;
+    border-radius: 10px;
+    background: #f1f5f9;
+    color: #1e293b;
+    font-weight: 600;
+    border: 1px solid #e2e8f0;
+}
+
+.duration-display {
+    margin: 16px 0;
+    font-size: 1.1rem;
+    color: #475569;
+}
+
+.duration-display strong {
+    font-size: 1.6rem;
+    color: #007ad9;
+}
+
+.card.flex.justify-center {
+    display: flex;
+    justify-content: center;
+    margin: 0;
+}
+
+.buttons-footer{
+  display: flex;
+  justify-content: center;
+  border-top: 1rem;
+}
