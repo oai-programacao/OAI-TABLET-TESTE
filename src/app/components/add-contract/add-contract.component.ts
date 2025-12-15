@@ -410,13 +410,6 @@ export class AddContractComponent implements OnInit {
     value: `${i + 1}`,
   }));
 
-  fullAddress = {
-    logradouro: 'Avenida Brasil',
-    numero: '1000',
-    bairro: 'Centro',
-    localidade: 'São Paulo',
-  };
-
   selectedPlan: string | null = null;
   plans: { label: string; value: string }[] = [];
 
@@ -1584,5 +1577,34 @@ export class AddContractComponent implements OnInit {
   confirmSendToClient() {
     this.showPhoneDialog = false;
     this.makeAsale();
+  }
+
+  enderecoMaps = {
+    logradouro: '',
+    numero: '',
+    bairro: '',
+    localidade: '',
+  };
+
+  abrirMapa(): void {
+    const a = this.contractFormData.address;
+
+    if (!a || !a.street || !a.city) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Endereço incompleto',
+        detail: 'Preencha CEP, logradouro e número antes de abrir o mapa.',
+      });
+      return;
+    }
+
+    this.enderecoMaps = {
+      logradouro: a.street,
+      numero: a.number || '',
+      bairro: a.neighborhood,
+      localidade: `${a.city} - ${a.state}`,
+    };
+
+    this.showMapDialog = true;
   }
 }

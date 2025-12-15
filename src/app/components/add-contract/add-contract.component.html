@@ -2,7 +2,6 @@
   <p-toast position="top-center"></p-toast>
   <app-card-base>
     <div class="card">
-      
       <p-stepper [(value)]="activeStep">
         <div class="btn-to-back">
           <p-button
@@ -29,61 +28,61 @@
             <p-step>• Dados do Contrato </p-step>
             <p-step-panel>
               <ng-template #content let-activateCallback="activateCallback">
-                  <div class="space-stepper1">
+                <div class="space-stepper1">
+                  <p-inputgroup>
+                    <p-inputgroup-addon>
+                      <i class="pi pi-ticket"></i>
+                    </p-inputgroup-addon>
+                    <p-iftalabel>
+                      <p-select
+                        [options]="plans"
+                        [(ngModel)]="selectedPlan"
+                        optionLabel="label"
+                        optionValue="value"
+                        placeholder="Selecione"
+                        name="plans"
+                        required
+                        id="plan"
+                        [filter]="true"
+                        filterBy="label,code,name"
+                      >
+                      </p-select>
+                      <label for="plans">Plano de Internet*</label>
+                    </p-iftalabel>
+                  </p-inputgroup>
+
+                  <div>
                     <p-inputgroup>
                       <p-inputgroup-addon>
-                        <i class="pi pi-ticket"></i>
+                        <i class="pi pi-dollar"></i>
                       </p-inputgroup-addon>
-                      <p-iftalabel>
-                        <p-select
-                          [options]="plans"
-                          [(ngModel)]="selectedPlan"
-                          optionLabel="label"
-                          optionValue="value"
-                          placeholder="Selecione"
-                          name="plans"
+                      <p-iftalabel variant="on">
+                        <input
+                          size="large"
+                          pInputText
+                          id="adesion"
+                          name="adesion"
+                          type="text"
                           required
-                          id="plan"
-                          [filter]="true"
-                          filterBy="label,code,name"
-                        >
-                        </p-select>
-                        <label for="plans">Plano de Internet*</label>
+                          maxlength="18"
+                          [currencyMask]="{
+                            prefix: 'R$ ',
+                            thousands: '.',
+                            decimal: ',',
+                            align: 'left'
+                          }"
+                          inputmode="numeric"
+                          pattern="[0-9]*"
+                          placeholder="R$ 0,00"
+                          [maxLength]="10"
+                          [(ngModel)]="contractFormData.adesion"
+                        />
+                        <label for="adesion">Preço de Adesão*</label>
                       </p-iftalabel>
                     </p-inputgroup>
-                    
-                    <div>
-                      <p-inputgroup>
-                        <p-inputgroup-addon>
-                          <i class="pi pi-dollar"></i>
-                        </p-inputgroup-addon>
-                        <p-iftalabel variant="on">
-                          <input
-                            size="large"
-                            pInputText
-                            id="adesion"
-                            name="adesion"
-                            type="text"
-                            required
-                            maxlength="18"
-                            [currencyMask]="{
-                              prefix: 'R$ ',
-                              thousands: '.',
-                              decimal: ',',
-                              align: 'left'
-                            }"
-                            inputmode="numeric"
-                            pattern="[0-9]*"
-                            placeholder="R$ 0,00"
-                            [maxLength]="10"
-                            [(ngModel)]="contractFormData.adesion"
-                          />
-                          <label for="adesion">Preço de Adesão*</label>
-                        </p-iftalabel>
-                      </p-inputgroup>
-                    </div>
+                  </div>
 
-                    <div>
+                  <div>
                     <p-inputgroup>
                       <p-inputgroup-addon>
                         <i class="pi pi-ticket"></i>
@@ -112,261 +111,253 @@
                       </p-iftalabel>
                     </p-inputgroup>
                   </div>
+                </div>
+
+                <div class="space-stepper1">
+                  <p-iftalabel>
+                    <p-datepicker
+                      name="dateOfStart"
+                      [(ngModel)]="dateOfStart"
+                      inputId="dateOfStart"
+                      showIcon
+                      iconDisplay="input"
+                      appendTo="body"
+                      #dateofStart="ngModel"
+                      placeholder="dd/mm/aaaa"
+                      [minDate]="minDate"
+                      required
+                    />
+                    <label for="dateOfStart">Data de Início*</label>
+                  </p-iftalabel>
+
+                  <app-message-valid-forms
+                    [control]="dateofStart"
+                    error="minDate"
+                    text="A data de início não pode ser menor que a data atual."
+                  ></app-message-valid-forms>
+
+                  <p-iftalabel>
+                    <p-datepicker
+                      name="dateSignature"
+                      [(ngModel)]="dateSignature"
+                      inputId="dateSignature"
+                      showIcon
+                      iconDisplay="input"
+                      appendTo="body"
+                      #dateOfSignature="ngModel"
+                      placeholder="dd/mm/aaaa"
+                      [minDate]="minDate"
+                      required
+                    />
+                    <label for="dateSignature">Data de Assinatura*</label>
+                  </p-iftalabel>
+
+                  <app-message-valid-forms
+                    [control]="dateOfSignature"
+                    error="minDate"
+                    text="A data de assinatura não pode ser menor que a data atual."
+                  ></app-message-valid-forms>
+
+                  <div class="numbersOfInstallments">
+                    <p-inputgroup>
+                      <p-inputgroup-addon>
+                        <i class="pi pi-sort-numeric-up"></i>
+                      </p-inputgroup-addon>
+                      <p-iftalabel>
+                        <p-select
+                          [options]="numbersOfInstallments"
+                          [(ngModel)]="selectedInstallment"
+                          optionLabel="label"
+                          optionValue="value"
+                          placeholder="Selecione 1x a 24x"
+                          name="parcelas"
+                          required
+                        >
+                        </p-select>
+                        <label for="parcelas">Número de Parcelas Adesão</label>
+                      </p-iftalabel>
+                    </p-inputgroup>
                   </div>
-
-                  <div class="space-stepper1">
-                    <p-iftalabel>
-                      <p-datepicker
-                        name="dateOfStart"
-                        [(ngModel)]="dateOfStart"
-                        inputId="dateOfStart"
-                        showIcon
-                        iconDisplay="input"
-                        appendTo="body"
-                        #dateofStart="ngModel"
-                        placeholder="dd/mm/aaaa"
-                        [minDate]="minDate"
-                        required
-                      />
-                      <label for="dateOfStart">Data de Início*</label>
-                    </p-iftalabel>
-
-                    <app-message-valid-forms
-                      [control]="dateofStart"
-                      error="minDate"
-                      text="A data de início não pode ser menor que a data atual."
-                    ></app-message-valid-forms>
-
-                    <p-iftalabel>
-                      <p-datepicker
-                        name="dateSignature"
-                        [(ngModel)]="dateSignature"
-                        inputId="dateSignature"
-                        showIcon
-                        iconDisplay="input"
-                        appendTo="body"
-                        #dateOfSignature="ngModel"
-                        placeholder="dd/mm/aaaa"
-                        [minDate]="minDate"
-                        required
-                      />
-                      <label for="dateSignature">Data de Assinatura*</label>
-                    </p-iftalabel>
-
-                    <app-message-valid-forms
-                      [control]="dateOfSignature"
-                      error="minDate"
-                      text="A data de assinatura não pode ser menor que a data atual."
-                    ></app-message-valid-forms>
-
-                    <div class="numbersOfInstallments">
-                      <p-inputgroup>
-                        <p-inputgroup-addon>
-                          <i class="pi pi-sort-numeric-up"></i>
-                        </p-inputgroup-addon>
-                        <p-iftalabel>
-                          <p-select
-                            [options]="numbersOfInstallments"
-                            [(ngModel)]="selectedInstallment"
-                            optionLabel="label"
-                            optionValue="value"
-                            placeholder="Selecione 1x a 24x"
-                            name="parcelas"
-                            required
-                          >
-                          </p-select>
-                          <label for="parcelas"
-                            >Número de Parcelas Adesão</label
-                          >
-                        </p-iftalabel>
-                      </p-inputgroup>
+                </div>
+                <div class="warn-icon-container">
+                  <span
+                    class="warn-icon"
+                    (click)="toggle(pop3, $event)"
+                    role="button"
+                    aria-label="Informação importante"
+                  >
+                    !
+                  </span>
+                  <p-popover #pop3 [dismissable]="true">
+                    <div class="warn-popup">
+                      Selecione a data optada pelo cliente para vencimento do
+                      boleto
                     </div>
-                  </div>
-                  <div class="warn-icon-container">
-                    <span
-                      class="warn-icon"
-                      (click)="toggle(pop3, $event)"
-                      role="button"
-                      aria-label="Informação importante"
-                    >
-                      !
-                    </span>
-                    <p-popover #pop3 [dismissable]="true">
-                      <div class="warn-popup">
-                        Selecione a data optada pelo cliente para vencimento do
-                        boleto
-                      </div>
-                    </p-popover>
-                  </div>
+                  </p-popover>
+                </div>
 
-                  <div class="space-stepper2">
+                <div class="space-stepper2">
+                  <p-iftalabel>
+                    <p-select
+                      [options]="typesOfDateExpirationCicle"
+                      [(ngModel)]="selectDateOfExpirationCicle"
+                      optionLabel="descricao"
+                      optionValue="value"
+                      placeholder="Selecione o dia do vencimento"
+                      name="cicloFaturamento"
+                      required
+                    ></p-select>
+                    <label for="dateofExpirationCicle"
+                      >Dia de Vencimento*</label
+                    >
+                  </p-iftalabel>
+
+                  <p-inputgroup>
+                    <p-inputgroup-addon>
+                      <i class="pi pi-file"></i>
+                    </p-inputgroup-addon>
                     <p-iftalabel>
                       <p-select
-                        [options]="typesOfDateExpirationCicle"
-                        [(ngModel)]="selectDateOfExpirationCicle"
-                        optionLabel="descricao"
-                        optionValue="value"
-                        placeholder="Selecione o dia do vencimento"
-                        name="cicloFaturamento"
+                        name="typesOfContractOptions"
+                        [(ngModel)]="selectContract"
+                        [options]="typesOfContractOptions"
+                        placeholder="Selecione o tipo de contrato"
+                        inputId="tipoContrato"
                         required
                       ></p-select>
-                      <label for="dateofExpirationCicle"
-                        >Dia de Vencimento*</label
+                      <label for="tipoContrato">Tipo de Contrato*</label>
+                    </p-iftalabel>
+                  </p-inputgroup>
+                </div>
+
+                <div class="space-stepper3">
+                  <div class="field-left">
+                    <p-iftalabel>
+                      <p-datepicker
+                        name="dateOfMemberShipExpiration"
+                        [(ngModel)]="dateOfMemberShipExpiration"
+                        inputId="dateOfMemberShipExpiration"
+                        showIcon
+                        iconDisplay="input"
+                        appendTo="body"
+                        #dateofExpiration="ngModel"
+                        placeholder="dd/mm/aaaa"
+                        required
+                        [minDate]="minDate"
+                      ></p-datepicker>
+                      <label for="dateOfMemberShipExpiration"
+                        >Data de Vencimento da Adesão*</label
                       >
                     </p-iftalabel>
+                  </div>
 
+                  <div class="field-right">
                     <p-inputgroup>
                       <p-inputgroup-addon>
                         <i class="pi pi-file"></i>
                       </p-inputgroup-addon>
                       <p-iftalabel>
                         <p-select
-                          name="typesOfContractOptions"
-                          [(ngModel)]="selectContract"
-                          [options]="typesOfContractOptions"
-                          placeholder="Selecione o tipo de contrato"
-                          inputId="tipoContrato"
+                          name="clientTypes"
+                          [(ngModel)]="selectedClientType"
+                          [options]="clientTypes"
+                          placeholder="Selecione o tipo Cliente"
+                          inputId="clientTypes"
                           required
                         ></p-select>
-                        <label for="tipoContrato">Tipo de Contrato*</label>
+                        <label for="clientTypes">Tipo de Cliente*</label>
                       </p-iftalabel>
                     </p-inputgroup>
                   </div>
 
-                  <div class="space-stepper3">
-                    <div class="field-left">
+                  <div class="field-right">
+                    <p-inputgroup>
+                      <p-inputgroup-addon>
+                        <i class="pi pi-file"></i>
+                      </p-inputgroup-addon>
                       <p-iftalabel>
-                        <p-datepicker
-                          name="dateOfMemberShipExpiration"
-                          [(ngModel)]="dateOfMemberShipExpiration"
-                          inputId="dateOfMemberShipExpiration"
-                          showIcon
-                          iconDisplay="input"
-                          appendTo="body"
-                          #dateofExpiration="ngModel"
-                          placeholder="dd/mm/aaaa"
+                        <p-select
+                          name="typeTechnology"
+                          [(ngModel)]="selectedTechnology"
+                          [options]="technologyTypes"
+                          placeholder="Selecione a tecnologia"
+                          inputId="typeTechnology"
                           required
-                          [minDate]="minDate"
-                        ></p-datepicker>
-                        <label for="dateOfMemberShipExpiration"
-                          >Data de Vencimento da Adesão*</label
-                        >
+                        ></p-select>
+                        <label for="typeTechnology">Tipo de Tecnologia*</label>
                       </p-iftalabel>
-                    </div>
-
-                    <div class="field-right">
-                      <p-inputgroup>
-                        <p-inputgroup-addon>
-                          <i class="pi pi-file"></i>
-                        </p-inputgroup-addon>
-                        <p-iftalabel>
-                          <p-select
-                            name="clientTypes"
-                            [(ngModel)]="selectedClientType"
-                            [options]="clientTypes"
-                            placeholder="Selecione o tipo Cliente"
-                            inputId="clientTypes"
-                            required
-                          ></p-select>
-                          <label for="clientTypes">Tipo de Cliente*</label>
-                        </p-iftalabel>
-                      </p-inputgroup>
-                    </div>
-
-                    <div class="field-right">
-                      <p-inputgroup>
-                        <p-inputgroup-addon>
-                          <i class="pi pi-file"></i>
-                        </p-inputgroup-addon>
-                        <p-iftalabel>
-                          <p-select
-                            name="typeTechnology"
-                            [(ngModel)]="selectedTechnology"
-                            [options]="technologyTypes"
-                            placeholder="Selecione a tecnologia"
-                            inputId="typeTechnology"
-                            required
-                          ></p-select>
-                          <label for="typeTechnology"
-                            >Tipo de Tecnologia*</label
-                          >
-                        </p-iftalabel>
-                      </p-inputgroup>
-                    </div>
+                    </p-inputgroup>
                   </div>
+                </div>
 
-                  <p-divider></p-divider>
+                <p-divider></p-divider>
 
-                  <p class="header-title">Upload de Imagens do Contrato</p>
-                  <div class="title-image-upload">
-                    <input
-                      type="file"
-                      #fileInput
-                      accept="image/*"
-                      (change)="onFileSelected($event)"
-                      hidden
-                    />
-                  </div>
+                <p class="header-title">Upload de Imagens do Contrato</p>
+                <div class="title-image-upload">
+                  <input
+                    type="file"
+                    #fileInput
+                    accept="image/*"
+                    (change)="onFileSelected($event)"
+                    hidden
+                  />
+                </div>
 
-                  <div class="image-upload-row">
-                    <div
-                      class="image-slot"
-                      *ngFor="let slot of [0, 1, 2, 3, 4]"
+                <div class="image-upload-row">
+                  <div class="image-slot" *ngFor="let slot of [0, 1, 2, 3, 4]">
+                    <span
+                      *ngIf="!images[slot]"
+                      class="plus-icon"
+                      (click)="fileInput.click()"
+                      >+</span
                     >
-                      <span
-                        *ngIf="!images[slot]"
-                        class="plus-icon"
-                        (click)="fileInput.click()"
-                        >+</span
+                    <div *ngIf="images[slot]" class="image-preview">
+                      <img
+                        [src]="imagePreviews[slot]"
+                        alt="Imagem {{ slot + 1 }}"
+                        (dblclick)="viewImage(imagePreviews[slot]!)"
+                      />
+                      <button
+                        type="button"
+                        class="remove-btn"
+                        (click)="removeImage(slot)"
                       >
-                      <div *ngIf="images[slot]" class="image-preview">
-                        <img
-                          [src]="imagePreviews[slot]"
-                          alt="Imagem {{ slot + 1 }}"
-                          (dblclick)="viewImage(imagePreviews[slot]!)"
-                        />
-                        <button
-                          type="button"
-                          class="remove-btn"
-                          (click)="removeImage(slot)"
-                        >
-                          ✕
-                        </button>
-                      </div>
+                        ✕
+                      </button>
                     </div>
                   </div>
+                </div>
 
-                  <p-dialog
-                    [(visible)]="previewVisible"
-                    [modal]="true"
-                    [style]="{ width: '90vw' }"
-                  >
-                    <img
-                      *ngIf="previewImage"
-                      [src]="previewImage"
-                      alt="Preview"
-                      class="preview-dialog-img"
-                    />
-                  </p-dialog>
+                <p-dialog
+                  [(visible)]="previewVisible"
+                  [modal]="true"
+                  [style]="{ width: '90vw' }"
+                >
+                  <img
+                    *ngIf="previewImage"
+                    [src]="previewImage"
+                    alt="Preview"
+                    class="preview-dialog-img"
+                  />
+                </p-dialog>
 
-                  <div class="button-content">
-                    <p-button
-                      label="Arquivar"
-                      raised="true"
-                      severity="secondary"
-                      (onClick)="archiveSaleDraft()"
-                      [loading]="isArchiving"
-                      icon="pi pi-inbox"
-                    />
-                    <p-button
-                      label="Próximo"
-                      icon="pi pi-arrow-down"
-                      iconPos="right"
-                      (onClick)="goToStep(2)"
-                      [raised]="true"
-                    />
-                  </div>
-                
+                <div class="button-content">
+                  <p-button
+                    label="Arquivar"
+                    raised="true"
+                    severity="secondary"
+                    (onClick)="archiveSaleDraft()"
+                    [loading]="isArchiving"
+                    icon="pi pi-inbox"
+                  />
+                  <p-button
+                    label="Próximo"
+                    icon="pi pi-arrow-down"
+                    iconPos="right"
+                    (onClick)="goToStep(2)"
+                    [raised]="true"
+                  />
+                </div>
               </ng-template>
             </p-step-panel>
           </p-step-item>
@@ -571,7 +562,8 @@
                       [style]="{ width: '90vh', height: '65vh' }"
                     >
                       <app-google-maps
-                        [address]="fullAddress"
+                        *ngIf="showMapDialog"
+                        [address]="enderecoMaps"
                       ></app-google-maps>
                     </p-dialog>
 
@@ -607,7 +599,7 @@
                         raised="true"
                         severity="info"
                         icon="pi pi-globe"
-                        (onClick)="showMapDialog = true"
+                        (onClick)="abrirMapa()"
                       />
                       <p-button
                         [size]="'large'"
@@ -1388,13 +1380,12 @@
   [style]="{ width: '25rem' }"
 >
   <div class="flex flex-column gap-3">
-
     <p class="m-0">
       Por favor, informe o número de telefone do cliente para que possamos
       enviar o link de acesso da <strong>Central do Assinante</strong>.
       <br />
       Para confirmar a venda é necessário informar um número de telefone.
-      <br/>
+      <br />
       No seguinte formato <strong>+55 (DD) Número</strong>
     </p>
 
@@ -1423,8 +1414,6 @@
         (onClick)="confirmSendToClient()"
       ></p-button>
     </div>
-
   </div>
-  
 </p-dialog>
-<app-check [trigger]="tocarCheck"/>
+<app-check [trigger]="tocarCheck" />
