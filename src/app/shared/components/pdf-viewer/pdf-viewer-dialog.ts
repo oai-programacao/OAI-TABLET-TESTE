@@ -21,7 +21,7 @@ GlobalWorkerOptions.workerSrc = 'assets/pdfjs/pdf.worker.js';
   imports: [CommonModule, DialogModule, ButtonModule],
   template: `
     <p-dialog
-      header="Visualizador de PDF"
+      header="Visualizador"
       [(visible)]="visible"
       [modal]="true"
       (onHide)="close()"
@@ -30,13 +30,22 @@ GlobalWorkerOptions.workerSrc = 'assets/pdfjs/pdf.worker.js';
       [resizable]="false"
       [style]="{ width: '90vw', height: '90vh' }"
     >
-      <div class="pdf-container">
+
+      <!-- PDF -->
+      <div *ngIf="tipoMidia === 'pdf'" class="pdf-container">
         <canvas
           *ngFor="let page of pages"
           [attr.width]="viewportWidth"
           [attr.height]="page.height"
-          #canvas
         ></canvas>
+      </div>
+
+      <!-- IMAGEM -->
+      <div *ngIf="tipoMidia === 'imagem'" class="imagem-container">
+        <img
+          [src]="imagemUrl"
+          alt="Visualização"
+        />
       </div>
 
       <ng-template pTemplate="footer">
@@ -44,10 +53,11 @@ GlobalWorkerOptions.workerSrc = 'assets/pdfjs/pdf.worker.js';
           pButton
           label="Baixar"
           icon="pi pi-download"
-          (click)="openPdf()"
+          (click)="download()"
           class="p-button-success"
         ></button>
       </ng-template>
+
     </p-dialog>
   `,
   styles: [
@@ -56,10 +66,24 @@ GlobalWorkerOptions.workerSrc = 'assets/pdfjs/pdf.worker.js';
         height: 100%;
         overflow-y: auto;
       }
+
       canvas {
         display: block;
         margin: 10px auto;
         border: 1px solid #ccc;
+      }
+
+      .imagem-container {
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .imagem-container img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
       }
     `,
   ],
@@ -67,13 +91,18 @@ GlobalWorkerOptions.workerSrc = 'assets/pdfjs/pdf.worker.js';
 export class PdfViewerDialogComponent implements OnChanges {
   @Input() visible = false;
   @Output() visibleChange = new EventEmitter<boolean>();
+
+  // Controle de mídia
+  @Input() tipoMidia: 'pdf' | 'imagem' | null = null;
   @Input() pdfUrl: string | null = null;
+  @Input() imagemUrl: string | null = null;
 
   pages: { height: number; pageNum: number }[] = [];
   viewportWidth = 800;
 
   ngOnChanges(changes: SimpleChanges) {
     if (
+      this.tipoMidia === 'pdf' &&
       (changes['pdfUrl'] || changes['visible']) &&
       this.visible &&
       this.pdfUrl
@@ -87,11 +116,14 @@ export class PdfViewerDialogComponent implements OnChanges {
 
     const loadingTask = pdfjsLib.getDocument(url);
     const pdf = await loadingTask.promise;
+
     for (let i = 1; i <= pdf.numPages; i++) {
       const page = await pdf.getPage(i);
       const viewport = page.getViewport({ scale: 1.5 });
+
       this.viewportWidth = viewport.width;
       this.pages.push({ height: viewport.height, pageNum: i });
+
       setTimeout(() => this.renderPage(page, viewport, i), 0);
     }
   }
@@ -99,7 +131,9 @@ export class PdfViewerDialogComponent implements OnChanges {
   async renderPage(page: any, viewport: any, pageNum: number) {
     const canvas: HTMLCanvasElement | null =
       document.querySelectorAll('canvas')[pageNum - 1];
+
     if (!canvas) return;
+
     const context = canvas.getContext('2d');
     canvas.width = viewport.width;
     canvas.height = viewport.height;
@@ -112,18 +146,21 @@ export class PdfViewerDialogComponent implements OnChanges {
     this.visibleChange.emit(this.visible);
   }
 
-  openPdf() {
-    if (!this.pdfUrl) return;
+  download() {
+    const url =
+      this.tipoMidia === 'pdf' ? this.pdfUrl : this.imagemUrl;
+
+    if (!url) return;
+
+    const fileName = url.split('/').pop() || 'arquivo';
 
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     if (isIOS) {
-      // Abrir no Safari / PWA
-      window.open(this.pdfUrl, '_blank');
+      window.open(url, '_blank');
     } else {
-      // Desktop: tenta download direto
       const link = document.createElement('a');
-      link.href = this.pdfUrl;
-      link.download = this.pdfUrl.split('/').pop() || 'document.pdf';
+      link.href = url;
+      link.download = fileName;
       link.click();
     }
   }

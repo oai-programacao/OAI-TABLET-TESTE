@@ -149,14 +149,28 @@ export class AttendancesClientComponent implements OnInit {
   // Dialog PDF
   pdfDialogVisible = false;
   pdfUrl: string | null = null;
+  tipoMidia: 'pdf' | 'imagem' | null = null;
+  imagemUrl: string | null = null;
 
-  openPdf(filePath: string) {
-    const fileName = filePath.split(
-      '/home/oai/imagesDocuments/contratosassinados/'
-    )[1];
+  openMidia(filePath: string) {
+  const fileName = filePath.split('/').pop();
+  if (!fileName) return;
+
+  const ext = fileName.split('.').pop()?.toLowerCase();
+
+  if (ext === 'pdf') {
+    this.tipoMidia = 'pdf';
     this.pdfUrl = `${environment.apiUrl}/pdf/${fileName}`;
-    this.pdfDialogVisible = true;
+    this.imagemUrl = null;
+  } else {
+    this.tipoMidia = 'imagem';
+    this.imagemUrl = `${environment.apiUrl}/imagem/${fileName}`;
+    this.pdfUrl = null;
   }
+
+  this.pdfDialogVisible = true;
+}
+
 
   backToClient() {
     this.router.navigate(['info', this.clientId]);
