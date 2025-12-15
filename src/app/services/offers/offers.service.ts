@@ -13,6 +13,40 @@ export class OffersService {
 
   private baseUrl = environment.apiUrl + '/offers';
 
+  getOffersChangeAddress(
+    city?: string,
+    typeofOs?: string,
+    period?: string,
+    page: number = 0,
+    size: number = 10
+  ) {
+    let params = new HttpParams().set('page', page).set('size', size);
+    if (city) params = params.set('city', city);
+    if (period) params = params.set('period', period);
+    if (typeofOs) {
+      params = params.set('typeOfOs', typeofOs);
+    } else {
+      params = params.set('typeOfOs', 'CHANGE_OF_ADDRESS');
+    }
+
+    return this.http
+      .get<any>(`${this.baseUrl}/new-installation`, { params })
+      .pipe(
+        map((pageData) => ({
+          content: pageData.content.map((o: any) => ({
+            ...o,
+            typeOfOs: this.mapTypeOfOs(o.typeOfOs),
+            period: this.mapPeriod(o.period),
+            city: this.mapCity(o.city),
+          })),
+          totalElements: pageData.page.totalElements,
+          totalPages: pageData.page.totalPages,
+          size: pageData.page.size,
+          number: pageData.page.number,
+        }))
+      );
+  }
+
   getOffersSales(
     city?: string,
     typeOfOs?: string,
