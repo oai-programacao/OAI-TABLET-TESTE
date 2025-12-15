@@ -1,3 +1,4 @@
+import { environment } from './../../../environments/environment.test';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
@@ -8,7 +9,6 @@ import { CardBaseComponent } from '../../shared/components/card-base/card-base.c
 import { Attendance } from '../../models/attendance/attendance.dto';
 import { DialogModule } from 'primeng/dialog';
 import { AttendancesService } from '../../services/attendances/attendance.service';
-import { environment } from '../../../environments/environment';
 import { PdfViewerDialogComponent } from '../../shared/components/pdf-viewer/pdf-viewer-dialog';
 import { FormsModule } from '@angular/forms';
 import { PopoverModule } from 'primeng/popover';
@@ -34,7 +34,7 @@ import { LinkifyPipe } from '../../shared/pipes/linkify.pipe';
     ToastModule,
     CheckComponent,
     ConfirmDialogModule,
-    LinkifyPipe
+    LinkifyPipe,
   ],
   templateUrl: './attendances-client.component.html',
   styleUrl: './attendances-client.component.scss',
@@ -149,12 +149,25 @@ export class AttendancesClientComponent implements OnInit {
   // Dialog PDF
   pdfDialogVisible = false;
   pdfUrl: string | null = null;
+  tipoMidia: 'pdf' | 'imagem' | null = null;
+  imagemUrl: string | null = null;
 
-  openPdf(filePath: string) {
-    const fileName = filePath.split(
-      '/home/oai/imagesDocuments/contratosassinados/'
-    )[1];
-    this.pdfUrl = `${environment.apiUrl}/pdf/${fileName}`;
+  openMidia(filePath: string) {
+    const fileName = filePath.split('/').pop();
+    if (!fileName) return;
+
+    const ext = fileName.split('.').pop()?.toLowerCase();
+
+    if (ext === 'pdf') {
+      this.tipoMidia = 'pdf';
+      this.pdfUrl = `${environment.apiUrl}/pdf/${fileName}`;
+      this.imagemUrl = null;
+    } else {
+      this.tipoMidia = 'imagem';
+      this.imagemUrl = `${environment.apiUrl}/midias/imagem/${fileName}`;
+      this.pdfUrl = null;
+    }
+
     this.pdfDialogVisible = true;
   }
 
@@ -196,7 +209,7 @@ export class AttendancesClientComponent implements OnInit {
       next: (res) => {
         this.tocarCheck = true;
         setTimeout(() => (this.tocarCheck = false), 3);
-         this.messageService.add({
+        this.messageService.add({
           severity: 'sucess',
           summary: 'Sucesso',
           detail: 'Atendimento cancelado com sucesso!',

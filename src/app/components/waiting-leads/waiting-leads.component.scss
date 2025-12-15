@@ -2,44 +2,33 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 90vh;
+  height: 100vh;
   padding: 1rem;
   box-sizing: border-box;
-}
-
-.title {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-}
-
-.title > h1 {
-  font-size: 2rem;
-  color: #3c83f6;
-  
 }
 
 .card-container {
   display: flex;
-  flex-direction: row;      
-  gap: 2rem;                
-  overflow-x: auto;        
+  flex-direction: row;
+  gap: 2rem;
+  overflow-x: auto;
   overflow-y: hidden;
   width: 100%;
-  max-width: 100%;         
+  max-width: 100%;
   box-sizing: border-box;
-  padding-bottom: 1rem;
-  padding-left: 0;          
+  padding: 1rem;
+  background-color: rgb(245, 245, 245);
+  border: 1px solid #ccc;
+  margin-top: 2rem;
 }
 
 .card-container > * {
-  flex: 0 0 auto;           
-  max-width: 500px;
-  scroll-snap-align: start; 
+  flex: 0 0 auto;
+  max-width: 100%;
+  scroll-snap-align: start;
 }
 
-.empty-state{
+.empty-state {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -48,20 +37,112 @@
   width: auto;
 }
 
+/* WRAPPER DA BORDA RAINBOW */
+.rainbow-wrapper {
+  padding: 3px;
+  border-radius: 1.2rem;
+  background: linear-gradient(
+    90deg,
+    #ff004c,
+    #00e675,
+    #00cfff,
+    #6a5cff,
+    #d633ff
+  );
+  background-size: 400% 400%;
+  animation: rainbow 8s ease infinite;
+}
 
-@media (max-width: 480px) {
-  .card-container {
-    gap: 1rem;
-    max-width: 90%;
+/* ANIMAÇÃO */
+@keyframes rainbow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
   }
 }
 
-@media (min-width: 768px) and (max-width: 1024px) {
-  .card-container {
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.3rem 2rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5),
+    inset 0 0 15px rgba(255, 255, 255, 0.3);
 
-    max-width: 80rem;
-    padding: 0;
-  }
+  transform: translateZ(0);
+  transition: transform 0.3s ease;
 }
 
+/* ÍCONE */
+.header-icon {
+  font-size: 3rem;
+  color: #333;
+}
 
+/* TEXTOS */
+.header-text h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #222;
+}
+
+.header-text p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+/* TOTALIZADOR */
+.totalizer {
+  margin-left: auto;
+  text-align: center;
+  padding: 0.7rem 1rem;
+  background: #ffffffb0;
+  border-radius: 0.8rem;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 1);
+}
+
+.totalizer .value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  display: block;
+  color: #111;
+}
+
+.totalizer .label {
+  font-size: 0.75rem;
+  color: #000000;
+}
+
+.header-card {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  margin-top: 1rem;
+}
+
+// essa media query é para ajustar o tamanho dos cards em tablets by gs #SEARCHQUERY
+@media (min-width: 768px) and (max-width: 1366px) {
+  .card-container {
+    max-width: 95vw;
+  }
+
+  .header-card {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap; // permite quebrar a linha
+    align-items: flex-start; // força todos a alinhar pelo topo
+  }
+}

@@ -23,6 +23,7 @@
     "@ngx-translate/core": "^16.0.4",
     "@ngx-translate/http-loader": "^16.0.1",
     "@primeng/themes": "^20.1.1",
+    "@splinetool/viewer": "^1.12.16",
     "@stomp/ng2-stompjs": "^8.0.0",
     "@stomp/stompjs": "^7.2.1",
     "@viablelogic/ngx-signature-pad": "^13.0.0",

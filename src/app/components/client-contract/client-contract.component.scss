@@ -272,12 +272,8 @@
 .addresscontract .section-inline {
   display: flex;
   flex-wrap: wrap;
-  /* quebra linha se ficar muito longo */
   align-items: center;
-  justify-content: space-between;
-  /* distribui bem os blocos */
-  gap: 1rem;
-  /* espaço entre cada grupo */
+  gap: 5rem;
   padding: 0.25rem 0;
   border-bottom: 1px solid #eee;
 }
@@ -285,11 +281,10 @@
 .addresscontract .section-inline .group {
   display: flex;
   align-items: center;
-  gap: 0.15rem;
-  /* entre label e valor */
   flex-shrink: 0;
-  /* evita que quebre desnecessariamente */
+  gap: 0.5rem;
 }
+
 
 .addresscontract .section-inline label {
   font-weight: bold;

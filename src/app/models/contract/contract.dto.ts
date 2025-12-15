@@ -18,7 +18,6 @@ export interface Contract {
     dateSignature: string | null;
     dateStart: string | null;
     descountFixe: number | null;
-    discount: number | null;
     imagesOne: string | null;
     numberParcels: number | null;
     observation: string | null;
@@ -36,6 +35,7 @@ export interface Contract {
     cicleBillingExpired: number | null;
     vigencia: number | null;
     suspensionScheduled: number | null;
+    loyalty: boolean | null;
 }
 
 export interface RequestDateTransfer {

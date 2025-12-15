@@ -26,7 +26,9 @@
       <p><span class="status-dot canceled"></span> Cancelado</p>
       <p><span class="status-dot blocked"></span> Bloqueado</p>
       <p><span class="status-dot transfer"></span> Transferido</p>
-      <p><span class="pi pi-exclamation-circle icon-suspense"></span> Suspenso</p>
+      <p>
+        <span class="pi pi-exclamation-circle icon-suspense"></span> Suspenso
+      </p>
     </div>
 
     <div class="headerlist">
@@ -103,13 +105,12 @@
               >
               <span>{{ contract.codeContractRbx }}</span>
 
-              <i 
+              <i
                 *ngIf="contract?.suspensionScheduled == 1"
                 class="pi pi-exclamation-circle suspension-alert-icon"
                 pTooltip="Suspensão agendada para o contrato!"
                 tooltipPosition="top"
               ></i>
-
             </div>
           </div>
           <div class="addresscontract">
@@ -131,14 +132,11 @@
               <span>{{ contract.neighborhood }}</span>
               <label>📪 CEP:</label>
               <span>{{ contract.zipCode }}</span>
+              <label>🌆 Cidade:</label>
+              <span>{{ contract.city }}, {{ contract.state }}</span>
             </div>
 
-            <div class="section section-inline">
-              <div class="group">
-                <label>🌆 Cidade:</label>
-                <span>{{ contract.city }}, {{ contract.state }}</span>
-              </div>
-
+            <div class="section-inline">
               <div class="group">
                 <label>Vigência:</label>
                 <span>{{ contract.vigencia }} </span>
@@ -152,6 +150,11 @@
               <div class="group">
                 <label>Dia Vencimento:</label>
                 <span>{{ contract.cicleBillingExpired }}</span>
+              </div>
+
+              <div class="group">
+                <label>💵 Adesão:</label>
+                <span>{{ contract.adesion | currency : "BRL" }}</span>
               </div>
             </div>
 
@@ -196,7 +199,7 @@
               tooltipPosition="top"
               [disabled]="contract.situationDescription !== 'SUSPENSO'"
             />
-          </div>
+          </div> 
           <div class="contract-actions" > 
             <p-button
               icon="pi pi-arrow-down"
@@ -218,8 +221,8 @@
               tooltipPosition="top"
               [disabled]="contract.situationDescription !== 'ATIVO'"
             />
-          </div> 
-          <div class="contract-actions"> 
+          </div>
+          <div class="contract-actions">
             <p-button
               icon="pi pi-calendar"
               (onClick)="goToAlterDateExpired(contract)"

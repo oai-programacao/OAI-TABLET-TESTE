@@ -13,7 +13,6 @@ export interface ContractFormData {
   address: Address;
   signature: string;
   observation?: string;
-  situationDescription?: string;
   discountFixe?: number;
   vigencia?: number;
   cicleFatId?: number;

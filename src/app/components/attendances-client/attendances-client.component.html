@@ -371,7 +371,7 @@
               pButton
               type="button"
               icon="pi pi-external-link"
-              (click)="openPdf(file.urlFile)"
+              (click)="openMidia(file.urlFile)"
               class="p-button-rounded p-button-info"
             ></button>
           </div>
@@ -390,7 +390,11 @@
 
 <app-check [trigger]="tocarCheck" />
 
+<!-- // dialog para visualização de PDF ou Imagem -->
+
 <app-pdf-viewer-dialog
   [(visible)]="pdfDialogVisible"
+  [tipoMidia]="tipoMidia"
   [pdfUrl]="pdfUrl"
-></app-pdf-viewer-dialog>
+  [imagemUrl]="imagemUrl">
+</app-pdf-viewer-dialog>

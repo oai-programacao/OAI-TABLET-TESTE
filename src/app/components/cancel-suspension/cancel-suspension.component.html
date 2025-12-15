@@ -21,7 +21,7 @@
 
         <div class="contractNumber__header">
             <label>Contrato a ser alterado:</label>
-            <span>#{{ contract?.codeContractRbx }}</span>
+            <span>#{{ contract.codeContractRbx }}</span>
         </div>
 
         <p-stepper [(value)]="activeStep">
@@ -54,12 +54,12 @@
                             <h3>Detalhes da Suspensão Atual</h3>
                             <div class="info-item">
                                 <strong>Data de Início:</strong>
-                                <span>{{ contractSuspense?.startDate | date:'dd/MM/yyyy' }}</span>
+                                <span>{{ contractSuspense.startDate | date:'dd/MM/yyyy' }}</span>
                             </div>
 
                             <div class="info-item">
                                 <strong>Data de Término:</strong>
-                                <span>{{ contractSuspense?.finishDate | date:'dd/MM/yyyy' }}</span>
+                                <span>{{ contractSuspense.finishDate | date:'dd/MM/yyyy' }}</span>
                             </div>
 
                             <div class="info-item">
@@ -77,7 +77,7 @@
                             <div class="info-item">
                                 <strong>Valor Proporcional restante do mês:</strong>
                                 <span>
-                                    @if (contractSuspense?.startDate && contractSuspense?.finishDate) {
+                                    @if (contractSuspense.startDate && contractSuspense.finishDate) {
                                         {{ proportionalBoleto | currency : "BRL" : "symbol" : "1.2-2" }}
                                     }
                                 </span>

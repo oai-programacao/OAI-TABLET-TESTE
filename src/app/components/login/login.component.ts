@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, ViewChild, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
@@ -39,6 +39,7 @@ import { WebSocketService } from '../../services/webSocket/websocket.service';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
   providers: [MessageService],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class LoginComponent implements OnInit {
   private readonly router = inject(Router);

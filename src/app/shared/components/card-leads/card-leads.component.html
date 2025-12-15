@@ -1,43 +1,75 @@
 <div class="card-container">
+  <p-confirmDialog></p-confirmDialog>
+  <div class="close-btn">
+    <i class="pi pi-trash" (click)="confirmDelete()" style="cursor: pointer">
+    </i>
+  </div>
   <div class="header">
     <div class="info">
-      <h3>{{ data.email }}</h3>
-      <span class="interessado">Interessado no: {{ data.planCode }}</span>
+      <h2>{{ data.clientName }}</h2>
+      <span class="plan">{{ data.planCode }} - {{ data.planName }}</span>
+      <span class="seller">Vendedor: {{ data.sellerName }}</span>
     </div>
-    <div class="status">{{ data.status }}</div>
+
+    <div class="expire">
+      Expira em: {{ expirationDate | date : "dd/MM/yyyy" }}
+    </div>
   </div>
 
   <div class="contact-info">
-    <div class="item"><i class="pi pi-phone"></i> {{ data.phone }}</div>
-    <div class="item"><i class="pi pi-envelope"></i> {{ data.email }}</div>
+    <div class="item">
+      <i class="pi pi-phone"></i>
+      <span>{{ data.phone }}</span>
+    </div>
+    <div class="item">
+      <i class="pi pi-envelope"></i>
+      <span>{{ data.email }}</span>
+    </div>
     <div class="item">
       <i class="pi pi-map-marker"></i>
-      {{ data.address?.street }}, {{ data.address?.number }} -
-      {{ data.address?.neighborhood }}, {{ data.address?.UF }}
+      <span
+        >{{ data.address?.street }}, {{ data.address?.number }} -
+        {{ data.address?.neighborhood }}, {{ data.address?.UF }}</span
+      >
     </div>
-    <!-- <div class="item"><i class="pi pi-calendar"></i> Lead desde {{ data.archivedAt }}</div> -->
+  </div>
+
+  <div class="info-secondary">
+    <div class="observations" *ngIf="data.observation">
+      <strong>Observações da venda:</strong>
+      <span>{{ data.observation }}</span>
+    </div>
   </div>
 
   <div class="last-contact" *ngIf="data.archivedAt">
-    Arquivado em: {{ data.archivedAt }}
-
-  </div>
-  
-  <!-- <div class="last-contact">
-    Último contato: {{ '2025-01-12' }} - Ligação realizada
-  </div> -->
-
-  <div class="observations" *ngIf="data.observation">
-    <strong>Observações:</strong>
-    {{ data.observation }}
+    <strong>Arquivado em:</strong>&nbsp;{{
+      data.archivedAt | date : "dd/MM/yyyy"
+    }}
   </div>
 
   <div class="actions">
-    <p-button label="Ligar" severity="secondary" /> 
-    <p-button severity="secondary" label="Email" />
-</div>
-<div class="convert">
-    <p-button  label="Converter Venda" size="large" severity="info"  (onClick)="convertSale()" />
-</div>
-
+    <div class="primary">
+      <p-button
+        label="Converter Venda"
+        severity="info"
+        size="large"
+        [raised]="true"
+        (onClick)="convertSale()"
+      ></p-button>
+    </div>
+    <div class="secondary">
+      <p-button
+        label="WhatsApp"
+        severity="secondary"
+        size="large"
+        [raised]="true"
+      ></p-button>
+      <p-button
+        label="Email"
+        severity="secondary"
+        size="large"
+        [raised]="true"
+      ></p-button>
+    </div>
+  </div>
 </div>
