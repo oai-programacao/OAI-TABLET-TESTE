@@ -85,7 +85,7 @@ $transition-base: 0.3s ease;
 .text-blue-500 { color: #3b82f6; }
 .font-bold { font-weight: 700; color: #111827 !important; }
 
-/* Badge de Vigência */
+
 .badge-vigencia {
   background-color: #e0f2fe;
   color: #0369a1;
@@ -96,22 +96,21 @@ $transition-base: 0.3s ease;
   margin-left: 0.5rem;
 
   &.ativo {
-    background-color: #fff3cd; /* Amarelo */
+    background-color: #fff3cd; 
     color: #856404;
   }
 
   &.vencido {
-    background-color: #d4edda; /* Verde */
+    background-color: #d4edda; 
     color: #155724;
   }
 
   &.isento {
-    background-color: #e0f2fe; /* Cinza */
+    background-color: #e0f2fe; 
     color: #0369a1;
   }
 }
 
-/* Box de Destaque (Ciclo de Faturamento) */
 .highlight {
     display: inline-block; 
     background: #fffbeb;  
@@ -229,7 +228,6 @@ $transition-base: 0.3s ease;
   font-weight: 600 !important;
 }
 
-/* === Botões Superiores === */
 .btn-to-back {
   display: flex;
   justify-content: space-between;
@@ -237,7 +235,6 @@ $transition-base: 0.3s ease;
   gap: $spacing-md;
 }
 
-/* === Botões Inferiores (Navegação de Step) === */
 .btn-actions {
   display: flex;
   justify-content: flex-end;
@@ -403,7 +400,6 @@ $transition-base: 0.3s ease;
   }
 }
 
-/* === Estilos PrimeNG (Ajustes para Diálogos) === */
 :host ::ng-deep {
   .p-select {
     --p-select-option-selected-background: #4da3ff;
@@ -487,87 +483,6 @@ $transition-base: 0.3s ease;
   }
 }
 
-// DIALOG ENVIAR WHATSAPP
-.alert-warning {
-  padding: 1rem;
-  background-color: #fff3cd;
-  color: #856404;
-  border: 1px solid #ffeeba;
-  border-radius: 0.5rem;
-  font-weight: 400;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.alert-warning i {
-  font-size: 1.2rem;
-}
-
-/* === Estilos de Dialog (Geral) === */
-.dialog-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 0.5rem;
-}
-
-.icon-container {
-  display: flex;
-  justify-content: center;
-}
-
-.whatsapp-icon {
-  font-size: $font-size-icon;
-  background-color: #25d366;
-  color: white;
-  padding: 1.25rem;
-  border-radius: 50%;
-  box-shadow: 0 0 15px rgba(37, 211, 102, 0.6);
-}
-
-.alert-box {
-  display: flex;
-  align-items: center;
-  background-color: rgba(255, 230, 0, 0.3);
-  padding: 5px;
-  border-radius: 8px;
-  gap: 15px;
-  margin-top: 15px;
-  padding-left: 20px;
-  border-left: 5px solid rgb(255, 136, 0);
-}
-
-.alert-icon-circle {
-  width: 40px;
-  height: 40px;
-  background-color: rgba(245, 127, 23, 0.5);
-  color: rgb(255, 255, 255);
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-weight: bold;
-  font-size: 20px;
-}
-
-.alert-text {
-  margin: 0;
-  color: #000000;
-  font-size: 16px;
-  line-height: 1.5;
-}
-
-.info-text {
-  font-size: 1rem;
-  color: #000000;
-  line-height: 1.6;
-  margin: 0;
-}
-
-
-
 /* === Estilos de Fluxo (Step 2) === */
 .fluxo-container {
   display: flex;
@@ -643,7 +558,7 @@ $transition-base: 0.3s ease;
   margin-top: 20px;
 }
 
-/* === REFACTOR: Estilos de PDF Preview (Step 3) === */
+/* Estilos de PDF Preview (Step 3) === */
 .pdf-preview-section {
   padding: 0;
   display: flex;
@@ -686,7 +601,7 @@ $transition-base: 0.3s ease;
   margin-top: 0rem;
 }
 
-/* === REFACTOR: Estilos de Confirmação (Step 4) === */
+/* Estilos de Confirmação (Step 4) === */
 .confirmation-step {
   align-items: center;
   text-align: center;
