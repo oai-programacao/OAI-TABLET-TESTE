@@ -105,6 +105,7 @@ export class SuspensionTemporaryComponent {
   isSubmiting: boolean = false;
   finalization: boolean = false;
   result: any = null;
+  blockButton: boolean = false;
 
   constructor(private route: ActivatedRoute, private sanitizer: DomSanitizer) { }
 
@@ -189,9 +190,23 @@ export class SuspensionTemporaryComponent {
   }
 
   onValuesChange() {
+    const selectedDate = this.suspensionData.dateInitialSuspension;
+
+    if (selectedDate) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const dateToCheck = new Date(selectedDate);
+      dateToCheck.setHours(0, 0, 0, 0);
+      if (dateToCheck < today) {
+        this.showErrorToast('A data de suspensão não pode ser menor que o dia de hoje.');
+        this.suspensionData.dateInitialSuspension = null;
+        this.blockButton = true;
+        return; // <-- ESSENCIAL: Interrompe a execução da função
+      }
+    }
     this.startDate = this.suspensionData.dateInitialSuspension!;
     this.duration = this.suspensionData.duration;
-
+    this.blockButton = false;
     console.log("   - startDate =", this.startDate);
     console.log("   - duration =", this.duration);
 
@@ -677,5 +692,14 @@ export class SuspensionTemporaryComponent {
       .replace(/(\d{3})(\d)/, '$1.$2')
       .replace(/(\d{3})(\d)/, '$1/$2')
       .replace(/(\d{4})(\d{1,2})$/, '$1-$2');
+  }
+
+  showErrorToast(message: string): void {
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Erro de Validação',
+      detail: message,
+      life: 5000
+    });
   }
 }

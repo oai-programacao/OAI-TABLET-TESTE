@@ -85,25 +85,25 @@ $transition-base: 0.3s ease;
 }
 
 .contractNumber__header {
-  background-color: #f8f9fa;
-  padding: 0.5rem;
-  border-radius: 8px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border: 1px solid #dee2e6;
+    background-color: #f8f9fa;
+    padding: 0.5rem;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #dee2e6;
 
-  label {
-    font-weight: 500;
-    color: #575353;
-    font-size: 1.3rem;
-  }
+    label {
+        font-weight: 500;
+        color: #575353;
+        font-size: 1.3rem;
+    }
 
-  span {
-    font-weight: 700;
-    font-size: 1.3rem;
-    color: #1c34a0;
-  }
+    span {
+        font-weight: 700;
+        font-size: 1.3rem;
+        color: #1c34a0;
+    }
 }
 
 .step {
@@ -380,7 +380,7 @@ p-progressspinner {
 
 .fluxo-card {
   width: 320px;
-  min-height: 600px;
+  min-height: 570px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -392,11 +392,11 @@ p-progressspinner {
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
   border: 1px solid rgba(255, 255, 255, 0.3);
+}
 
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
-  }
+.fluxo-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
 .fluxo-card.online {
@@ -412,6 +412,7 @@ p-progressspinner {
   -webkit-backdrop-filter: blur(15px);
   border-top: 5px solid #19cefc;
 }
+
 
 .fluxo-header {
   font-size: 5rem;
@@ -441,8 +442,7 @@ p-progressspinner {
 }
 
 .fluxo-body p {
-  line-height: 1.4;
-  margin: 0;
+  line-height: 1.6;
 }
 
 .fluxo-footer {
