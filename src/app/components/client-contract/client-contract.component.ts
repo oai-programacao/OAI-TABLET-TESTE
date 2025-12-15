@@ -297,6 +297,9 @@ export class ClientContractComponent implements OnInit {
     this.router.navigate(['add-contract'], { queryParams: { clientId } });
   }
 
+  navigateToCancelContract(contract: Contract) {
+  this.router.navigate(['/cancel-contract', contract.id]);
+}
   navigateToInfoClient() {
     this.router.navigate(['info', this.clientId]);
   }
