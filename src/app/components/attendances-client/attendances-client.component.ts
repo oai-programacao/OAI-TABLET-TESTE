@@ -1,3 +1,4 @@
+import { environment } from './../../../environments/environment.test';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
@@ -8,7 +9,6 @@ import { CardBaseComponent } from '../../shared/components/card-base/card-base.c
 import { Attendance } from '../../models/attendance/attendance.dto';
 import { DialogModule } from 'primeng/dialog';
 import { AttendancesService } from '../../services/attendances/attendance.service';
-import { environment } from '../../../environments/environment';
 import { PdfViewerDialogComponent } from '../../shared/components/pdf-viewer/pdf-viewer-dialog';
 import { FormsModule } from '@angular/forms';
 import { PopoverModule } from 'primeng/popover';
