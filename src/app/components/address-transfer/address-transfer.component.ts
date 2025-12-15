@@ -217,7 +217,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   selectedClientType: string = '';
   clientTypes = [
     { label: 'B2B', value: 'B2B' },
-    { label: 'B2B ESPECIAL', value: 'B2B ESPECIAL' },
+    { label: 'B2B ESPECIAL', value: 'B2B_SPECIAL' },
     { label: 'B2C', value: 'B2C' },
     { label: 'B2G', value: 'B2G' },
     { label: 'Interno', value: 'INTERN' },
@@ -234,7 +234,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
 
   selectedTypeNewOs: string = 'CHANGE_OF_ADDRESS';
   typeNewOs = [
-    { label: 'Mudança de Endereço de Instalação', value: 'CHANGE_OF_ADDRESS' },
+    { label: 'Mud. de End. de Instalação', value: 'CHANGE_OF_ADDRESS' },
   ];
 
   paymentMethods = [
@@ -539,6 +539,13 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   }
 
   sendToAutentiqueSubmit() {
+    if (!this.selectedOfferId) {
+        this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Selecione uma oferta (agenda)!' });
+        return;
+    }
+
+    const sellerId = this.authService.getSellerId();
+
     const term: ConsentTermAddressRequest = {
       zipCode: this.addressNewForm.zipCode,
       state: this.addressNewForm.uf,
@@ -559,7 +566,14 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       },
     ];
 
-    const payload = { term, signers: mappedSigners };
+    const payload = { 
+      term, 
+      signers: mappedSigners,
+      clientId: this.clientId,
+      sellerId: sellerId,
+       offerId: this.selectedOfferId,
+        numParcels: this.selectedInstallments || 1,
+        clientType: this.selectedClientType};
 
     this.actionsContractsService
       .sendAddressChangeAutentique(payload, this.clientId, this.contractId)
@@ -632,6 +646,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       adesionValue: this.addressNewForm.adesionValue ?? 0,
       signatureBase64: this.capturedSignature,
       paymentForm: this.addressNewForm.paymentForm,
+      
     };
 
     this.reportsService
@@ -823,7 +838,6 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   }
 
   async onConfirmAddressChange() {
-  async onConfirmAddressChange() {
     if (!this.currentContract) {
       this.messageService.add({
         severity: 'error',
@@ -962,7 +976,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     }
   }
 
-  blobToBase64(blob: Blob): Promise<string> {
+   blobToBase64(blob: Blob): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onloadend = () => resolve(reader.result as string);
@@ -970,13 +984,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       reader.readAsDataURL(blob);
     });
   }
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
-  }
+
 
   public extrairLink(textoCompleto: string): string {
     if (!textoCompleto) return '';
@@ -1057,7 +1065,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     return `${numero}`;
   }
 
-  navigateToInfoClient() {
+
   navigateToInfoClient() {
     if (this.clientId) {
       this.router.navigate(['info', this.clientId]);
@@ -1065,6 +1073,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       this.router.navigate(['/']);
     }
   }
+
 
   loadClientData() {
     this.clientService.getClientById(this.clientId).subscribe({
@@ -1076,7 +1085,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       },
     });
   }
-
+  
   openDialogOs(): void {
     this.dialogOs = true;
   }
@@ -1104,6 +1113,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
         error: () => (this.loadingOs = false),
       });
   }
+  
 
   reloadTable() {
     this.osTable.reset();
