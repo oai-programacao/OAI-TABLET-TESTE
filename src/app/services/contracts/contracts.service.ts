@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
-import {Contract, RequestDateTransfer} from '../../models/contract/contract.dto';
+import {Contract, RequestContractSuspendDTO, RequestDateTransfer} from '../../models/contract/contract.dto';
 import { CancelSimulationDTO } from '../../models/contract/cancel-contract.dto';
 import { DateUtilsService } from '../../shared/utils/date.utils';
 
