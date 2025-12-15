@@ -242,6 +242,19 @@
               tooltipPosition="top"
               [disabled]="contract.situationDescription !== 'ATIVO'"
             />
+           
+          </div>
+          <div class="contract-actions">
+               <p-button
+              icon="pi pi-times"
+              (onClick)="navigateToCancelContract(contract)"
+              severity="danger"
+              [rounded]="true"
+              [text]="true"
+              pTooltip="Cancelar Contrato"
+              tooltipPosition="top"
+              [disabled]="contract.situationDescription !== 'ATIVO'"
+            />
           </div>
         </div>
       </div>

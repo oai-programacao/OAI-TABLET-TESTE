@@ -13,7 +13,7 @@
     </div>
     <div class="contrNumber__header">
       <label>Contrato a ser alterado:</label>
-      <span>#{{ currentContract.codeContractRbx }}</span> 
+      <span>#{{ currentContract.codeContractRbx }}</span>
     </div>
     <div class="content">
       <ng-template #avisoInvalido>
@@ -22,7 +22,7 @@
           obrigatórios.
         </div>
       </ng-template>
-  
+
       <p-stepper [(value)]="activeStep">
         <p-step-list>
           <p-step [value]="1">Endereço</p-step>
@@ -212,6 +212,36 @@
                     </p-inputgroup>
                   </div>
 
+                  <div class="input-type-client">
+                    <div class="msg-error">
+                      <app-message-valid-forms
+                        [control]="uf"
+                        error="required"
+                        text="UF é obrigatório"
+                      ></app-message-valid-forms>
+                    </div>
+                    <p-inputgroup>
+                      <p-inputgroup-addon>
+                        <i class="pi pi-building"></i>
+                      </p-inputgroup-addon>
+                      <p-iftalabel>
+                        <p-select
+                          [options]="clientTypes"
+                          [(ngModel)]="selectedClientType"
+                          optionLabel="label"
+                          optionValue="value"
+                          placeholder="Selecione"
+                          name="clientType"
+                          required
+                          id="clientType"
+                          [disabled]="!isEditingAddress"
+                        >
+                        </p-select>
+                        <label for="clientType">Tipo Cliente</label>
+                      </p-iftalabel>
+                    </p-inputgroup>
+                  </div>
+
                   <div class="text-area-content">
                     <p-iftalabel>
                       <textarea
@@ -245,21 +275,44 @@
                       [disabled]="!isEditingAddress"
                     >
                     </p-select>
+
                     <p-inputgroup class="payment-value">
                       <p-inputgroup-addon>R$</p-inputgroup-addon>
-                      <p-inputNumber
-                        name="adesionValue"
-                        placeholder="Valor de Adesão"
-                        mode="decimal"
-                        [minFractionDigits]="2"
-                        [maxFractionDigits]="2"
-                        [(ngModel)]="addressNewForm.adesionValue"
-                        #adesionValue="ngModel"
-                        [disabled]="!isEditingAddress"
-                      >
-                        ></p-inputNumber
-                      >
+
+                      <p-iftalabel variant="on">
+                        <input
+                          pInputText
+                          name="adesionValue"
+                          placeholder="Valor de Adesão"
+                          maxlength="18"
+                          [currencyMask]="{
+                            prefix: '',
+                            thousands: '.',
+                            decimal: ',',
+                            align: 'left'
+                          }"
+                          inputmode="decimal"
+                          autocomplete="off"
+                          [(ngModel)]="addressNewForm.adesionValue"
+                          #adesionValue="ngModel"
+                          [disabled]="!isEditingAddress"
+                        />
+                      </p-iftalabel>
                     </p-inputgroup>
+
+                    <p-select
+                      id="installments"
+                      name="installments"
+                      [options]="installmentOptions"
+                      [(ngModel)]="selectedInstallments"
+                      optionLabel="label"
+                      optionValue="value"
+                      placeholder="Selecione as parcelas"
+                      [style]="{ width: '100%' }"
+                      appendTo="body"
+                      [disabled]="addressNewForm.paymentForm !== 'Boleto'"
+                    >
+                    </p-select>
                   </div>
                 </div>
               </form>
@@ -270,30 +323,30 @@
                   severity="info"
                   icon="pi pi-check"
                   raised="true"
-                  (click)="openDialog()"
+                  (click)="openDialogOs()"
                 />
                 <p-button
-                  label="Verificar Cabeamento"
-                  size="large"
-                  severity="warn"
+                  [size]="'large'"
+                  label="Solicitar O.S"
                   raised="true"
-                  icon="pi pi-wifi"
+                  severity="warn"
+                  icon="pi pi-bell"
+                  (onClick)="dialogNewOs = true"
                 />
-
-                <div class="btn-step1-prox">
-                  <p-button
-                    severity="success"
-                    rounded="true"
-                    raised="true"
-                    size="large"
-                    icon="pi pi-arrow-right"
-                    iconPos="right"
-                    label="Próximo"
-                    (onClick)="meuMetodoExtra(); activateCallback(2)"
-                    [disabled]="!isAddressValid || !isAddressDataChanged"
-                    tooltipPosition="top"
-                  />
-                </div>
+              </div>
+              <div class="btn-step1-prox">
+                <p-button
+                  severity="success"
+                  rounded="true"
+                  raised="true"
+                  size="large"
+                  icon="pi pi-arrow-right"
+                  iconPos="right"
+                  label="Próximo"
+                  (onClick)="meuMetodoExtra(); activateCallback(2)"
+                  [disabled]="!isAddressValid || !isAddressDataChanged"
+                  tooltipPosition="top"
+                />
               </div>
             </ng-template>
           </p-step-panel>
@@ -369,16 +422,16 @@
 
           <p-step-panel [value]="3">
             <ng-template #content let-activateCallback="activateCallback">
-               <div *ngIf="isLoadingPreview" class="loading-overlay">
-            <p-progressSpinner
-              styleClass="w-6rem h-6rem"
-              strokeWidth="6"
-              animationDuration=".5s"
-            ></p-progressSpinner>
-            <span class="loading-text">
-              Aguarde enquanto o PDF é gerado...</span
-            >
-          </div>
+              <div *ngIf="isLoadingPreview" class="loading-overlay">
+                <p-progressSpinner
+                  styleClass="w-6rem h-6rem"
+                  strokeWidth="6"
+                  animationDuration=".5s"
+                ></p-progressSpinner>
+                <span class="loading-text">
+                  Aguarde enquanto o PDF é gerado...</span
+                >
+              </div>
               <div *ngIf="formIsValid; else avisoInvalido">
                 <div class="pdf-preview-section p-mb-3">
                   <div
@@ -475,57 +528,112 @@
             </ng-template>
           </p-step-panel>
 
-
           <p-step-panel [value]="4">
             <ng-template #content let-activateCallback="activateCallback">
-              
               <div *ngIf="isSubmitting" class="loading-overlay">
-              <p-progressSpinner
-                        styleClass="w-6rem h-6rem"
-                        strokeWidth="6"
-                        animationDuration=".5s"
-                      ></p-progressSpinner>
+                <p-progressSpinner
+                  styleClass="w-6rem h-6rem"
+                  strokeWidth="6"
+                  animationDuration=".5s"
+                ></p-progressSpinner>
                 <span class="loading-text">Processando alteração...</span>
               </div>
 
               <div *ngIf="finalization; else estadoConfirmacao">
                 <div class="step-finalization">
                   <div class="step-body">
-                    
                     <div class="table-finalization">
-                      <p-table [value]="[
+                      <p-table
+                        [value]="[
                           { campo: 'Cliente', valor: result?.clientName },
-                          { campo: 'CPF/CNPJ', valor: formatCpfCnpj(result?.clientCpf) },
+                          {
+                            campo: 'CPF/CNPJ',
+                            valor: formatCpfCnpj(result?.clientCpf)
+                          },
                           { campo: 'Contrato', valor: result?.contrato },
-                          { campo: 'Novo Endereço', valor: result?.novoEndereco },
-                          { campo: 'Valor da Adesão', valor: result?.adesionValue, isCurrency: true },
-                          { campo: 'Documento', valor: result?.documentoRbx },
-                          { campo: 'Boleto', valor: 'link' }
-                        ]">
-                        
+                          {
+                            campo: 'Novo Endereço',
+                            valor: result?.novoEndereco
+                          },
+                          {
+                            campo: 'Valor da Adesão',
+                            valor: result?.adesionValue,
+                            isCurrency: true
+                          },
+                          {
+                            campo: 'Boleto',
+                            valor: 'link',
+                            dadosCompletos: this.result
+                          }
+                        ]"
+                      >
                         <ng-template pTemplate="header">
                           <tr>
                             <th>Resumo da Operação</th>
-                            <th> </th>
+                            <th></th>
                           </tr>
                         </ng-template>
 
                         <ng-template pTemplate="body" let-row>
                           <tr>
-                            <td><strong>{{ row.campo }}</strong></td>
-                            
-                            <td *ngIf="row.valor !== 'link'">
-                              <span *ngIf="row.isCurrency">{{ row.valor | currency:'BRL':'symbol':'1.2-2' }}</span>
-                              <span *ngIf="!row.isCurrency">{{ row.valor }}</span>
+                            <td>
+                              <strong>{{ row.campo }}</strong>
                             </td>
-                            
+
+                            <td *ngIf="row.valor !== 'link'">
+                              <span *ngIf="row.isCurrency">{{
+                                row.valor
+                                  | currency : "BRL" : "symbol" : "1.2-2"
+                              }}</span>
+                              <span *ngIf="!row.isCurrency">{{
+                                row.valor
+                              }}</span>
+                            </td>
+
                             <td *ngIf="row.valor === 'link'">
-                              <a *ngIf="result?.linkBoleto" [href]="result?.linkBoleto" target="_blank">
-                                Clique para abrir o boleto
-                              </a>
-                              <span *ngIf="!result?.linkBoleto" style="color: #999;">
-                                (Sem boleto gerado)
-                              </span>
+                              <div
+                                *ngIf="
+                                  row.dadosCompletos?.linksBoletos &&
+                                    row.dadosCompletos.linksBoletos.length > 0;
+                                  else singleBoletoBlock
+                                "
+                                class="boleto-list"
+                              >
+                                <div
+                                  *ngFor="
+                                    let link of row.dadosCompletos.linksBoletos;
+                                    let i = index
+                                  "
+                                >
+                                  <a
+                                    [href]="extrairLink(link)"
+                                    target="_blank"
+                                    class="btn-boleto-gradient"
+                                  >
+                                    <i class="pi pi-dollar"></i>
+                                    <span>Boleto {{ i + 1 }}</span>
+                                  </a>
+                                </div>
+                              </div>
+
+                              <ng-template #singleBoletoBlock>
+                                <a
+                                  *ngIf="row.dadosCompletos?.linkBoleto"
+                                  [href]="row.dadosCompletos?.linkBoleto"
+                                  target="_blank"
+                                  class="link-unico-gradient"
+                                >
+                                  <i class="pi pi-external-link"></i>
+                                  <span>Clique para abrir</span>
+                                </a>
+
+                                <span
+                                  *ngIf="!row.dadosCompletos?.linkBoleto"
+                                  style="color: #999; font-style: italic"
+                                >
+                                  (Sem boleto)
+                                </span>
+                              </ng-template>
                             </td>
                           </tr>
                         </ng-template>
@@ -533,14 +641,15 @@
                     </div>
 
                     <div class="button-finalization">
-                      <p-button 
-                        label="Voltar ao Menu do Cliente" 
-                        icon="pi pi-home" 
+                      <p-button
+                        label="Voltar ao Menu do Cliente"
+                        icon="pi pi-home"
                         severity="success"
-                        [raised]="true" 
-                        [rounded]="true" 
+                        [raised]="true"
+                        [rounded]="true"
                         size="large"
-                        (onClick)="navigateToInfoClient()">
+                        (onClick)="navigateToInfoClient()"
+                      >
                       </p-button>
                     </div>
                   </div>
@@ -548,41 +657,64 @@
               </div>
 
               <ng-template #estadoConfirmacao>
-                <div class="step-footer" style="margin-top: 2rem;">
-                    <div class="proportional-info" style="background-color: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 1.5rem; margin-bottom: 2rem; border-radius: 4px; text-align: center;">
-                      <span class="footer-title" style="font-weight: 600; color: #0c4a6e; font-size: 1.2rem; display: block;">
-                        Deseja confirmar a alteração de endereço?
-                      </span>
-                      <div style="margin-top: 0.5rem; color: #334155;">
-                          Verifique se o termo foi assinado corretamente antes de prosseguir.
-                      </div>
+                <div class="step-footer" style="margin-top: 2rem">
+                  <div
+                    class="proportional-info"
+                    style="
+                      background-color: #f0f9ff;
+                      border-left: 4px solid #0ea5e9;
+                      padding: 1.5rem;
+                      margin-bottom: 2rem;
+                      border-radius: 4px;
+                      text-align: center;
+                    "
+                  >
+                    <span
+                      class="footer-title"
+                      style="
+                        font-weight: 600;
+                        color: #0c4a6e;
+                        font-size: 1.2rem;
+                        display: block;
+                      "
+                    >
+                      Deseja confirmar a alteração de endereço?
+                    </span>
+                    <div style="margin-top: 0.5rem; color: #334155">
+                      Verifique se o termo foi assinado corretamente antes de
+                      prosseguir.
                     </div>
-                    
-                    <div class="footer-actions" style="display: flex; justify-content: center; gap: 1rem;">
-                      <p-button 
-                          label="Voltar" 
-                          severity="secondary" 
-                          icon="pi pi-arrow-left" 
-                          size="large"
-                          [raised]="true" 
-                          [rounded]="true"
-                          (onClick)="activateCallback(3)">
-                      </p-button>
-                      
-                      <p-button 
-                          label="Confirmar Alteração" 
-                          severity="help" 
-                          icon="pi pi-check" 
-                          size="large"
-                          [raised]="true" 
-                          [rounded]="true"
-                          [disabled]="!(pdfBlobFinal || pdfWasDownloaded)" 
-                          (onClick)="onConfirmAddressChange()">
-                      </p-button>
-                    </div>
+                  </div>
+
+                  <div
+                    class="footer-actions"
+                    style="display: flex; justify-content: center; gap: 1rem"
+                  >
+                    <p-button
+                      label="Voltar"
+                      severity="secondary"
+                      icon="pi pi-arrow-left"
+                      size="large"
+                      [raised]="true"
+                      [rounded]="true"
+                      (onClick)="activateCallback(3)"
+                    >
+                    </p-button>
+
+                    <p-button
+                      label="Confirmar Alteração"
+                      severity="help"
+                      icon="pi pi-check"
+                      size="large"
+                      [raised]="true"
+                      [rounded]="true"
+                      [disabled]="!(pdfBlobFinal || pdfWasDownloaded)"
+                      (onClick)="onConfirmAddressChange()"
+                    >
+                    </p-button>
+                  </div>
                 </div>
               </ng-template>
-
             </ng-template>
           </p-step-panel>
         </p-step-panels>
@@ -591,25 +723,51 @@
   </app-card-base>
 
   <p-dialog
-    header="Confirmar Foto Capturada"
+    header="Fotos do Contrato"
     [(visible)]="isPreviewDialogVisible"
     [modal]="true"
-    [style]="{ width: '90vw', 'max-width': '600px' }"
+    [style]="{ width: '90vw', 'max-width': '700px' }"
+    [closable]="true"
     (onHide)="limparPreview()"
   >
-    <div *ngIf="thumbnailPreview" class="text-center">
+    <div
+      *ngIf="thumbnailPreview"
+      class="text-center"
+      style="margin-bottom: 1.5rem"
+    >
+      <h5 style="margin-bottom: 0.5rem; color: #495057">Preview da Foto</h5>
       <img
         [src]="thumbnailPreview"
         alt="Preview da foto capturada"
         style="
           width: 100%;
           height: auto;
-          max-height: 60vh;
-          border: 1px solid #ddd;
-          border-radius: 4px;
-          margin-bottom: 1rem;
+          max-height: 50vh;
+          border: 2px solid #ddd;
+          border-radius: 8px;
         "
       />
+    </div>
+
+    <div class="captured-photos-gallery-dialog">
+      <h5>Fotos Adicionadas ({{ step4CapturedPhotos.length }})</h5>
+      <div class="thumbnails-row-dialog">
+        <div
+          class="thumbnail-item-dialog"
+          *ngFor="let photo of step4CapturedPhotos; let i = index"
+        >
+          <img [src]="photo.preview" alt="Foto {{ i + 1 }}" />
+          <button
+            type="button"
+            class="remove-thumbnail-btn-dialog"
+            (click)="removerFotoStep4(i)"
+            title="Remover foto"
+          >
+            ✕
+          </button>
+          <span class="thumbnail-number-dialog">{{ i + 1 }}</span>
+        </div>
+      </div>
     </div>
 
     <ng-template pTemplate="footer">
@@ -618,15 +776,33 @@
         icon="pi pi-times"
         (click)="limparPreview()"
         styleClass="p-button-danger p-button-text"
-      ></p-button>
+      >
+      </p-button>
+
+      <p-button
+        label="Tirar Outra"
+        icon="pi pi-camera"
+        (click)="tirarOutraFoto()"
+        styleClass="p-button-secondary"
+      >
+      </p-button>
 
       <p-button
         label="Salvar Foto"
-        icon="pi pi-save"
-        (click)="salvarFotoCapturada()"
+        icon="pi pi-check"
+        (click)="salvarFotoContratoCapturada()"
         styleClass="p-button-success"
         [disabled]="!fotoCapturadaFile"
-      ></p-button>
+      >
+      </p-button>
+
+      <p-button
+        label="Concluir"
+        icon="pi pi-check-circle"
+        (click)="isPreviewDialogVisible = false"
+        styleClass="p-button-info"
+      >
+      </p-button>
     </ng-template>
   </p-dialog>
 
@@ -738,3 +914,342 @@
     </ng-template>
   </p-dialog>
 </div>
+
+<p-dialog
+  [header]="'Ofertas Disponíveis'"
+  [resizable]="false"
+  [draggable]="false"
+  [(visible)]="dialogOs"
+  (onShow)="onDialogShow()"
+  (onHide)="onDialogHide()"
+  [style]="{
+    width: '800px',
+    height: '800px',
+    minWidth: '800px',
+    maxWidth: '800px',
+    minHeight: '800px',
+    maxHeight: '800px'
+  }"
+  class="dialogOs"
+>
+  <div class="linhaDropdown">
+    <p-inputgroup>
+      <p-inputgroup-addon>
+        <i class="pi pi-ticket"></i>
+      </p-inputgroup-addon>
+      <p-iftalabel>
+        <p-select
+          [options]="cities"
+          [(ngModel)]="selectedCity"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Selecione"
+          name="cities"
+          required
+          id="cities"
+          (onChange)="reloadTable()"
+        >
+        </p-select>
+        <label for="cities">Cidade</label>
+      </p-iftalabel>
+    </p-inputgroup>
+    <p-inputgroup>
+      <p-inputgroup-addon>
+        <i class="pi pi-ticket"></i>
+      </p-inputgroup-addon>
+      <p-iftalabel>
+        <p-select
+          [options]="typeOs"
+          [(ngModel)]="selectedTypeOs"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Selecione"
+          name="typeOs"
+          required
+          id="typeOs"
+          (onChange)="reloadTable()"
+        >
+        </p-select>
+        <label for="typeOs">Tipo de OS</label>
+      </p-iftalabel>
+    </p-inputgroup>
+    <p-inputgroup>
+      <p-inputgroup-addon>
+        <i class="pi pi-ticket"></i>
+      </p-inputgroup-addon>
+      <p-iftalabel>
+        <p-select
+          [options]="periodsOs"
+          [(ngModel)]="selectedPeriodOs"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Selecione"
+          name="periodOs"
+          required
+          id="periodOs"
+          (onChange)="reloadTable()"
+        >
+        </p-select>
+        <label for="periodOs">Períodos</label>
+      </p-iftalabel>
+    </p-inputgroup>
+    <p-button
+      icon="pi pi-eraser"
+      size="large"
+      severity="warn"
+      rounded="true"
+      raised="true"
+      (onClick)="clearFiltersOs()"
+    ></p-button>
+  </div>
+  <div class="divider">
+    <p-divider></p-divider>
+    <div class="os-warning-box">
+      <i class="pi pi-exclamation-triangle icon-alert"></i>
+      <span>
+        As Ordens de Serviço (OS) são recursos únicos do sistema. Quando uma OS
+        aparece como
+        <span class="status-reserved">Reservada</span>, significa que outro
+        vendedor está utilizando-a no processo de venda. Caso a venda não seja
+        concluída dentro de <strong class="limit-time">10 minutos</strong>, a OS
+        será liberada automaticamente e retornará ao estado
+        <span class="status-available">Disponível</span>. <br />Caso não tenha
+        Horário envie uma solicitação para a Torre
+      </span>
+    </div>
+  </div>
+
+  <div class="table">
+    <p-table
+      #osTable
+      header="OS"
+      [paginator]="true"
+      [rows]="8"
+      [lazy]="true"
+      (onLazyLoad)="loadOffers($event)"
+      [value]="offers"
+      [totalRecords]="totalRecords"
+    >
+      <!-- Cabeçalho -->
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Cidade</th>
+          <th>Tipo OS</th>
+          <th>Data</th>
+          <th>Período</th>
+          <th>Em uso ?</th>
+          <th></th>
+        </tr>
+      </ng-template>
+
+      <!-- Corpo -->
+      <ng-template pTemplate="body" let-offer>
+        <tr>
+          <td>{{ offer.city }}</td>
+          <td>{{ offer.typeOfOs }}</td>
+          <td>{{ offer.date }}</td>
+          <td>{{ offer.period }}</td>
+          <td>
+            <ng-container *ngIf="offer.reserved; else available">
+              <div class="reserved-box">
+                <p-tag severity="warn" value="Reservado"></p-tag>
+
+                <div class="reserved-info">
+                  <div>
+                    <i class="pi pi-user mr-1"></i>
+                    <strong> Por: </strong> {{ offer.reservedByName || "—" }}
+                  </div>
+
+                  <div>
+                    <i class="pi pi-clock mr-1"></i>
+                    <strong> Até: </strong>
+                    {{ offer.reservedUntil | date : "dd/MM/yyyy HH:mm" }}
+                  </div>
+
+                  <div *ngIf="offer.reservedAt">
+                    <i class="pi pi-calendar-plus mr-1"></i>
+                    <strong> Reservado em:</strong>
+                    {{ offer.reservedAt | date : "dd/MM/yyyy HH:mm" }}
+                  </div>
+                </div>
+              </div>
+            </ng-container>
+
+            <ng-template #available>
+              <p-tag severity="success" value="Disponível"></p-tag>
+            </ng-template>
+          </td>
+
+          <td>
+            <!-- SE NÃO ESTÁ RESERVADA -->
+            <button
+              *ngIf="!offer.reserved"
+              pButton
+              icon="pi pi-lock"
+              severity="success"
+              rounded="true"
+              [raised]="true"
+              size="small"
+              (click)="reserveOffer(offer)"
+            ></button>
+
+            <!-- SE ESTÁ RESERVADA -->
+            <button
+              *ngIf="offer.reserved"
+              pButton
+              icon="pi pi-unlock"
+              severity="danger"
+              rounded="true"
+              [raised]="true"
+              size="small"
+              (click)="unreserveOffer(offer)"
+            ></button>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="6" class="emptytable">
+            Não foi encontrado nenhum resultado para essa pesquisa.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</p-dialog>
+
+<p-dialog
+  [header]="'Solicitar OS'"
+  [resizable]="false"
+  [draggable]="false"
+  [(visible)]="dialogNewOs"
+  (onShow)="onDialogNewOs()"
+  [style]="{
+    width: '500px',
+    height: '500px',
+    minWidth: '600px',
+    maxWidth: '600px',
+    minHeight: '400px',
+    maxHeight: '400px'
+  }"
+  class="dialogOs"
+>
+  <div class="infoBlockOffers" *ngIf="activeBlock">
+    <p>
+      <i class="pi pi-info-circle mr-2"></i>
+      Lembrete: As solicitações de oferta estão liberadas a partir de
+      <strong>{{ this.activeBlock!.initialDate || "***" }}</strong> no período
+      <strong>{{
+        getOfferBlockPeriodLabel(this.activeBlock!.periodOffer)
+      }}</strong
+      >.
+    </p>
+  </div>
+
+  <form #formNewOs="ngForm">
+    <div class="inputsNewOs">
+      <p-inputgroup>
+        <p-inputgroup-addon>
+          <i class="pi pi-building"></i>
+        </p-inputgroup-addon>
+        <p-iftalabel>
+          <p-select
+            [options]="typeNewOs"
+            [(ngModel)]="selectedTypeNewOs"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Selecione"
+            name="typeOsNew"
+            required
+            id="typeOsNew"
+            
+          >
+          </p-select>
+          <label for="typeOsNew">Tipo OS</label>
+        </p-iftalabel>
+        <!-- <p-iftalabel>
+          <p-select
+            [options]="clientTypes"
+            [(ngModel)]="selectedClientType"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Selecione"
+            name="clientType"
+            required
+            id="clientType"
+          >
+          </p-select>
+          <label for="clientType">Tipo Cliente</label>
+        </p-iftalabel> -->
+      </p-inputgroup>
+      <p-inputgroup>
+        <p-inputgroup-addon>
+          <i class="pi pi-map-marker"></i>
+        </p-inputgroup-addon>
+        <p-iftalabel>
+          <p-select
+            [options]="cities"
+            [(ngModel)]="selectedNewOsCity"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Selecione"
+            name="cidadeOsNew"
+            required
+            id="cidadeOsNew"
+          >
+          </p-select>
+          <label for="cidadeOsNew">Cidade</label>
+        </p-iftalabel>
+      </p-inputgroup>
+    </div>
+
+    <div class="inputsNewOs">
+      <p-inputgroup>
+        <p-inputgroup-addon>
+          <i class="pi pi-stopwatch"></i>
+        </p-inputgroup-addon>
+        <p-iftalabel>
+          <p-select
+            [options]="periodsOs"
+            [(ngModel)]="selectedPeriodOs"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Selecione"
+            name="periodoOsNew"
+            required="true"
+            id="periodoOsNew"
+          >
+          </p-select>
+          <label for="periodoOsNew">Períodos</label>
+        </p-iftalabel>
+      </p-inputgroup>
+
+      <div class="datepicker-wrapper">
+        <p-datepicker
+          id="date"
+          [(ngModel)]="selectedDate"
+          name="date"
+          dateFormat="dd/mm/yy"
+          [minDate]="minDateValue"
+          showIcon="true"
+          [disabledDays]="[0]"
+          dataType="string"
+          placeholder="Selecione a Data"
+          appendTo="body"
+          required="true"
+        >
+        </p-datepicker>
+      </div>
+    </div>
+
+    <div class="buttonsNewOs">
+      <p-button
+        label="Solicitar OS"
+        [severity]="'info'"
+        [raised]="true"
+        (onClick)="solicitarOs()"
+      ></p-button>
+    </div>
+  </form>
+</p-dialog>

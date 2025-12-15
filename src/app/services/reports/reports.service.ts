@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { BoletoInfo, ContractDataCancelResponse } from '../../models/contract/cancel-contract.dto';
 
 export interface ConsentTermRequest {
   proportionalValue: number;
@@ -147,7 +148,24 @@ export class ReportsService {
       responseType: 'blob'
     });
   }
+
+getPdfCancelNoDebt(
+  contractId: string,
+  requestBody: any
+): Observable<Blob> {
+  const url = `${this.baseUrl}/no-debt/${contractId}`;
+  return this.http.post(url, requestBody, { 
+    responseType: 'blob' 
+  });
 }
 
-
-
+getPdfCancelWithDebt(
+  contractId: string,
+  requestBody: any
+): Observable<Blob> {
+  const url = `${this.baseUrl}/with-debt/${contractId}`;
+  return this.http.post(url, requestBody, { 
+    responseType: 'blob' 
+  });
+}
+}

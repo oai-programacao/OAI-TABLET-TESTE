@@ -1,8 +1,10 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
-import { Contract, RequestContractSuspendDTO, RequestDateTransfer, } from '../../models/contract/contract.dto';
+import {Contract, RequestContractSuspendDTO, RequestDateTransfer} from '../../models/contract/contract.dto';
+import { CancelSimulationDTO } from '../../models/contract/cancel-contract.dto';
+import { DateUtilsService } from '../../shared/utils/date.utils';
 
 @Injectable({
   providedIn: 'root',
@@ -23,6 +25,7 @@ export class ContractsService {
       `${this.urlApi}/contract/${contractId}/cancel-temporary-suspension`, {}
     );
   }
+  private readonly dateUtils = inject(DateUtilsService);
 
   getContractsActivesByClient(clientId: string): Observable<Contract[]> {
     return this.http.get<Contract[]>(
@@ -86,7 +89,10 @@ export class ContractsService {
   }
 
   completeDateTransfer(payload: RequestDateTransfer): Observable<any> {
-    return this.http.post<any>(`${this.urlApi}/contract/complete-date-transfer`, payload)
+    return this.http.post<any>(
+      `${this.urlApi}/contract/complete-date-transfer`,
+      payload
+    );
   }
 
   getTransferConsentPdf(
@@ -112,29 +118,25 @@ export class ContractsService {
     });
   }
 
-  changeAddressContract(payload: {
-    clientId: string;
-    contractNumber: string;
-    sellerId: string;
-    newZip: string | null;
-    newNumber: string | null;
-    newComplement: string | null;
-    newState: string;
-    newCity: string;
-    newStreet: string;
-    newNeighborhood: string;
-    // observation?: string | null; // Só inclua se o backend realmente espera!
-  }): Observable<any> {
-    return this.http.post<any>(
-      `${this.urlApi}/automation/address-update`,
-      payload
-    );
-  }
+  updateAddressContract(
+    contractId: string,
+    payload: any,
+    pdfFile: File,
+    photoFiles: File[]
+  ): Observable<any> {
+    const formData: FormData = new FormData();
 
-  updateAddressContract(contractId: string, payload: any): Observable<any> {
+    formData.append('data', JSON.stringify(payload));
+    formData.append('files', pdfFile);
+
+    if (photoFiles && photoFiles.length > 0) {
+      photoFiles.forEach((photo) => {
+        formData.append('files', photo);
+      });
+    }
     return this.http.patch<any>(
       `${this.urlApi}/contract/${contractId}/update-address`,
-      payload
+      formData
     );
   }
 
@@ -142,6 +144,76 @@ export class ContractsService {
     return this.http.get<Contract>(
       `${this.urlApi}/contract/${clientId}/by-code`,
       { params: { codeContractRbx } }
+    );
+  }
+
+  simulateCancellation(
+    contractId: string,
+    dataRescisao: Date,
+    valorProporcionalCalculador: number,
+    numberParcels: number = 1
+  ): Observable<CancelSimulationDTO> {
+    let params = new HttpParams()
+      .set('valorProporcional', valorProporcionalCalculador.toString())
+      .set('numberParcels', numberParcels.toString());
+
+    if (dataRescisao) {
+      const dataFormatada = this.dateUtils.formatToISODateString(dataRescisao);
+
+      if (dataFormatada) {
+        params = params.set('dataRescisao', dataFormatada);
+      }
+    }
+
+    return this.http.get<CancelSimulationDTO>(
+      `${this.urlApi}/contract/${contractId}/simulation`,
+      { params }
+    );
+  }
+
+  cancelWithDebt(
+    contractId: string,
+    payload: any,
+    pdfFile: File,
+    photoFiles: File[]
+  ): Observable<any> {
+    const formData: FormData = new FormData();
+    formData.append('data', JSON.stringify(payload));
+
+    formData.append('files', pdfFile);
+
+    if (photoFiles && photoFiles.length > 0) {
+      photoFiles.forEach((photo) => {
+        formData.append('files', photo);
+      });
+    }
+
+    return this.http.post(
+      `${this.urlApi}/contract/${contractId}/cancel`,
+      formData
+    );
+  }
+
+  cancelNoDebt(
+    contractId: string,
+    payload: any,
+    pdfFile: File,
+    photoFiles: File[]
+  ): Observable<any> {
+    const formData: FormData = new FormData();
+    formData.append('data', JSON.stringify(payload));
+
+    formData.append('files', pdfFile);
+
+    if (photoFiles && photoFiles.length > 0) {
+      photoFiles.forEach((photo) => {
+        formData.append('files', photo);
+      });
+    }
+
+    return this.http.post(
+      `${this.urlApi}/contract/${contractId}/finalize-no-debt`,
+      formData
     );
   }
 }
