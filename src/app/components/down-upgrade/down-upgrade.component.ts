@@ -347,7 +347,7 @@ export class DownUpgradeComponent implements OnInit {
     const upgradeDto: ContractUpdate = {
       seller: sellerIdString,
       codePlan: this.selectedPlan.codePlanRBX,
-      descountFixe: this.newDiscount,
+      descountFixe: this.newDiscount ?? 0,
       cicleFatId: cicleFatIdParaEnviar,
       cicleBillingDayBase: cicleBillingDayBaseToSend,
       cicleBillingExpired: cicleBillingExpiredToSend

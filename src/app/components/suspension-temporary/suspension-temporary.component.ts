@@ -20,7 +20,7 @@ import { InputGroupModule } from "primeng/inputgroup";
 import { InputGroupAddonModule } from "primeng/inputgroupaddon";
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { ContractSuspenseRequest, ReportsService } from '../../services/reports/reports.service';
+import { ContractSuspenseRequest, CreateConsentDocumentSuspension, ReportsService } from '../../services/reports/reports.service';
 import { DatePicker, DatePickerModule } from "primeng/datepicker";
 import { IftaLabelModule } from "primeng/iftalabel";
 import { SignaturePadComponent } from "../../shared/components/signature-pad/signature-pad.component";
@@ -28,6 +28,7 @@ import { DividerModule } from "primeng/divider";
 import { TableModule } from "primeng/table";
 import { Client } from '@stomp/stompjs';
 import { AttendancesService } from '../../services/attendances/attendance.service';
+import { ActionsContractsService } from '../../services/actionsToContract/actions-contracts.service';
 
 @Component({
   selector: 'app-suspension-temporary',
@@ -63,6 +64,7 @@ export class SuspensionTemporaryComponent {
   private readonly router = inject(Router);
   private readonly reportsService = inject(ReportsService);
   private readonly attendancesService = inject(AttendancesService);
+  private readonly actionsContractsService = inject(ActionsContractsService);
 
   private contractService = inject(ContractsService);
   private clienteService = inject(ClientService);
@@ -75,7 +77,7 @@ export class SuspensionTemporaryComponent {
   contract: Contract = {} as Contract;
 
   client: Cliente = {} as Cliente;
-  clientId: string | null = null;
+  clientId!: string;
   contractId!: string;
   phone: string = '';
   openSuspender: boolean = false;
@@ -530,7 +532,49 @@ export class SuspensionTemporaryComponent {
   }
 
   sendToAutentiqueSubmit() {
+    const term: CreateConsentDocumentSuspension = {
+      proportional: this.proportionalBoleto,
+      dateInitialSuspension: this.suspensionData.dateInitialSuspension!.toISOString().split("T")[0],
+      dateFinishSuspension: this.finishDate,
+      duration: this.duration,
+    };
 
+    const mappedSigners = [
+      {
+        name: this.client?.name || 'Cliente',
+        phone: '+55' + (this.phone || ''),
+      },
+    ];
+
+    const payload = { term, signers: mappedSigners };
+
+    this.actionsContractsService
+      .sendContractSuspensionAutentique(payload, this.clientId, this.contractId)
+      .subscribe({
+        next: (res: string) => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Sucesso!',
+            detail: `${res}.
+            Aguarde o cliente assinar, todo o processo será feito de forma automática.
+            Consulte nos atendimentos do cliente se foi feito de fato.`,
+            life: 10000,
+          });
+          this.modalVisible = false;
+        },
+        error: (err) => {
+          const backendMessage =
+            (typeof err.error === 'string' ? err.error : err?.error?.message) ||
+            'Erro ao tentar enviar para o número, verifique com o Suporte!';
+          if (backendMessage.includes('Aguarde 4 minutos antes')) {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Atenção',
+              detail: backendMessage,
+            });
+          }
+        },
+      });
   }
 
   async confirmSuspension() {

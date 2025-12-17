@@ -19,7 +19,7 @@ export interface CreateTransferConsentPayload {
 export class ActionsContractsService {
   apiUrl = environment.apiUrl + '/autentique';
 
-  constructor(private http: HttpClient, private authService: AuthService) {}
+  constructor(private http: HttpClient, private authService: AuthService) { }
 
   sendAlterDateAutentique(
     payload: any,
@@ -104,6 +104,11 @@ export class ActionsContractsService {
 
   sendContractSalesAutentique(payload: any, clientId: string): Observable<any> {
     const url = `${this.apiUrl}/create-contract-sale/${clientId}`;
+    return this.http.post(url, payload, { responseType: 'text' });
+  }
+
+  sendContractSuspensionAutentique(payload: any, clientId: string, contractId: string): Observable<any> {
+    const url = `${this.apiUrl}/create-consent-document-suspension/${clientId}/${contractId}`;
     return this.http.post(url, payload, { responseType: 'text' });
   }
 }

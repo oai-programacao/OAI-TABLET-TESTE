@@ -32,6 +32,14 @@ export interface ContractSuspenseRequest {
   signatureBase64: string | null;
 }
 
+export interface CreateConsentDocumentSuspension {
+  proportional: number | null;
+  dateInitialSuspension: string;
+  dateFinishSuspension: string;
+  duration: number;
+}
+
+
 export interface CancelSuspenseContractRequest {
   contractId: string;
   startSuspension: string;
@@ -162,23 +170,23 @@ export class ReportsService {
     });
   }
 
-getPdfCancelNoDebt(
-  contractId: string,
-  requestBody: any
-): Observable<Blob> {
-  const url = `${this.baseUrl}/no-debt/${contractId}`;
-  return this.http.post(url, requestBody, { 
-    responseType: 'blob' 
-  });
-}
+  getPdfCancelNoDebt(
+    contractId: string,
+    requestBody: any
+  ): Observable<Blob> {
+    const url = `${this.baseUrl}/no-debt/${contractId}`;
+    return this.http.post(url, requestBody, {
+      responseType: 'blob'
+    });
+  }
 
-getPdfCancelWithDebt(
-  contractId: string,
-  requestBody: any
-): Observable<Blob> {
-  const url = `${this.baseUrl}/with-debt/${contractId}`;
-  return this.http.post(url, requestBody, { 
-    responseType: 'blob' 
-  });
-}
+  getPdfCancelWithDebt(
+    contractId: string,
+    requestBody: any
+  ): Observable<Blob> {
+    const url = `${this.baseUrl}/with-debt/${contractId}`;
+    return this.http.post(url, requestBody, {
+      responseType: 'blob'
+    });
+  }
 }
