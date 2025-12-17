@@ -52,6 +52,7 @@ export class AttendancesClientComponent implements OnInit {
   client: any;
   displayDialog = false;
   tocarCheck = false;
+  isCanceling = false;
 
   totalElements = 0;
   selectedStatus: string | null = null;
@@ -204,16 +205,18 @@ export class AttendancesClientComponent implements OnInit {
       });
       return;
     }
-
+    this.isCanceling = true;
     this.attendancesService.cancelAttendance(att.id).subscribe({
       next: (res) => {
         this.tocarCheck = true;
-        setTimeout(() => (this.tocarCheck = false), 3);
+        setTimeout(() => (this.tocarCheck = false), 300);
+
         this.messageService.add({
-          severity: 'sucess',
+          severity: 'success',
           summary: 'Sucesso',
           detail: 'Atendimento cancelado com sucesso!',
         });
+
         this.displayDialog = false;
         this.loadAttendances();
       },
@@ -224,6 +227,10 @@ export class AttendancesClientComponent implements OnInit {
           detail: 'Não foi possível realizar o cancelamento do Atendimento',
         });
       },
+      complete: () => {
+        this.isCanceling = false;
+      },
     });
   }
+
 }

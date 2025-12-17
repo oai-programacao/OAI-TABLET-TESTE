@@ -1607,4 +1607,6 @@ export class AddContractComponent implements OnInit {
 
     this.showMapDialog = true;
   }
+
+  
 }
