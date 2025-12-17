@@ -24,9 +24,8 @@ import { ReportsService } from '../../services/reports/reports.service';
 
 import { CardBaseComponent } from '../../shared/components/card-base/card-base.component';
 
-import { NgxMaskDirective, NgxMaskPipe, provideNgxMask } from 'ngx-mask';
+import { provideNgxMask } from 'ngx-mask';
 import { CancelSimulationDTO } from '../../models/contract/cancel-contract.dto';
-import { AuthService } from '../../core/auth.service';
 import { ContractsService } from '../../services/contracts/contracts.service';
 import { BankSlipService } from '../../services/bankSlip/bank-slip.service';
 
@@ -35,7 +34,6 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 import { SignaturePadComponent } from '../../shared/components/signature-pad/signature-pad.component';
 
-import { MidiaService } from '../../services/midia/midia.service';
 import { TooltipModule } from 'primeng/tooltip';
 
 export interface StatusFidelidade {
@@ -60,16 +58,12 @@ export interface StatusFidelidade {
     InputGroupAddonModule,
     TableModule,
     IftaLabelModule,
-    NgxMaskDirective,
     CardBaseComponent,
-    NgxMaskPipe,
     DatePickerModule,
     SignaturePadComponent,
     ConfirmDialogModule,
     ProgressSpinnerModule,
     TooltipModule
-    
-
   ],
   templateUrl: './cancel-contract.component.html',
   styleUrl: './cancel-contract.component.scss',
@@ -88,13 +82,9 @@ export class CancelContractComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly messageService = inject(MessageService);
-  private readonly authService = inject(AuthService);
   private readonly contractService = inject(ContractsService);
   private readonly reportsService = inject(ReportsService);
   private readonly sanitizer = inject(DomSanitizer);
-  private readonly service = inject(ReportsService);
-  private readonly confirmationService = inject(ConfirmationService);
-  private readonly midiaService = inject(MidiaService);
   private readonly bankSlipService = inject(BankSlipService);
 
 // --- DADOS ---

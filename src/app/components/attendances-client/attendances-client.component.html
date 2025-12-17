@@ -311,6 +311,7 @@
           icon="pi pi-times"
           label="Cancelar"
           (onClick)="confirmCancel(selectedAttendance)"
+          [loading]="isCanceling"
         >
         </p-button>
       </div>
