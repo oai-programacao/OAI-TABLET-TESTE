@@ -101,6 +101,16 @@ export class WebSocketService {
                 '/saleRocket.json'
               );
               break;
+              
+            case 'UPDATE_ADDRESS_AUTO':
+              this.toastService.showWithAnimation(
+                `🚀 Endereço atualizado com sucesso!<br>
+                Cliente: <b>${data.clientName}</b><br>
+                CPF: <b>${this.formatCPF(data.clientCpf)}</b><br>
+                 🏠 Novo endereço: <b>${data.newAddress}</b>`,
+                '/addressUpdate.json'
+              );
+              break;
 
             default:
               this.toastService.show(
