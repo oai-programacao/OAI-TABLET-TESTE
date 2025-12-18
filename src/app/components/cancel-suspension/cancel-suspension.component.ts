@@ -478,13 +478,6 @@ export class CancelSuspensionComponent {
             summary: 'Sucesso',
             detail: 'Suspensão registrada!'
           });
-
-          if (this.pdfBlobFinal) {
-            this.registerAttendance(this.pdfBlobFinal, response.linkBoleto);
-          } else {
-            console.warn("PDF não encontrado, o atendimento não será registrado.");
-          }
-
           this.result = {
             clientName: this.client?.name || this.client?.socialName || 'Cliente Indisponível',
             clientCpf: this.formatCpfCnpj(this.client?.cpf || this.client?.cnpj || 'N/A'),

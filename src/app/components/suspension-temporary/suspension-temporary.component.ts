@@ -29,6 +29,7 @@ import { TableModule } from "primeng/table";
 import { Client } from '@stomp/stompjs';
 import { AttendancesService } from '../../services/attendances/attendance.service';
 import { ActionsContractsService } from '../../services/actionsToContract/actions-contracts.service';
+import { AuthService } from '../../core/auth.service';
 
 @Component({
   selector: 'app-suspension-temporary',
@@ -65,6 +66,7 @@ export class SuspensionTemporaryComponent {
   private readonly reportsService = inject(ReportsService);
   private readonly attendancesService = inject(AttendancesService);
   private readonly actionsContractsService = inject(ActionsContractsService);
+  private readonly authService = inject(AuthService);
 
   private contractService = inject(ContractsService);
   private clienteService = inject(ClientService);
@@ -532,12 +534,19 @@ export class SuspensionTemporaryComponent {
   }
 
   sendToAutentiqueSubmit() {
-    const term: CreateConsentDocumentSuspension = {
-      proportional: this.proportionalBoleto,
-      dateInitialSuspension: this.suspensionData.dateInitialSuspension!.toISOString().split("T")[0],
-      dateFinishSuspension: this.finishDate,
-      duration: this.duration,
-    };
+    if (!this.suspensionData.dateInitialSuspension) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erro',
+        detail: 'Informe a data inicial da suspensão',
+      });
+      return;
+    }
+
+    const activationDate =
+      this.suspensionData.dateInitialSuspension
+        .toISOString()
+        .split('T')[0];
 
     const mappedSigners = [
       {
@@ -545,8 +554,19 @@ export class SuspensionTemporaryComponent {
         phone: '+55' + (this.phone || ''),
       },
     ];
-
-    const payload = { term, signers: mappedSigners };
+    const sellerId = this.authService.getSellerId();
+    const payload = {
+      signers: mappedSigners,
+      clientId: this.clientId,
+      contractId: this.contractId,
+      sellerId: sellerId,
+      proportional: this.proportionalBoleto,
+      activationDate: activationDate,
+      dateInitialSuspension: this.suspensionData.dateInitialSuspension!.toISOString()
+        .split('T')[0],
+      dateFinishSuspension: this.finishDate,
+      duration: this.duration
+    };
 
     this.actionsContractsService
       .sendContractSuspensionAutentique(payload, this.clientId, this.contractId)
@@ -630,12 +650,6 @@ export class SuspensionTemporaryComponent {
           summary: 'Sucesso',
           detail: 'Suspensão temporária agendada com sucesso!'
         });
-        if (this.pdfBlobFinal) {
-          this.registerAttendance(this.pdfBlobFinal, res.linkBoleto);
-        } else {
-          console.warn("PDF não encontrado, o atendimento não será registrado.");
-        }
-
         this.result = {
           clientName: this.client?.name || this.client?.socialName || 'Cliente Indisponível',
           clientCpf: this.formatCpfCnpj(this.client?.cpf || this.client?.cnpj || 'N/A'),
