@@ -50,7 +50,7 @@
                       <label for="plans">Plano de Internet*</label>
                     </p-iftalabel>
                   </p-inputgroup>
-                  
+
                   <div>
                     <p-inputgroup>
                       <p-inputgroup-addon>
@@ -805,10 +805,7 @@
                         [raised]="true"
                         size="large"
                         [disabled]="
-                          !(
-                            capturedSignatureAdesion &&
-                            capturedSignaturePermanence
-                          ) && !pdfWasDownloaded
+                          !(capturedSignatureAdesion ) && !pdfWasDownloaded
                         "
                         (onClick)="openPhoneModal()"
                       ></p-button>

@@ -1098,3 +1098,18 @@ p-inputgroup {
   font-style: italic;
   font-size: 0.9rem;
 }
+
+textarea::-webkit-scrollbar {
+  width: 8px; 
+}
+
+textarea::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+textarea::-webkit-scrollbar-thumb {
+  background:  rgba(174, 105, 243, 0.9);
+  border-radius: 4px;
+}
+
