@@ -106,8 +106,7 @@ export class WebSocketService {
               this.toastService.showWithAnimation(
                 `🚀 Endereço atualizado com sucesso!<br>
                 Cliente: <b>${data.clientName}</b><br>
-                Contrato: <b>${data.numberContractRbx}</b><br>
-                 🏠 Novo endereço: <b>${data.newAddress}</b>`,
+                Contrato: <b>${data.numberContractRbx}</b><br>`,
                 '/sucessordem.json'
               );
               break;
