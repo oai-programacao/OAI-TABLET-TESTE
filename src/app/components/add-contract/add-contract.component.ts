@@ -1078,6 +1078,7 @@ export class AddContractComponent implements OnInit {
         ...this.contractFormData.address,
         complement: this.contractFormData.address.complement || '',
         discountFixe: this.contractFormData.discountFixe?.toString() || '0',
+        adesion: this.contractFormData.adesion?.toString() || '0',
         contractDueDay:
           this.dateUtils.formatToLocalDateString(
             this.dateOfMemberShipExpiration

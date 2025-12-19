@@ -108,7 +108,7 @@ export class WebSocketService {
                 Cliente: <b>${data.clientName}</b><br>
                 Contrato: <b>${data.numberContractRbx}</b><br>
                  🏠 Novo endereço: <b>${data.newAddress}</b>`,
-                '/saleRocket.json'
+                '/sucessordem.json'
               );
               break;
 
