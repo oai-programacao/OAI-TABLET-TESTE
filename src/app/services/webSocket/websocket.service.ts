@@ -108,7 +108,7 @@ export class WebSocketService {
                 Cliente: <b>${data.clientName}</b><br>
                 CPF: <b>${this.formatCPF(data.clientCpf)}</b><br>
                  🏠 Novo endereço: <b>${data.newAddress}</b>`,
-                '/addressUpdate.json'
+                '/sucessordem.json'
               );
               break;
 

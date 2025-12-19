@@ -9,7 +9,7 @@ import player from 'lottie-web';
     <div class="toast-container" [style.display]="show ? 'flex' : 'none'">
       <div class="toast-arrow"></div>
       <div #lottieContainer class="lottie"></div>
-      <div class="toast-header">ASSINATURAS</div>
+      <div class="toast-header">NOTIFICAÇÃO</div>
       <div class="toast-message" [innerHTML]="formattedMessage"></div>
       <button class="toast-close" (click)="close()">×</button>
       <div class="toast-life-bar"></div>
