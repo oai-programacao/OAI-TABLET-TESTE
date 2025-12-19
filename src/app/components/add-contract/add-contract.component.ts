@@ -668,16 +668,24 @@ export class AddContractComponent implements OnInit {
 
       const formData = new FormData();
       formData.append('dto', JSON.stringify(payload));
-      formData.append(
-        'termConsentFiles',
-        this.adesionBlob,
-        'contrato_adesao.pdf'
-      );
-      formData.append(
-        'termConsentFiles',
-        this.permanenceBlob,
-        'contrato_permanencia.pdf'
-      );
+      if (!this.selectContract) {
+        formData.append(
+          'termConsentFiles',
+          this.adesionBlob,
+          'contrato_adesao.pdf'
+        );
+      } else {
+        formData.append(
+          'termConsentFiles',
+          this.adesionBlob,
+          'contrato_adesao.pdf'
+        );
+        formData.append(
+          'termConsentFiles',
+          this.permanenceBlob,
+          'contrato_permanencia.pdf'
+        );
+      }
 
       if (this.images?.length) {
         this.images
@@ -1086,9 +1094,17 @@ export class AddContractComponent implements OnInit {
         signatureBase64: this.capturedSignatureAdesion || null,
       };
 
-      const mergedPdfBlob = await firstValueFrom(
-        this.reportsService.getContractDisplayPdf(this.clientId, contractData)
-      );
+      let mergedPdfBlob: Blob = null as any;
+
+      if (!this.selectContract) {
+        mergedPdfBlob = await firstValueFrom(
+          this.reportsService.getContractAdesionPdf(this.clientId, contractData)
+        );
+      } else {
+        mergedPdfBlob = await firstValueFrom(
+          this.reportsService.getContractDisplayPdf(this.clientId, contractData)
+        );
+      }
 
       if (mergedPdfBlob.type !== 'application/pdf') {
         throw new Error('PDF inválido retornado pelo servidor');
@@ -1122,16 +1138,15 @@ export class AddContractComponent implements OnInit {
   }> {
     if (!this.clientId || this.isLoadingPreview)
       return Promise.reject('Cliente não definido ou carregando');
-
     this.isLoadingPreview = true;
     this.previewLoadFailed = false;
-
     try {
       const contractData = {
         clientId: this.clientId,
         codePlanRBX: Number(this.selectedPlan),
         ...this.contractFormData.address,
         complement: this.contractFormData.address.complement || '',
+        adesion: this.contractFormData.adesion?.toString() || '0',
         discountFixe: this.contractFormData.discountFixe?.toString() || '0',
         contractDueDay:
           this.dateUtils.formatToLocalDateString(
@@ -1140,8 +1155,36 @@ export class AddContractComponent implements OnInit {
         signatureBase64,
       };
 
-      const [adesionBlob, permanenceBlob, mergedSignedBlob] =
-        await firstValueFrom(
+      let adesionBlob: Blob;
+      let permanenceBlob: Blob;
+      let mergedSignedBlob: Blob;
+
+      if (!this.selectContract) {
+        adesionBlob = await firstValueFrom(
+          this.reportsService.getContractAdesionPdf(this.clientId, contractData)
+        );
+        permanenceBlob = adesionBlob;
+        mergedSignedBlob = adesionBlob;
+
+        this.rawPdfAdesionUrl = URL.createObjectURL(adesionBlob);
+        this.safePdfAdesionUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
+          this.rawPdfAdesionUrl
+        );
+        if (this.pdfPreviewUrl) URL.revokeObjectURL(this.pdfPreviewUrl);
+        this.pdfPreviewUrl = URL.createObjectURL(mergedSignedBlob);
+        this.safePdfPreviewUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
+          this.pdfPreviewUrl
+        );
+        this.capturedSignatureAdesion = signatureBase64;
+        this.formData.signaturePad = signatureBase64;
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Sucesso',
+          detail: 'Contrato assinado com sucesso!',
+        });
+        this.signDialogVisible = false;
+      } else {
+        [adesionBlob, permanenceBlob, mergedSignedBlob] = await firstValueFrom(
           forkJoin([
             this.reportsService.getContractAdesionPdf(
               this.clientId,
@@ -1158,32 +1201,31 @@ export class AddContractComponent implements OnInit {
           ])
         );
 
-      this.rawPdfAdesionUrl = URL.createObjectURL(adesionBlob);
-      this.rawPdfPermanentUrl = URL.createObjectURL(permanenceBlob);
-      this.safePdfAdesionUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-        this.rawPdfAdesionUrl
-      );
-      this.safePdfPermanentUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-        this.rawPdfPermanentUrl
-      );
+        this.rawPdfAdesionUrl = URL.createObjectURL(adesionBlob);
+        this.rawPdfPermanentUrl = URL.createObjectURL(permanenceBlob);
+        this.safePdfAdesionUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
+          this.rawPdfAdesionUrl
+        );
+        this.safePdfPermanentUrl =
+          this.sanitizer.bypassSecurityTrustResourceUrl(
+            this.rawPdfPermanentUrl
+          );
+        if (this.pdfPreviewUrl) URL.revokeObjectURL(this.pdfPreviewUrl);
+        this.pdfPreviewUrl = URL.createObjectURL(mergedSignedBlob);
+        this.safePdfPreviewUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
+          this.pdfPreviewUrl
+        );
 
-      if (this.pdfPreviewUrl) URL.revokeObjectURL(this.pdfPreviewUrl);
-      this.pdfPreviewUrl = URL.createObjectURL(mergedSignedBlob);
-      this.safePdfPreviewUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-        this.pdfPreviewUrl
-      );
-
-      this.capturedSignatureAdesion = signatureBase64;
-      this.capturedSignaturePermanence = signatureBase64;
-      this.formData.signaturePad = signatureBase64;
-
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Sucesso',
-        detail: 'Contratos assinados com sucesso!',
-      });
-
-      this.signDialogVisible = false;
+        this.capturedSignatureAdesion = signatureBase64;
+        this.capturedSignaturePermanence = signatureBase64;
+        this.formData.signaturePad = signatureBase64;
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Sucesso',
+          detail: 'Contratos assinados com sucesso!',
+        });
+        this.signDialogVisible = false;
+      }
 
       return { adesionBlob, permanenceBlob, mergedSignedBlob };
     } catch (error) {
@@ -1608,6 +1650,4 @@ export class AddContractComponent implements OnInit {
 
     this.showMapDialog = true;
   }
-
-  
 }
