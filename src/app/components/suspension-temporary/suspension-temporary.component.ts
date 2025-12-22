@@ -428,6 +428,7 @@ export class SuspensionTemporaryComponent {
     // 🔥 MONTANDO O BODY
     const requestBody: ContractSuspenseRequest = {
       contractId: this.contractId,
+      activationDate: this.formatToBackendDate(this.suspensionData.dateInitialSuspension),
       startDate: this.formatToBackendDate(this.suspensionData.dateInitialSuspension),
       duration: this.suspensionData.duration,
       signatureBase64: this.capturedSignature ?? null,
@@ -496,6 +497,7 @@ export class SuspensionTemporaryComponent {
 
     const requestBody: ContractSuspenseRequest = {
       contractId: this.contractId,
+      activationDate: this.formatToBackendDate(this.suspensionData.dateInitialSuspension!),
       startDate: this.formatToBackendDate(this.suspensionData.dateInitialSuspension!),
       duration: this.suspensionData.duration,
       signatureBase64: this.capturedSignature,
@@ -548,13 +550,20 @@ export class SuspensionTemporaryComponent {
         .toISOString()
         .split('T')[0];
 
+    const rawPhone = (this.phone || '').replace(/\D/g, '');
+
+    const phone = rawPhone.startsWith('55')
+      ? `+${rawPhone}`
+      : `+55${rawPhone}`;
+
     const mappedSigners = [
       {
-        name: this.client?.name || 'Cliente',
-        phone: '+55' + (this.phone || ''),
+        name: this.client.name || '',
+        phone
       },
     ];
     const sellerId = this.authService.getSellerId();
+    console.log("Seller é esse ", sellerId)
     const payload = {
       signers: mappedSigners,
       clientId: this.clientId,
@@ -567,6 +576,8 @@ export class SuspensionTemporaryComponent {
       dateFinishSuspension: this.finishDate,
       duration: this.duration
     };
+
+    console.log("mostrar o payload que está indo ", payload)
 
     this.actionsContractsService
       .sendContractSuspensionAutentique(payload, this.clientId, this.contractId)

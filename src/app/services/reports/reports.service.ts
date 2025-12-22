@@ -27,6 +27,7 @@ export interface ConsentTermAddressRequest {
 
 export interface ContractSuspenseRequest {
   contractId: string;
+  activationDate: string;
   startDate: string;
   duration: number;
   signatureBase64: string | null;
