@@ -562,13 +562,21 @@ export class SuspensionTemporaryComponent {
         phone
       },
     ];
+     
     const sellerId = this.authService.getSellerId();
+     if (sellerId === null || sellerId === undefined) {
+      console.error('ERRO CRÍTICO: SellerID está nulo ou indefinido. Verifique o AuthService.');
+      this.messageService.add({ severity: 'error', summary: 'Erro de Autenticação', detail: 'ID do Vendedor não foi encontrado.' });
+      return;
+    }
+    const sellerIdString = String(sellerId);
+
     console.log("Seller é esse ", sellerId)
     const payload = {
       signers: mappedSigners,
       clientId: this.clientId,
       contractId: this.contractId,
-      sellerId: sellerId,
+      sellerId: sellerIdString,
       proportional: this.proportionalBoleto,
       activationDate: activationDate,
       dateInitialSuspension: this.suspensionData.dateInitialSuspension!.toISOString()
