@@ -157,7 +157,7 @@ export class ReportsService {
 
   getContractAdesionPdf(
     clientId: string,
-    requestBody: ConsentTermAdesionRequest
+    requestBody: any
   ): Observable<Blob> {
     const url = `${this.baseUrl}/adesion/${clientId}`;
     return this.http.post(url, requestBody, { responseType: 'blob' });

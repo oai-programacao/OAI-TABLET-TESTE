@@ -107,7 +107,7 @@
                           [maxLength]="10"
                           [(ngModel)]="contractFormData.discountFixe"
                         />
-                        <label for="plans">Desconto Contrato*</label>
+                        <label for="plans">Desconto Plan Fixo*</label>
                       </p-iftalabel>
                     </p-inputgroup>
                   </div>
@@ -805,10 +805,7 @@
                         [raised]="true"
                         size="large"
                         [disabled]="
-                          !(
-                            capturedSignatureAdesion &&
-                            capturedSignaturePermanence
-                          ) && !pdfWasDownloaded
+                          !(capturedSignatureAdesion ) && !pdfWasDownloaded
                         "
                         (onClick)="openPhoneModal()"
                       ></p-button>

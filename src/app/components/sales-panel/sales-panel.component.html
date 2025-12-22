@@ -1,164 +1,370 @@
-<div class="page-container">
-  <app-card-base width="auto" height="auto">
-    <div class="btn-to-back">
-      <p-button
-        icon="pi pi-arrow-left"
-        [rounded]="true"
-        severity="danger"
-        [raised]="true"
-        (click)="backToSearch()"
-      />
-    </div>
-    <p-divider class="my-divider">
-      <div class="title">
-        <h1>Vendas</h1>
-      </div>
-    </p-divider>
-
- <div class="filter-section">
-  <p-floatlabel class="w-full md:w-56" variant="on">
-    <p-select
-      size="large"
-      inputId="filtrar_por"
-      [style]="{ width: '12rem' }"
-      [panelStyle]="{ width: '14rem' }"
-      [options]="filterOptions"
-      [(ngModel)]="selectedFilter"
-      (onChange)="onFilterChange()"  
-      optionLabel="label" >
-       <ng-template let-option pTemplate="item">
-    <div class="flex items-center">
-      <span class="status-dot mr-3" [ngClass]="option.color"></span>
-      <span>{{ option.label }}</span>
-    </div>
-  </ng-template>
-
-  <ng-template let-value pTemplate="value">
-    <div class="flex items-center">
-      <span class="status-dot" [ngClass]="value.color" style="margin-right: 5px;"></span>
-      <span>{{ value.label }}</span>
-    </div>
-  </ng-template>
-
-</p-select>
-
-    <label for="filtrar_por">Filtrar por</label>
-  </p-floatlabel>
-</div>
-
-    
-
-    <div class="contracts-list">
-      <!--@if (sales.length === 0) {
-      <div class="no-contracts">
-        🚫 NÃO HÁ VENDAS COM ESTE STATUS 🚫
-      </div>
-      } @else { @for (sale of sales; track $index) {-->
-      <div class="contract-card">
+<div class="dashboard">
+  <!-- Header -->
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <div class="logo">
+          <div class="logo-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12.55a11 11 0 0 1 14.08 0"/>
+              <path d="M1.42 9a16 16 0 0 1 21.16 0"/>
+              <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
+              <line x1="12" y1="20" x2="12.01" y2="20"/>
+            </svg>
+          </div>
+          <div>
+            <h1>InternetSales</h1>
+            <p>Sistema de Gestão</p>
+          </div>
+        </div>
         
-        <div class="contract-info">
-          <p-accordion>
-            <p-accordion-panel value="0">
-              <p-tag
-                class="acc-status"
-                [severity]="
-                  {
-                    COMPLETADA: 'success',
-                    INSTALACAO: 'secondary',
-                    ARQUIVADA: 'info',
-                    APROVADA: 'warn'
-                  }[contract.situationDescription] || 'secondary'
-                "
-              ></p-tag>
-              <p-accordion-header class="title-accordion"
-                >[STATUS] N° Venda 📜 →</p-accordion-header
-              >
-              <p-accordion-content>
-                <div class="addresscontract">
-                  <div class="section">
-                    <label>👤 Cliente:</label>
-                  </div>
+        <nav class="nav">
+          <a href="#">Dashboard</a>
+          <a href="#">Vendas</a>
+          <a href="#">Equipe</a>
+          <a href="#">Relatórios</a>
+        </nav>
+        
+        <button class="btn-outline">Exportar Dados</button>
+      </div>
+    </div>
+  </header>
 
-                  <div class="section">
-                    <label>📍 Endereço:</label>
-                  </div>
-
-                  <div class="section">
-                    <label>🏘️ Bairro:</label>
-                    <label>📪 CEP:</label>
-                    <label>🌆 Cidade:</label>
-                  </div>
-
-                  <div class="section">
-                    <label>💰 Valor Bruto:</label>
-                    <label>💸 Desconto:</label>
-                    <label>💵 Valor Líquido:</label>
-                  </div>
-
-                  <div class="section">
-                    <label>Data da Venda:</label>
-                  </div>
-
-                  <div class="section">
-                    <label>Data da Instalação:</label>
-                  </div>
-
-                  <div class="feedback">
-                    <label>Observação</label>
-                    <textarea
-                      pTextarea
-                      rows="5"
-                      cols="60"
-                      style="width: 100%"
-                      pTextarea
-                      id="observacao"
-                      style="resize: none"
-                      name="observacao"
-                      [(ngModel)]="observation"
-                      [readonly]="!isEditing"
-                      [disabled]="!isEditing || saving"
-                    ></textarea>
-                  </div>
-                </div>
-                <div class="confirm">
-                  <button
-                    pButton
-                    type="button"
-                    icon="pi pi-check"
-                    class="fab p-button-rounded p-button-icon-only"
-                    [icon]="
-                      saving
-                        ? 'pi pi-spinner pi-spin'
-                        : isEditing
-                        ? 'pi pi-check'
-                        : 'pi pi-pencil'
-                    "
-                    [disabled]="saving"
-                    [pTooltip]="
-                      saving
-                        ? 'Salvando...'
-                        : isEditing
-                        ? 'Salvar observação'
-                        : 'Editar observação'
-                    "
-                    tooltipPosition="top"
-                    [attr.aria-label]="
-                      saving
-                        ? 'Salvando'
-                        : isEditing
-                        ? 'Salvar observação'
-                        : 'Editar observação'
-                    "
-                    (click)="onEditButtonClick($event)"
-                  ></button>
-                </div>
-              </p-accordion-content>
-            </p-accordion-panel>
-          </p-accordion>
-          <!-- FIM DO ACCORDION -->
+  <main class="main-content">
+    <!-- Hero Section -->
+    <div class="hero">
+      <div class="hero-content">
+        <h1>Dashboard de Vendas</h1>
+        <p>Acompanhe o desempenho da sua equipe de vendas de planos de internet</p>
+        <div class="hero-badges">
+          <span class="badge">{{salespeople.length}} Vendedores</span>
+          <span class="badge">{{stats.totalSales}} Vendas</span>
         </div>
       </div>
     </div>
-  </app-card-base>
+
+    <!-- Metrics Cards -->
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-content">
+          <div>
+            <p class="metric-label">Receita Total</p>
+            <p class="metric-value">R$ {{formatCurrency(stats.totalRevenue)}}</p>
+            <p class="metric-trend">+12.5% vs mês anterior</p>
+          </div>
+          <div class="metric-icon bg-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="1" x2="12" y2="23"/>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-content">
+          <div>
+            <p class="metric-label">Total de Vendas</p>
+            <p class="metric-value">{{stats.totalSales}}</p>
+            <p class="metric-trend">+8.3% vs mês anterior</p>
+          </div>
+          <div class="metric-icon bg-success">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
+              <polyline points="16 7 22 7 22 13"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-content">
+          <div>
+            <p class="metric-label">Ticket Médio</p>
+            <p class="metric-value">R$ {{formatCurrency(stats.avgTicket)}}</p>
+            <p class="metric-trend">+5.2% vs mês anterior</p>
+          </div>
+          <div class="metric-icon bg-accent">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <circle cx="12" cy="12" r="6"/>
+              <circle cx="12" cy="12" r="2"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-content">
+          <div>
+            <p class="metric-label">Top Vendedor</p>
+            <p class="metric-value">{{stats.ranking[0]!.name}}</p>
+            <p class="metric-subtitle">{{stats.ranking[0]!.salesCount}} vendas</p>
+          </div>
+          <div class="metric-icon bg-warning">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+              <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+              <path d="M4 22h16"/>
+              <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
+              <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
+              <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top 3 Ranking -->
+    <div class="card">
+      <div class="card-header">
+        <h2>🏆 Top 3 Vendedores</h2>
+        <p>Os melhores desempenhos do período</p>
+      </div>
+      <div class="card-body">
+        <div class="podium">
+          <!-- 2nd Place -->
+          <div class="podium-item" *ngIf="top3[1]">
+            <img [src]="top3[1].avatar" [alt]="top3[1].name" class="avatar avatar-lg">
+            <span class="badge badge-secondary">2º</span>
+            <h3>{{top3[1].name}}</h3>
+            <p class="team">{{top3[1].team}}</p>
+            <div class="podium-base podium-2">
+              <p class="sales-count">{{top3[1].salesCount}}</p>
+              <p class="sales-label">vendas</p>
+              <p class="revenue">R$ {{formatCurrency(top3[1].revenue || 0)}}</p>
+            </div>
+          </div>
+
+          <!-- 1st Place -->
+          <div class="podium-item" *ngIf="top3[0]">
+            <img [src]="top3[0].avatar" [alt]="top3[0].name" class="avatar avatar-xl avatar-gold">
+            <span class="badge badge-gold">1º</span>
+            <h3 class="winner">{{top3[0].name}}</h3>
+            <p class="team">{{top3[0].team}}</p>
+            <div class="podium-base podium-1">
+              <p class="sales-count">{{top3[0].salesCount}}</p>
+              <p class="sales-label">vendas</p>
+              <p class="revenue">R$ {{formatCurrency(top3[0].revenue || 0)}}</p>
+            </div>
+          </div>
+
+          <!-- 3rd Place -->
+          <div class="podium-item" *ngIf="top3[2]">
+            <img [src]="top3[2].avatar" [alt]="top3[2].name" class="avatar avatar-lg">
+            <span class="badge badge-secondary">3º</span>
+            <h3>{{top3[2].name}}</h3>
+            <p class="team">{{top3[2].team}}</p>
+            <div class="podium-base podium-3">
+              <p class="sales-count">{{top3[2].salesCount}}</p>
+              <p class="sales-label">vendas</p>
+              <p class="revenue">R$ {{formatCurrency(top3[2].revenue || 0)}}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Other Sellers -->
+    <div class="card" *ngIf="others.length > 0">
+      <div class="card-header">
+        <h2>Outros Vendedores</h2>
+        <p>Performance dos demais membros da equipe</p>
+      </div>
+      <div class="card-body">
+        <div class="seller-list">
+          <div class="seller-item" *ngFor="let seller of others; let i = index">
+            <div class="position">{{i + 4}}</div>
+            <img [src]="seller.avatar" [alt]="seller.name" class="avatar">
+            <div class="seller-info">
+              <h4>{{seller.name}}</h4>
+              <p>{{seller.team}}</p>
+            </div>
+            <div class="seller-stats">
+              <p class="count">{{seller.salesCount}}</p>
+              <p class="label">vendas</p>
+            </div>
+            <div class="seller-revenue">
+              <p class="revenue">R$ {{formatCurrency(seller.revenue || 0)}}</p>
+              <p class="label">receita</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tabs-header">
+        <button 
+          [class.active]="activeTab === 'performance'" 
+          (click)="setActiveTab('performance')">
+          Performance Individual
+        </button>
+        <button 
+          [class.active]="activeTab === 'sales'" 
+          (click)="setActiveTab('sales')">
+          Lista de Vendas
+        </button>
+      </div>
+
+      <!-- Performance Tab -->
+      <div *ngIf="activeTab === 'performance'" class="tab-content">
+        <div class="performance-grid">
+          <div class="performance-card" *ngFor="let seller of stats.ranking; let i = index">
+            <div class="performance-header">
+              <img [src]="seller.avatar" [alt]="seller.name" class="avatar">
+              <span class="rank-badge" [class.top3]="i < 3">{{i + 1}}</span>
+              <div class="seller-info">
+                <h3>{{seller.name}}</h3>
+                <p>{{seller.team}}</p>
+              </div>
+            </div>
+            
+            <div class="performance-metrics">
+              <div class="metric">
+                <p class="value">{{seller.salesCount}}</p>
+                <p class="label">Vendas</p>
+              </div>
+              <div class="metric">
+                <p class="value">R$ {{(seller.revenue! / 1000).toFixed(1)}}k</p>
+                <p class="label">Receita</p>
+              </div>
+              <div class="metric">
+                <p class="value">R$ {{seller.avgTicket!.toFixed(0)}}</p>
+                <p class="label">Ticket Médio</p>
+              </div>
+            </div>
+            
+            <div class="progress-section">
+              <div class="progress-label">
+                <span>Performance vs Líder</span>
+                <span>{{getProgressPercent(seller.revenue!).toFixed(0)}}%</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" [style.width.%]="getProgressPercent(seller.revenue!)"></div>
+              </div>
+            </div>
+            
+            <div class="monthly-chart">
+              <p class="chart-label">Vendas Mensais (últimos 6 meses)</p>
+              <div class="chart-bars">
+                <div class="bar-wrapper" *ngFor="let month of seller.monthlyData">
+                  <div class="bar" [style.height.%]="(month.count / 10) * 100"></div>
+                  <span class="month-label">{{month.month}}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sales List Tab -->
+      <div *ngIf="activeTab === 'sales'" class="tab-content">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2>Histórico de Vendas</h2>
+              <p>Todas as vendas de planos de internet realizadas</p>
+            </div>
+            <div class="filters">
+              <button 
+                class="filter-badge" 
+                [class.active]="timeFilter === 'all'"
+                (click)="setTimeFilter('all')">
+                Todas
+              </button>
+              <button 
+                class="filter-badge" 
+                [class.active]="timeFilter === 'month'"
+                (click)="setTimeFilter('month')">
+                Mês
+              </button>
+              <button 
+                class="filter-badge" 
+                [class.active]="timeFilter === 'week'"
+                (click)="setTimeFilter('week')">
+                Semana
+              </button>
+              <button 
+                class="filter-badge" 
+                [class.active]="timeFilter === 'today'"
+                (click)="setTimeFilter('today')">
+                Hoje
+              </button>
+            </div>
+          </div>
+          
+          <div class="table-container">
+            <table class="sales-table">
+              <thead>
+                <tr>
+                  <th>Vendedor</th>
+                  <th>Plano</th>
+                  <th>Cliente</th>
+                  <th>Data</th>
+                  <th>Valor</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let sale of paginatedSales">
+                  <td>
+                    <div class="seller-cell">
+                      <img [src]="getSalesperson(sale.salespersonId)?.avatar" [alt]="sale.salespersonName" class="avatar-sm">
+                      <div>
+                        <p class="name">{{sale.salespersonName}}</p>
+                        <p class="team">{{getSalesperson(sale.salespersonId)?.team}}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="plan-cell">
+                      <p class="plan-name">{{sale.planName}}</p>
+                      <p class="plan-speed">{{sale.planSpeed}}</p>
+                    </div>
+                  </td>
+                  <td>{{sale.customerName}}</td>
+                  <td>{{formatDate(sale.date)}}</td>
+                  <td class="price">R$ {{sale.price.toFixed(2)}}</td>
+                  <td>
+                    <span class="status-badge" [class.completed]="sale.status === 'completed'">
+                      {{sale.status === 'completed' ? 'Concluída' : 'Pendente'}}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <!-- Pagination -->
+          <div class="pagination" *ngIf="totalPages > 1">
+            <p class="pagination-info">
+              Mostrando {{(currentPage - 1) * itemsPerPage + 1}} a 
+              {{ getEndIndex() }}
+              {{filteredSales.length}} vendas
+            </p>
+            <div class="pagination-controls">
+              <button 
+                (click)="changePage(currentPage - 1)" 
+                [disabled]="currentPage === 1">
+                Anterior
+              </button>
+              <button 
+                *ngFor="let page of pageNumbers" 
+                [class.active]="currentPage === page"
+                (click)="changePage(page)">
+                {{page}}
+              </button>
+              <button 
+                (click)="changePage(currentPage + 1)" 
+                [disabled]="currentPage === totalPages">
+                Próxima
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
 </div>
-<p-toast />

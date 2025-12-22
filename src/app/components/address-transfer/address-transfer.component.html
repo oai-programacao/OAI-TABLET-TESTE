@@ -248,12 +248,12 @@
                         id="observation"
                         name="observation"
                         pTextarea
-                        [autoResize]="true"
+                       
                         rows="5"
                         cols="30"
                         [(ngModel)]="addressNewForm.observation"
                         #observation="ngModel"
-                        style="width: 100%"
+                        style="width: 100%; height: 120px; resize: none;"
                         [disabled]="!isEditingAddress"
                       ></textarea>
                       <label for="observation">Observação:</label>
