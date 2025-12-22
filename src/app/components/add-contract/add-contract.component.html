@@ -33,21 +33,58 @@
                     <p-inputgroup-addon>
                       <i class="pi pi-ticket"></i>
                     </p-inputgroup-addon>
+
                     <p-iftalabel>
                       <p-select
                         [options]="plans"
                         [(ngModel)]="selectedPlan"
                         optionLabel="label"
                         optionValue="value"
+                        optionDisabled="disabled"
                         placeholder="Selecione"
                         name="plans"
                         required
                         id="plan"
                         [filter]="true"
-                        filterBy="label,code,name"
+                        filterBy="label"
+                        class="w-full"
                       >
+                        <!-- 🔹 Item selecionado -->
+                        <ng-template pTemplate="selectedItem" let-plan>
+                          <span>{{ plan?.label }}</span>
+                          <p-tag
+                            *ngIf="plan?.status"
+                            class="ml-2"
+                            [severity]="
+                              plan.status === 'A' ? 'success' : 'danger'
+                            "
+                            [value]="
+                              plan.status === 'A' ? 'ATIVADO' : 'DESATIVADO'
+                            "
+                          ></p-tag>
+                        </ng-template>
+
+                        <!-- 🔹 Itens da lista -->
+                        <ng-template pTemplate="item" let-plan>
+                          <div
+                            class="flex items-center justify-between w-full"
+                            [class.opacity-50]="plan.status === 'I'"
+                          >
+                            <span>{{ plan.label }}</span>
+
+                            <p-tag
+                              [severity]="
+                                plan.status === 'A' ? 'success' : 'danger'
+                              "
+                              [value]="
+                                plan.status === 'A' ? 'ATIVADO' : 'DESATIVADO'
+                              "
+                            ></p-tag>
+                          </div>
+                        </ng-template>
                       </p-select>
-                      <label for="plans">Plano de Internet*</label>
+
+                      <label for="plan">Plano de Internet*</label>
                     </p-iftalabel>
                   </p-inputgroup>
 
@@ -805,7 +842,7 @@
                         [raised]="true"
                         size="large"
                         [disabled]="
-                          !(capturedSignatureAdesion ) && !pdfWasDownloaded
+                          !capturedSignatureAdesion && !pdfWasDownloaded
                         "
                         (onClick)="openPhoneModal()"
                       ></p-button>
