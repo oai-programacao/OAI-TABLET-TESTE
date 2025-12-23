@@ -859,6 +859,7 @@ export class AddContractComponent implements OnInit {
           this.dateUtils.formatToLocalDateString(
             this.dateOfMemberShipExpiration
           ) || '',
+        adesion: this.contractFormData.adesion.toString() || '0',
         discountFixe: this.contractFormData.discountFixe?.toString() || '0',
       };
 
@@ -871,6 +872,7 @@ export class AddContractComponent implements OnInit {
         city: adesionData.city,
         state: adesionData.state,
         zipCode: adesionData.zipCode,
+        adesion: this.contractFormData.adesion.toString() || '0',
         contractDueDay: adesionData.contractDueDay,
         discountFixe: adesionData.discountFixe,
       };
