@@ -621,7 +621,6 @@ export class CancelSuspensionComponent {
 
   sendToAutentiqueSubmitCancel() {
     const rawPhone = (this.phone || '').replace(/\D/g, '');
-
     const phone = rawPhone.startsWith('55')
       ? `+${rawPhone}`
       : `+55${rawPhone}`;
@@ -645,7 +644,7 @@ export class CancelSuspensionComponent {
       clientId: this.clientId,
       contractId: this.contractId,
       sellerId: sellerIdString,
-      proportional: this.calculateProportionalRemainder,
+      proportional: this.calculateProportionalRemainder(),
       startSuspension: this.startSuspension
     }
 
