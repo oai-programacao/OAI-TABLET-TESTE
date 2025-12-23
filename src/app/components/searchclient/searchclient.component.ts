@@ -24,7 +24,6 @@ import { SalesService } from '../../services/sales/sales.service';
 import { AttendancesService } from '../../services/attendances/attendance.service';
 import { catchError, forkJoin, of } from 'rxjs';
 
-
 @Component({
   selector: 'app-searchclient',
   imports: [
@@ -75,18 +74,19 @@ export class SearchclientComponent implements OnInit {
     }, 1000);
 
     this.messageInterval = setInterval(() => {
-      this.currentMessageIndex = (this.currentMessageIndex + 1) % this.motivationalMessages.length
-    }, 5000)
+      this.currentMessageIndex =
+        (this.currentMessageIndex + 1) % this.motivationalMessages.length;
+    }, 5000);
   }
 
   ngOnDestroy() {
     if (this.messageInterval) {
-      clearInterval(this.messageInterval)
+      clearInterval(this.messageInterval);
     }
   }
 
   getCurrentMessage(): string {
-    return this.motivationalMessages[this.currentMessageIndex]
+    return this.motivationalMessages[this.currentMessageIndex];
   }
 
   infoVendas = [
@@ -235,13 +235,11 @@ export class SearchclientComponent implements OnInit {
       return;
     }
 
-
     event.preventDefault();
 
     const input = event.target as HTMLInputElement;
     const start = input.selectionStart ?? input.value.length;
     const end = input.selectionEnd ?? start;
-
 
     const currentDigits = (input.value.replace(/\D/g, '') || '').slice(0, 14);
 
@@ -278,14 +276,13 @@ export class SearchclientComponent implements OnInit {
 
   getMetricIcon(index: number): string {
     const icons = [
-      'pi pi-users', 
-      'pi pi-check', 
-      'pi pi-dollar', 
-      'pi pi-chart-line', 
+      'pi pi-users',
+      'pi pi-check',
+      'pi pi-dollar',
+      'pi pi-chart-line',
     ];
     return icons[index] || 'pi pi-info-circle';
   }
-
 
   archivedSalesCount: number = 0;
   isLoadingCount: boolean = false;
@@ -296,58 +293,61 @@ export class SearchclientComponent implements OnInit {
       next: (sales) => {
         this.archivedSalesCount = sales.length;
         this.isLoadingCount = false;
-        console.log(`📊 ${this.archivedSalesCount} vendas arquivadas`);
       },
       error: (err: any) => {
         console.error('❌ Erro ao carregar contador de vendas:', err);
         this.archivedSalesCount = 0;
         this.isLoadingCount = false;
-      }
+      },
     });
   }
 
- 
   navigateToArchivedSales(): void {
     console.log('🔄 Navegando para vendas arquivadas...');
     this.router.navigate(['/waiting-leads']);
   }
 
   loadSalesMetrics(): void {
-  const sellerId = this.authService.getSellerId();
-  if (!sellerId) return;
+    const sellerId = this.authService.getSellerId();
+    if (!sellerId) return;
 
-  const sales$ = this.salesService.getTodayMetrics(sellerId)
-    .pipe(
-      catchError(err => {
+    const sales$ = this.salesService.getTodayMetrics(sellerId).pipe(
+      catchError((err) => {
         console.error('Erro ao buscar métricas de venda', err);
         // fallback parcial
         return of({ newSalesCount: 0, totalRevenue: 0 } as any);
       })
     );
 
-  const attendance$ = this.attendanceService.getTodayAttendance(sellerId)
-    .pipe(
-      catchError(err => {
-        console.error('Erro ao buscar attendance', err);
-        return of(0);
-      })
-    );
+    const attendance$ = this.attendanceService
+      .getTodayAttendance(sellerId)
+      .pipe(
+        catchError((err) => {
+          console.error('Erro ao buscar attendance', err);
+          return of(0);
+        })
+      );
 
-  forkJoin([sales$, attendance$]).subscribe(([sales, attendance]) => {
-    const newSalesCount = sales?.newSalesCount ?? 0;
-    const totalRevenue = sales?.totalRevenue ?? 0;
-    const attendanceCount = attendance ?? 0;
+    forkJoin([sales$, attendance$]).subscribe(([sales, attendance]) => {
+      const newSalesCount = sales?.newSalesCount ?? 0;
+      const totalRevenue = sales?.totalRevenue ?? 0;
+      const goal = sales?.goal ?? 0;
+      const attendanceCount = attendance ?? 0;
 
-    console.log('MÉTRICAS RECEBIDAS DO BACKEND:', { newSalesCount, totalRevenue, attendanceCount });
-
-    this.infoVendas = [
-      { label: 'Clientes atendidos hoje', value: attendanceCount },
-      { label: 'Novos contratos fechados', value: newSalesCount },
-      { label: 'Faturamento do dia', value: this.formatCurrency(totalRevenue) },
-      { label: 'Meta mensal', value: '...' }
-    ];
-  });
-}
+      this.infoVendas = [
+        { label: 'Clientes atendidos hoje', value: attendanceCount },
+        { label: 'Novos contratos fechados', value: newSalesCount },
+        {
+          label: 'Faturamento do dia',
+          value: this.formatCurrency(totalRevenue),
+        },
+        {
+          label: 'Meta Mensal novos Contratos',
+          value: `${newSalesCount}/${goal}`,
+        },
+      ];
+    });
+  }
 
   formatCurrency(value: number): string {
     if (value === null || value === undefined) {
@@ -355,8 +355,7 @@ export class SearchclientComponent implements OnInit {
     }
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
-      currency: 'BRL'
+      currency: 'BRL',
     }).format(value);
   }
-  
 }

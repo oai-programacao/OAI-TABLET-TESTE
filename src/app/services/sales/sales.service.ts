@@ -41,7 +41,7 @@ export class SalesService {
 
   getTodayMetrics(sellerId: string): Observable<DailyMetricsDto> {
     return this.http.get<DailyMetricsDto>(
-      `${this.urlApi}/sales/metrics/today/${sellerId}`
+      `${this.urlApi}/metrics/today/${sellerId}`
     );
   }
 
