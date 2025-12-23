@@ -463,7 +463,7 @@
         icon="pi pi-send"
         severity="success"
         [disabled]="!phone || phone.trim().length < 10"
-        (onClick)="sendToAutentiqueSubmit()"
+        (onClick)="sendToAutentiqueSubmitCancel()"
       ></p-button>
     </ng-template>
   </p-dialog>

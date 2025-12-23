@@ -8,6 +8,7 @@ export interface Plan {
   nome: string;
   codePlanRBX: number;
   valor: number;
+  status: 'A' | 'I';
 }
 
 @Injectable({

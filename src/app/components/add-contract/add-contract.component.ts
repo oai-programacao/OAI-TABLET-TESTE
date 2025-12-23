@@ -426,8 +426,10 @@ export class AddContractComponent implements OnInit {
         this.plans = data.map((plan) => ({
           label: `${plan.codePlanRBX} - ${plan.nome}`,
           value: String(plan.codePlanRBX || ''),
-          code: String(plan.codePlanRBX || ''),
+          code: String(plan.codePlanRBX || ''), 
           name: plan.nome,
+          status: plan.status,
+          disabled: plan.status === 'I',
         }));
       },
       error: (err) => {
