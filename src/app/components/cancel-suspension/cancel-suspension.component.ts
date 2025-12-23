@@ -19,6 +19,13 @@ import { CancelSuspenseContractRequest, ReportsService } from '../../services/re
 import { TableModule } from "primeng/table";
 import { AttendancesService } from '../../services/attendances/attendance.service';
 import { ClientService } from '../../services/clients/client.service';
+import { InputGroupModule } from "primeng/inputgroup";
+import { InputGroupAddonModule } from "primeng/inputgroupaddon";
+import { AuthService } from '../../core/auth.service';
+import { ActionsContractsService } from '../../services/actionsToContract/actions-contracts.service';
+import { FormsModule } from '@angular/forms';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputMaskModule } from 'primeng/inputmask';
 
 
 @Component({
@@ -37,6 +44,11 @@ import { ClientService } from '../../services/clients/client.service';
     ProgressSpinnerModule,
     TableModule,
     CommonModule,
+    InputGroupModule,
+    InputGroupAddonModule,
+    FormsModule,
+    InputTextModule,
+    InputMaskModule
   ],
   templateUrl: './cancel-suspension.component.html',
   providers: [MessageService],
@@ -53,6 +65,8 @@ export class CancelSuspensionComponent {
   private readonly sanitizer = inject(DomSanitizer);
   private readonly reportsService = inject(ReportsService);
   private readonly attendancesService = inject(AttendancesService);
+  private readonly authService = inject(AuthService);
+  private readonly actionsContractsService = inject(ActionsContractsService);
 
   private clienteService = inject(ClientService);
 
@@ -66,6 +80,7 @@ export class CancelSuspensionComponent {
   clientId!: string;
   contractId!: string;
   modalVisible: boolean = false;
+  phone: string = '';
 
   isLoadingPreview = false;
   previewLoadFailed = false;
@@ -227,6 +242,11 @@ export class CancelSuspensionComponent {
 
   abrirModal() {
     this.modalVisible = true;
+  }
+
+  onHide(): void {
+    this.modalVisible = false;
+    this.phone = '';
   }
 
   goToStep(stepNumber: number): void {
@@ -597,6 +617,64 @@ export class CancelSuspensionComponent {
   calculateProportionalRemainder(): number {
     const proportionalPaid = this.proportionalBoleto;
     return proportionalPaid;
+  }
+
+  sendToAutentiqueSubmit() {
+    const rawPhone = (this.phone || '').replace(/\D/g, '');
+
+    const phone = rawPhone.startsWith('55')
+      ? `+${rawPhone}`
+      : `+55${rawPhone}`;
+
+    const mappedSigners = [
+      {
+        name: this.client.name || '',
+        phone
+      },
+    ];
+    const sellerId = this.authService.getSellerId();
+    if (sellerId === null || sellerId === undefined) {
+      console.error('ERRO CRÍTICO: SellerID está nulo ou indefinido. Verifique o AuthService.');
+      this.messageService.add({ severity: 'error', summary: 'Erro de Autenticação', detail: 'ID do Vendedor não foi encontrado.' });
+      return;
+    }
+    const sellerIdString = String(sellerId);
+
+    const payload = {
+      signers: mappedSigners,
+      clientId: this.clientId,
+      contractId: this.contractId,
+      sellerId: sellerIdString,
+      proportional: this.calculateProportionalRemainder,
+      startSuspension: this.startSuspension
+    }
+
+    this.actionsContractsService.sendCancelSuspensionAutentique(payload, this.clientId, this.contractId)
+      .subscribe({
+        next: (res: string) => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Sucesso!',
+            detail: `${res}.
+        Aguarde o cliente assinar, todo o processo será feito de forma automática.
+            Consulte nos atendimentos do cliente se foi feito de fato.`,
+            life: 10000,
+          });
+          this.modalVisible = false;
+        },
+        error: (err) => {
+          const backendMessage =
+            (typeof err.error === 'string' ? err.error : err?.error?.message) ||
+            'Erro ao tentar enviar para o número, verifique com o Suporte!';
+          if (backendMessage.includes('Aguarde 4 minutos antes')) {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Atenção',
+              detail: backendMessage,
+            });
+          }
+        },
+      });
   }
 
 }
