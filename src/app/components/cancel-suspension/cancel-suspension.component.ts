@@ -619,7 +619,7 @@ export class CancelSuspensionComponent {
     return proportionalPaid;
   }
 
-  sendToAutentiqueSubmit() {
+  sendToAutentiqueSubmitCancel() {
     const rawPhone = (this.phone || '').replace(/\D/g, '');
 
     const phone = rawPhone.startsWith('55')

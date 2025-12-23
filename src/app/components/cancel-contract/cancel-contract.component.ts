@@ -690,9 +690,14 @@ cancelarBoletoAtual() {
                 this.messageService.add({
                     severity: 'success', summary: 'Sucesso', detail: 'Cancelamento concluído com sucesso!', life: 3000
                 });
-                setTimeout(() => {
-                    this.router.navigate(['search']);
-                }, 1500);
+            setTimeout(() => {
+            if (this.contract?.clientId) {
+        this.router.navigate([`/attendances/${this.contract.clientId}`]);
+        } else {
+        console.error('ERRO: clientId não encontrado no contrato para redirecionar');
+        this.router.navigate(['search']);
+    }
+}, 1500);
             }, delay);
         },
         error: (err) => {
