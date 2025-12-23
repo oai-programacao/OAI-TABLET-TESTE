@@ -111,4 +111,9 @@ export class ActionsContractsService {
     const url = `${this.apiUrl}/create-consent-document-suspension/${clientId}/${contractId}`;
     return this.http.post(url, payload, { responseType: 'text' });
   }
+
+  sendCancelSuspensionAutentique(payload: any, clientId: string, contractId: string): Observable<any> {
+    const url = `${this.apiUrl}/create-consent-document-cancel-suspension/${clientId}/${contractId}`;
+    return this.http.post(url, payload, { responseType: 'text' });
+  }
 }
