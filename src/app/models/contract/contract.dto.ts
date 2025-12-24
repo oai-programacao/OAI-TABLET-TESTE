@@ -71,3 +71,10 @@ export interface RequestCancelContractSuspendDTO {
     startSuspension: string | null;
     proportional: number;
 }
+
+export interface ContractResponseUpdateSituation {
+  codeContractRbx: string;
+  situationDescription: string;
+  clientCode: string;
+  linkBoleto: string;
+}
