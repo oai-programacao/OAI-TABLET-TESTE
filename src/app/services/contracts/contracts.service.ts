@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
-import { ActiveRequestContract, ActiveResponseContract,Contract, RequestCancelContractSuspendDTO, RequestContractSuspendDTO, RequestDateTransfer} from '../../models/contract/contract.dto';
+import { ActiveRequestContract, ActiveResponseContract,Contract, ContractResponseUpdateSituation, RequestCancelContractSuspendDTO, RequestContractSuspendDTO, RequestDateTransfer} from '../../models/contract/contract.dto';
 import { ContractSuspenseDTO } from '../../models/contract/contractSuspense.dto';
 import { CancelSimulationDTO } from '../../models/contract/cancel-contract.dto';
 import { DateUtilsService } from '../../shared/utils/date.utils';
@@ -14,8 +14,8 @@ export class ContractsService {
   private readonly urlApi = environment.apiUrl;
   private readonly http = inject(HttpClient);
 
-  suspendContract(contractId: string, dto: RequestContractSuspendDTO): Observable<Contract> {
-    return this.http.post<Contract>(
+  suspendContract(contractId: string, dto: RequestContractSuspendDTO): Observable<ContractResponseUpdateSituation> {
+    return this.http.post<ContractResponseUpdateSituation>(
       `${this.urlApi}/contract/${contractId}/temporary-suspension`,
       dto
     );
@@ -28,8 +28,8 @@ export class ContractsService {
     );
   }
 
-  cancelSuspendContract(contractId: string, dto: RequestCancelContractSuspendDTO): Observable<Contract> {
-    return this.http.post<Contract>(
+  cancelSuspendContract(contractId: string, dto: RequestCancelContractSuspendDTO): Observable<ContractResponseUpdateSituation> {
+    return this.http.post<ContractResponseUpdateSituation>(
       `${this.urlApi}/contract/${contractId}/cancel-temporary-suspension`,
       dto
     );
