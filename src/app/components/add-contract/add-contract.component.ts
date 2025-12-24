@@ -463,7 +463,6 @@ export class AddContractComponent implements OnInit {
     }
 
     try {
-
       const resizedFile = await this.imageUtilsService.resizeImage(
         file,
         1280,
@@ -1573,31 +1572,43 @@ export class AddContractComponent implements OnInit {
     }
   }
 
-  reserveOffer(offer: any) {
+  reserveOffer(offer: any): void {
+    if (this.selectedOfferId && this.selectedOfferId !== offer.id) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Reserva não permitida',
+        detail:
+          'Você já possui uma OS reservada. Libere-a antes de reservar outra.',
+      });
+      return;
+    }
+
+    if (offer.reserved) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'OS indisponível',
+        detail: 'Esta OS já está reservada.',
+      });
+      return;
+    }
+
     const sellerId = this.authService.getSellerId()!;
-    const sellerName = this.authService.getUserFromToken()?.name;
 
     this.offerService.reserveOffer(offer.id, sellerId).subscribe({
       next: (updatedOffer: any) => {
         Object.assign(offer, updatedOffer);
-        this.selectedOfferId = offer.id;
+        this.selectedOfferId = offer.id; 
       },
       error: (err) => {
         if (err.status === 409) {
           this.messageService.add({
             severity: 'warn',
             summary: 'OS indisponível',
-            detail: 'Já está reservada por outro vendedor.',
+            detail: 'Esta OS já foi reservada por outro vendedor.',
           });
         }
       },
     });
-
-    offer.reserved = true;
-    offer.reservedBy = sellerId;
-    offer.reservedByName = sellerName;
-    offer.reservedAt = new Date();
-    offer.reservedUntil = new Date(Date.now() + 10 * 60000);
   }
 
   unreserveOffer(offer: any) {
