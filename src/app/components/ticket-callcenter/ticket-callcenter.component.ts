@@ -72,7 +72,11 @@ export class TicketCallcenterComponent {
       tipo: 'T',
     },
     { label: 'Financeiro | Inversão de Pagamento (Fluxo)', value: '39' },
-    { label: 'Financeiro | Recebimento de Comprovante (Fluxo)', value: '27' },
+    { label: 'Financeiro | Recebimento de Comprovante (Fluxo)', value: '27' 
+    },
+    {label: 'Técnico | Suporte Fibra - Rede Interna (Tópico)', value: '108', 
+      tipo: 'T'
+    },
   ];
 
   confirmAction() {
