@@ -1,3 +1,4 @@
+import { ImageUtilsService } from './../../services/midia/image-utils.service';
 import { WebSocketService } from './../../services/webSocket/websocket.service';
 import { BlockOffersRequestService } from './../../services/blockOffer/blockoffer.service';
 import {
@@ -121,10 +122,10 @@ export class AddContractComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly reportsService = inject(ReportsService);
   private readonly sanitizer = inject(DomSanitizer);
-  private readonly attendanceService = inject(AttendancesService);
   private readonly actionsContractsService = inject(ActionsContractsService);
   private readonly blockOfferService = inject(BlockOffersRequestService);
   private readonly webSocketService = inject(WebSocketService);
+  private readonly imageUtilsService = inject(ImageUtilsService);
   private stopPolling$ = new Subject<void>();
   private destroy$ = new Subject<void>();
 
@@ -426,7 +427,7 @@ export class AddContractComponent implements OnInit {
         this.plans = data.map((plan) => ({
           label: `${plan.codePlanRBX} - ${plan.nome}`,
           value: String(plan.codePlanRBX || ''),
-          code: String(plan.codePlanRBX || ''), 
+          code: String(plan.codePlanRBX || ''),
           name: plan.nome,
           status: plan.status,
           disabled: plan.status === 'I',
@@ -1374,13 +1375,15 @@ export class AddContractComponent implements OnInit {
     }
   }
 
-  processarFotoCapturada(event: Event): void {
+  async processarFotoCapturada(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
 
     if (!input.files || input.files.length === 0) {
       return;
     }
+
     const file = input.files[0];
+
     if (!file.type.startsWith('image/')) {
       this.messageService.add({
         severity: 'warn',
@@ -1390,13 +1393,29 @@ export class AddContractComponent implements OnInit {
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (e: any) => {
-      this.thumbnailPreview = e.target.result;
-      this.fotoCapturadaFile = file;
-      this.isPreviewDialogVisible = true;
-    };
-    reader.readAsDataURL(file);
+    try {
+      const resizedFile = await this.imageUtilsService.resizeImage(
+        file,
+        1280,
+        1280,
+        0.7
+      );
+
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.thumbnailPreview = e.target.result;
+        this.fotoCapturadaFile = resizedFile;
+        this.isPreviewDialogVisible = true;
+      };
+      reader.readAsDataURL(resizedFile);
+    } catch (error) {
+      console.error(error);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erro',
+        detail: 'Erro ao processar a imagem.',
+      });
+    }
   }
 
   private validateCurrentStep(): boolean {
