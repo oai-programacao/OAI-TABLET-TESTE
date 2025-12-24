@@ -1,3 +1,4 @@
+import { ImageUtilsService } from './../../services/midia/image-utils.service';
 import {
   Component,
   inject,
@@ -142,6 +143,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   private readonly blockOfferService = inject(BlockOffersRequestService);
   private readonly offerService = inject(OffersService);
   private readonly webSocketService = inject(WebSocketService);
+  private readonly imageUtilsService = inject(ImageUtilsService);
   private originalAddressForm: AddressForm | null = null;
   private stopPolling$ = new Subject<void>();
   private destroy$ = new Subject<void>();
@@ -718,21 +720,37 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     this.generateConsentTermWithSignature();
   }
 
-  onFotoCapturada(event: Event): void {
+  async onFotoCapturada(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
 
-    if (input.files && input.files[0]) {
-      const file = input.files[0];
-      this.fotoCapturadaFile = file;
-      const reader = new FileReader();
+    if (!input.files || input.files.length === 0) {
+      return;
+    }
 
+    const file = input.files[0];
+
+    if (!file.type.startsWith('image/')) {
+      return;
+    }
+
+    try {
+      const resizedFile = await this.imageUtilsService.resizeImage(
+        file,
+        1280,
+        1280,
+        0.7
+      );
+
+      this.fotoCapturadaFile = resizedFile;
+      const reader = new FileReader();
       reader.onload = (e) => {
         this.thumbnailPreview = e.target?.result ?? null;
-
         this.isPreviewDialogVisible = true;
       };
 
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(resizedFile);
+    } catch (error) {
+      console.error('Erro ao redimensionar imagem', error);
     }
   }
 
@@ -741,45 +759,6 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     this.fotoCapturadaFile = null;
 
     this.isPreviewDialogVisible = false;
-  }
-
-  salvarFotoCapturada() {
-    if (!this.fotoCapturadaFile) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Nenhuma foto',
-        detail: 'Tire uma foto antes de salvar.',
-      });
-      return;
-    }
-
-    if (!this.clientId) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Erro',
-        detail: 'ID do cliente não encontrado para associar a foto.',
-      });
-      return;
-    }
-
-    const filesToUpload: File[] = [this.fotoCapturadaFile];
-    this.midiaService.saveMidias(filesToUpload, this.clientId).subscribe({
-      next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Foto salva com sucesso!',
-        });
-
-        this.limparPreview();
-      },
-      error: (err) => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro ao salvar a foto',
-        });
-        console.error(err);
-      },
-    });
   }
 
   toggleEditingAddress(): void {

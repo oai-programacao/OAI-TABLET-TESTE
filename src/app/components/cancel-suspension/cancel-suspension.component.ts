@@ -1,32 +1,37 @@
+import { ImageUtilsService } from './../../services/midia/image-utils.service';
 import { Component, inject, ViewChild } from '@angular/core';
-import { CardBaseComponent } from "../../shared/components/card-base/card-base.component";
+import { CardBaseComponent } from '../../shared/components/card-base/card-base.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SignaturePadComponent } from '../../shared/components/signature-pad/signature-pad.component';
 import { Cliente } from '../../models/cliente/cliente.dto';
-import { ButtonModule } from "primeng/button";
-import { Contract, RequestCancelContractSuspendDTO } from '../../models/contract/contract.dto';
-import { StepperModule } from "primeng/stepper";
+import { ButtonModule } from 'primeng/button';
+import {
+  Contract,
+} from '../../models/contract/contract.dto';
+import { StepperModule } from 'primeng/stepper';
 import { ContractSuspenseDTO } from '../../models/contract/contractSuspense.dto';
 import { ContractsService } from '../../services/contracts/contracts.service';
 import { CommonModule, CurrencyPipe, DatePipe, NgIf } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { DialogModule } from "primeng/dialog";
-import { IftaLabelModule } from "primeng/iftalabel";
-import { DividerModule } from "primeng/divider";
+import { DialogModule } from 'primeng/dialog';
+import { IftaLabelModule } from 'primeng/iftalabel';
+import { DividerModule } from 'primeng/divider';
 import { MessageService } from 'primeng/api';
-import { ProgressSpinnerModule } from "primeng/progressspinner";
-import { CancelSuspenseContractRequest, ReportsService } from '../../services/reports/reports.service';
-import { TableModule } from "primeng/table";
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import {
+  CancelSuspenseContractRequest,
+  ReportsService,
+} from '../../services/reports/reports.service';
+import { TableModule } from 'primeng/table';
 import { AttendancesService } from '../../services/attendances/attendance.service';
 import { ClientService } from '../../services/clients/client.service';
-import { InputGroupModule } from "primeng/inputgroup";
-import { InputGroupAddonModule } from "primeng/inputgroupaddon";
+import { InputGroupModule } from 'primeng/inputgroup';
+import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { AuthService } from '../../core/auth.service';
 import { ActionsContractsService } from '../../services/actionsToContract/actions-contracts.service';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputMaskModule } from 'primeng/inputmask';
-
 
 @Component({
   selector: 'app-cancel-suspension',
@@ -48,11 +53,11 @@ import { InputMaskModule } from 'primeng/inputmask';
     InputGroupAddonModule,
     FormsModule,
     InputTextModule,
-    InputMaskModule
+    InputMaskModule,
   ],
   templateUrl: './cancel-suspension.component.html',
   providers: [MessageService],
-  styleUrl: './cancel-suspension.component.scss'
+  styleUrl: './cancel-suspension.component.scss',
 })
 export class CancelSuspensionComponent {
   @ViewChild('signaturePadInDialog')
@@ -67,6 +72,7 @@ export class CancelSuspensionComponent {
   private readonly attendancesService = inject(AttendancesService);
   private readonly authService = inject(AuthService);
   private readonly actionsContractsService = inject(ActionsContractsService);
+  private readonly imageUtilsService = inject(ImageUtilsService);
 
   private clienteService = inject(ClientService);
 
@@ -108,12 +114,12 @@ export class CancelSuspensionComponent {
   ngOnInit(): void {
     const contractId = this.route.snapshot.paramMap.get('contractId');
     console.log('ID recebido da rota:', contractId);
-    this.route.params.subscribe(params => {
+    this.route.params.subscribe((params) => {
       this.clientId = params['clientId'];
       this.contractId = params['contractId'];
-    })
+    });
     if (!contractId) {
-      console.error("Nenhum suspenseId encontrado na rota!");
+      console.error('Nenhum suspenseId encontrado na rota!');
       return;
     }
 
@@ -125,37 +131,40 @@ export class CancelSuspensionComponent {
 
   loadContractSuspense(id: string) {
     this.contractService.getContractSuspenseById(id).subscribe({
-      next: res => {
-        console.log("Suspensão carregada => ", res);
+      next: (res) => {
+        console.log('Suspensão carregada => ', res);
         this.contractSuspense = res;
         this.startSuspension = res.startDate;
         this.updateProportionalValue();
-        console.log("carregou nada " + this.updateProportionalValue);
+        console.log('carregou nada ' + this.updateProportionalValue);
       },
-      error: err => {
-        console.error("Erro ao carregar suspensão => ", err);
-      }
+      error: (err) => {
+        console.error('Erro ao carregar suspensão => ', err);
+      },
     });
   }
 
   loadContract(id: string) {
     this.contractService.getContractById(id).subscribe({
-      next: c => {
-        console.log("Contrato carregado:", c);
+      next: (c) => {
+        console.log('Contrato carregado:', c);
         this.contract = c;
         this.clientId = c.clientId;
         this.currentContract = c;
-        this.clienteService.getClientById(this.clientId!).subscribe(c => {
+        this.clienteService.getClientById(this.clientId!).subscribe((c) => {
           this.client = c;
         });
-        console.log("Valor de liquidPrice APÓS carregar:", this.contract.liquidPrice);
+        console.log(
+          'Valor de liquidPrice APÓS carregar:',
+          this.contract.liquidPrice
+        );
 
         this.updateProportionalValue();
         this.calculateProportionalBefore();
       },
       error: () => {
-        console.error("Erro ao carregar contrato");
-      }
+        console.error('Erro ao carregar contrato');
+      },
     });
   }
 
@@ -175,26 +184,39 @@ export class CancelSuspensionComponent {
   }
 
   calculateProportionalValue(): number {
-    if (!this.contractSuspense?.startDate || !this.contract?.cicleBillingExpired) {
-      console.error("Dados de contrato/suspensão incompletos para o cálculo.");
+    if (
+      !this.contractSuspense?.startDate ||
+      !this.contract?.cicleBillingExpired
+    ) {
+      console.error('Dados de contrato/suspensão incompletos para o cálculo.');
       return 0;
     }
 
     const liquidPrice = this.contract.liquidPrice ?? 0;
     const cycleExpirationDay = Number(this.contract.cicleBillingExpired);
 
-    if (isNaN(cycleExpirationDay) || cycleExpirationDay < 1 || cycleExpirationDay > 31) {
-      console.error(`Dia de expiração do ciclo inválido: ${this.contract.cicleBillingExpired}.`);
+    if (
+      isNaN(cycleExpirationDay) ||
+      cycleExpirationDay < 1 ||
+      cycleExpirationDay > 31
+    ) {
+      console.error(
+        `Dia de expiração do ciclo inválido: ${this.contract.cicleBillingExpired}.`
+      );
       return 0;
     }
 
-    const suspensionStartDate = new Date(this.contractSuspense.startDate + 'T00:00:00');
+    const suspensionStartDate = new Date(
+      this.contractSuspense.startDate + 'T00:00:00'
+    );
 
     let cycleEndDate = new Date(
       suspensionStartDate.getFullYear(),
       suspensionStartDate.getMonth(),
       cycleExpirationDay,
-      0, 0, 0
+      0,
+      0,
+      0
     );
 
     if (cycleEndDate.getTime() <= suspensionStartDate.getTime()) {
@@ -204,25 +226,28 @@ export class CancelSuspensionComponent {
     const diffMs = cycleEndDate.getTime() - suspensionStartDate.getTime();
     const remainingDays = Math.ceil(diffMs / 86400000);
 
-    console.log(`Dias restantes (suspensão em ${suspensionStartDate.toLocaleDateString()} até ${cycleEndDate.toLocaleDateString()}): ${remainingDays}`);
+    console.log(
+      `Dias restantes (suspensão em ${suspensionStartDate.toLocaleDateString()} até ${cycleEndDate.toLocaleDateString()}): ${remainingDays}`
+    );
 
     if (remainingDays <= 0) {
-      console.log("Dias restantes <= 0. Valor Proporcional: 0.");
+      console.log('Dias restantes <= 0. Valor Proporcional: 0.');
       return 0;
     }
 
     const totalCycleDays = 30;
     const dailyValue = liquidPrice / totalCycleDays;
 
-    console.log(`Preço Líquido: ${liquidPrice} | Valor Diário: ${dailyValue.toFixed(2)}`);
+    console.log(
+      `Preço Líquido: ${liquidPrice} | Valor Diário: ${dailyValue.toFixed(2)}`
+    );
 
     const proportionalValue = Number((remainingDays * dailyValue).toFixed(2));
 
-    console.log("Valor Proporcional CALCULADO: " + proportionalValue);
+    console.log('Valor Proporcional CALCULADO: ' + proportionalValue);
 
     return proportionalValue;
   }
-
 
   calculateProportionalBefore() {
     const liquidPrice = this.contract?.liquidPrice ?? 0;
@@ -233,11 +258,11 @@ export class CancelSuspensionComponent {
   }
 
   navigateToListContracts() {
-    this.router.navigate(["client-contracts", this.clientId]);
+    this.router.navigate(['client-contracts', this.clientId]);
   }
 
   backToHome() {
-    this.router.navigate(["/search"]);
+    this.router.navigate(['/search']);
   }
 
   abrirModal() {
@@ -267,34 +292,53 @@ export class CancelSuspensionComponent {
       this.signatureVisibleFlag = false;
       setTimeout(() => {
         this.signatureVisibleFlag = true;
-      })
-    }, 30)
+      });
+    }, 30);
   }
 
   savePdf(): void {
     if (!this.pdfPreviewUrl) return;
     const a = document.createElement('a');
     a.href = this.pdfPreviewUrl;
-    a.download = `Termo_alteracao_data_${this.contract.codeContractRbx || this.contractId}.pdf`;
+    a.download = `Termo_alteracao_data_${
+      this.contract.codeContractRbx || this.contractId
+    }.pdf`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
   }
 
-  onFotoCapturada(event: Event): void {
+  async onFotoCapturada(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
 
-    if (input.files && input.files[0]) {
-      const file = input.files[0];
-      this.fotoCapturadaFile = file;
-      const reader = new FileReader();
+    if (!input.files || input.files.length === 0) {
+      return;
+    }
 
+    const file = input.files[0];
+
+    if (!file.type.startsWith('image/')) {
+      return;
+    }
+
+    try {
+      const resizedFile = await this.imageUtilsService.resizeImage(
+        file,
+        1280,
+        1280,
+        0.7
+      );
+
+      this.fotoCapturadaFile = resizedFile;
+      const reader = new FileReader();
       reader.onload = (e) => {
         this.thumbnailPreview = e.target?.result ?? null;
         this.isPreviewDialogVisible = true;
       };
 
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(resizedFile);
+    } catch (error) {
+      console.error('Erro ao redimensionar imagem', error);
     }
   }
 
@@ -323,7 +367,7 @@ export class CancelSuspensionComponent {
   loadPdfPreview(): void {
     if (this.isLoadingPreview) return;
 
-    console.log('Aguarde enquanto o pdf é gerado...')
+    console.log('Aguarde enquanto o pdf é gerado...');
 
     const MINIMUM_SPINNER_TIME = 700;
 
@@ -350,14 +394,14 @@ export class CancelSuspensionComponent {
       startSuspension: formatDateToDDMMYYYY(this.startSuspension),
       proportional: this.proportionalBoleto,
       signatureBase64: this.capturedSignature ?? null,
-    }
+    };
 
     this.reportsService
       .getConsentTermCancelSuspensionContractPdf(requestBody)
       .subscribe({
         next: (blob) => {
-          console.log("📥 RESPONSE RECEBIDA DO BACKEND!");
-          console.log("📄 Blob recebido:", blob);
+          console.log('📥 RESPONSE RECEBIDA DO BACKEND!');
+          console.log('📄 Blob recebido:', blob);
 
           this.pdfPreviewUrl = window.URL.createObjectURL(blob);
           this.safePdfPreviewUrl =
@@ -417,7 +461,7 @@ export class CancelSuspensionComponent {
       startSuspension: formatDateToDDMMYYYY(this.startSuspension),
       proportional: this.proportionalBoleto,
       signatureBase64: this.capturedSignature,
-    }
+    };
 
     this.reportsService
       .getConsentTermCancelSuspensionContractPdf(requestBody)
@@ -433,7 +477,7 @@ export class CancelSuspensionComponent {
           this.messageService.add({
             severity: 'success',
             summary: 'Sucesso',
-            detail: 'Termo assinado gerado!'
+            detail: 'Termo assinado gerado!',
           });
 
           this.signDialogVisible = false;
@@ -447,7 +491,7 @@ export class CancelSuspensionComponent {
           });
           this.previewLoadFailed = true;
           this.isLoadingPreview = true;
-        }
+        },
       });
   }
 
@@ -456,7 +500,7 @@ export class CancelSuspensionComponent {
       return this.messageService.add({
         severity: 'warn',
         summary: 'Atenção',
-        detail: 'Gere o termo com assinatura antes de confirmar.'
+        detail: 'Gere o termo com assinatura antes de confirmar.',
       });
     }
 
@@ -470,13 +514,13 @@ export class CancelSuspensionComponent {
       return this.messageService.add({
         severity: 'error',
         summary: 'Erro',
-        detail: 'Falha ao converter PDF.'
+        detail: 'Falha ao converter PDF.',
       });
     }
 
     let pdfBytes;
     try {
-      pdfBytes = Array.from(atob(pdfBase64), c => c.charCodeAt(0));
+      pdfBytes = Array.from(atob(pdfBase64), (c) => c.charCodeAt(0));
     } catch (err) {
       this.isSubmiting = false;
       return;
@@ -485,28 +529,35 @@ export class CancelSuspensionComponent {
     const payload = {
       startSuspension: this.formatDate(this.contractSuspense?.startDate),
       proportional: this.proportionalBoleto,
-      pdfBytes: pdfBytes
+      pdfBytes: pdfBytes,
     };
 
-    console.log("Aqui é o DTO: ", payload)
+    console.log('Aqui é o DTO: ', payload);
 
-    this.contractService.cancelSuspendContract(this.contractId, payload)
+    this.contractService
+      .cancelSuspendContract(this.contractId, payload)
       .subscribe({
         next: (response: any) => {
           this.messageService.add({
             severity: 'success',
             summary: 'Sucesso',
-            detail: 'Suspensão registrada!'
+            detail: 'Suspensão registrada!',
           });
           this.result = {
-            clientName: this.client?.name || this.client?.socialName || 'Cliente Indisponível',
-            clientCpf: this.formatCpfCnpj(this.client?.cpf || this.client?.cnpj || 'N/A'),
-            contrato: this.currentContract?.codeContractRbx || this.currentContract?.id,
+            clientName:
+              this.client?.name ||
+              this.client?.socialName ||
+              'Cliente Indisponível',
+            clientCpf: this.formatCpfCnpj(
+              this.client?.cpf || this.client?.cnpj || 'N/A'
+            ),
+            contrato:
+              this.currentContract?.codeContractRbx || this.currentContract?.id,
             proportionalRemainder: this.calculateProportionalRemainder(),
-            linkBoleto: response?.linkBoleto
+            linkBoleto: response?.linkBoleto,
           };
 
-          console.log("Carrega o result", this.result)
+          console.log('Carrega o result', this.result);
 
           this.isSubmitting = false;
           this.finalization = true;
@@ -516,43 +567,57 @@ export class CancelSuspensionComponent {
           this.messageService.add({
             severity: 'error',
             summary: 'Erro',
-            detail: 'Falha ao registrar suspensão.'
+            detail: 'Falha ao registrar suspensão.',
           });
         },
         complete: () => {
           this.isSubmiting = false;
-        }
+        },
       });
   }
 
-  event: string = "temporary-suspension";
+  event: string = 'temporary-suspension';
   private registerAttendance(pdfBlob: Blob, linkBoleto: string): void {
     if (!this.clientId || !this.contractId) {
-      console.error("registerAttendance: ClientID ou ContractID estão ausentes.");
+      console.error(
+        'registerAttendance: ClientID ou ContractID estão ausentes.'
+      );
       return;
     }
     const data = {
       event: this.event as string,
       cliente: this.clientId,
       contrato: this.contractId,
-      linkBoleto: linkBoleto
+      linkBoleto: linkBoleto,
     };
 
-    const jsonBlob = new Blob([JSON.stringify(data)], { type: "application/json" });
+    const jsonBlob = new Blob([JSON.stringify(data)], {
+      type: 'application/json',
+    });
 
     const formData = new FormData();
     formData.append('data', jsonBlob, 'data.json');
-    formData.append('arquivo', pdfBlob, 'termo_cancelamento_suspensao_assinado.pdf');
+    formData.append(
+      'arquivo',
+      pdfBlob,
+      'termo_cancelamento_suspensao_assinado.pdf'
+    );
 
     this.attendancesService.registerAttendance(formData).subscribe({
       next: (response) => {
-        console.log("Atendimento registrado com sucesso:", response);
-        this.showInfo("Registro de Atendimento", "Atendimento registrado com sucesso no sistema.");
+        console.log('Atendimento registrado com sucesso:', response);
+        this.showInfo(
+          'Registro de Atendimento',
+          'Atendimento registrado com sucesso no sistema.'
+        );
       },
       error: (err) => {
-        console.error("Falha ao registrar atendimento:", err);
-        this.showWarning("Aviso", "A transferência foi concluída, mas houve um erro ao registrar o atendimento no histórico.");
-      }
+        console.error('Falha ao registrar atendimento:', err);
+        this.showWarning(
+          'Aviso',
+          'A transferência foi concluída, mas houve um erro ao registrar o atendimento no histórico.'
+        );
+      },
     });
   }
 
@@ -564,12 +629,11 @@ export class CancelSuspensionComponent {
     this.messageService.add({ severity: 'info', summary, detail, life });
   }
 
-
   navigateToInfoClient() {
     if (this.clientId) {
-      this.router.navigate(["info", this.clientId])
+      this.router.navigate(['info', this.clientId]);
     } else {
-      this.router.navigate(["/"])
+      this.router.navigate(['/']);
     }
   }
 
@@ -621,20 +685,24 @@ export class CancelSuspensionComponent {
 
   sendToAutentiqueSubmitCancel() {
     const rawPhone = (this.phone || '').replace(/\D/g, '');
-    const phone = rawPhone.startsWith('55')
-      ? `+${rawPhone}`
-      : `+55${rawPhone}`;
+    const phone = rawPhone.startsWith('55') ? `+${rawPhone}` : `+55${rawPhone}`;
 
     const mappedSigners = [
       {
         name: this.client.name || '',
-        phone
+        phone,
       },
     ];
     const sellerId = this.authService.getSellerId();
     if (sellerId === null || sellerId === undefined) {
-      console.error('ERRO CRÍTICO: SellerID está nulo ou indefinido. Verifique o AuthService.');
-      this.messageService.add({ severity: 'error', summary: 'Erro de Autenticação', detail: 'ID do Vendedor não foi encontrado.' });
+      console.error(
+        'ERRO CRÍTICO: SellerID está nulo ou indefinido. Verifique o AuthService.'
+      );
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erro de Autenticação',
+        detail: 'ID do Vendedor não foi encontrado.',
+      });
       return;
     }
     const sellerIdString = String(sellerId);
@@ -645,10 +713,11 @@ export class CancelSuspensionComponent {
       contractId: this.contractId,
       sellerId: sellerIdString,
       proportional: this.calculateProportionalRemainder(),
-      startSuspension: this.startSuspension
-    }
+      startSuspension: this.startSuspension,
+    };
 
-    this.actionsContractsService.sendCancelSuspensionAutentique(payload, this.clientId, this.contractId)
+    this.actionsContractsService
+      .sendCancelSuspensionAutentique(payload, this.clientId, this.contractId)
       .subscribe({
         next: (res: string) => {
           this.messageService.add({
@@ -675,12 +744,8 @@ export class CancelSuspensionComponent {
         },
       });
   }
-
 }
 
 function formatDateToDDMMYYYY(startSuspension: string) {
   throw new Error('Function not implemented.');
 }
-
-
-
