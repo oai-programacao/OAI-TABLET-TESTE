@@ -443,25 +443,44 @@ export class AddContractComponent implements OnInit {
     popover.toggle(event);
   }
 
-  onFileSelected(event: Event): void {
+  async onFileSelected(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
 
     const file = input.files[0];
+
+    if (!file.type.startsWith('image/')) {
+      return;
+    }
+
+    // 🔍 acha o primeiro slot vazio
     let targetIndex = this.images.findIndex((img) => img === null);
+
     if (targetIndex === -1) {
       targetIndex = this.images.length;
       this.images.push(null);
       this.imagePreviews.push(null);
     }
 
-    this.images[targetIndex] = file;
+    try {
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      this.imagePreviews[targetIndex] = reader.result as string;
-    };
-    reader.readAsDataURL(file);
+      const resizedFile = await this.imageUtilsService.resizeImage(
+        file,
+        1280,
+        1280,
+        0.7
+      );
+
+      this.images[targetIndex] = resizedFile;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.imagePreviews[targetIndex] = reader.result as string;
+      };
+      reader.readAsDataURL(resizedFile);
+    } catch (error) {
+      console.error('Erro ao processar imagem', error);
+    }
   }
 
   salvarImagens() {
