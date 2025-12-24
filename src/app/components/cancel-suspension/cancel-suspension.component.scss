@@ -8,6 +8,13 @@
     padding: 0.5rem;
 }
 
+.btn-to-create-another-contract {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  gap: 1rem;
+}
+
 .contractNumber__header {
     background-color: #f8f9fa;
     padding: 0.5rem;
