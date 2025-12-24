@@ -1592,14 +1592,19 @@ export class AddContractComponent implements OnInit {
       return;
     }
 
+    offer.loading = true; 
+
     const sellerId = this.authService.getSellerId()!;
 
     this.offerService.reserveOffer(offer.id, sellerId).subscribe({
       next: (updatedOffer: any) => {
         Object.assign(offer, updatedOffer);
-        this.selectedOfferId = offer.id; 
+        this.selectedOfferId = offer.id;
+        offer.loading = false; 
       },
       error: (err) => {
+        offer.loading = false; 
+
         if (err.status === 409) {
           this.messageService.add({
             severity: 'warn',

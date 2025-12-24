@@ -1233,7 +1233,7 @@
           </td>
 
           <td>
-            <!-- SE NÃO ESTÁ RESERVADA -->
+            
             <button
               *ngIf="!offer.reserved"
               pButton
@@ -1242,10 +1242,15 @@
               rounded="true"
               [raised]="true"
               size="small"
+              [loading]="offer.loading"
+              [disabled]="
+                offer.loading ||
+                (selectedOfferId && selectedOfferId !== offer.id)
+              "
               (click)="reserveOffer(offer)"
             ></button>
 
-            <!-- SE ESTÁ RESERVADA -->
+          
             <button
               *ngIf="offer.reserved"
               pButton
