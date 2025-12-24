@@ -325,7 +325,6 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       this.clientId = clientIdFromRoute;
       this.contractId = contractIdFromRoute;
 
-
       return;
     }
 
@@ -540,8 +539,12 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
 
   sendToAutentiqueSubmit() {
     if (!this.selectedOfferId) {
-        this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Selecione uma oferta (agenda)!' });
-        return;
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erro',
+        detail: 'Selecione uma oferta (agenda)!',
+      });
+      return;
     }
 
     const sellerId = this.authService.getSellerId();
@@ -566,14 +569,15 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       },
     ];
 
-    const payload = { 
-      term, 
+    const payload = {
+      term,
       signers: mappedSigners,
       clientId: this.clientId,
       sellerId: sellerId,
-       offerId: this.selectedOfferId,
-        numParcels: this.selectedInstallments || 1,
-        clientType: this.selectedClientType};
+      offerId: this.selectedOfferId,
+      numParcels: this.selectedInstallments || 1,
+      clientType: this.selectedClientType,
+    };
 
     this.actionsContractsService
       .sendAddressChangeAutentique(payload, this.clientId, this.contractId)
@@ -646,7 +650,6 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       adesionValue: this.addressNewForm.adesionValue ?? 0,
       signatureBase64: this.capturedSignature,
       paymentForm: this.addressNewForm.paymentForm,
-      
     };
 
     this.reportsService
@@ -827,14 +830,14 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       this.addressNewForm.zipCode !== this.originalAddressForm.zipCode ||
       this.addressNewForm.street !== this.originalAddressForm.street ||
       this.addressNewForm.numberFromHome !==
-      this.originalAddressForm.numberFromHome ||
+        this.originalAddressForm.numberFromHome ||
       this.addressNewForm.complement !== this.originalAddressForm.complement ||
       this.addressNewForm.uf !== this.originalAddressForm.uf ||
       this.addressNewForm.neighborhood !==
-      this.originalAddressForm.neighborhood ||
+        this.originalAddressForm.neighborhood ||
       this.addressNewForm.city !== this.originalAddressForm.city ||
       this.addressNewForm.observation !== this.originalAddressForm.observation
-    )
+    );
   }
 
   async onConfirmAddressChange() {
@@ -976,7 +979,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     }
   }
 
-   blobToBase64(blob: Blob): Promise<string> {
+  blobToBase64(blob: Blob): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onloadend = () => resolve(reader.result as string);
@@ -984,7 +987,6 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       reader.readAsDataURL(blob);
     });
   }
-
 
   extrairLink(textoCompleto: string): string {
     if (!textoCompleto) return '';
@@ -1064,7 +1066,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   getBoletoUrl(numero: string | number): string {
     return `${numero}`;
   }
-  
+
   navigateToInfoClient() {
     if (this.clientId) {
       this.router.navigate(['info', this.clientId]);
@@ -1072,7 +1074,6 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       this.router.navigate(['/']);
     }
   }
-
 
   loadClientData() {
     this.clientService.getClientById(this.clientId).subscribe({
@@ -1084,7 +1085,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       },
     });
   }
-  
+
   openDialogOs(): void {
     this.dialogOs = true;
   }
@@ -1112,7 +1113,6 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
         error: () => (this.loadingOs = false),
       });
   }
-  
 
   reloadTable() {
     this.osTable.reset();
@@ -1224,9 +1224,27 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     }
   }
 
-  reserveOffer(offer: any) {
+  reserveOffer(offer: any): void {
+    if (this.selectedOfferId && this.selectedOfferId !== offer.id) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Reserva não permitida',
+        detail:
+          'Você já possui uma OS reservada. Libere-a antes de reservar outra.',
+      });
+      return;
+    }
+
+    if (offer.reserved) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'OS indisponível',
+        detail: 'Esta OS já está reservada.',
+      });
+      return;
+    }
+
     const sellerId = this.authService.getSellerId()!;
-    const sellerName = this.authService.getUserFromToken()?.name;
 
     this.offerService.reserveOffer(offer.id, sellerId).subscribe({
       next: (updatedOffer: any) => {
@@ -1238,17 +1256,11 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
           this.messageService.add({
             severity: 'warn',
             summary: 'OS indisponível',
-            detail: 'Já está reservada por outro vendedor.',
+            detail: 'Esta OS já foi reservada por outro vendedor.',
           });
         }
       },
     });
-
-    offer.reserved = true;
-    offer.reservedBy = sellerId;
-    offer.reservedByName = sellerName;
-    offer.reservedAt = new Date();
-    offer.reservedUntil = new Date(Date.now() + 10 * 60000);
   }
 
   unreserveOffer(offer: any) {
