@@ -35,6 +35,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { SignaturePadComponent } from '../../shared/components/signature-pad/signature-pad.component';
 
 import { TooltipModule } from 'primeng/tooltip';
+import { ImageUtilsService } from '../../services/midia/image-utils.service';
 
 export interface StatusFidelidade {
     situacao: 'ISENTO' | 'CUMPRIDA' | 'VIGENTE';
@@ -86,6 +87,7 @@ export class CancelContractComponent implements OnInit {
   private readonly reportsService = inject(ReportsService);
   private readonly sanitizer = inject(DomSanitizer);
   private readonly bankSlipService = inject(BankSlipService);
+  private readonly imageUtilsService = inject(ImageUtilsService);
 
 // --- DADOS ---
   contract: any = {
@@ -792,21 +794,37 @@ cancelarBoletoAtual() {
   }
 
   
-  onFotoCapturada(event: Event): void {
+  async onFotoCapturada(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
 
-    if (input.files && input.files[0]) {
-      const file = input.files[0];
-      this.fotoCapturadaFile = file;
-      const reader = new FileReader();
+    if (!input.files || input.files.length === 0) {
+      return;
+    }
 
+    const file = input.files[0];
+
+    if (!file.type.startsWith('image/')) {
+      return;
+    }
+
+    try {
+      const resizedFile = await this.imageUtilsService.resizeImage(
+        file,
+        1280,
+        1280,
+        0.7
+      );
+
+      this.fotoCapturadaFile = resizedFile;
+      const reader = new FileReader();
       reader.onload = (e) => {
         this.thumbnailPreview = e.target?.result ?? null;
-
         this.isPreviewDialogVisible = true;
       };
 
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(resizedFile);
+    } catch (error) {
+      console.error('Erro ao redimensionar imagem', error);
     }
   }
 

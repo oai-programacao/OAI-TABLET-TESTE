@@ -1,6 +1,10 @@
+import { ImageUtilsService } from './../../services/midia/image-utils.service';
 import { ActionsContractsService } from './../../services/actionsToContract/actions-contracts.service';
 import { ContractsService } from './../../services/contracts/contracts.service';
-import { Contract, RequestDateTransfer } from './../../models/contract/contract.dto';
+import {
+  Contract,
+  RequestDateTransfer,
+} from './../../models/contract/contract.dto';
 import { Component, ElementRef, inject, ViewChild } from '@angular/core';
 import { CardBaseComponent } from '../../shared/components/card-base/card-base.component';
 import { StepPanels } from 'primeng/stepper';
@@ -24,13 +28,12 @@ import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { SignaturePadComponent } from '../../shared/components/signature-pad/signature-pad.component';
-import { AuthService } from '../../core/auth.service';
 import { MidiaService } from '../../services/midia/midia.service';
 import { IftaLabelModule } from 'primeng/iftalabel';
-import { DividerModule } from "primeng/divider";
-import { TableModule } from "primeng/table";
-import { CardModule } from "primeng/card";
-import { CheckComponent } from "../../shared/components/check-component/check-component.component";
+import { DividerModule } from 'primeng/divider';
+import { TableModule } from 'primeng/table';
+import { CardModule } from 'primeng/card';
+import { CheckComponent } from '../../shared/components/check-component/check-component.component';
 
 export interface ConsentTermRequest {
   proportionalValue: number;
@@ -67,15 +70,16 @@ export interface ConsentTermRequestHandle {
     DividerModule,
     TableModule,
     CardModule,
-    CheckComponent
-],
+    CheckComponent,
+  ],
   templateUrl: './alter-date-expired.component.html',
   styleUrl: './alter-date-expired.component.scss',
   providers: [MessageService],
 })
 export class AlterDateExpiredComponent {
   @ViewChild('cameraInput') cameraInput!: ElementRef<HTMLInputElement>;
-  @ViewChild('signaturePadInDialog') signaturePadInDialog!: SignaturePadComponent;
+  @ViewChild('signaturePadInDialog')
+  signaturePadInDialog!: SignaturePadComponent;
 
   clientId!: string;
   contractId!: string;
@@ -94,10 +98,9 @@ export class AlterDateExpiredComponent {
   private readonly actionsContractsService = inject(ActionsContractsService);
   private readonly messageService = inject(MessageService);
   private readonly sanitizer = inject(DomSanitizer);
-  private readonly authService = inject(AuthService);
+  private readonly imageUtilsService = inject(ImageUtilsService);
   private readonly midiaService = inject(MidiaService);
   private signedPdfBlob: Blob | null = null;
-
 
   isLoadingPreview = false;
   previewLoadFailed = false;
@@ -174,13 +177,18 @@ export class AlterDateExpiredComponent {
 
   private showSuccess(summary: string, detail: string, life: number = 3000) {
     this.messageService.add({
-      severity: 'success', summary, detail, life
+      severity: 'success',
+      summary,
+      detail,
+      life,
     });
   }
   private showError(summary: string, detail: string) {
     this.messageService.add({
-      severity: 'error', summary, detail
-    })
+      severity: 'error',
+      summary,
+      detail,
+    });
   }
 
   voltarParaCliente() {
@@ -208,9 +216,7 @@ export class AlterDateExpiredComponent {
 
   selectedTypeOfPaymentMethod: string | null = null;
 
-  typesOfPaymentMethod = [
-    { descricao: 'Boleto Bancário', value: 'Boleto' },
-  ];
+  typesOfPaymentMethod = [{ descricao: 'Boleto Bancário', value: 'Boleto' }];
 
   typesOfDateExpirationCicle = [
     { descricao: 'Nenhum' },
@@ -246,8 +252,6 @@ export class AlterDateExpiredComponent {
     { descricao: '28 a 27 / 30', value: 30 },
     { descricao: '28 a 27 / 31', value: 31 },
   ];
-
-
 
   today: Date = new Date();
   // Cálculo proporcional do boleto
@@ -354,7 +358,10 @@ export class AlterDateExpiredComponent {
     if (this.isLoadingPreview) return;
 
     if (!this.selectedBillingCycle) {
-      this.showError('Error', 'Nenhum plano foi selecionado no passo anterior.');
+      this.showError(
+        'Error',
+        'Nenhum plano foi selecionado no passo anterior.'
+      );
       this.previewLoadFailed = true;
     }
 
@@ -377,21 +384,25 @@ export class AlterDateExpiredComponent {
       newDateExpired: selected.descricao,
     };
 
-    this.reportsService.getConsentTermPdf(this.clientId, this.contractId, requestBody)
+    this.reportsService
+      .getConsentTermPdf(this.clientId, this.contractId, requestBody)
       .subscribe({
         next: (blob) => {
           this.pdfPreviewUrl = window.URL.createObjectURL(blob);
-          this.safePdfPreviewUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfPreviewUrl);
+          this.safePdfPreviewUrl =
+            this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfPreviewUrl);
           this.isLoadingPreview = false;
         },
         error: (err) => {
-          console.error('Erro ao carregar preview do PDF:', err)
-          this.showError('Erro no Preview', 'não foi possível carregar o termo. tente novamente.');
+          console.error('Erro ao carregar preview do PDF:', err);
+          this.showError(
+            'Erro no Preview',
+            'não foi possível carregar o termo. tente novamente.'
+          );
           this.isLoadingPreview = false;
         },
       });
   }
-
 
   //Metodos de captura da assinatura
   abrirAssinatura(): void {
@@ -404,8 +415,8 @@ export class AlterDateExpiredComponent {
       this.signatureVisibleFlag = false;
       setTimeout(() => {
         this.signatureVisibleFlag = true;
-      })
-    }, 30)
+      });
+    }, 30);
   }
 
   resetSignaturePad() {
@@ -414,7 +425,10 @@ export class AlterDateExpiredComponent {
 
   generateConsentTermWithSignature() {
     if (!this.capturedSignature) {
-      this.showError('Atenção', 'capture a assinatura antes de gerar o termo. ');
+      this.showError(
+        'Atenção',
+        'capture a assinatura antes de gerar o termo. '
+      );
       return;
     }
     if (this.isLoadingPreview) return;
@@ -437,7 +451,10 @@ export class AlterDateExpiredComponent {
     if (!selected) return;
 
     if (!this.selectedTypeOfPaymentMethod) {
-      this.showError('Atenção', 'Selecione um método de pagamento para continuar.');
+      this.showError(
+        'Atenção',
+        'Selecione um método de pagamento para continuar.'
+      );
       return;
     }
 
@@ -445,14 +462,16 @@ export class AlterDateExpiredComponent {
       proportionalValue: this.proportionalBoleto || 0,
       newDateExpired: selected.descricao,
       paymentMethod: this.selectedTypeOfPaymentMethod,
-      signature: rawBase64
+      signature: rawBase64,
     };
 
-    this.reportsService.getConsentTermPdf(this.clientId, this.contractId, requestBody)
+    this.reportsService
+      .getConsentTermPdf(this.clientId, this.contractId, requestBody)
       .subscribe({
         next: (blob) => {
           this.pdfPreviewUrl = window.URL.createObjectURL(blob);
-          this.safePdfPreviewUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfPreviewUrl);
+          this.safePdfPreviewUrl =
+            this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfPreviewUrl);
           this.showSuccess('Sucesso', 'Termo com asinatura gerado!');
           this.signDialogVisible = false;
           this.signedPdfBlob = blob;
@@ -460,18 +479,21 @@ export class AlterDateExpiredComponent {
         },
         error: (err) => {
           console.error('Erro ao gerar termo com assinatura: ', err);
-          this.showError('Erro', 'Falha ao gerar o termo final com assinatura.');
+          this.showError(
+            'Erro',
+            'Falha ao gerar o termo final com assinatura.'
+          );
           this.previewLoadFailed = true;
           this.isLoadingPreview = false;
-        }
-      })
+        },
+      });
   }
 
   navigateToInfoClient() {
     if (this.clientId) {
-      this.router.navigate(["info", this.clientId])
+      this.router.navigate(['info', this.clientId]);
     } else {
-      this.router.navigate(["/"])
+      this.router.navigate(['/']);
     }
   }
 
@@ -497,7 +519,9 @@ export class AlterDateExpiredComponent {
     if (!this.pdfPreviewUrl) return;
     const a = document.createElement('a');
     a.href = this.pdfPreviewUrl;
-    a.download = `Termo_alteracao_data_${this.contract.codeContractRbx || this.contractId}.pdf`;
+    a.download = `Termo_alteracao_data_${
+      this.contract.codeContractRbx || this.contractId
+    }.pdf`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -509,20 +533,37 @@ export class AlterDateExpiredComponent {
     this.isPreviewDialogVisible = false;
   }
 
-  onFotoCapturada(event: Event): void {
+  async onFotoCapturada(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
 
-    if (input.files && input.files[0]) {
-      const file = input.files[0];
-      this.fotoCapturadaFile = file;
-      const reader = new FileReader();
+    if (!input.files || input.files.length === 0) {
+      return;
+    }
 
+    const file = input.files[0];
+
+    if (!file.type.startsWith('image/')) {
+      return;
+    }
+
+    try {
+      const resizedFile = await this.imageUtilsService.resizeImage(
+        file,
+        1280,
+        1280,
+        0.7
+      );
+
+      this.fotoCapturadaFile = resizedFile;
+      const reader = new FileReader();
       reader.onload = (e) => {
         this.thumbnailPreview = e.target?.result ?? null;
         this.isPreviewDialogVisible = true;
       };
 
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(resizedFile);
+    } catch (error) {
+      console.error('Erro ao redimensionar imagem', error);
     }
   }
 
@@ -577,7 +618,10 @@ export class AlterDateExpiredComponent {
     console.log('Iniciando submit (fluxo Presencial assinado)');
 
     if (!this.selectedTypeOfPaymentMethod) {
-      this.showError('Atenção', 'Selecione um método de pagamento para continuar.');
+      this.showError(
+        'Atenção',
+        'Selecione um método de pagamento para continuar.'
+      );
       return;
     }
     if (!this.selectedBillingCycle) {
@@ -585,12 +629,16 @@ export class AlterDateExpiredComponent {
       return;
     }
     if (!this.signedPdfBlob) {
-      this.showError('Atenção', 'Você precisa gerar o termo assinado antes de atualizar o contrato.');
+      this.showError(
+        'Atenção',
+        'Você precisa gerar o termo assinado antes de atualizar o contrato.'
+      );
       return;
     }
 
     this.isLoadingTransfer = true;
-    this.loadingMessage = 'Atualizando data de vencimento e registrando atendimento...';
+    this.loadingMessage =
+      'Atualizando data de vencimento e registrando atendimento...';
 
     try {
       const pdfDataUrl = await this.blobToBase64(this.signedPdfBlob);
@@ -609,58 +657,63 @@ export class AlterDateExpiredComponent {
           )?.descricao || '',
         paymentMethod: this.selectedTypeOfPaymentMethod,
         fluxo: this.fluxo,
-        assunto: "Mudança da data de vencimento do cliente:"
-          + this.client.name
-          + " Nº Contrato:"
-          + this.contract.codeContractRbx,
+        assunto:
+          'Mudança da data de vencimento do cliente:' +
+          this.client.name +
+          ' Nº Contrato:' +
+          this.contract.codeContractRbx,
         phone: this.phone || '',
-        pdfBytes: pdfBase64Clean
+        pdfBytes: pdfBase64Clean,
       };
       const pdfParaRegistro: Blob = this.signedPdfBlob;
 
       this.signedPdfBlob = null;
 
-      this.contractService.completeDateTransfer(payload)
-        .subscribe({
-          next: (response) => {
-            console.log('Resposta da API:', response);
-            this.result = response;
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Sucesso',
-              detail: `Data de vencimento alterada com sucesso!`,
-              life: 10000
-            });
+      this.contractService.completeDateTransfer(payload).subscribe({
+        next: (response) => {
+          console.log('Resposta da API:', response);
+          this.result = response;
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Sucesso',
+            detail: `Data de vencimento alterada com sucesso!`,
+            life: 10000,
+          });
 
-            this.tocarCheck = true;
-            setTimeout(() => this.tocarCheck = false, 10)
-            this.isLoadingTransfer = false;
-            this.modalVisible = false;
+          this.tocarCheck = true;
+          setTimeout(() => (this.tocarCheck = false), 10);
+          this.isLoadingTransfer = false;
+          this.modalVisible = false;
 
-            this.finalization = true;
-          },
-          error: (err) => {
-            this.isLoadingTransfer = false;
-            console.error('Erro ao alterar data de vencimento:', err);
+          this.finalization = true;
+        },
+        error: (err) => {
+          this.isLoadingTransfer = false;
+          console.error('Erro ao alterar data de vencimento:', err);
 
-            const backendMessage =
-              typeof err.error === 'string'
-                ? err.error
-                : (err.error?.message || 'Erro ao alterar a data de vencimento.');
+          const backendMessage =
+            typeof err.error === 'string'
+              ? err.error
+              : err.error?.message || 'Erro ao alterar a data de vencimento.';
 
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Erro',
-              detail: backendMessage,
-              life: 10000
-            });
-          }
-        });
-
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erro',
+            detail: backendMessage,
+            life: 10000,
+          });
+        },
+      });
     } catch (err) {
-      console.error('Erro no processamento do PDF ou montagem do payload:', err);
+      console.error(
+        'Erro no processamento do PDF ou montagem do payload:',
+        err
+      );
       this.isLoadingTransfer = false;
-      this.showError('Erro', 'Falha ao preparar o arquivo para envio. Tente novamente.');
+      this.showError(
+        'Erro',
+        'Falha ao preparar o arquivo para envio. Tente novamente.'
+      );
     }
   }
 
@@ -685,7 +738,7 @@ export class AlterDateExpiredComponent {
     const value = Number(id);
     if (isNaN(value)) return '';
 
-    const item = this.typesOfDateExpirationCicle.find(x => x.value === value);
+    const item = this.typesOfDateExpirationCicle.find((x) => x.value === value);
     return item ? item.descricao : '';
   }
 

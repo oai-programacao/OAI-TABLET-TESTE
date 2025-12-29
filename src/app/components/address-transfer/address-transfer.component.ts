@@ -1,3 +1,4 @@
+import { ImageUtilsService } from './../../services/midia/image-utils.service';
 import {
   Component,
   inject,
@@ -142,6 +143,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   private readonly blockOfferService = inject(BlockOffersRequestService);
   private readonly offerService = inject(OffersService);
   private readonly webSocketService = inject(WebSocketService);
+  private readonly imageUtilsService = inject(ImageUtilsService);
   private originalAddressForm: AddressForm | null = null;
   private stopPolling$ = new Subject<void>();
   private destroy$ = new Subject<void>();
@@ -324,7 +326,6 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     if (clientIdFromRoute && contractIdFromRoute) {
       this.clientId = clientIdFromRoute;
       this.contractId = contractIdFromRoute;
-
 
       return;
     }
@@ -540,8 +541,12 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
 
   sendToAutentiqueSubmit() {
     if (!this.selectedOfferId) {
-        this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Selecione uma oferta (agenda)!' });
-        return;
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erro',
+        detail: 'Selecione uma oferta (agenda)!',
+      });
+      return;
     }
 
     const sellerId = this.authService.getSellerId();
@@ -566,14 +571,15 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       },
     ];
 
-    const payload = { 
-      term, 
+    const payload = {
+      term,
       signers: mappedSigners,
       clientId: this.clientId,
       sellerId: sellerId,
-       offerId: this.selectedOfferId,
-        numParcels: this.selectedInstallments || 1,
-        clientType: this.selectedClientType};
+      offerId: this.selectedOfferId,
+      numParcels: this.selectedInstallments || 1,
+      clientType: this.selectedClientType,
+    };
 
     this.actionsContractsService
       .sendAddressChangeAutentique(payload, this.clientId, this.contractId)
@@ -646,7 +652,6 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       adesionValue: this.addressNewForm.adesionValue ?? 0,
       signatureBase64: this.capturedSignature,
       paymentForm: this.addressNewForm.paymentForm,
-      
     };
 
     this.reportsService
@@ -715,21 +720,37 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     this.generateConsentTermWithSignature();
   }
 
-  onFotoCapturada(event: Event): void {
+  async onFotoCapturada(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
 
-    if (input.files && input.files[0]) {
-      const file = input.files[0];
-      this.fotoCapturadaFile = file;
-      const reader = new FileReader();
+    if (!input.files || input.files.length === 0) {
+      return;
+    }
 
+    const file = input.files[0];
+
+    if (!file.type.startsWith('image/')) {
+      return;
+    }
+
+    try {
+      const resizedFile = await this.imageUtilsService.resizeImage(
+        file,
+        1280,
+        1280,
+        0.7
+      );
+
+      this.fotoCapturadaFile = resizedFile;
+      const reader = new FileReader();
       reader.onload = (e) => {
         this.thumbnailPreview = e.target?.result ?? null;
-
         this.isPreviewDialogVisible = true;
       };
 
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(resizedFile);
+    } catch (error) {
+      console.error('Erro ao redimensionar imagem', error);
     }
   }
 
@@ -738,45 +759,6 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     this.fotoCapturadaFile = null;
 
     this.isPreviewDialogVisible = false;
-  }
-
-  salvarFotoCapturada() {
-    if (!this.fotoCapturadaFile) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Nenhuma foto',
-        detail: 'Tire uma foto antes de salvar.',
-      });
-      return;
-    }
-
-    if (!this.clientId) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Erro',
-        detail: 'ID do cliente não encontrado para associar a foto.',
-      });
-      return;
-    }
-
-    const filesToUpload: File[] = [this.fotoCapturadaFile];
-    this.midiaService.saveMidias(filesToUpload, this.clientId).subscribe({
-      next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Foto salva com sucesso!',
-        });
-
-        this.limparPreview();
-      },
-      error: (err) => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro ao salvar a foto',
-        });
-        console.error(err);
-      },
-    });
   }
 
   toggleEditingAddress(): void {
@@ -827,14 +809,14 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       this.addressNewForm.zipCode !== this.originalAddressForm.zipCode ||
       this.addressNewForm.street !== this.originalAddressForm.street ||
       this.addressNewForm.numberFromHome !==
-      this.originalAddressForm.numberFromHome ||
+        this.originalAddressForm.numberFromHome ||
       this.addressNewForm.complement !== this.originalAddressForm.complement ||
       this.addressNewForm.uf !== this.originalAddressForm.uf ||
       this.addressNewForm.neighborhood !==
-      this.originalAddressForm.neighborhood ||
+        this.originalAddressForm.neighborhood ||
       this.addressNewForm.city !== this.originalAddressForm.city ||
       this.addressNewForm.observation !== this.originalAddressForm.observation
-    )
+    );
   }
 
   async onConfirmAddressChange() {
@@ -976,7 +958,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     }
   }
 
-   blobToBase64(blob: Blob): Promise<string> {
+  blobToBase64(blob: Blob): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onloadend = () => resolve(reader.result as string);
@@ -984,7 +966,6 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       reader.readAsDataURL(blob);
     });
   }
-
 
   extrairLink(textoCompleto: string): string {
     if (!textoCompleto) return '';
@@ -1064,7 +1045,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   getBoletoUrl(numero: string | number): string {
     return `${numero}`;
   }
-  
+
   navigateToInfoClient() {
     if (this.clientId) {
       this.router.navigate(['info', this.clientId]);
@@ -1072,7 +1053,6 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       this.router.navigate(['/']);
     }
   }
-
 
   loadClientData() {
     this.clientService.getClientById(this.clientId).subscribe({
@@ -1084,7 +1064,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       },
     });
   }
-  
+
   openDialogOs(): void {
     this.dialogOs = true;
   }
@@ -1112,7 +1092,6 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
         error: () => (this.loadingOs = false),
       });
   }
-  
 
   reloadTable() {
     this.osTable.reset();
@@ -1224,9 +1203,27 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     }
   }
 
-  reserveOffer(offer: any) {
+  reserveOffer(offer: any): void {
+    if (this.selectedOfferId && this.selectedOfferId !== offer.id) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Reserva não permitida',
+        detail:
+          'Você já possui uma OS reservada. Libere-a antes de reservar outra.',
+      });
+      return;
+    }
+
+    if (offer.reserved) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'OS indisponível',
+        detail: 'Esta OS já está reservada.',
+      });
+      return;
+    }
+
     const sellerId = this.authService.getSellerId()!;
-    const sellerName = this.authService.getUserFromToken()?.name;
 
     this.offerService.reserveOffer(offer.id, sellerId).subscribe({
       next: (updatedOffer: any) => {
@@ -1238,17 +1235,11 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
           this.messageService.add({
             severity: 'warn',
             summary: 'OS indisponível',
-            detail: 'Já está reservada por outro vendedor.',
+            detail: 'Esta OS já foi reservada por outro vendedor.',
           });
         }
       },
     });
-
-    offer.reserved = true;
-    offer.reservedBy = sellerId;
-    offer.reservedByName = sellerName;
-    offer.reservedAt = new Date();
-    offer.reservedUntil = new Date(Date.now() + 10 * 60000);
   }
 
   unreserveOffer(offer: any) {

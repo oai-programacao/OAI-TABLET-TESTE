@@ -28,6 +28,7 @@ import { CepService } from '../../services/cep/cep.service';
 import { NgxMaskDirective } from 'ngx-mask';
 import { Cliente } from '../../models/cliente/cliente.dto';
 import { OverlayModule } from 'primeng/overlay';
+import { SelectModule } from 'primeng/select';
 
 @Component({
   selector: 'app-info-client',
@@ -50,6 +51,7 @@ import { OverlayModule } from 'primeng/overlay';
     ToastModule,
     OverlayModule,
     Menu,
+    SelectModule
   ],
   templateUrl: './info-client.component.html',
   styleUrls: ['./info-client.component.scss'],
@@ -71,6 +73,12 @@ export class InfoClientComponent implements OnInit {
 
   cliente: Cliente = {};
 
+  typeContribuinte: string = '1';
+  contribuinteTypes = [
+    { label: 'Não Contribuinte', value: '9' },
+    { label: 'Contribuinte', value: '1' },
+    { label: 'Isento', value: '2' },
+  ];
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
@@ -87,12 +95,12 @@ export class InfoClientComponent implements OnInit {
           {
             label: 'Atendimentos',
             icon: 'pi pi-paperclip',
-            command: () => this.navigateToAttendances()
+            command: () => this.navigateToAttendances(),
           },
           {
             label: 'Central do Assinante',
             icon: 'pi pi-globe',
-            command: () => this.navigateToCenterSubscriber()
+            command: () => this.navigateToCenterSubscriber(),
           },
         ],
       },
@@ -102,7 +110,7 @@ export class InfoClientComponent implements OnInit {
           {
             label: 'Abrir Ticket',
             icon: 'pi pi-flag',
-            command: () => this.navigateToOpenTicket()
+            command: () => this.navigateToOpenTicket(),
           },
         ],
       },
@@ -112,10 +120,9 @@ export class InfoClientComponent implements OnInit {
   carregarCliente(clientId: string) {
     this.clientService.getClientById(clientId).subscribe({
       next: (cliente) => {
-
         if (cliente.birthDate) {
           cliente.birthDate = new Date(cliente.birthDate);
-          console.log(cliente.birthDate)
+          console.log(cliente.birthDate);
         }
 
         if (cliente.openingDate) {
@@ -137,7 +144,7 @@ export class InfoClientComponent implements OnInit {
   navigateToAttendances() {
     this.router.navigate([`/attendances/${this.cliente.id}`]);
   }
-  
+
   navigateToOpenTicket() {
     this.router.navigate([`/ticket-callcenter/${this.cliente.id}`]);
   }
@@ -147,54 +154,54 @@ export class InfoClientComponent implements OnInit {
   }
 
   toggleEditing() {
-    if(this.isLoading){
+    if (this.isLoading) {
       return;
     }
     this.isEditing = !this.isEditing;
   }
 
   saveCliente() {
-  if (!this.cliente.id) {
-    console.error('ID do cliente não encontrado, impossível salvar.');
-    return;
+    if (!this.cliente.id) {
+      console.error('ID do cliente não encontrado, impossível salvar.');
+      return;
+    }
+
+    this.isLoading = true;
+
+    this.clientService.updateClient(this.cliente.id, this.cliente).subscribe({
+      next: (clienteAtualizado) => {
+        if (clienteAtualizado.birthDate) {
+          clienteAtualizado.birthDate = new Date(clienteAtualizado.birthDate);
+        }
+
+        if (clienteAtualizado.openingDate) {
+          clienteAtualizado.openingDate = new Date(
+            clienteAtualizado.openingDate
+          );
+        }
+
+        this.cliente = clienteAtualizado;
+
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Sucesso!',
+          detail: 'Alterações salvas com sucesso!',
+        });
+
+        this.isEditing = false;
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Erro ao salvar cliente:', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro!',
+          detail: 'Não foi possível salvar as alterações. Tente novamente.',
+        });
+        this.isLoading = false;
+      },
+    });
   }
-
-  this.isLoading = true;
-
-  this.clientService.updateClient(this.cliente.id, this.cliente).subscribe({
-    next: (clienteAtualizado) => {
-
-      if (clienteAtualizado.birthDate) {
-        clienteAtualizado.birthDate = new Date(clienteAtualizado.birthDate);
-      }
-
-      if (clienteAtualizado.openingDate) {
-        clienteAtualizado.openingDate = new Date(clienteAtualizado.openingDate);
-      }
-
-      this.cliente = clienteAtualizado;
-
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Sucesso!',
-        detail: 'Alterações salvas com sucesso!',
-      });
-
-      this.isEditing = false;
-      this.isLoading = false;
-    },
-    error: (err) => {
-      console.error('Erro ao salvar cliente:', err);
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Erro!',
-        detail: 'Não foi possível salvar as alterações. Tente novamente.',
-      });
-      this.isLoading = false;
-    },
-  });
-}
-
 
   btnToBack() {
     this.router.navigate(['search']);
@@ -206,7 +213,7 @@ export class InfoClientComponent implements OnInit {
       this.cepService.searchCEP(cep).subscribe({
         next: (dados) => {
           if (!dados.erro) {
-            this.cliente.rua = dados.logradouro|| '';
+            this.cliente.rua = dados.logradouro || '';
             this.cliente.cidade = dados.localidade || '';
             this.cliente.uf = dados.uf || '';
             this.cliente.complemento = dados.complemento || '';
@@ -225,7 +232,7 @@ export class InfoClientComponent implements OnInit {
     } else {
       this.messageService.add({
         severity: 'warn',
-        summary: 'Aviso', 
+        summary: 'Aviso',
         detail: 'ID do cliente não encontrado!',
       });
     }
@@ -246,5 +253,6 @@ export class InfoClientComponent implements OnInit {
     window.open(url, '_blank');
   }
 
+  
 
 }

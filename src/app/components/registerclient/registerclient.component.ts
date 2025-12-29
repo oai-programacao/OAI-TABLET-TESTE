@@ -70,6 +70,7 @@ export class RegisterclientComponent {
     birthDate: undefined,
     socialName: '',
     fantasyName: '',
+    typeContribuinte: '',
     cnpj: '',
     ie: '',
     openingDate: undefined,
@@ -97,6 +98,13 @@ export class RegisterclientComponent {
   clientTypes = [
     { label: 'Pessoa Física', value: 'PF' },
     { label: 'Pessoa Jurídica', value: 'PJ' },
+  ];
+
+  typeContribuinte: string = '1';
+  contribuinteTypes = [
+    { label: 'Não Contribuinte', value: '9' },
+    { label: 'Contribuinte', value: '1' },
+    { label: 'Isento', value: '2' },
   ];
 
   cepNaoEncontrado: boolean = false;
@@ -248,8 +256,8 @@ export class RegisterclientComponent {
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: 'Sim, cadastrar',
       rejectLabel: 'Cancelar',
-      rejectButtonStyleClass: 'p-button-danger', 
-      acceptButtonStyleClass: 'p-button-success', 
+      rejectButtonStyleClass: 'p-button-danger',
+      acceptButtonStyleClass: 'p-button-success',
       accept: () => {
         this.executarCadastro(form);
       },
@@ -273,6 +281,7 @@ export class RegisterclientComponent {
       socialName: this.clienteForm.value.razao,
       fantasyName: this.clienteForm.value.fantasia,
       cnpj: this.clienteForm.value.cnpj,
+      typeContribuinte: this.clienteForm.value.typeContribuinte,
       ie: this.clienteForm.value.inscricao,
       openingDate: this.clienteForm.value.dateopen,
       cep: this.clienteForm.value.cep,

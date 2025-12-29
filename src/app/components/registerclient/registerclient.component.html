@@ -222,12 +222,11 @@
                     pInputText
                     id="inscricao"
                     name="inscricao"
-                    required
                     #inscricao="ngModel"
                     [(ngModel)]="cliente.ie"
                     mask="000000000000"
                   />
-                  <label for="inscricao">Inscrição Estadual*</label>
+                  <label for="inscricao">Inscrição Estadual</label>
                 </p-iftalabel>
               </p-inputgroup>
             </div>
@@ -318,6 +317,26 @@
               </p-inputgroup>
             </div>
           </div>
+
+          
+          <div class="typeContribuinte">
+            <p class="helper-text">Contribuinte ?*</p>
+            <p-iftalabel class="w-full md:w-56">
+              <p-select
+                [options]="contribuinteTypes"
+                optionLabel="label"
+                optionValue="value"
+                [(ngModel)]="cliente.typeContribuinte"
+                placeholder="Selecione"
+                class="w-full md:w-56"
+                name="typeContribuinte"
+                required
+              >
+              </p-select>
+              <label for="typeContribuinte">Contribuinte ?</label>
+            </p-iftalabel>
+          </div>
+
         </div>
 
         <!-- ========================================================= -->

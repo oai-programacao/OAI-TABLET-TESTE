@@ -75,7 +75,12 @@
                 severity="secondary"
                 label="Menu do Cliente"
                 raised="true"
-                style="background-color: #4b5563; color: #fff; border: none; border-radius: 8px;"
+                style="
+                  background-color: #4b5563;
+                  color: #fff;
+                  border: none;
+                  border-radius: 8px;
+                "
                 (click)="menu.toggle($event)"
               ></button>
             </div>
@@ -302,6 +307,24 @@
                 <label for="ie">Inscrição Estadual</label>
               </p-iftalabel>
             </p-inputgroup>
+
+            <div class="typeContribuinte">
+              <p-iftalabel class="w-full md:w-56">
+                <p-select
+                  [options]="contribuinteTypes"
+                  optionLabel="label"
+                  optionValue="value"
+                  [(ngModel)]="cliente.typeContribuinte"
+                  placeholder="Selecione"
+                  class="w-full md:w-56"
+                  name="typeContribuinte"
+                  [disabled]="!isEditing"
+                  required
+                >
+                </p-select>
+                <label for="typeContribuinte">Contribuinte ?</label>
+              </p-iftalabel>
+            </div>
           </div>
 
           <!-- Data de Abertura -->
@@ -634,8 +657,8 @@
             severity="help"
             icon="pi pi-check"
             (onClick)="saveCliente()"
-            [disabled]="isLoading"  
-            [loading]="isLoading" 
+            [disabled]="isLoading"
+            [loading]="isLoading"
           ></p-button>
         </div>
       </form>
@@ -684,7 +707,7 @@
             size="large"
             icon="pi pi-pencil"
             (onClick)="toggleEditing()"
-            [disabled]="isLoading" 
+            [disabled]="isLoading"
           />
         </div>
       </div>

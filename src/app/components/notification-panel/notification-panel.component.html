@@ -1,43 +1,28 @@
-<p-dialog
-  header="Central de Notificações 🔔"
-  [(visible)]="visivel"
-  [modal]="true"
-  [style]="{ width: '400px' }"
-  [draggable]="false"
-  [resizable]="false"
-  (onHide)="fechar()"
-  class="dialog-notification"
->
+<p-dialog header="Central de Notificações 🔔" [(visible)]="visivel" [modal]="true" [style]="{ width: '400px' }"
+  [draggable]="false" [resizable]="false" (onHide)="fechar()" class="dialog-notification">
   <ng-template pTemplate="content">
     <!-- Indicador de carregamento -->
     <div *ngIf="carregando" class="loading">Carregando notificações...</div>
 
     <!-- Lista de notificações com scroll -->
-    <div
-      *ngIf="!carregando && notificacoes.length > 0; else semNotificacoes"
-      class="notificacoes-container"
-    >
-      <div
-        *ngFor="let n of notificacoes"
-        class="notificacao-item"
-        [ngClass]="{ lida: n.status === 'READ' }"
-      >
+    <div *ngIf="!carregando && notificacoes.length > 0; else semNotificacoes" class="notificacoes-container">
+      <div *ngFor="let n of notificacoes" class="notificacao-item" [ngClass]="{ lida: n.status === 'READ' }">
         <div class="notificacao-texto">
           <h4>
-            {{ n.type === 'TERM_ALTER_DATE' ? 'Termo de Alteração de Fatura' : 
-               n.type === 'BILL_PAID_ALTER_DATE' ? 'Boleto Compensado' : 
-               n.type === 'CONTRACT_CANCEL' ? 'Contrato Cancelado' :
-               n.type === 'NEW_CONTRACT' ? 'Novo Contrato' : n.type }}
+            {{ n.type === 'TERM_ALTER_DATE' ? 'Termo de Alteração de Fatura' :
+            n.type === 'BILL_PAID_ALTER_DATE' ? 'Boleto Compensado' :
+            n.type === 'CONTRACT_CANCEL' ? 'Contrato Cancelado' :
+            n.type === 'UPGRADE' ? 'Upgrade do contrato' :
+            n.type === 'DOWNGRADE' ? 'Downgrade do contrato' :
+            n.type === 'UPDATE_ADDRESS_AUTO' ? 'Atualizar endereço' :
+            n.type === 'CANCEL_TEMPORARY_SUSPENSION' ? 'Cancelamento de suspensão temporaria' :
+            n.type === 'TEMPORARY_SUSPENSION' ? 'Supensão temporaria' :
+            n.type === 'TRANSFER_OWNERSHIP' ? 'Transferencia de titularidade' : n.type }}
           </h4>
           <p>{{ n.message }}</p>
           <span class="data">{{ n.createdAt | date : "short" }}</span>
         </div>
-        <button
-          *ngIf="n.status !== 'READ'"
-          type="button"
-          class="btn-lida"
-          (click)="marcarComoLida(n.id)"
-        >
+        <button *ngIf="n.status !== 'READ'" type="button" class="btn-lida" (click)="marcarComoLida(n.id)">
           Marcar como lida
         </button>
       </div>

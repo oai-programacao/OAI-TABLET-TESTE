@@ -12,6 +12,7 @@ export interface Cliente {
   // PJ
   socialName?: string;
   fantasyName?: string;
+  typeContribuinte?: string;
   cnpj?: string;
   ie?: string;
 

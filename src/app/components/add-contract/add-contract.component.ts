@@ -1597,7 +1597,7 @@ export class AddContractComponent implements OnInit {
     this.offerService.reserveOffer(offer.id, sellerId).subscribe({
       next: (updatedOffer: any) => {
         Object.assign(offer, updatedOffer);
-        this.selectedOfferId = offer.id; 
+        this.selectedOfferId = offer.id;
       },
       error: (err) => {
         if (err.status === 409) {
