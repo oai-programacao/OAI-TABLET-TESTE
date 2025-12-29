@@ -33,98 +33,82 @@
             <!-- Mudança de activeStepIndex === 0 para activeStep === 1 -->
             <div *ngIf="activeStep === 1" class="step-panel-content">
                 <div class="step-content">
-                    <span class="step-instruction">Digite o documento do novo titular para iniciar a transferência.</span>
+                    <div class="info-plans">
+                        <span>Plano atual do contrato: </span> {{ selectedContractForTransfer?.planName }}
+                        <br>
+                        Código do plano RBX: {{ selectedContractForTransfer?.codePlanRbx }}
+
+                        <p class="info-warning">
+                            Informamos que a transferência de contrato está disponível exclusivamente para planos que se
+                            encontrem com status <strong>ativo</strong>. 
+                            <br>Planos inativos não são elegíveis para transferência.
+                        </p>
+                    </div>
+                    <span class="step-instruction">Digite o documento do novo titular para iniciar a
+                        transferência.</span>
                     <div class="form-group-input">
                         <p-iftalabel variant="on">
-                            <input 
-                                pInputText id="documento" 
-                                [(ngModel)]="documento" 
-                                name="documento" required
+                            <input pInputText id="documento" [(ngModel)]="documento" name="documento" required
                                 minlength="14" maxlength="18" placeholder="CPF/CNPJ"
-                                (ngModelChange)="formatarDocumento($event)" 
-                                (keypress)="allowOnlyNumbers($event)"
-                                (paste)="onPaste($event)" 
-                                autocomplete="off" />
+                                (ngModelChange)="formatarDocumento($event)" (keypress)="allowOnlyNumbers($event)"
+                                (paste)="onPaste($event)" autocomplete="off" />
                             <label for="documento"></label>
                         </p-iftalabel>
                     </div>
                 </div>
                 <div class="step-footer-step1">
-                    <p-button 
-                        [rounded]="true" 
-                        severity="warn" 
-                        label="Buscar" 
-                        icon="pi pi-search"
+                    <p-button [rounded]="true" severity="warn" label="Buscar" icon="pi pi-search"
                         (onClick)="onSearchNewOwner()">
                     </p-button>
                     <!-- Mudança para activeStep = 2 -->
-                    <p-button 
-                        [rounded]="true" 
-                        label="Próximo" 
-                        icon="pi pi-arrow-right" 
-                        (onClick)="activeStep = 2"
-                        [disabled]="!foundClient"
-                        *ngIf="!createNewClient">
+                    <p-button [rounded]="true" label="Próximo" icon="pi pi-arrow-right" (onClick)="activeStep = 2"
+                        [disabled]="!foundClient" *ngIf="!createNewClient">
                     </p-button>
-                    <p-button 
-                        [rounded]="true" 
-                        label="Criar Cliente" 
-                        icon="pi pi-arrow-right"
-                        (onClick)="navigateToCreateClient()"
-                        *ngIf="createNewClient">
+                    <p-button [rounded]="true" label="Criar Cliente" icon="pi pi-arrow-right"
+                        (onClick)="navigateToCreateClient()" *ngIf="createNewClient">
                     </p-button>
                 </div>
             </div>
 
             <!-- Mudança para activeStep === 2 -->
             <div *ngIf="activeStep === 2" class="step-panel-content">
-                <ng-container *ngIf="foundClient; else erro"> 
-                        <div class="fluxo-container">
-                            <div class="fluxo-card online">
-                                <div class="fluxo-header">
-                                    🖥️
-                                    <h3>Atendimento Online</h3>
-                                </div>
-                                <div class="fluxo-body">
-                                    <p>Envie o termo para assinatura online via Autentique. Ideal para clientes atendidos
-                                        remotamente.</p>
-                                </div>
-                                <div class="fluxo-footer">
-                                    <p-button 
-                                        label="Enviar via Autentique" 
-                                        icon="pi pi-send" 
-                                        severity="warn"
-                                        [raised]="true" 
-                                        (onClick)="abrirModalAutentique()"
-                                        [style]="{ padding: '2rem 4rem' }"
-                                        >
-                                    </p-button>
-                                </div>
+                <ng-container *ngIf="foundClient; else erro">
+                    <div class="fluxo-container">
+                        <div class="fluxo-card online">
+                            <div class="fluxo-header">
+                                🖥️
+                                <h3>Atendimento Online</h3>
                             </div>
-
-                            <!-- CARD 2 - PRESENCIAL -->
-                            <div class="fluxo-card presencial">
-                                <div class="fluxo-header">
-                                    🤝
-                                    <h3>Atendimento Presencial</h3>
-                                </div>
-                                <div class="fluxo-body">
-                                    <p>O cliente assinará o documento manualmente. A transferência será efetivada após a
-                                        visualização do termo.</p>
-                                </div>
-                                <div class="fluxo-footer">
-                                     <p-button 
-                                        label="Assinatura Manual" 
-                                        icon="pi pi-file-pdf" 
-                                        severity="success"
-                                        [raised]="true" 
-                                        (onClick)="goToPdfViewerStep()"
-                                        [style]="{ padding: '2rem 4rem' }">
-                                    </p-button>
-                                </div>
+                            <div class="fluxo-body">
+                                <p>Envie o termo para assinatura online via Autentique. Ideal para clientes atendidos
+                                    remotamente.</p>
+                            </div>
+                            <div class="fluxo-footer">
+                                <p-button label="Enviar via Autentique" icon="pi pi-send" severity="warn"
+                                    [raised]="true" (onClick)="abrirModalAutentique()"
+                                    [style]="{ padding: '2rem 4rem' }">
+                                </p-button>
                             </div>
                         </div>
-                </ng-container> 
+
+                        <!-- CARD 2 - PRESENCIAL -->
+                        <div class="fluxo-card presencial">
+                            <div class="fluxo-header">
+                                🤝
+                                <h3>Atendimento Presencial</h3>
+                            </div>
+                            <div class="fluxo-body">
+                                <p>O cliente assinará o documento manualmente. A transferência será efetivada após a
+                                    visualização do termo.</p>
+                            </div>
+                            <div class="fluxo-footer">
+                                <p-button label="Assinatura Manual" icon="pi pi-file-pdf" severity="success"
+                                    [raised]="true" (onClick)="goToPdfViewerStep()" [style]="{ padding: '2rem 4rem' }">
+                                </p-button>
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
                 <ng-template #erro>
                     <div class="alert-warning">
                         ⚠️ Para acessar este passo, volte e busque um cliente válido no Passo 1.
@@ -156,63 +140,30 @@
                             </iframe>
 
                             <div class="btn-signature">
-                                <p-button 
-                                    label="Assinaturas" 
-                                    icon="pi pi-pencil" 
-                                    severity="info" 
-                                    rounded="true"                                
-                                    raised="true" 
-                                    (click)="abrirAssinatura()">
+                                <p-button label="Assinaturas" icon="pi pi-pencil" severity="info" rounded="true"
+                                    raised="true" (click)="abrirAssinatura()">
                                 </p-button>
 
-                                <p-button 
-                                    label="Capturar Foto" 
-                                    icon="pi pi-camera" 
-                                    (click)="triggerCameraInput()"
-                                    severity="info" 
-                                    rounded="true" 
-                                    raised="true">
+                                <p-button label="Capturar Foto" icon="pi pi-camera" (click)="triggerCameraInput()"
+                                    severity="info" rounded="true" raised="true">
                                 </p-button>
 
-                                <p-button 
-                                    label="Salvar PDF" 
-                                    icon="pi pi-download" 
-                                    styleClass="p-button-sm p-button-success"
-                                    (click)="savePdf()" 
-                                    [disabled]="!safePdfPreviewUrl" rounded="true"
-                                    raised="true">
+                                <p-button label="Salvar PDF" icon="pi pi-download"
+                                    styleClass="p-button-sm p-button-success" (click)="savePdf()"
+                                    [disabled]="!safePdfPreviewUrl" rounded="true" raised="true">
                                 </p-button>
                             </div>
                         </div>
                     </div>
-                            <div class="camera-section">
-                                <input
-                                type="file"
-                                accept="image/*"
-                                capture="environment"
-                                (change)="onFotoCapturada($event)"
-                                style="display: none"
-                                #cameraInput
-                                />
-                            </div>
+                    <div class="camera-section">
+                        <input type="file" accept="image/*" capture="environment" (change)="onFotoCapturada($event)"
+                            style="display: none" #cameraInput />
+                    </div>
                     <div class="btn-to-navigate">
-                        <p-button 
-                            label="Voltar" 
-                            icon="pi pi-arrow-left" 
-                            severity="secondary"
-                            rounded="true" 
-                            size="large"
-                            [raised]="true" 
-                            (onClick)="goToStep(2)" />
-                        <p-button 
-                            severity="success" 
-                            rounded="true" 
-                            raised="true" 
-                            size="large" 
-                            icon="pi pi-arrow-right"
-                            iconPos="right" 
-                            label="Proxímo" 
-                            (onClick)="goToStep(4)"
+                        <p-button label="Voltar" icon="pi pi-arrow-left" severity="secondary" rounded="true"
+                            size="large" [raised]="true" (onClick)="goToStep(2)" />
+                        <p-button severity="success" rounded="true" raised="true" size="large" icon="pi pi-arrow-right"
+                            iconPos="right" label="Proxímo" (onClick)="goToStep(4)"
                             [disabled]="!signatureOldBase64 || !signatureNewBase64" />
                     </div>
                 </ng-container>
@@ -232,34 +183,26 @@
                                 { campo: 'CPF/CNPJ', valor: result?.clientOldCpfCnpj ? formatCpfCnpj(result.clientOldCpfCnpj) : '' },
                                 { campo: 'Contrato RBX antigo', valor: result?.oldContractCode },
                                 { campo: 'Novo Cliente (nome)', valor: result?.clientNewName },
-                            ]"
-                            >
+                            ]">
                                 <ng-template pTemplate="header">
                                     <tr>
-                                    <th>Campo</th>
-                                    <th>Valor</th>
+                                        <th>Campo</th>
+                                        <th>Valor</th>
                                     </tr>
                                 </ng-template>
 
                                 <ng-template pTemplate="body" let-rowData>
                                     <tr>
-                                    <td>{{ rowData.campo }}</td>
-                                    <td>{{ rowData.valor }}</td>
+                                        <td>{{ rowData.campo }}</td>
+                                        <td>{{ rowData.valor }}</td>
                                     </tr>
                                 </ng-template>
                             </p-table>
                         </div>
-                            <div class="button-finalization">
-                                <p-button
-                                    label="Voltar ao Menu do cliente"
-                                    icon="pi pi-thumbs-up-fil"
-                                    severity="success"
-                                    rounded="true"
-                                    size="large"
-                                    [raised]="true"
-                                    (onClick)="voltarParaCliente()"
-                                />
-                            </div>
+                        <div class="button-finalization">
+                            <p-button label="Voltar ao Menu do cliente" icon="pi pi-thumbs-up-fil" severity="success"
+                                rounded="true" size="large" [raised]="true" (onClick)="voltarParaCliente()" />
+                        </div>
                     </div>
                     <div *ngIf="!finalization" class="step-footer">
                         <div class="step-antes-finalization">
@@ -267,10 +210,10 @@
                                 <span>
                                     Deseja realmente concluir o processo de transferencia de titularidade?
                                 </span>
-                               <p style="font-size: 1em;">
+                                <p style="font-size: 1em;">
                                     <strong style="color: #d32f2f;">Observações sobre o Processo:</strong>
                                     <br><br>
-                                    
+
                                     ✓ Será criado um novo contrato para o titular indicado
                                     <br>
                                     ✓ É necessário que o contrato possua MAC configurado (autenticação)
@@ -279,23 +222,10 @@
                                 </p>
                             </div>
                             <div class="footer-actions">
-                                <p-button
-                                    label="Voltar"
-                                    icon="pi pi-arrow-left"
-                                    severity="secondary"
-                                    rounded="true"
-                                    size="large"
-                                    [raised]="true"
-                                    (onClick)="goToStep(3)"
-                                    />
-                                <p-button
-                                    severity="success"
-                                    [rounded]="true"
-                                    label="Enviar alteração"
-                                    icon="pi pi-check"
-                                    [loading]="isLoadingTransfer"
-                                    (onClick)="onConfirmTransfer()"
-                                    />
+                                <p-button label="Voltar" icon="pi pi-arrow-left" severity="secondary" rounded="true"
+                                    size="large" [raised]="true" (onClick)="goToStep(3)" />
+                                <p-button severity="success" [rounded]="true" label="Enviar alteração"
+                                    icon="pi pi-check" [loading]="isLoadingTransfer" (onClick)="onConfirmTransfer()" />
                             </div>
                         </div>
                     </div>
@@ -307,7 +237,7 @@
                 </ng-template>
             </div>
         </div>
-        <app-check [trigger]="tocarCheck"/>
+        <app-check [trigger]="tocarCheck" />
     </app-card-base>
 
     <!-- Adicionada estrutura de alert-box melhorada no modal -->
@@ -385,22 +315,14 @@
     </p-dialog>
 
     <!-- DIALOG ASSINATURA CEDENTE -->
-    <p-dialog 
-            header="Assinatura do Cedente (Titular Atual)" 
-            [(visible)]="dialogAssinaturaCedente" 
-            [modal]="true"
-            [closable]="true"
-            [style]="{ width: '70vw', maxWidth: '900px' }"
-            [draggable]="false"
-            [resizable]="false"
-            styleClass="signature-dialog"
-            (onShow)="forceSignatureRedraw()"
-            (onHide)="resetSignaturePad()">
+    <p-dialog header="Assinatura do Cedente (Titular Atual)" [(visible)]="dialogAssinaturaCedente" [modal]="true"
+        [closable]="true" [style]="{ width: '70vw', maxWidth: '900px' }" [draggable]="false" [resizable]="false"
+        styleClass="signature-dialog" (onShow)="forceSignatureRedraw()" (onHide)="resetSignaturePad()">
         <div class="signature-pad-container">
             <div class="signature-input">
                 <p-iftalabel>
                     <label for="signature-old">
-                        <i class="pi pi-user"></i> 
+                        <i class="pi pi-user"></i>
                         Por favor, solicite a assinatura do titular atual no campo abaixo:
                     </label>
                     <ng-container *ngIf="signatureVisibleFlag">
@@ -410,48 +332,31 @@
             </div>
         </div>
 
-            <p-divider layout="horizontal"></p-divider>
+        <p-divider layout="horizontal"></p-divider>
 
-            <ng-template pTemplate="footer">
-                <div class="btn-dialog">
-                    <p-button 
-                        label="Cancelar"
-                        icon="pi pi-times"
-                        severity="warn"
-                        rounded="true"
-                        (onClick)="dialogAssinaturaCedente = false">
-                    </p-button>
-                    
-                    <p-button 
-                        label="Próximo"
-                        icon="pi pi-arrow-right"
-                        iconPos="right"
-                        severity="info"
-                        rounded="true"
-                        (onClick)="confirmOldSignature()">
-                    </p-button>
-                </div>
-            </ng-template>
+        <ng-template pTemplate="footer">
+            <div class="btn-dialog">
+                <p-button label="Cancelar" icon="pi pi-times" severity="warn" rounded="true"
+                    (onClick)="dialogAssinaturaCedente = false">
+                </p-button>
+
+                <p-button label="Próximo" icon="pi pi-arrow-right" iconPos="right" severity="info" rounded="true"
+                    (onClick)="confirmOldSignature()">
+                </p-button>
+            </div>
+        </ng-template>
     </p-dialog>
 
     <!-- DIALOG ASSINATURA CESSIONÁRIO -->
-     <p-dialog 
-        header="Assinatura do Cessionário (Novo Titular)" 
-        [(visible)]="dialogAssinaturaCessionario" 
-        [modal]="true"
-        [closable]="true"
-        [style]="{ width: '80vw', maxWidth: '900px' }"
-        [draggable]="false"
-        [resizable]="false"
-        styleClass="signature-dialog"
-        (onShow)="forceSignatureRedraw()"
-        (onHide)="resetSignaturePad()">
-        
+    <p-dialog header="Assinatura do Cessionário (Novo Titular)" [(visible)]="dialogAssinaturaCessionario" [modal]="true"
+        [closable]="true" [style]="{ width: '80vw', maxWidth: '900px' }" [draggable]="false" [resizable]="false"
+        styleClass="signature-dialog" (onShow)="forceSignatureRedraw()" (onHide)="resetSignaturePad()">
+
         <div class="signature-pad-container">
             <div class="signature-input">
                 <p-iftalabel>
                     <label for="signature-new">
-                        <i class="pi pi-user-plus"></i> 
+                        <i class="pi pi-user-plus"></i>
                         Por favor, solicite a assinatura do novo titular no campo abaixo:
                     </label>
                     <ng-container *ngIf="signatureVisibleFlag">
@@ -465,21 +370,12 @@
 
         <ng-template pTemplate="footer">
             <div class="btn-dialog">
-                <p-button 
-                    label="Voltar"
-                    icon="pi pi-arrow-left"
-                    severity="secondary"
-                    rounded="true"
+                <p-button label="Voltar" icon="pi pi-arrow-left" severity="secondary" rounded="true"
                     (onClick)="dialogAssinaturaCessionario = false; dialogAssinaturaCedente = true">
                 </p-button>
-                
-                <p-button 
-                    label="Gerar Termo Final"
-                    icon="pi pi-file-pdf"
-                    severity="success"
-                    rounded="true"
-                    [loading]="isLoadingPreview"
-                    (onClick)="captureAndGenerate()">
+
+                <p-button label="Gerar Termo Final" icon="pi pi-file-pdf" severity="success" rounded="true"
+                    [loading]="isLoadingPreview" (onClick)="captureAndGenerate()">
                 </p-button>
             </div>
         </ng-template>

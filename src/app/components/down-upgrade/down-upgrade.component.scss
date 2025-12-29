@@ -85,25 +85,25 @@ $transition-base: 0.3s ease;
 }
 
 .contractNumber__header {
-    background-color: #f8f9fa;
-    padding: 0.5rem;
-    border-radius: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border: 1px solid #dee2e6;
+  background-color: #f8f9fa;
+  padding: 0.5rem;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #dee2e6;
 
-    label {
-        font-weight: 500;
-        color: #575353;
-        font-size: 1.3rem;
-    }
+  label {
+    font-weight: 500;
+    color: #575353;
+    font-size: 1.3rem;
+  }
 
-    span {
-        font-weight: 700;
-        font-size: 1.3rem;
-        color: #1c34a0;
-    }
+  span {
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: #1c34a0;
+  }
 }
 
 .step {
@@ -718,6 +718,31 @@ p-progressspinner {
   height: 60%;
   background: linear-gradient(180deg, transparent, #d302fd, transparent);
   opacity: 0.6;
+}
+
+:host ::ng-deep {
+  .status-tag {
+    display: inline-block;
+    padding: 0.25rem 0.4rem;
+    border-radius: $border-radius-sm;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #ffffff;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+  .status-active {
+    background-color: #22c55e;
+  }
+  .status-inactive {
+    background-color: #ef4444;
+  }
+}
+
+.selected-item-flex {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm; 
 }
 
 .button-finalization {

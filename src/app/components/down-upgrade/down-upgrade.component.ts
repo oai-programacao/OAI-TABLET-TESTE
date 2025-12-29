@@ -38,6 +38,7 @@ import { IftaLabelModule } from "primeng/iftalabel";
 import { AttendancesService } from '../../services/attendances/attendance.service';
 import { TableModule } from "primeng/table";
 import { CheckComponent } from '../../shared/components/check-component/check-component.component';
+import { TagModule } from "primeng/tag";
 
 export interface ContractUpdate {
   seller: string;
@@ -81,8 +82,9 @@ export interface ContractUpdate {
     SignaturePadComponent,
     IftaLabelModule,
     TableModule,
-    CheckComponent
-  ],
+    CheckComponent,
+    TagModule
+],
   providers: [MessageService],
   templateUrl: './down-upgrade.component.html',
   styleUrl: './down-upgrade.component.scss'
@@ -120,6 +122,7 @@ export class DownUpgradeComponent implements OnInit {
   upgradeForm!: FormGroup;
 
   selectedPlan: ServicePlan | null = null;
+  plans: { label: string; value: string }[] = [];
   typesofplans: ServicePlan[] = [];
 
   selectedBillingCycle: number | null = null;
@@ -207,10 +210,35 @@ export class DownUpgradeComponent implements OnInit {
     this.loadContract();
   }
 
+  isPlanoCnpj(plan: any): boolean {
+    return !!plan?.nome
+      ?.normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toUpperCase()
+      .includes('EMPRESARIAL');
+  }
+
+  isClientePJ(): boolean {
+    const docRaw = this.client?.cpf || (this.client as any)?.cnpj || (this.client as any)?.documento || '';
+
+    const apenasNumeros = docRaw.replace(/\D/g, '');
+
+    console.log("Depuração - Documento Original:", docRaw);
+    console.log("Depuração - Apenas Números:", apenasNumeros);
+    console.log("Depuração - Tamanho:", apenasNumeros.length);
+    const ehPJ = apenasNumeros.length === 14;
+
+    console.log("Depuração - É Cliente PJ?:", ehPJ);
+
+    return ehPJ;
+  }
+
+
   navigateToInfoClient() {
     if (this.clientId) {
       this.router.navigate(["info", this.clientId])
-    } else {
+    }
+    else {
       this.router.navigate(["/"])
     }
   }
@@ -237,22 +265,74 @@ export class DownUpgradeComponent implements OnInit {
   loadPlans(): void {
     this.planService.getPlans().subscribe({
       next: (data) => {
-        this.typesofplans = data;
+        const clienteEhPJ = this.isClientePJ();
+
+        this.plans = data.map((plan) => ({
+          label: `${plan.codePlanRBX} - ${plan.nome}`,
+          value: String(plan.codePlanRBX || ''),
+          code: String(plan.codePlanRBX || ''),
+          name: plan.nome,
+          status: plan.status,
+          disabled: plan.status === 'I',
+        }));
+
+        this.typesofplans = data.map(plan => {
+          const ehEmpresarial = this.isPlanoCnpj(plan);
+          const statusInativo = plan.status === 'I';
+          const desabilitado = (ehEmpresarial && !clienteEhPJ) || statusInativo;
+
+          let sufixoAviso = '';
+          if (statusInativo) sufixoAviso = ' (Indisponível)';
+          else if (ehEmpresarial && !clienteEhPJ) sufixoAviso = ' (Apenas PJ)';
+
+          return {
+            ...plan,
+            nomeExibicao: `${plan.nome}${sufixoAviso}`,
+            disabled: desabilitado
+          };
+        });
       },
-      error: (err) => {
-        console.error('Erro ao carregar planos', err);
-      }
+      error: (err) => console.error('Erro ao carregar planos', err)
     });
   }
 
-  public get valorFinalComDescontoDisplay(): number{
+  onPlanSelect(plan: any): void {
+    if (!plan) return;
+
+    const ehEmpresarial = this.isPlanoCnpj(plan);
+    const clienteEhPJ = this.isClientePJ();
+
+    if (ehEmpresarial && !clienteEhPJ) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Acesso Negado',
+        detail: 'Este plano é exclusivo para clientes empresariais (PJ).'
+      });
+      this.selectedPlan = null;
+      return;
+    }
+
+    if (plan.status === 'I') {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Plano Indisponível',
+        detail: 'Este plano está desativado no banco de dados e não pode ser utilizado.'
+      });
+      this.selectedPlan = null;
+      return;
+    }
+
+    this.selectedPlan = plan;
+    console.log("Plano selecionado com sucesso:", plan);
+  }
+
+  public get valorFinalComDescontoDisplay(): number {
     const valorBase = this.selectedPlan?.valor || 0;
     const desconto = this.newDiscount || 0;
-    if(!this.selectedPlan) {
+    if (!this.selectedPlan) {
       return 0;
     }
     const valorFinal = valorBase - desconto;
-
     return valorFinal > 0 ? valorFinal : 0;
   }
 
@@ -372,8 +452,8 @@ export class DownUpgradeComponent implements OnInit {
           const desconto = this.newDiscount || 0;
           const valorFinalComDesconto = valorPlano - desconto;
           this.result = {
-            clientName: this.client.name, 
-            clientCpf: this.client.cpf,   
+            clientName: this.client.name,
+            clientCpf: this.client.cpf,
             contrato: newContractResponse.codeContractRbx,
             plano: this.selectedPlan!.nome,
             valor: valorFinalComDesconto

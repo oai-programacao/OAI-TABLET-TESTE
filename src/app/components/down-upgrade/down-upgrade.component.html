@@ -50,8 +50,8 @@
                     </div>
                     <div class="value-row">
                       <i class="pi pi-dollar"></i>
-                      <span
-                        >Desconto: -{{
+                      <span>
+                        Desconto: -{{
                           contract!.descountFixe | number : "1.2-2"
                         }}
                       </span>
@@ -100,23 +100,42 @@
                       [virtualScroll]="true"
                       [virtualScrollItemSize]="40"
                       styleClass="w-full"
-                    >
+                      [optionDisabled]="'disabled'"
+                      (onChange)="onPlanSelect($event.value)"
+                    >       
                       <ng-template pTemplate="selectedItem" let-plan>
                         <div *ngIf="plan" class="select-item-layout">
                           <span class="select-item-nome">{{ plan.nome }}</span>
                           <small class="select-item-codigo"
                             >({{ plan.codePlanRBX }})</small
                           >
+                          <span 
+                            class="status-tag" 
+                            [ngClass]="{
+                              'status-active': plan.status === 'A', 
+                              'status-inactive': plan.status !== 'A'
+                            }"
+                          >
+                            {{ plan.status === 'A' ? 'ATIVADO' : 'DESATIVADO' }}
+                          </span>
+                          
                         </div>
                       </ng-template>
 
                       <ng-template pTemplate="item" let-plan>
                         <div class="select-item-layout">
-                          <span class="select-item-nome">{{ plan.nome }}</span>
-                          <small class="select-item-codigo">
-                            <i class="pi pi-tag"></i>
-                            <span>{{ plan.codePlanRBX }}</span>
-                          </small>
+                          <div class="flex align-items-center gap-2">
+                            <span class="select-item-nome">{{ plan.nomeExibicao || plan.nome }}</span>
+                            <small class="select-item-codigo">
+                              <i class="pi pi-tag"></i>
+                              <span>{{ plan.codePlanRBX }}</span>
+                            </small>
+                          </div>
+                          
+                          <p-tag
+                            [severity]="plan.status === 'A' ? 'success' : 'danger'"
+                            [value]="plan.status === 'A' ? 'ATIVADO' : 'DESATIVADO'"
+                          ></p-tag>
                         </div>
                       </ng-template>
                     </p-select>
