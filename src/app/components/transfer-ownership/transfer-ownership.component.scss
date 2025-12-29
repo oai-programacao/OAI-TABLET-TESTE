@@ -122,7 +122,7 @@ p-inputgroup {
   justify-content: right;
   gap: 0.5rem;
   padding-top: 1.5rem;
-  margin-top: 1.5rem;
+  margin-top: 4rem;
   border-top: 1px solid #dee2e6;
 }
 
@@ -161,7 +161,6 @@ p-inputgroup {
 .form-group-input {
   display: flex;
   width: 100%;
-  max-width: 600px;
   gap: 0.5rem;
   align-items: center;
 
@@ -574,9 +573,9 @@ p-inputgroup {
 
 .table-finalization {
   margin-top: 2rem;
-  margin-left:  2rem;
-  margin-right:  2rem;
-  margin-bottom:  2rem;
+  margin-left: 2rem;
+  margin-right: 2rem;
+  margin-bottom: 2rem;
   border-radius: 24px;
   overflow: hidden;
   background: linear-gradient(135deg,
@@ -701,4 +700,31 @@ p-inputgroup {
   text-transform: uppercase;
   letter-spacing: 1px;
   backdrop-filter: blur(10px);
+}
+
+.info-plans {
+  padding: 12px 16px;
+  background-color: #f8f9fa;
+  border-left: 4px solid #3f51b5;
+  border-radius: 4px;
+  margin-top: 5rem;
+
+  font-size: 14px;
+  color: #333;
+
+  line-height: 1.5;
+}
+
+.info-plans span {
+  font-weight: 600;
+  color: #222;
+}
+
+.info-plans br {
+  margin-bottom: 6px;
+}
+
+.info-plans::before {
+  content: "📄";
+  margin-right: 6px;
 }
