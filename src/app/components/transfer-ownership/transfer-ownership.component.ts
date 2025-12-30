@@ -414,17 +414,12 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
 
     this.isLoadingTransfer = true
     this.loadingMessage = "A enviar documento para assinatura..."
-    this.fecharModalAutentique()
 
     this.actionsContractsService
       .sendTransferConsentAutentique(payload, this.clientId, this.selectedContractForTransfer.id)
       .subscribe({
         next: (res: string) => {
-          this.isLoadingTransfer = false
-
           this.showSuccess("Sucesso!", res, 10000)
-
-          this.activeStep = 4
         },
         error: (err) => {
           this.isLoadingTransfer = false
