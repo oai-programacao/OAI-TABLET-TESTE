@@ -102,7 +102,7 @@ export class WebSocketService {
               );
               break;
               
-            case 'UPDATE_ADDRESS_AUTO':
+            case 'UPDATE_ADDRESS':
               this.toastService.showWithAnimation(
                 `🚀 Endereço atualizado com sucesso!<br>
                 Cliente: <b>${data.clientName}</b><br>
