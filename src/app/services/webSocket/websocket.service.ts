@@ -116,7 +116,7 @@ export class WebSocketService {
                 `🚀 Os dois clientes assinaram o termo de consentimento!<br>
                 Cliente: <b>${data.clientName}</b> teve seu contrato transferido.<br>
                 Contrato: <b>${data.numberContractRbx}</b> transferido com sucesso !<br>`,
-                '/sucessordem.json'
+                '/handshake.json'
               );
               break;
 
