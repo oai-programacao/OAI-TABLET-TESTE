@@ -111,6 +111,15 @@ export class WebSocketService {
               );
               break;
 
+            case 'TRANSFER_OWNERSHIP':
+              this.toastService.showWithAnimation(
+                `🚀 Os dois clientes assinaram o termo de consentimento!<br>
+                Cliente: <b>${data.clientName}</b> teve seu contrato transferido.<br>
+                Contrato: <b>${data.numberContractRbx}</b> transferido com sucesso !<br>`,
+                '/sucessordem.json'
+              );
+              break;
+
             default:
               this.toastService.show(
                 `🔔 Notificação recebida: <b>${event}</b>`
