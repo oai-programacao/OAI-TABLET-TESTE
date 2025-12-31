@@ -83,7 +83,7 @@ import { ImageUtilsService } from '../../services/midia/image-utils.service';
     SignaturePadComponent,
     TableModule,
     CheckComponent
-],
+  ],
   templateUrl: "./transfer-ownership.component.html",
   styleUrl: "./transfer-ownership.component.scss",
   providers: [ConfirmationService, MessageService],
@@ -157,19 +157,34 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
   result: any;
   tocarCheck: boolean = false;
   createNewClient: boolean = false;
+  authenticationContract: boolean = false;
 
   ngOnInit() {
     const clientId = this.route.snapshot.paramMap.get("clientId")
     const contractId = this.route.snapshot.paramMap.get("contractId")
 
     if (clientId && contractId) {
-      this.clientId = clientId
-      this.contractId = contractId
-      this.loadInitialData(clientId, contractId)
+      this.clientId = clientId;
+      this.contractId = contractId;
+      this.loadInitialData(clientId, contractId);
+
+      this.contractService
+        .getAuthenticationsByContract(contractId)
+        .subscribe({
+          next: (result) => {
+            this.authenticationContract = result.length > 0;
+          },
+          error: () => {
+            this.authenticationContract = false;
+          }
+        });
+
     } else {
-      this.isLoading = false
-      this.showError("Erro Crítico", "Faltam os IDs do cliente ou do contrato na URL.")
+      this.isLoading = false;
+      this.showError("Erro Crítico", "Faltam os IDs do cliente ou do contrato na URL.");
     }
+
+
   }
 
   ngAfterViewInit(): void {
@@ -411,7 +426,7 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
         },
       ],
     }
-    
+
     this.loadingMessage = "A enviar documento para assinatura..."
 
     this.actionsContractsService
