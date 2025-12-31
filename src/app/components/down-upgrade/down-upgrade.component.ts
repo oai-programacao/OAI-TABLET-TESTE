@@ -570,6 +570,7 @@ export class DownUpgradeComponent implements OnInit {
       sellerId: sellerId,
       fluxo: this.fluxo,
       newPlanId: this.selectedPlan?.id,
+      descountFixe: this.newDiscount ?? 0,
       signers: [
         {
           name: this.client.name || '',
