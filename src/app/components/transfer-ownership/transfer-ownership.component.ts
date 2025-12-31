@@ -411,8 +411,7 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
         },
       ],
     }
-
-    this.isLoadingTransfer = true
+    
     this.loadingMessage = "A enviar documento para assinatura..."
 
     this.actionsContractsService
