@@ -14,7 +14,7 @@ export class WebSocketService {
     private rxStompService: RxStompService,
     private ngZone: NgZone,
     private toastService: ToastService
-  ) {}
+  ) { }
 
   initWebSocket() {
     if (this.activated) return;
@@ -101,7 +101,7 @@ export class WebSocketService {
                 '/saleRocket.json'
               );
               break;
-              
+
             case 'UPDATE_ADDRESS':
               this.toastService.showWithAnimation(
                 `🚀 Endereço atualizado com sucesso!<br>
@@ -116,6 +116,42 @@ export class WebSocketService {
                 `🚀 Os dois clientes assinaram o termo de consentimento!<br>
                 Cliente: <b>${data.clientName}</b> teve seu contrato transferido.<br>
                 Contrato: <b>${data.numberContractRbx}</b> transferido com sucesso !<br>`,
+                '/handshake.json'
+              );
+              break;
+
+            case 'upgrade':
+              this.toastService.showWithAnimation(
+                `🚀 O cliente assinou o termo de consentimento!<br>
+                Cliente: <b>${data.clientName}</b> teve seu contrato atualizado.<br>
+                Contrato: <b>${data.numberContractRbx}</b> Upgrade realizado com sucesso!<br>`,
+                '/handshake.json'
+              );
+              break;
+
+            case 'downgrade':
+              this.toastService.showWithAnimation(
+                `🚀 O cliente assinou o termo de consentimento!<br>
+                Cliente: <b>${data.clientName}</b> teve seu contrato atualizado.<br>
+                Contrato: <b>${data.numberContractRbx}</b> Downgrade realizado com sucesso!<br>`,
+                '/handshake.json'
+              );
+              break;
+
+            case 'temporary-suspension':
+              this.toastService.showWithAnimation(
+                `🚀 O cliente assinou o termo de consentimento!<br>
+                Cliente: <b>${data.clientName}</b> teve seu contrato suspenso.<br>
+                Contrato: <b>${data.numberContractRbx}</b> Suspensão realizada com sucesso!<br>`,
+                '/handshake.json'
+              );
+              break;
+
+            case 'cancel_temporary_suspension':
+              this.toastService.showWithAnimation(
+                `🚀 O cliente assinou o termo de consentimento!<br>
+                Cliente: <b>${data.clientName}</b> teve seu contrato agendado para suspensão.<br>
+                Contrato: <b>${data.numberContractRbx}</b> agendamento realizado com sucesso!<br>`,
                 '/handshake.json'
               );
               break;
