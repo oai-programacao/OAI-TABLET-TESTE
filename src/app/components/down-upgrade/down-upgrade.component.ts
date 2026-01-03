@@ -47,6 +47,7 @@ export interface ContractUpdate {
   cicleBillingDayBase: number;
   cicleBillingExpired: number;
   proportionalValue?: number | null;
+  phone?: string | null; 
 }
 
 @Component({
@@ -146,6 +147,8 @@ export class DownUpgradeComponent implements OnInit {
   tocarCheck = false;
   finalization: boolean = false;
   result: any;
+
+  showPhoneDialog: boolean = false;
 
   typesOfDateExpirationCicle = [
     { descricao: 'Nenhum', value: null },
@@ -350,7 +353,8 @@ export class DownUpgradeComponent implements OnInit {
       descountFixe: this.newDiscount ?? 0,
       cicleFatId: cicleFatIdParaEnviar,
       cicleBillingDayBase: cicleBillingDayBaseToSend,
-      cicleBillingExpired: cicleBillingExpiredToSend
+      cicleBillingExpired: cicleBillingExpiredToSend,
+      phone: this.phone = ''
     };
 
     console.log('Enviando DTO de Upgrade:', upgradeDto);
@@ -402,6 +406,17 @@ export class DownUpgradeComponent implements OnInit {
         },
       });
   }
+
+   openPhoneModal() {
+    this.phone = '';
+    this.showPhoneDialog = true;
+  }
+
+  confirmSendToClient() {
+    this.showPhoneDialog = false;
+    this.submitUpgrade();
+  }
+
 
   public get arePhonesInvalid(): boolean {
     const cleanPhoneOld = (this.phone || '').replace(/\D/g, '');

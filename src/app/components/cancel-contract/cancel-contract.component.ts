@@ -500,11 +500,11 @@ get statusFidelidade(): StatusFidelidade {
         this.boletoGeradoUrl = null;
         this.pdfSrc = null;
 
+        this.carregarPreviewPdf();
+
         this.activeStep = 4;
 
         this.isLoading = false;
-
-        this.carregarPreviewPdf();
       },
       error: (err) => {
         console.error(err);

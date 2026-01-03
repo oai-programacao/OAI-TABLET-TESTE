@@ -95,10 +95,10 @@ export class ContractsService {
 
   transferOwnership(
     oldContractId: string,
-    newClientId: string
+    payloadWhats: any
   ): Observable<any> {
     const url = `${this.urlApi}/contract/${oldContractId}/transfer-ownership`;
-    const payload = { newClientId };
+    const payload = payloadWhats;
 
     return this.http.post<any>(url, payload);
   }

@@ -117,6 +117,7 @@ export class AlterDateExpiredComponent {
   fluxo: string = 'alter_date_expired';
 
   isUpdatingContract = false;
+  showPhoneDialog: boolean = false;
   tocarCheck = false;
 
   ngOnInit() {
@@ -573,6 +574,7 @@ export class AlterDateExpiredComponent {
     });
   }
 
+
   async submitAlterDate() {
     console.log('Iniciando submit (fluxo Presencial assinado)');
 
@@ -662,6 +664,16 @@ export class AlterDateExpiredComponent {
       this.isLoadingTransfer = false;
       this.showError('Erro', 'Falha ao preparar o arquivo para envio. Tente novamente.');
     }
+  }
+
+  openPhoneModal() {
+    this.phone = '';
+    this.showPhoneDialog = true;
+  }
+
+  confirmSendToClient() {
+    this.showPhoneDialog = false;
+    this.submitAlterDate();
   }
 
   formatCpfCnpj(value: string): string {

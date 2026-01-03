@@ -1,4 +1,5 @@
 import { Component, inject, ViewChild } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { CardBaseComponent } from "../../shared/components/card-base/card-base.component";
 import { ActivatedRoute, Router } from '@angular/router';
 import { SignaturePadComponent } from '../../shared/components/signature-pad/signature-pad.component';
@@ -37,6 +38,7 @@ import { ClientService } from '../../services/clients/client.service';
     ProgressSpinnerModule,
     TableModule,
     CommonModule,
+    FormsModule
   ],
   templateUrl: './cancel-suspension.component.html',
   providers: [MessageService],
@@ -89,6 +91,9 @@ export class CancelSuspensionComponent {
 
   proportionalBoleto: number = 0;
   proportionalBoletoBefore: number = 0;
+
+  phone: string = '';
+  showPhoneDialog: boolean = false;
 
   ngOnInit(): void {
     const contractId = this.route.snapshot.paramMap.get('contractId');
@@ -465,7 +470,8 @@ export class CancelSuspensionComponent {
     const payload = {
       startSuspension: this.formatDate(this.contractSuspense?.startDate),
       proportional: this.proportionalBoleto,
-      pdfBytes: pdfBytes
+      pdfBytes: pdfBytes,
+      phone: this.phone
     };
 
     console.log("Aqui é o DTO: ", payload)
@@ -483,7 +489,7 @@ export class CancelSuspensionComponent {
             clientCpf: this.formatCpfCnpj(this.client?.cpf || this.client?.cnpj || 'N/A'),
             contrato: this.currentContract?.codeContractRbx || this.currentContract?.id,
             proportionalRemainder: this.calculateProportionalRemainder(),
-            linkBoleto: response?.linkBoleto
+            linkBoleto: response?.linkBoleto,
           };
 
           console.log("Carrega o result", this.result)
@@ -534,6 +540,16 @@ export class CancelSuspensionComponent {
         this.showWarning("Aviso", "A transferência foi concluída, mas houve um erro ao registrar o atendimento no histórico.");
       }
     });
+  }
+
+  openPhoneModal() {
+    this.phone = '';
+    this.showPhoneDialog = true;
+  }
+
+  confirmSendToClient() {
+    this.showPhoneDialog = false;
+    this.confirmSuspension();
   }
 
   private showWarning(summary: string, detail: string, life?: number): void {
