@@ -28,6 +28,7 @@
     <ng-content></ng-content>
   </p-card>
 
+  <!-- ✅ Recebe sellerId e escuta o evento -->
   <app-notification-panel
     [sellerId]="sellerId"
     (notificacoesAtualizadas)="buscarQtdNotificacoes()"
