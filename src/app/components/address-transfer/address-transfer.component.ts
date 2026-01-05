@@ -186,6 +186,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   step4CapturedPhotos: Array<{ file: File; preview: string }> = [];
   selectedInstallments: number = 1;
   installmentOptions: any[] = [];
+  showPhoneDialog: boolean = false;
 
   dialogOs: boolean = false;
   dialogNewOs: boolean = false;
@@ -868,6 +869,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
         numParcels: this.selectedInstallments || 1,
         clientType: this.selectedClientType,
         observation: this.addressNewForm.observation || '',
+        phone: this.phone || '',
         address: {
           cep: this.addressNewForm.zipCode,
           uf: this.addressNewForm.uf,
@@ -1262,5 +1264,14 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
         }
       },
     });
+  }
+
+ openPhoneModal() {
+    this.phone = '';
+    this.showPhoneDialog = true;
+  }
+   confirmSendToClient() {
+    this.showPhoneDialog = false;
+    this.onConfirmAddressChange();
   }
 }

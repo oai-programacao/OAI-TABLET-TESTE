@@ -1,6 +1,7 @@
 import { ImageUtilsService } from './../../services/midia/image-utils.service';
 import { Component, inject, ViewChild } from '@angular/core';
 import { CardBaseComponent } from '../../shared/components/card-base/card-base.component';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SignaturePadComponent } from '../../shared/components/signature-pad/signature-pad.component';
 import { Cliente } from '../../models/cliente/cliente.dto';
@@ -29,7 +30,6 @@ import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { AuthService } from '../../core/auth.service';
 import { ActionsContractsService } from '../../services/actionsToContract/actions-contracts.service';
-import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputMaskModule } from 'primeng/inputmask';
 
@@ -54,6 +54,7 @@ import { InputMaskModule } from 'primeng/inputmask';
     FormsModule,
     InputTextModule,
     InputMaskModule,
+    FormsModule
   ],
   templateUrl: './cancel-suspension.component.html',
   providers: [MessageService],
@@ -110,6 +111,8 @@ export class CancelSuspensionComponent {
 
   proportionalBoleto: number = 0;
   proportionalBoletoBefore: number = 0;
+
+  showPhoneDialog: boolean = false;
 
   ngOnInit(): void {
     const contractId = this.route.snapshot.paramMap.get('contractId');
@@ -530,6 +533,7 @@ export class CancelSuspensionComponent {
       startSuspension: this.formatDate(this.contractSuspense?.startDate),
       proportional: this.proportionalBoleto,
       pdfBytes: pdfBytes,
+      phone: this.phone
     };
 
     console.log('Aqui é o DTO: ', payload);
@@ -619,6 +623,16 @@ export class CancelSuspensionComponent {
         );
       },
     });
+  }
+
+  openPhoneModal() {
+    this.phone = '';
+    this.showPhoneDialog = true;
+  }
+
+  confirmSendToClient() {
+    this.showPhoneDialog = false;
+    this.confirmSuspension();
   }
 
   private showWarning(summary: string, detail: string, life?: number): void {

@@ -58,6 +58,7 @@ export interface ContractUpdate {
   cicleBillingDayBase: number;
   cicleBillingExpired: number;
   proportionalValue?: number | null;
+  phone?: string | null; 
 }
 
 @Component({
@@ -161,6 +162,8 @@ export class DownUpgradeComponent implements OnInit {
   tocarCheck = false;
   finalization: boolean = false;
   result: any;
+
+  showPhoneDialog: boolean = false;
 
   typesOfDateExpirationCicle = [
     { descricao: 'Nenhum', value: null },
@@ -480,6 +483,7 @@ export class DownUpgradeComponent implements OnInit {
       cicleFatId: cicleFatIdParaEnviar,
       cicleBillingDayBase: cicleBillingDayBaseToSend,
       cicleBillingExpired: cicleBillingExpiredToSend,
+      phone: this.phone = ''
     };
 
     console.log('Enviando DTO de Upgrade:', upgradeDto);
@@ -533,6 +537,17 @@ export class DownUpgradeComponent implements OnInit {
       });
   }
 
+   openPhoneModal() {
+    this.phone = '';
+    this.showPhoneDialog = true;
+  }
+
+  confirmSendToClient() {
+    this.showPhoneDialog = false;
+    this.submitUpgrade();
+  }
+
+
   public get arePhonesInvalid(): boolean {
     const cleanPhoneOld = (this.phone || '').replace(/\D/g, '');
     return cleanPhoneOld.length < 10;
@@ -570,6 +585,7 @@ export class DownUpgradeComponent implements OnInit {
       sellerId: sellerId,
       fluxo: this.fluxo,
       newPlanId: this.selectedPlan?.id,
+      descountFixe: this.newDiscount ?? 0,
       signers: [
         {
           name: this.client.name || '',
@@ -621,6 +637,14 @@ export class DownUpgradeComponent implements OnInit {
       return;
     }
 
+    const sellerId = this.authService.getSellerId();
+    if (!sellerId) {
+      this.showError('Erro de Autenticação', 'Não foi possível identificar o vendedor logado.');
+      this.previewLoadFailed = true;
+      return;
+    }
+    const sellerStr = sellerId ? sellerId.toString() : '0';
+
     console.log('Gerando preview do termo de upgrade...');
     this.isLoadingPreview = true;
     this.previewLoadFailed = false;
@@ -635,6 +659,15 @@ export class DownUpgradeComponent implements OnInit {
     const requestBody = {
       contractId: this.contract.id,
       newPlanId: this.selectedPlan.id,
+     updateData: {
+        seller: sellerStr,
+        codePlan: this.selectedPlan.id, // ID do plano
+        descountFixe: this.newDiscount ?? 0,
+        cicleFatId: this.contract.cicleBillingExpired,
+        cicleBillingDayBase: this.contract.cicleBillingDayBase,
+        cicleBillingExpired: this.contract.cicleBillingExpired
+      }
+
     };
 
     // 2. CHAME O SERVIÇO ENVIANDO O 'requestBody'
@@ -701,6 +734,9 @@ export class DownUpgradeComponent implements OnInit {
     }
     if (this.isLoadingPreview) return;
 
+    const sellerId = this.authService.getSellerId();
+    const sellerStr = sellerId ? sellerId.toString() : '0';
+
     console.log('Gerando termo com assinatura...');
     this.isLoadingPreview = true;
     this.previewLoadFailed = false;
@@ -711,12 +747,18 @@ export class DownUpgradeComponent implements OnInit {
       this.pdfPreviewUrl = null;
     }
 
-    const rawBase64 = this.capturedSignature.split(',')[1];
-
     const requestBody = {
       contractId: this.contract.id,
       newPlanId: this.selectedPlan!.id,
-      signatureBase64: rawBase64,
+      signatureBase64: this.capturedSignature,
+      updateData: {
+        seller: sellerStr,
+        codePlan: this.selectedPlan!.id,
+        descountFixe: this.newDiscount ?? 0,
+        cicleFatId: this.contract.cicleBillingExpired,
+        cicleBillingDayBase: this.contract.cicleBillingDayBase,
+        cicleBillingExpired: this.contract.cicleBillingExpired
+      }
     };
 
     this.reportsService.getPlanChange(requestBody).subscribe({

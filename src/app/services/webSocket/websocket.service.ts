@@ -101,7 +101,7 @@ export class WebSocketService {
                 '/saleRocket.json'
               );
               break;
-              
+
             case 'UPDATE_ADDRESS':
               this.toastService.showWithAnimation(
                 `🚀 Endereço atualizado com sucesso!<br>
@@ -116,6 +116,14 @@ export class WebSocketService {
                 `🚀 Os dois clientes assinaram o termo de consentimento!<br>
                 Cliente: <b>${data.clientName}</b> teve seu contrato transferido.<br>
                 Contrato: <b>${data.numberContractRbx}</b> transferido com sucesso !<br>`,
+                '/handshake.json'
+              );
+              break;
+
+            case 'UPGRADE':
+              this.toastService.showWithAnimation(
+                `🚀 O cliente assinou e a ação foi efetuada com sucesso!<br>
+                Cliente: <b>${data.clientName}</b>`,
                 '/handshake.json'
               );
               break;
