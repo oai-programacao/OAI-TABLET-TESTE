@@ -120,12 +120,6 @@ export class WebSocketService {
               );
               break;
 
-<<<<<<< HEAD
-            case 'UPGRADE':
-              this.toastService.showWithAnimation(
-                `🚀 O cliente assinou e a ação foi efetuada com sucesso!<br>
-                Cliente: <b>${data.clientName}</b>`,
-=======
             case 'upgrade':
               this.toastService.showWithAnimation(
                 `🚀 O cliente assinou o termo de consentimento!<br>
@@ -158,7 +152,6 @@ export class WebSocketService {
                 `🚀 O cliente assinou o termo de consentimento!<br>
                 Cliente: <b>${data.clientName}</b> teve seu contrato agendado para suspensão.<br>
                 Contrato: <b>${data.numberContractRbx}</b> agendamento realizado com sucesso!<br>`,
->>>>>>> 0561b895ef432765dc2f6759c9726dcf39d5d417
                 '/handshake.json'
               );
               break;
