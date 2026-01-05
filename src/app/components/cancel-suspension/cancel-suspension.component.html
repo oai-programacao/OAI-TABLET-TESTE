@@ -425,41 +425,6 @@
   </app-card-base>
 
   <p-dialog
-    header="Assinatura Ipad"
-    [(visible)]="signDialogVisible"
-    (onShow)="forceSignatureRedraw()"
-    (onHide)="resetSignaturePad()"
-  >
-    <div class="signature-pad-container">
-      <div class="signature-input">
-        <p-iftalabel>
-          <label for="signature">Assinatura Online (Opcional):</label>
-          <ng-container *ngIf="signatureVisibleFlag">
-            <app-signature-pad #signaturePadInDialog> </app-signature-pad>
-          </ng-container>
-        </p-iftalabel>
-      </div>
-    </div>
-
-    <p-divider layout="horizontal" styleClass="p-my-3"></p-divider>
-
-    <div class="btn-to-capture">
-      <div class="btn-to-generate-contract">
-        <p-button
-          label="Gerar Termo Final com Assinatura"
-          icon="pi pi-file-pdf"
-          [outlined]="true"
-          size="large"
-          severity="info"
-          variant="outlined"
-          [loading]="isLoadingPreview"
-          (onClick)="captureAndGenerate()"
-        ></p-button>
-      </div>
-    </div>
-  </p-dialog>
-
-  <p-dialog
     header="Enviar Via WhatsApp ⚙️"
     [(visible)]="modalVisible"
     [modal]="true"

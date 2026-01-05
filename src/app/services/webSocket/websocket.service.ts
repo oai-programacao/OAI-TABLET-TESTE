@@ -14,7 +14,7 @@ export class WebSocketService {
     private rxStompService: RxStompService,
     private ngZone: NgZone,
     private toastService: ToastService
-  ) {}
+  ) { }
 
   initWebSocket() {
     if (this.activated) return;
@@ -120,10 +120,45 @@ export class WebSocketService {
               );
               break;
 
+<<<<<<< HEAD
             case 'UPGRADE':
               this.toastService.showWithAnimation(
                 `🚀 O cliente assinou e a ação foi efetuada com sucesso!<br>
                 Cliente: <b>${data.clientName}</b>`,
+=======
+            case 'upgrade':
+              this.toastService.showWithAnimation(
+                `🚀 O cliente assinou o termo de consentimento!<br>
+                Cliente: <b>${data.clientName}</b> teve seu contrato atualizado.<br>
+                Contrato: <b>${data.numberContractRbx}</b> Upgrade realizado com sucesso!<br>`,
+                '/handshake.json'
+              );
+              break;
+
+            case 'downgrade':
+              this.toastService.showWithAnimation(
+                `🚀 O cliente assinou o termo de consentimento!<br>
+                Cliente: <b>${data.clientName}</b> teve seu contrato atualizado.<br>
+                Contrato: <b>${data.numberContractRbx}</b> Downgrade realizado com sucesso!<br>`,
+                '/handshake.json'
+              );
+              break;
+
+            case 'temporary-suspension':
+              this.toastService.showWithAnimation(
+                `🚀 O cliente assinou o termo de consentimento!<br>
+                Cliente: <b>${data.clientName}</b> teve seu contrato suspenso.<br>
+                Contrato: <b>${data.numberContractRbx}</b> Suspensão realizada com sucesso!<br>`,
+                '/handshake.json'
+              );
+              break;
+
+            case 'cancel_temporary_suspension':
+              this.toastService.showWithAnimation(
+                `🚀 O cliente assinou o termo de consentimento!<br>
+                Cliente: <b>${data.clientName}</b> teve seu contrato agendado para suspensão.<br>
+                Contrato: <b>${data.numberContractRbx}</b> agendamento realizado com sucesso!<br>`,
+>>>>>>> 0561b895ef432765dc2f6759c9726dcf39d5d417
                 '/handshake.json'
               );
               break;
