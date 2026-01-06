@@ -857,6 +857,15 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       return;
     }
 
+    if (!this.selectedOfferId) { 
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Oferta não selecionada',
+        detail: 'Por favor, selecione e reserve uma oferta de viabilidade antes de continuar.',
+      });
+      return;
+    }
+
     this.isLoading = true;
     this.isSubmitting = true;
 
@@ -1226,9 +1235,27 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     }
   }
 
-  reserveOffer(offer: any) {
+  reserveOffer(offer: any): void {
+    if (this.selectedOfferId && this.selectedOfferId !== offer.id) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Reserva não permitida',
+        detail:
+          'Você já possui uma OS reservada. Libere-a antes de reservar outra.',
+      });
+      return;
+    }
+
+    if (offer.reserved) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'OS indisponível',
+        detail: 'Esta OS já está reservada.',
+      });
+      return;
+    }
+
     const sellerId = this.authService.getSellerId()!;
-    const sellerName = this.authService.getUserFromToken()?.name;
 
     this.offerService.reserveOffer(offer.id, sellerId).subscribe({
       next: (updatedOffer: any) => {
@@ -1240,17 +1267,11 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
           this.messageService.add({
             severity: 'warn',
             summary: 'OS indisponível',
-            detail: 'Já está reservada por outro vendedor.',
+            detail: 'Esta OS já foi reservada por outro vendedor.',
           });
         }
       },
     });
-
-    offer.reserved = true;
-    offer.reservedBy = sellerId;
-    offer.reservedByName = sellerName;
-    offer.reservedAt = new Date();
-    offer.reservedUntil = new Date(Date.now() + 10 * 60000);
   }
 
   unreserveOffer(offer: any) {
@@ -1262,6 +1283,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
         offer.reservedBy = null;
         offer.reservedAt = null;
         offer.reservedUntil = null;
+        this.selectedOfferId = null;
       },
       error: (err) => {
         if (err.status === 403) {
