@@ -167,9 +167,9 @@ export class AddContractComponent implements OnInit {
     { label: 'B2B ESPECIAL', value: 'B2B ESPECIAL' },
     { label: 'B2C', value: 'B2C' },
     { label: 'B2G', value: 'B2G' },
-    { label: 'Interno', value: 'Interno' },
-    { label: 'Temporário', value: 'Temporário' },
-    { label: 'Condomínio', value: 'Condomínio' },
+    { label: 'Interno', value: 'INTERN' },
+    { label: 'Temporário', value: 'TEMPORARY' },
+    { label: 'Condomínio', value: 'CONDOMINIUM' },
   ];
 
   selectedTechnology: string = '';
