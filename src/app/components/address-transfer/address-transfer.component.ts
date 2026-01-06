@@ -839,6 +839,15 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       return;
     }
 
+    if (!this.selectedOfferId) { 
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Oferta não selecionada',
+        detail: 'Por favor, selecione e reserve uma oferta de viabilidade antes de continuar.',
+      });
+      return;
+    }
+
     this.isLoading = true;
     this.isSubmitting = true;
 
@@ -1253,6 +1262,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
         offer.reservedBy = null;
         offer.reservedAt = null;
         offer.reservedUntil = null;
+        this.selectedOfferId = null;
       },
       error: (err) => {
         if (err.status === 403) {
