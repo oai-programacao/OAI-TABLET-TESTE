@@ -403,9 +403,6 @@ export class CancelSuspensionComponent {
       .getConsentTermCancelSuspensionContractPdf(requestBody)
       .subscribe({
         next: (blob) => {
-          console.log('📥 RESPONSE RECEBIDA DO BACKEND!');
-          console.log('📄 Blob recebido:', blob);
-
           this.pdfPreviewUrl = window.URL.createObjectURL(blob);
           this.safePdfPreviewUrl =
             this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfPreviewUrl);
