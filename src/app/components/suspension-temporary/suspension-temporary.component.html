@@ -348,7 +348,7 @@
                                 [raised]="true" 
                                 [rounded]="true"
                                 [disabled]="!(pdfBlobFinal || pdfWasDownloaded)" 
-                                (onClick)="confirmSuspension()">
+                                (onClick)="openPhoneModal()">
                             </p-button>
                             </div>
                         </div>
@@ -494,3 +494,48 @@
       ></p-button>
     </ng-template>
   </p-dialog>
+
+  <p-dialog
+  header="Enviar informações ao cliente"
+  [(visible)]="showPhoneDialog"
+  [modal]="true"
+  [closable]="false"
+  [style]="{ width: '25rem' }"
+>
+  <div class="flex flex-column gap-3">
+    <p class="m-0">
+      Por favor, informe o número de telefone do cliente para que possamos
+      enviar as informações da <strong>Suspensão Temporária do Contrato</strong>.
+      <br />
+      Para confirmar a ação é necessário informar um número de telefone.
+      <br />
+      No seguinte formato <strong>+55 (DD) Número</strong>
+    </p>
+
+    <input
+      type="text"
+      pInputText
+      [(ngModel)]="phone"
+      mask="00000000000"
+      prefix="+55"
+      placeholder="(00) 00000-0000"
+    />
+
+    <p-divider></p-divider>
+
+    <div class="flex justify-content-end gap-2 mt-3">
+      <p-button
+        label="Cancelar"
+        severity="secondary"
+        (onClick)="showPhoneDialog = false"
+      ></p-button>
+
+      <p-button
+        label="Confirmar"
+        icon="pi pi-check"
+        [disabled]="phone!.length !== 11"
+        (onClick)="confirmSendToClient()"
+      ></p-button>
+    </div>
+  </div>
+</p-dialog>

@@ -111,6 +111,8 @@ export class SuspensionTemporaryComponent {
   result: any = null;
   blockButton: boolean = false;
 
+  showPhoneDialog: boolean = false;
+
   constructor(private route: ActivatedRoute, private sanitizer: DomSanitizer) { }
 
   calculateProportionalBoleto(
@@ -134,6 +136,16 @@ export class SuspensionTemporaryComponent {
 
   abrirModal(): void {
     this.modalVisible = true;
+  }
+
+  openPhoneModal() {
+    this.phone = '';
+    this.showPhoneDialog = true;
+  }
+
+  confirmSendToClient() {
+    this.showPhoneDialog = false;
+    this.confirmSuspension();
   }
 
   abrirAssinatura() {
