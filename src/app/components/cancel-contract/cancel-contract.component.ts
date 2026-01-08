@@ -289,39 +289,46 @@ simularValores() {
 }
 
 get statusFidelidade(): StatusFidelidade {
-    if (this.contract?.situationDescription === 'AGUARDANDO_INSTALACAO') {
+    if (!this.contract) 
+      return { situacao: 'ISENTO', mesesRestantes: 0 
+    };
+    if (this.contract.situationDescription === 'AGUARDANDO_INSTALACAO') {
+        return { situacao: 'ISENTO', mesesRestantes: 0 };
+    }
+    if (this.contract.loyalty !== true) {
+        return { situacao: 'ISENTO', mesesRestantes: 0 };
+    }
+    if (!this.contract.dateExpired || !this.contract.dateStart) {
         return { situacao: 'ISENTO', mesesRestantes: 0 };
     }
 
-  
-    if (this.contract?.loyalty !== true) {
-        return { situacao: 'ISENTO', mesesRestantes: 0 };
-    }
-
-    if (!this.contract?.dateExpired) {
-        return { situacao: 'ISENTO', mesesRestantes: 0 };
-    }
-  
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0);
 
     const dataFim = new Date(this.contract.dateExpired);
     dataFim.setHours(0, 0, 0, 0);
 
+    const dataInicio = new Date(this.contract.dateStart);
+    dataInicio.setHours(0, 0, 0, 0);
+
     if (hoje >= dataFim) {
         return { situacao: 'CUMPRIDA', mesesRestantes: 0 };
     }
 
+    let anosDiff = dataFim.getFullYear() - hoje.getFullYear();
+    let mesesDiff = dataFim.getMonth() - hoje.getMonth();
+    let mesesRestantes = anosDiff * 12 + mesesDiff;
 
-    let meses = (dataFim.getFullYear() - hoje.getFullYear()) * 12;
-    meses -= hoje.getMonth();
-    meses += dataFim.getMonth();
+    if (hoje.getDate() <= dataInicio.getDate()) {
+        mesesRestantes += 1;
+    } 
 
+    mesesRestantes = Math.max(mesesRestantes, 0);
 
-    const mesesFinais = meses <= 0 ? 0 : meses;
-
-    return { situacao: 'VIGENTE', mesesRestantes: mesesFinais };
+    return { situacao: 'VIGENTE', mesesRestantes };
 }
+
+
 
  get vigenciaRestante(): number {
     if (this.contract?.loyalty !== true) { 
@@ -502,11 +509,11 @@ get statusFidelidade(): StatusFidelidade {
         this.boletoGeradoUrl = null;
         this.pdfSrc = null;
 
+        this.carregarPreviewPdf();
+
         this.activeStep = 4;
 
         this.isLoading = false;
-
-        this.carregarPreviewPdf();
       },
       error: (err) => {
         console.error(err);

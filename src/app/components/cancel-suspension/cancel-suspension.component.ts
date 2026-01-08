@@ -1,6 +1,6 @@
 import { ImageUtilsService } from './../../services/midia/image-utils.service';
 import { Component, inject, ViewChild } from '@angular/core';
-import { CardBaseComponent } from '../../shared/components/card-base/card-base.component';
+import { CardBaseComponent } from "../../shared/components/card-base/card-base.component";
 import { ActivatedRoute, Router } from '@angular/router';
 import { SignaturePadComponent } from '../../shared/components/signature-pad/signature-pad.component';
 import { Cliente } from '../../models/cliente/cliente.dto';
@@ -49,11 +49,7 @@ import { InputMaskModule } from 'primeng/inputmask';
     ProgressSpinnerModule,
     TableModule,
     CommonModule,
-    InputGroupModule,
-    InputGroupAddonModule,
-    FormsModule,
-    InputTextModule,
-    InputMaskModule,
+    FormsModule
   ],
   templateUrl: './cancel-suspension.component.html',
   providers: [MessageService],
@@ -86,7 +82,6 @@ export class CancelSuspensionComponent {
   clientId!: string;
   contractId!: string;
   modalVisible: boolean = false;
-  phone: string = '';
 
   isLoadingPreview = false;
   previewLoadFailed = false;
@@ -110,6 +105,9 @@ export class CancelSuspensionComponent {
 
   proportionalBoleto: number = 0;
   proportionalBoletoBefore: number = 0;
+
+  phone: string = '';
+  showPhoneDialog: boolean = false;
 
   ngOnInit(): void {
     const contractId = this.route.snapshot.paramMap.get('contractId');
@@ -530,6 +528,7 @@ export class CancelSuspensionComponent {
       startSuspension: this.formatDate(this.contractSuspense?.startDate),
       proportional: this.proportionalBoleto,
       pdfBytes: pdfBytes,
+      phone: this.phone
     };
 
     console.log('Aqui é o DTO: ', payload);
@@ -619,6 +618,16 @@ export class CancelSuspensionComponent {
         );
       },
     });
+  }
+
+  openPhoneModal() {
+    this.phone = '';
+    this.showPhoneDialog = true;
+  }
+
+  confirmSendToClient() {
+    this.showPhoneDialog = false;
+    this.confirmSuspension();
   }
 
   private showWarning(summary: string, detail: string, life?: number): void {

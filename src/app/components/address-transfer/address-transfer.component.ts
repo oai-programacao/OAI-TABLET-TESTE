@@ -186,6 +186,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   step4CapturedPhotos: Array<{ file: File; preview: string }> = [];
   selectedInstallments: number = 1;
   installmentOptions: any[] = [];
+  showPhoneDialog: boolean = false;
 
   dialogOs: boolean = false;
   dialogNewOs: boolean = false;
@@ -265,10 +266,6 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     price: '',
   };
 
-  get isAddressValid(): boolean {
-    return this.addressNewNgForm?.valid ?? false;
-  }
-
   constructor(private cepService: CepService, private sanitizer: DomSanitizer) {
     const navigation = this.router.getCurrentNavigation();
 
@@ -313,6 +310,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
         adesionValue: null,
         paymentForm: null,
       };
+
       this.originalAddressForm = { ...this.addressNewForm };
 
       this.loadClientData();
@@ -576,6 +574,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       signers: mappedSigners,
       clientId: this.clientId,
       sellerId: sellerId,
+      phone: this.phone,
       offerId: this.selectedOfferId,
       numParcels: this.selectedInstallments || 1,
       clientType: this.selectedClientType,
@@ -805,6 +804,15 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     if (!this.originalAddressForm) {
       return false;
     }
+
+    if (this.addressNewForm.adesionValue == null || this.addressNewForm.adesionValue === 0) {
+      return false;
+    }
+
+    if (!this.selectedOfferId) { 
+      return false;
+    }
+
     return (
       this.addressNewForm.zipCode !== this.originalAddressForm.zipCode ||
       this.addressNewForm.street !== this.originalAddressForm.street ||
@@ -834,6 +842,15 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
         summary: 'Erro',
         detail:
           'O termo de transferência precisa ser gerado e assinado antes de continuar!',
+      });
+      return;
+    }
+
+    if (!this.selectedOfferId) { 
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Oferta não selecionada',
+        detail: 'Por favor, selecione e reserve uma oferta de viabilidade antes de continuar.',
       });
       return;
     }
@@ -868,6 +885,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
         numParcels: this.selectedInstallments || 1,
         clientType: this.selectedClientType,
         observation: this.addressNewForm.observation || '',
+        phone: this.phone || '',
         address: {
           cep: this.addressNewForm.zipCode,
           uf: this.addressNewForm.uf,
@@ -1195,6 +1213,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     this.formNewOs.resetForm();
   }
 
+
   toggleReservation(offer: any) {
     if (!offer.reserved) {
       this.reserveOffer(offer);
@@ -1251,6 +1270,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
         offer.reservedBy = null;
         offer.reservedAt = null;
         offer.reservedUntil = null;
+        this.selectedOfferId = null;
       },
       error: (err) => {
         if (err.status === 403) {
@@ -1262,5 +1282,14 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
         }
       },
     });
+  }
+
+ openPhoneModal() {
+    this.phone = '';
+    this.showPhoneDialog = true;
+  }
+   confirmSendToClient() {
+    this.showPhoneDialog = false;
+    this.onConfirmAddressChange();
   }
 }

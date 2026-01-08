@@ -159,6 +159,9 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
   createNewClient: boolean = false;
   authenticationContract: boolean = false;
 
+  showPhoneDialog: boolean = false;
+  phone: string = '';
+
   ngOnInit() {
     const clientId = this.route.snapshot.paramMap.get("clientId")
     const contractId = this.route.snapshot.paramMap.get("contractId")
@@ -317,6 +320,11 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
     const oldContractId = this.selectedContractForTransfer.id
     const newClientId = this.foundClient.id
 
+    const payloadWhats = {
+      newClientId: newClientId,
+      phone2: this.phone
+    }
+
     const signPayload = {
       oldContractId: oldContractId,
       newClientId: newClientId,
@@ -325,7 +333,7 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
     }
 
     this.contractService
-      .transferOwnership(oldContractId, newClientId)
+      .transferOwnership(oldContractId, payloadWhats)
       .pipe(
         concatMap((responseTransfer) => {
           this.toNewContractId = responseTransfer.id;
@@ -378,6 +386,16 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
           this.activeStep = 1
         },
       })
+  }
+
+    openPhoneModal() {
+    this.phone = '';
+    this.showPhoneDialog = true;
+  }
+
+  confirmSendToClient() {
+    this.showPhoneDialog = false;
+    this.onConfirmTransfer();
   }
 
   triggerCameraInput(): void {

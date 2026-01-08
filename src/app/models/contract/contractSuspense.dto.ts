@@ -5,4 +5,5 @@ export interface ContractSuspenseDTO {
   startDate: string; 
   finishDate: string;
   processed: boolean;
+  phone?: string;
 }

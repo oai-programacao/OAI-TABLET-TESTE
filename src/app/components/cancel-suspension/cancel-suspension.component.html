@@ -347,7 +347,7 @@
                                     [raised]="true" 
                                     [rounded]="true"
                                     [disabled]="!(pdfBlobFinal || pdfWasDownloaded)" 
-                                    (onClick)="confirmSuspension()">
+                                    (onClick)=" openPhoneModal()">
                                 </p-button>
                                 </div>
                             </div>
@@ -392,76 +392,50 @@
         </div>
         </div>
     </p-dialog>
+
     <p-dialog
-    header="Enviar Via WhatsApp ⚙️"
-    [(visible)]="modalVisible"
-    [modal]="true"
-    [closable]="true"
-    resizable="false"
-    [draggable]="false"
-    (onHide)="onHide()"
-  >
-    <div class="dialog-content">
-      <div class="icon-container">
-        <i class="pi pi-whatsapp whatsapp-icon"></i>
-      </div>
+  header="Enviar informações ao cliente"
+  [(visible)]="showPhoneDialog"
+  [modal]="true"
+  [closable]="false"
+  [style]="{ width: '25rem' }"
+>
+  <div class="flex flex-column gap-3">
+    <p class="m-0">
+      Por favor, informe o número de telefone do cliente para que possamos
+      enviar as informações da <strong>Cancelamento da Suspensão Temporária do Contrato</strong>.
+      <br />
+      Para confirmar a ação é necessário informar um número de telefone.
+      <br />
+      No seguinte formato <strong>+55 (DD) Número</strong>
+    </p>
 
-      <div class="alert-box">
-        <div class="alert-icon-circle">!</div>
-        <p class="alert-text">
-          Após a assinatura do documento pelo cliente via Autentique,<br />
-          o sistema processará automaticamente a atualização dos dados<br />
-          do contrato no RBX, vinculará um atendimento ao cliente<br />
-          e anexará o documento assinado.<br /><br />
-          Você será notificado assim que a assinatura for concluída<br />
-          e poderá consultar o atendimento diretamente no cadastro do cliente.
-        </p>
-      </div>
+    <input
+      type="text"
+      pInputText
+      [(ngModel)]="phone"
+      mask="00000000000"
+      prefix="+55"
+      placeholder="(00) 00000-0000"
+    />
 
-      <!-- Mensagem informativa -->
-      <p class="info-text">
-        Certifique-se de que o número está correto, caso contrário, poderá ser
-        enviado para outra pessoa!<br />
-        O termo será enviado pela Autentique para o cliente assinar via WhatsApp
-        📄✅ <br />
-        Digite o número no formato <strong>+55</strong> (DDD + Número).<br />
-      </p>
+    <p-divider></p-divider>
 
-      <p-inputgroup>
-        <p-inputgroup-addon>
-          <i class="pi pi-whatsapp"></i>
-        </p-inputgroup-addon>
-
-        <input
-          pInputText
-          id="telefone"
-          name="telefone"
-          placeholder="+55 (DDD) 00000-0000"
-          [(ngModel)]="phone"
-          required
-          [style]="{ height: '40px', 'font-size': '20px' }"
-          mask="00000000000"
-          prefix="+55"
-          #phoneModel="ngModel"
-        />
-      </p-inputgroup>
-    </div>
-
-    <ng-template pTemplate="footer">
+    <div class="flex justify-content-end gap-2 mt-3">
       <p-button
         label="Cancelar"
-        icon="pi pi-times"
         severity="secondary"
-        (onClick)="onHide()"
+        (onClick)="showPhoneDialog = false"
       ></p-button>
+
       <p-button
-        label="Enviar"
-        icon="pi pi-send"
-        severity="success"
-        [disabled]="!phone || phone.trim().length < 10"
-        (onClick)="sendToAutentiqueSubmitCancel()"
+        label="Confirmar"
+        icon="pi pi-check"
+        [disabled]="phone!.length !== 11"
+        (onClick)="confirmSendToClient()"
       ></p-button>
-    </ng-template>
-  </p-dialog>
+    </div>
+  </div>
+</p-dialog>
 </div>
 

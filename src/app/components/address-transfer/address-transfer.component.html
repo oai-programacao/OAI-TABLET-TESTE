@@ -28,12 +28,16 @@
           <p-step [value]="1">Endereço</p-step>
           <p-step [value]="2">Termo de Consentimento</p-step>
           <p-step [value]="3">Assinatura</p-step>
-          <p-step [value]="4">Pagamento</p-step>
+          <p-step [value]="4">Finalização</p-step>
         </p-step-list>
 
         <p-step-panels>
           <p-step-panel [value]="1">
             <ng-template #content let-activateCallback="activateCallback">
+               <div class="alertOs" *ngIf="selectedOfferId == null">
+                <p> ⚠️Para realizar a transferência é necessário selecionar uma OS disponível!</p>
+
+              </div>
               <div
                 class="p-d-flex p-jc-between p-ai-center"
                 style="
@@ -42,6 +46,7 @@
                   align-items: center;
                 "
               >
+             
                 <p-divider>
                   <h1 class="title-address-form">Endereço de Instalação</h1>
                 </p-divider>
@@ -272,7 +277,7 @@
                       name="paymentMethod"
                       placeholder="Forma de Pagamento"
                       appendTo="body"
-                      [disabled]="!isEditingAddress"
+
                     >
                     </p-select>
 
@@ -344,10 +349,11 @@
                   iconPos="right"
                   label="Próximo"
                   (onClick)="meuMetodoExtra(); activateCallback(2)"
-                  [disabled]="!isAddressValid || !isAddressDataChanged"
+                  [disabled]="!isAddressDataChanged"
                   tooltipPosition="top"
                 />
               </div>
+               
             </ng-template>
           </p-step-panel>
 
@@ -709,7 +715,7 @@
                       [raised]="true"
                       [rounded]="true"
                       [disabled]="!(pdfBlobFinal || pdfWasDownloaded)"
-                      (onClick)="onConfirmAddressChange()"
+                      (onClick)="openPhoneModal()"
                     >
                     </p-button>
                   </div>
@@ -1252,4 +1258,48 @@
       ></p-button>
     </div>
   </form>
+</p-dialog>
+<p-dialog
+  header="Enviar informações ao cliente"
+  [(visible)]="showPhoneDialog"
+  [modal]="true"
+  [closable]="false"
+  [style]="{ width: '25rem' }"
+>
+  <div class="flex flex-column gap-3">
+    <p class="m-0">
+      Por favor, informe o número de telefone do cliente para que possamos
+      enviar as informações da <strong>Mudança de Endereço</strong>.
+      <br />
+      Para confirmar a ação é necessário informar um número de telefone.
+      <br />
+      No seguinte formato <strong>+55 (DD) Número</strong>
+    </p>
+
+    <input
+      type="text"
+      pInputText
+      [(ngModel)]="phone"
+      mask="00000000000"
+      prefix="+55"
+      placeholder="(00) 00000-0000"
+    />
+
+    <p-divider></p-divider>
+
+    <div class="flex justify-content-end gap-2 mt-3">
+      <p-button
+        label="Cancelar"
+        severity="secondary"
+        (onClick)="showPhoneDialog = false"
+      ></p-button>
+
+      <p-button
+        label="Confirmar"
+        icon="pi pi-check"
+        [disabled]="phone!.length !== 11"
+        (onClick)="confirmSendToClient()"
+      ></p-button>
+    </div>
+  </div>
 </p-dialog>
