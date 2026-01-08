@@ -76,7 +76,6 @@ export class WebSocketService {
             case 'offer_status_accept':
               this.toastService.showWithAnimation(
                 `✅ Sua oferta foi <b>aceita</b>!<br>
-                ID: <b>${data.offerId}</b><br>
                 Quem aceitou: <b>${data.actionByName}</b>`,
                 '/sucessordem.json'
               );
@@ -85,7 +84,6 @@ export class WebSocketService {
             case 'offer_status_reject':
               this.toastService.showWithAnimation(
                 `❌ Sua oferta foi <b>rejeitada</b>!<br>
-                ID: <b>${data.offerId}</b><br>
                 Quem rejeitou: <b>${data.actionByName}</b>`,
                 '/rejectedordem.json'
               );
