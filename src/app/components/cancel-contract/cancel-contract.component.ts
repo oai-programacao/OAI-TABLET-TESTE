@@ -494,7 +494,7 @@ get statusFidelidade(): StatusFidelidade {
     });
 }
 
-  executarTrocaParaDivida(){
+executarTrocaParaDivida(){
     this.isLoading = true;
 
     this.bankSlipService.cancelStoreSlip(this.contract.id).subscribe({
@@ -508,12 +508,9 @@ get statusFidelidade(): StatusFidelidade {
         this.tipoCancelamento = 'WITH_DEBT';
         this.boletoGeradoUrl = null;
         this.pdfSrc = null;
-
-        this.carregarPreviewPdf();
-
         this.activeStep = 4;
-
         this.isLoading = false;
+        this.carregarPreviewPdf();
       },
       error: (err) => {
         console.error(err);
