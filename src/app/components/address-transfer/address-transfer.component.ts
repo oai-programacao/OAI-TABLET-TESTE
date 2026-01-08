@@ -266,10 +266,6 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     price: '',
   };
 
-  get isAddressValid(): boolean {
-    return this.addressNewNgForm?.valid ?? false;
-  }
-
   constructor(private cepService: CepService, private sanitizer: DomSanitizer) {
     const navigation = this.router.getCurrentNavigation();
 
@@ -314,6 +310,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
         adesionValue: null,
         paymentForm: null,
       };
+
       this.originalAddressForm = { ...this.addressNewForm };
 
       this.loadClientData();
@@ -806,6 +803,15 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     if (!this.originalAddressForm) {
       return false;
     }
+
+    if (this.addressNewForm.adesionValue == null || this.addressNewForm.adesionValue === 0) {
+      return false;
+    }
+
+    if (!this.selectedOfferId) { 
+      return false;
+    }
+
     return (
       this.addressNewForm.zipCode !== this.originalAddressForm.zipCode ||
       this.addressNewForm.street !== this.originalAddressForm.street ||
@@ -1202,6 +1208,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
 
     this.formNewOs.resetForm();
   }
+
 
   toggleReservation(offer: any) {
     if (!offer.reserved) {

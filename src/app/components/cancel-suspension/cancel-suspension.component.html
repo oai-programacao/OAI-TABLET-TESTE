@@ -497,6 +497,38 @@
         <p-inputgroup-addon>
           <i class="pi pi-whatsapp"></i>
         </p-inputgroup-addon>
+        <div class="btn-to-capture">
+        <div class="btn-to-generate-contract">
+            <p-button
+            label="Gerar Termo Final com Assinatura"
+            icon="pi pi-file-pdf"
+            [outlined]="true"
+            size="large"
+            severity="info"
+            variant="outlined"
+            [loading]="isLoadingPreview"
+            (onClick)="captureAndGenerate()"
+            ></p-button>
+        </div>
+        </div>
+    </p-dialog>
+
+    <p-dialog
+  header="Enviar informações ao cliente"
+  [(visible)]="showPhoneDialog"
+  [modal]="true"
+  [closable]="false"
+  [style]="{ width: '25rem' }"
+>
+  <div class="flex flex-column gap-3">
+    <p class="m-0">
+      Por favor, informe o número de telefone do cliente para que possamos
+      enviar as informações da <strong>Cancelamento da Suspensão Temporária do Contrato</strong>.
+      <br />
+      Para confirmar a ação é necessário informar um número de telefone.
+      <br />
+      No seguinte formato <strong>+55 (DD) Número</strong>
+    </p>
 
         <input
           pInputText

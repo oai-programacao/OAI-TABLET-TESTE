@@ -34,6 +34,10 @@
         <p-step-panels>
           <p-step-panel [value]="1">
             <ng-template #content let-activateCallback="activateCallback">
+               <div class="alertOs" *ngIf="selectedOfferId == null">
+                <p> ⚠️Para realizar a transferência é necessário selecionar uma OS disponível!</p>
+
+              </div>
               <div
                 class="p-d-flex p-jc-between p-ai-center"
                 style="
@@ -42,6 +46,7 @@
                   align-items: center;
                 "
               >
+             
                 <p-divider>
                   <h1 class="title-address-form">Endereço de Instalação</h1>
                 </p-divider>
@@ -272,7 +277,7 @@
                       name="paymentMethod"
                       placeholder="Forma de Pagamento"
                       appendTo="body"
-                      [disabled]="!isEditingAddress"
+
                     >
                     </p-select>
 
@@ -344,10 +349,11 @@
                   iconPos="right"
                   label="Próximo"
                   (onClick)="meuMetodoExtra(); activateCallback(2)"
-                  [disabled]="!isAddressValid || !isAddressDataChanged"
+                  [disabled]="!isAddressDataChanged"
                   tooltipPosition="top"
                 />
               </div>
+               
             </ng-template>
           </p-step-panel>
 
