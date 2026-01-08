@@ -1,502 +1,382 @@
 <div class="page-container">
-  <app-card-base
-    width="auto"
-    heigth="auto"
-    header="Cancelamento de suspensão de contratos"
-  >
-    <div class="btn-to-create-another-contract">
-      <p-button
-        [rounded]="true"
-        [raised]="true"
-        (onClick)="navigateToListContracts()"
-        icon="pi pi-arrow-left"
-        severity="danger"
-        size="large"
-      />
-      <p-button
-        icon="pi pi-home"
-        [rounded]="true"
-        severity="info"
-        raised="true"
-        size="large"
-        (onClick)="backToHome()"
-      />
-    </div>
-
-    <div class="contractNumber__header">
-      <label>Contrato a ser alterado:</label>
-      <span>#{{ contract.codeContractRbx }}</span>
-    </div>
-
-    <p-stepper [(value)]="activeStep">
-      <p-step-list>
-        <p-step [value]="1">Suspensão</p-step>
-        <p-step [value]="2">Termo de Consentimento</p-step>
-        <p-step [value]="3">Assinatura</p-step>
-        <p-step [value]="4">Finalização</p-step>
-      </p-step-list>
-
-      <p-step-panels>
-        <p-step-panel [value]="1">
-          <div class="info-text">
-            <ng-template #content let-activateCallback="activateCallback">
-              <div class="info-text-instructions">
-                <h2>⚫ Instruções</h2>
-                <p>
-                  Caro vendedor, essa etapa de cancelamento de suspensão de
-                  contrato permite que você cancele uma suspensão temporária que
-                  foi previamente agendada. O cliente voltará a ter seu contrato
-                  ativo normalmente a partir da data de cancelamento. É
-                  importante verificar todas as informações antes de prosseguir
-                  com o cancelamento, pois essa ação é irreversível. Em caso de
-                  dúvidas, entre em contato com seu superior.
-                </p>
-              </div>
-              <div class="suspension-info-summary">
-                <h3>Detalhes da Suspensão Atual</h3>
-                <div class="info-item">
-                  <strong>Data de Início:</strong>
-                  <span>{{
-                    contractSuspense.startDate | date : "dd/MM/yyyy"
-                  }}</span>
-                </div>
-
-                <div class="info-item">
-                  <strong>Data de Término:</strong>
-                  <span>{{
-                    contractSuspense.finishDate | date : "dd/MM/yyyy"
-                  }}</span>
-                </div>
-
-                <div class="info-item">
-                  <strong>Duração:</strong>
-                  <span
-                    >{{
-                      calculateDuration(
-                        contractSuspense.startDate,
-                        contractSuspense.finishDate
-                      )
-                    }}
-                    dias</span
-                  >
-                </div>
-
-                <div class="info-item">
-                  <strong>Valor Proporcional gerado para suspensão:</strong>
-                  <span>
-                    {{
-                      proportionalBoletoBefore
-                        | currency : "BRL" : "symbol" : "1.2-2"
-                    }}
-                  </span>
-                </div>
-
-                <div class="info-item">
-                  <strong>Valor Proporcional restante do mês:</strong>
-                  <span>
-                    @if (contractSuspense.startDate &&
-                    contractSuspense.finishDate) {
-                    {{
-                      proportionalBoleto | currency : "BRL" : "symbol" : "1.2-2"
-                    }}
-                    }
-                  </span>
-                </div>
-              </div>
-              <div class="btn-actions">
-                <p-button
-                  severity="success"
-                  rounded="true"
-                  raised="true"
-                  size="large"
-                  icon="pi pi-arrow-right"
-                  iconPos="right"
-                  label="Próximo"
-                  (onClick)="activateCallback(2)"
-                ></p-button>
-              </div>
-            </ng-template>
-          </div>
-        </p-step-panel>
-        <p-step-panel [value]="2">
-          <ng-template #content let-activateCallBack="activateCallback">
-            <div class="fluxo-container">
-              <div class="fluxo-card online">
-                <div class="fluxo-header">
-                  🖥️
-                  <h3>Atendimento Online</h3>
-                </div>
-                <div class="fluxo-body">
-                  <p>
-                    Envie o termo diretamente para assinatura online via
-                    Autentique. Ideal para clientes atendidos por WhatsApp ou
-                    Telefone
-                  </p>
-                </div>
-                <div class="fluxo-footer">
-                  <p-button
-                    label="Enviar Contrato"
-                    icon="pi pi-send"
-                    severity="warn"
-                    [raised]="true"
-                    (onClick)="abrirModal()"
-                    [style]="{ padding: '2rem 4rem' }"
-                  ></p-button>
-                </div>
-              </div>
-              <!-- CARD 2 - PRESENCIAL -->
-              <div class="fluxo-card presencial">
-                <div class="fluxo-header">
-                  🤝
-                  <h3>Atendimento Presencial</h3>
-                </div>
-                <div class="fluxo-body">
-                  <p>
-                    Gere o termo para assinatura manual presencial. A assinatura
-                    será inserida automaticamente no documento.
-                  </p>
-                </div>
-                <div class="fluxo-footer">
-                  <p-button
-                    label="Assinatura Manual"
-                    icon="pi pi-file-edit"
-                    severity="success"
-                    [raised]="true"
-                    (onClick)="goToStep(3)"
-                    [style]="{ padding: '2rem 4rem' }"
-                    [disabled]="false"
-                  ></p-button>
-                </div>
-              </div>
-            </div>
-          </ng-template>
-        </p-step-panel>
-        <p-step-panel [value]="3">
-          <ng-template #content let-activateCallback="activateCallback">
-            <div *ngIf="isLoadingPreview" class="loading-overlay">
-              <p-progressSpinner
-                styleClass="W-6rem h-6rem"
-                strokeWidth="6"
-                animationDuration=".5s"
-              ></p-progressSpinner>
-            </div>
-            <div class="pdf-preview-section p-mb-3">
-              <div
-                *ngIf="previewLoadFailed && !isLoadingPreview"
-                class="p-mt-2 text-center p-text-danger"
-              >
-                <p>
-                  <i class="pi pi-exclamation-triangle p-mr-1"></i> Falha ao
-                  carregar o preview.
-                </p>
-                <p-button
-                  label="Tentar Novamente"
-                  icon="pi pi-refresh"
-                  styleClass="p-button-sm p-button-danger p-button-outlined"
-                  (click)="loadPdfPreview()"
-                ></p-button>
-              </div>
-
-              <div
-                *ngIf="safePdfPreviewUrl && !isLoadingPreview"
-                class="pdf-viewer p-mt-2"
-              >
-                <iframe
-                  [src]="safePdfPreviewUrl"
-                  width="100%"
-                  height="600px"
-                  style="border: 1px solid #000000"
-                ></iframe>
-                <div class="btn-signature">
-                  <p-button
-                    label="Assinar"
-                    icon="pi pi-pencil"
-                    styleClass="p-button-sm"
-                    severity="info"
-                    rounded="true"
-                    raised="true"
-                    (click)="abrirAssinatura()"
-                  ></p-button>
-                  <p-button
-                    label="Capturar"
-                    icon="pi pi-camera"
-                    (click)="cameraInput.click()"
-                    styleClass="p-button-sm"
-                    severity="info"
-                    rounded="true"
-                    raised="true"
-                  ></p-button>
-                  <p-button
-                    label="Salvar"
-                    icon="pi pi-download"
-                    styleClass="p-button-sm p-button-success"
-                    (click)="savePdf()"
-                    [disabled]="!safePdfPreviewUrl"
-                    rounded="true"
-                    raised="true"
-                  ></p-button>
-                </div>
-              </div>
-            </div>
-
-            <input
-              type="file"
-              accept="image/*"
-              capture="environment"
-              (change)="onFotoCapturada($event)"
-              style="display: none"
-              #cameraInput
-            />
-
-            <div class="btn-to-navigate">
-              <p-button
-                label="Voltar"
-                icon="pi pi-arrow-left"
-                severity="secondary"
-                rounded="true"
-                size="large"
+    <app-card-base width="auto" heigth="auto" header="Cancelamento de suspensão de contratos">
+        <div class="btn-to-create-another-contract">
+            <p-button
+                [rounded]="true"
                 [raised]="true"
-                (onClick)="activateCallback(2)"
-              />
-              <p-button
-                severity="success"
-                rounded="true"
+                (onClick)="navigateToListContracts()"
+                icon="pi pi-arrow-left"
+                severity="danger"
+                size="large"
+            />
+            <p-button
+                icon="pi pi-home"
+                [rounded]="true"
+                severity="info"
                 raised="true"
                 size="large"
-                icon="pi pi-arrow-right"
-                iconPos="right"
-                label="Proximo"
-                (onClick)="activateCallback(4)"
-              />
-            </div>
-          </ng-template>
-        </p-step-panel>
-        <p-step-panel [value]="4">
-          <ng-template #content let-activateCallback="activateCallback">
-            <div *ngIf="isSubmitting" class="loading-overlay">
-              <p-progressSpinner
-                styleClass="w-6rem h-6rem"
-                strokeWidth="6"
-                animationDuration=".5s"
-              ></p-progressSpinner>
-              <span class="loading-text">Processando alteração...</span>
-            </div>
-            <div *ngIf="finalization; else estadoConfirmacao">
-              <div class="step-finalization">
-                <div class="step-body">
-                  <div class="table-finalization">
-                    <p-table
-                      [value]="[
-                        { campo: 'Cliente', valor: result?.clientName },
-                        {
-                          campo: 'CPF/CNPJ',
-                          valor: formatCpfCnpj(result?.clientCpf)
-                        },
-                        { campo: 'Contrato', valor: result?.contrato },
-                        {
-                          campo: 'Valor restante do mês',
-                          valor: result?.proportionalRemainder,
-                          isCurrency: true
-                        },
-                        { campo: 'Boleto', valor: result?.linkBoleto }
-                      ]"
-                    >
-                      <ng-template pTemplate="header">
-                        <tr>
-                          <th>Resumo da Operação</th>
-                          <th></th>
-                        </tr>
-                      </ng-template>
-                      <ng-template pTemplate="body" let-row>
-                        <tr>
-                          <td>
-                            <strong>{{ row.campo }}</strong>
-                          </td>
+                (onClick)="backToHome()"
+            />
+        </div>
 
-                          <td *ngIf="row.campo !== 'Boleto'">
-                            <span *ngIf="row.isCurrency">
-                              {{
-                                row.valor
-                                  | currency : "BRL" : "symbol" : "1.2-2"
-                              }}
-                            </span>
+        <div class="contractNumber__header">
+            <label>Contrato a ser alterado:</label>
+            <span>#{{ contract.codeContractRbx }}</span>
+        </div>
 
-                            <span *ngIf="!row.isCurrency">
-                              {{ row.valor }}
-                            </span>
-                          </td>
+        <p-stepper [(value)]="activeStep">
+        <p-step-list>
+            <p-step [value]="1">Suspensão</p-step>
+            <p-step [value]="2">Termo de Consentimento</p-step>
+            <p-step [value]="3">Assinatura</p-step>
+            <p-step [value]="4">Finalização</p-step>
+        </p-step-list>
 
-                          <td *ngIf="row.campo === 'Boleto'">
-                            <a
-                              *ngIf="row.valor"
-                              [href]="row.valor"
-                              target="_blank"
+        <p-step-panels>
+            <p-step-panel [value]="1">
+                <div class="info-text">
+                    <ng-template #content let-activateCallback="activateCallback">
+                         <div class="info-text-instructions">
+                            <h2> ⚫ Instruções </h2>
+                            <p>
+                                Caro vendedor, essa etapa de cancelamento de suspensão de contrato permite que você 
+                                cancele uma suspensão temporária que foi previamente agendada. O cliente voltará a ter 
+                                seu contrato ativo normalmente a partir da data de cancelamento. É importante verificar 
+                                todas as informações antes de prosseguir com o cancelamento, pois essa ação é irreversível.
+                                Em caso de dúvidas, entre em contato com seu superior.
+                            </p>
+                        </div>
+                        <div class="suspension-info-summary">
+                            <h3>Detalhes da Suspensão Atual</h3>
+                            <div class="info-item">
+                                <strong>Data de Início:</strong>
+                                <span>{{ contractSuspense.startDate | date:'dd/MM/yyyy' }}</span>
+                            </div>
+
+                            <div class="info-item">
+                                <strong>Data de Término:</strong>
+                                <span>{{ contractSuspense.finishDate | date:'dd/MM/yyyy' }}</span>
+                            </div>
+
+                            <div class="info-item">
+                                <strong>Duração:</strong>
+                                <span>{{ calculateDuration(contractSuspense.startDate, contractSuspense.finishDate) }} dias</span>
+                            </div>
+
+                            <div class="info-item">
+                                <strong>Valor Proporcional gerado para suspensão:</strong>
+                                <span>
+                                    {{ proportionalBoletoBefore | currency : "BRL" : "symbol" : "1.2-2" }}
+                                </span>
+                            </div>
+
+                            <div class="info-item">
+                                <strong>Valor Proporcional restante do mês:</strong>
+                                <span>
+                                    @if (contractSuspense.startDate && contractSuspense.finishDate) {
+                                        {{ proportionalBoleto | currency : "BRL" : "symbol" : "1.2-2" }}
+                                    }
+                                </span>
+                            </div>
+                        </div>
+                        <div class="btn-actions">
+                            <p-button
+                                severity="success"
+                                rounded="true"
+                                raised="true"
+                                size="large"
+                                icon="pi pi-arrow-right"
+                                iconPos="right"
+                                label="Próximo"
+                                (onClick)="activateCallback(2)"
+                            ></p-button>
+                        </div>
+                    </ng-template>
+                </div>
+            </p-step-panel>
+            <p-step-panel [value]="2">
+                <ng-template #content let-activateCallBack="activateCallback">
+                    <div class="fluxo-container">
+                        <div class="fluxo-card online">
+                            <div class="fluxo-header">
+                                🖥️
+                                <h3>Atendimento Online</h3>
+                            </div>
+                            <div class="fluxo-body">
+                                <p>
+                                Envie o termo diretamente para assinatura online via
+                                Autentique. Ideal para clientes atendidos por WhatsApp ou
+                                Telefone
+                                </p>
+                            </div>
+                            <div class="fluxo-footer">
+                                <p-button
+                                    label="Enviar Contrato"
+                                    icon="pi pi-send"
+                                    severity="warn"
+                                    [raised]="true"
+                                    (onClick)="abrirModal()"
+                                    [style]="{ padding: '2rem 4rem' }"
+                                ></p-button>
+                            </div>
+                        </div>
+                         <!-- CARD 2 - PRESENCIAL -->
+                        <div class="fluxo-card presencial">
+                            <div class="fluxo-header">
+                                🤝
+                                <h3>Atendimento Presencial</h3>
+                            </div>
+                            <div class="fluxo-body">
+                                <p>
+                                Gere o termo para assinatura manual presencial. A
+                                assinatura será inserida automaticamente no documento.
+                                </p>
+                            </div>
+                            <div class="fluxo-footer">
+                                <p-button
+                                    label="Assinatura Manual"
+                                    icon="pi pi-file-edit"
+                                    severity="success"
+                                    [raised]="true"
+                                    (onClick)="goToStep(3)"
+                                    [style]="{ padding: '2rem 4rem' }"
+                                    [disabled]="false"
+                                ></p-button>
+                            </div>
+                        </div>
+                    </div>
+                </ng-template>
+            </p-step-panel>
+            <p-step-panel [value]="3">
+                    <ng-template #content let-activateCallback="activateCallback">
+                        <div *ngIf="isLoadingPreview" class="loading-overlay">
+                            <p-progressSpinner
+                                styleClass="W-6rem h-6rem"
+                                strokeWidth="6"
+                                animationDuration=".5s"
+                            ></p-progressSpinner>
+                        </div>
+                        <div class="pdf-preview-section p-mb-3">
+                            <div
+                                *ngIf="previewLoadFailed && !isLoadingPreview" 
+                                class="p-mt-2 text-center p-text-danger"
                             >
-                              Clique para abrir o boleto
-                            </a>
+                                <p>
+                                    <i class="pi pi-exclamation-triangle p-mr-1"></i> Falha ao carregar o preview.
+                                </p>
+                                <p-button
+                                    label="Tentar Novamente"
+                                    icon="pi pi-refresh"
+                                    styleClass="p-button-sm p-button-danger p-button-outlined"
+                                    (click)="loadPdfPreview()"
+                                ></p-button>
+                            </div>
 
-                            <span *ngIf="!row.valor" style="color: #999">
-                              (Sem boleto gerado)
-                            </span>
-                          </td>
-                        </tr>
-                      </ng-template>
-                    </p-table>
-                  </div>
-                  <div class="button-finalization">
-                    <p-button
-                      label="Voltar ao Menu do Cliente"
-                      icon="pi pi-home"
-                      severity="success"
-                      [raised]="true"
-                      [rounded]="true"
-                      size="large"
-                      (onClick)="navigateToInfoClient()"
-                    >
-                    </p-button>
-                  </div>
-                </div>
-              </div>
-            </div>
+                            <div
+                                *ngIf="safePdfPreviewUrl && !isLoadingPreview"
+                                class="pdf-viewer p-mt-2"
+                            >
+                                <iframe
+                                    [src]="safePdfPreviewUrl"
+                                    width="100%"
+                                    height="600px"
+                                    style="border: 1px solid #000000"
+                                ></iframe>
+                                <div class="btn-signature">
+                                    <p-button
+                                        label="Assinar"
+                                        icon="pi pi-pencil"
+                                        styleClass="p-button-sm"
+                                        severity="info"
+                                        rounded="true"
+                                        raised="true"
+                                        (click)="abrirAssinatura()"
+                                    ></p-button>
+                                    <p-button
+                                        label="Capturar"
+                                        icon="pi pi-camera"
+                                        (click)="cameraInput.click()"
+                                        styleClass="p-button-sm"
+                                        severity="info"
+                                        rounded="true"
+                                        raised="true"
+                                    ></p-button>
+                                    <p-button
+                                        label="Salvar"
+                                        icon="pi pi-download"
+                                        styleClass="p-button-sm p-button-success"
+                                        (click)="savePdf()"
+                                        [disabled]="!safePdfPreviewUrl"
+                                        rounded="true"
+                                        raised="true"
+                                    ></p-button>
+                                </div>
+                            </div>
+                        </div>
 
-            <ng-template #estadoConfirmacao>
-              <div class="step-footer" style="margin-top: 2rem">
-                <div
-                  class="proportional-info"
-                  style="
-                    background-color: #f0f9ff;
-                    border-left: 4px solid #0ea5e9;
-                    padding: 1.5rem;
-                    margin-bottom: 2rem;
-                    border-radius: 4px;
-                    text-align: center;
-                  "
-                >
-                  <span
-                    class="footer-title"
-                    style="
-                      font-weight: 600;
-                      color: #0c4a6e;
-                      font-size: 1.2rem;
-                      display: block;
-                    "
-                  >
-                    Deseja confirmar o cancelamento do agendamento de suspensão?
-                  </span>
-                  <div style="margin-top: 0.5rem; color: #334155">
-                    Verifique se o termo foi assinado corretamente antes de
-                    prosseguir.
-                  </div>
-                </div>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            capture="environment"
+                            (change)="onFotoCapturada($event)"
+                            style="display: none"
+                            #cameraInput
+                        />
 
-                <div
-                  class="footer-actions"
-                  style="display: flex; justify-content: center; gap: 1rem"
-                >
-                  <p-button
-                    label="Voltar"
-                    severity="secondary"
-                    icon="pi pi-arrow-left"
-                    size="large"
-                    [raised]="true"
-                    [rounded]="true"
-                    (onClick)="activateCallback(3)"
-                  >
-                  </p-button>
+                        <div class="btn-to-navigate">
+                            <p-button
+                            label="Voltar"
+                            icon="pi pi-arrow-left"
+                            severity="secondary"
+                            rounded="true"
+                            size="large"
+                            [raised]="true"
+                            (onClick)="activateCallback(2)"
+                            />
+                            <p-button
+                            severity="success"
+                            rounded="true"
+                            raised="true"
+                            size="large"
+                            icon="pi pi-arrow-right"
+                            iconPos="right"
+                            label="Proximo"
+                            (onClick)="activateCallback(4)"
+                            />
+                        </div>
+                    </ng-template>
+                </p-step-panel>
+                <p-step-panel [value]="4">
+                    <ng-template #content let-activateCallback="activateCallback">
+                        <div *ngIf="isSubmitting" class="loading-overlay">
+                            <p-progressSpinner
+                                styleClass="w-6rem h-6rem"
+                                strokeWidth="6"
+                                animationDuration=".5s"
+                            ></p-progressSpinner>    
+                            <span class="loading-text">Processando alteração...</span>
+                        </div>
+                        <div *ngIf="finalization; else estadoConfirmacao">
+                            <div class="step-finalization">
+                                <div class="step-body">
+                                    <div class="table-finalization">
+                                        <p-table [value]="[
+                                            { campo: 'Cliente', valor: result?.clientName },
+                                            { campo: 'CPF/CNPJ', valor: formatCpfCnpj(result?.clientCpf) },
+                                            { campo: 'Contrato', valor: result?.contrato },
+                                            { campo: 'Valor restante do mês', valor: result?.proportionalRemainder, isCurrency: true },
+                                            { campo: 'Boleto', valor: result?.linkBoleto }
+                                        ]">
+                                            <ng-template pTemplate="header">
+                                                <tr>
+                                                    <th>Resumo da Operação</th>
+                                                    <th> </th>
+                                                </tr>
+                                            </ng-template>
+                                            <ng-template pTemplate="body" let-row>
+                                                <tr>
+                                                    <td><strong>{{ row.campo }}</strong></td>
+                                                    
+                                                    <td *ngIf="row.campo !== 'Boleto'">
+                                                        <span *ngIf="row.isCurrency">
+                                                            {{ row.valor | currency:'BRL':'symbol':'1.2-2' }}
+                                                        </span>
 
-                  <p-button
-                    label="Confirmar Alteração"
-                    severity="help"
-                    icon="pi pi-check"
-                    size="large"
-                    [raised]="true"
-                    [rounded]="true"
-                    [disabled]="!(pdfBlobFinal || pdfWasDownloaded)"
-                    (onClick)="confirmSuspension()"
-                  >
-                  </p-button>
-                </div>
-              </div>
-            </ng-template>
-          </ng-template>
-        </p-step-panel>
-      </p-step-panels>
-    </p-stepper>
-  </app-card-base>
+                                                        <span *ngIf="!row.isCurrency">
+                                                            {{ row.valor }}
+                                                        </span>
+                                                    </td>
+                                                                                            
+                                                        <td *ngIf="row.campo === 'Boleto'">
+                                                            <a *ngIf="row.valor"
+                                                            [href]="row.valor"
+                                                            target="_blank">
+                                                            Clique para abrir o boleto
+                                                            </a>
 
-  <p-dialog
-    header="Assinatura Ipad"
-    [(visible)]="signDialogVisible"
-    (onShow)="forceSignatureRedraw()"
-    (onHide)="resetSignaturePad()"
-  >
-    <div class="signature-pad-container">
-      <div class="signature-input">
-        <p-iftalabel>
-          <label for="signature">Assinatura Online (Opcional):</label>
-          <ng-container *ngIf="signatureVisibleFlag">
-            <app-signature-pad #signaturePadInDialog> </app-signature-pad>
-          </ng-container>
-        </p-iftalabel>
-      </div>
-    </div>
+                                                            <span *ngIf="!row.valor" style="color:#999;">
+                                                                (Sem boleto gerado)
+                                                            </span>
+                                                        </td>
+                                                </tr>
+                                            </ng-template>
+                                        </p-table>
+                                    </div>
+                                    <div class="button-finalization">
+                                        <p-button
+                                            label="Voltar ao Menu do Cliente"
+                                            icon="pi pi-home"
+                                            severity="success"
+                                            [raised]="true"
+                                            [rounded]="true"
+                                            size="large"
+                                            (onClick)="navigateToInfoClient()">
+                                        </p-button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-    <p-divider layout="horizontal" styleClass="p-my-3"></p-divider>
+                        <ng-template #estadoConfirmacao>
+                            <div class="step-footer" style="margin-top: 2rem;">
+                                <div class="proportional-info" style="background-color: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 1.5rem; margin-bottom: 2rem; border-radius: 4px; text-align: center;">
+                                <span class="footer-title" style="font-weight: 600; color: #0c4a6e; font-size: 1.2rem; display: block;">
+                                    Deseja confirmar o cancelamento do agendamento de suspensão?
+                                </span>
+                                <div style="margin-top: 0.5rem; color: #334155;">
+                                    Verifique se o termo foi assinado corretamente antes de prosseguir.
+                                </div>
+                                </div>
+                                
+                                <div class="footer-actions" style="display: flex; justify-content: center; gap: 1rem;">
+                                <p-button 
+                                    label="Voltar" 
+                                    severity="secondary" 
+                                    icon="pi pi-arrow-left" 
+                                    size="large"
+                                    [raised]="true" 
+                                    [rounded]="true"
+                                    (onClick)="activateCallback(3)">
+                                </p-button>
+                                
+                                <p-button 
+                                    label="Confirmar Alteração" 
+                                    severity="help" 
+                                    icon="pi pi-check" 
+                                    size="large"
+                                    [raised]="true" 
+                                    [rounded]="true"
+                                    [disabled]="!(pdfBlobFinal || pdfWasDownloaded)" 
+                                    (onClick)=" openPhoneModal()">
+                                </p-button>
+                                </div>
+                            </div>
+                        </ng-template>
+                    </ng-template>
+                </p-step-panel>
+            </p-step-panels>
+        </p-stepper>
+    </app-card-base>
 
-    <div class="btn-to-capture">
-      <div class="btn-to-generate-contract">
-        <p-button
-          label="Gerar Termo Final com Assinatura"
-          icon="pi pi-file-pdf"
-          [outlined]="true"
-          size="large"
-          severity="info"
-          variant="outlined"
-          [loading]="isLoadingPreview"
-          (onClick)="captureAndGenerate()"
-        ></p-button>
-      </div>
-    </div>
-  </p-dialog>
-  <p-dialog
-    header="Enviar Via WhatsApp ⚙️"
-    [(visible)]="modalVisible"
-    [modal]="true"
-    [closable]="true"
-    resizable="false"
-    [draggable]="false"
-    (onHide)="onHide()"
-  >
-    <div class="dialog-content">
-      <div class="icon-container">
-        <i class="pi pi-whatsapp whatsapp-icon"></i>
-      </div>
+    <p-dialog
+        header="Assinatura Ipad"
+        [(visible)]="signDialogVisible"
+        (onShow)="forceSignatureRedraw()"
+        (onHide)="resetSignaturePad()"
+    >
+        <div class="signature-pad-container">
+        <div class="signature-input">
+            <p-iftalabel>
+            <label for="signature">Assinatura Online (Opcional):</label>
+            <ng-container *ngIf="signatureVisibleFlag">
+                <app-signature-pad #signaturePadInDialog> </app-signature-pad>
+            </ng-container>
+            </p-iftalabel>
+        </div>
+        </div>
 
-      <div class="alert-box">
-        <div class="alert-icon-circle">!</div>
-        <p class="alert-text">
-          Após a assinatura do documento pelo cliente via Autentique,<br />
-          o sistema processará automaticamente a atualização dos dados<br />
-          do contrato no RBX, vinculará um atendimento ao cliente<br />
-          e anexará o documento assinado.<br /><br />
-          Você será notificado assim que a assinatura for concluída<br />
-          e poderá consultar o atendimento diretamente no cadastro do cliente.
-        </p>
-      </div>
+        <p-divider layout="horizontal" styleClass="p-my-3"></p-divider>
 
-      <!-- Mensagem informativa -->
-      <p class="info-text">
-        Certifique-se de que o número está correto, caso contrário, poderá ser
-        enviado para outra pessoa!<br />
-        O termo será enviado pela Autentique para o cliente assinar via WhatsApp
-        📄✅ <br />
-        Digite o número no formato <strong>+55</strong> (DDD + Número).<br />
-      </p>
-
-      <p-inputgroup>
-        <p-inputgroup-addon>
-          <i class="pi pi-whatsapp"></i>
-        </p-inputgroup-addon>
         <div class="btn-to-capture">
         <div class="btn-to-generate-contract">
             <p-button
@@ -530,35 +410,32 @@
       No seguinte formato <strong>+55 (DD) Número</strong>
     </p>
 
-        <input
-          pInputText
-          id="telefone"
-          name="telefone"
-          placeholder="+55 (DDD) 00000-0000"
-          [(ngModel)]="phone"
-          required
-          [style]="{ height: '40px', 'font-size': '20px' }"
-          mask="00000000000"
-          prefix="+55"
-          #phoneModel="ngModel"
-        />
-      </p-inputgroup>
-    </div>
+    <input
+      type="text"
+      pInputText
+      [(ngModel)]="phone"
+      mask="00000000000"
+      prefix="+55"
+      placeholder="(00) 00000-0000"
+    />
 
-    <ng-template pTemplate="footer">
+    <p-divider></p-divider>
+
+    <div class="flex justify-content-end gap-2 mt-3">
       <p-button
         label="Cancelar"
-        icon="pi pi-times"
         severity="secondary"
-        (onClick)="onHide()"
+        (onClick)="showPhoneDialog = false"
       ></p-button>
+
       <p-button
-        label="Enviar"
-        icon="pi pi-send"
-        severity="success"
-        [disabled]="!phone || phone.trim().length < 10"
-        (onClick)="sendToAutentiqueSubmitCancel()"
+        label="Confirmar"
+        icon="pi pi-check"
+        [disabled]="phone!.length !== 11"
+        (onClick)="confirmSendToClient()"
       ></p-button>
-    </ng-template>
-  </p-dialog>
+    </div>
+  </div>
+</p-dialog>
 </div>
+
