@@ -839,11 +839,12 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (!this.selectedOfferId) { 
+    if (!this.selectedOfferId) {
       this.messageService.add({
         severity: 'warn',
         summary: 'Oferta não selecionada',
-        detail: 'Por favor, selecione e reserve uma oferta de viabilidade antes de continuar.',
+        detail:
+          'Por favor, selecione e reserve uma oferta de viabilidade antes de continuar.',
       });
       return;
     }
@@ -890,8 +891,6 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
         },
       };
 
-      console.log('Payload enviado:', payload);
-
       this.contractsService
         .updateAddressContract(
           this.currentContract.id,
@@ -916,8 +915,6 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
             const enderecoCompleto = `${this.addressNewForm.street}, ${this.addressNewForm.numberFromHome} - ${this.addressNewForm.neighborhood}`;
             const cidadeUF = `${this.addressNewForm.city}/${this.addressNewForm.uf}`;
             const enderecoFinalizado = `${enderecoCompleto} | ${cidadeUF}`;
-
-            console.log('RESPOSTA BACKEND:', response);
 
             this.result = {
               clientName:
@@ -1276,11 +1273,11 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
     });
   }
 
- openPhoneModal() {
+  openPhoneModal() {
     this.phone = '';
     this.showPhoneDialog = true;
   }
-   confirmSendToClient() {
+  confirmSendToClient() {
     this.showPhoneDialog = false;
     this.onConfirmAddressChange();
   }
