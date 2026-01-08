@@ -223,6 +223,7 @@ export class UploadPicturesComponent {
           });
           this.selectedFiles = [];
           this.loadImages();
+          this.router.navigate(['/info', this.clientId]);
         },
         error: () => {
           this.messageService.add({

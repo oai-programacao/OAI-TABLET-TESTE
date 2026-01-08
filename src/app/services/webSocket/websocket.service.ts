@@ -136,7 +136,7 @@ export class WebSocketService {
               );
               break;
 
-            case 'temporary-suspension':
+            case 'TEMPORARY_SUSPENSION':
               this.toastService.showWithAnimation(
                 `🚀 O cliente assinou o termo de consentimento!<br>
                 Cliente: <b>${data.clientName}</b> teve seu contrato suspenso.<br>
