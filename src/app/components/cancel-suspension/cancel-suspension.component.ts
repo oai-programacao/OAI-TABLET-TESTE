@@ -49,8 +49,10 @@ import { InputMaskModule } from 'primeng/inputmask';
     ProgressSpinnerModule,
     TableModule,
     CommonModule,
-    FormsModule
-  ],
+    FormsModule,
+    InputGroupModule,
+    InputGroupAddonModule
+],
   templateUrl: './cancel-suspension.component.html',
   providers: [MessageService],
   styleUrl: './cancel-suspension.component.scss',
