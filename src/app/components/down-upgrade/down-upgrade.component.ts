@@ -65,11 +65,9 @@ export interface ContractUpdate {
   selector: 'app-down-upgrade',
   standalone: true,
   imports: [
-    // 🔹 Angular Core
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    // 🔹 PrimeNG
     ToastModule,
     ButtonModule,
     StepperModule,
@@ -86,9 +84,7 @@ export interface ContractUpdate {
     PopoverModule,
     ProgressSpinnerModule,
     TooltipModule,
-    // 🔹 Máscara de input
     NgxMaskDirective,
-    // 🔹 Componente customizado
     CardBaseComponent,
     SignaturePadComponent,
     IftaLabelModule,
