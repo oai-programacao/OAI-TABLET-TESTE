@@ -717,6 +717,7 @@ export class SuspensionTemporaryComponent {
       dateFinishSuspension: this.finishDate,
       duration: this.suspensionData.duration,
       proporcional: this.proportionalBoleto,
+      phone: this.phone,
       pdfBytes: pdfBytes,
     };
 
