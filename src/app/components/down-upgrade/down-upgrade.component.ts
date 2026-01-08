@@ -483,7 +483,7 @@ export class DownUpgradeComponent implements OnInit {
       cicleFatId: cicleFatIdParaEnviar,
       cicleBillingDayBase: cicleBillingDayBaseToSend,
       cicleBillingExpired: cicleBillingExpiredToSend,
-      phone: this.phone = ''
+      phone: this.phone
     };
 
     console.log('Enviando DTO de Upgrade:', upgradeDto);
