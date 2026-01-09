@@ -1,4 +1,10 @@
-import { Component, OnInit, inject, ViewChild, ElementRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  ViewChild,
+  ElementRef,
+} from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -7,10 +13,10 @@ import { FormsModule } from '@angular/forms';
 
 import { ToastModule } from 'primeng/toast';
 import { ButtonModule } from 'primeng/button';
-import { StepperModule } from 'primeng/stepper';
+import { StepperModule } from 'primeng/stepper'; 
 import { CalendarModule } from 'primeng/calendar';
 import { DividerModule } from 'primeng/divider';
-import { SelectModule } from 'primeng/select';
+import { SelectModule } from 'primeng/select'; 
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputGroupModule } from 'primeng/inputgroup';
@@ -72,15 +78,14 @@ export interface StatusFidelidade {
   styleUrl: './cancel-contract.component.scss',
   providers: [MessageService, provideNgxMask(), ConfirmationService],
 })
-
-
 export class CancelContractComponent implements OnInit {
-
-  @ViewChild('signaturePadInDialog') signaturePadInDialog!: SignaturePadComponent;
-  @ViewChild(SignaturePadComponent) signaturePadComponent!: SignaturePadComponent;
+  @ViewChild('signaturePadInDialog')
+  signaturePadInDialog!: SignaturePadComponent;
+  @ViewChild(SignaturePadComponent)
+  signaturePadComponent!: SignaturePadComponent;
   @ViewChild('cameraInput') cameraInput!: ElementRef<HTMLInputElement>;
 
-
+ 
   // --- INJEÇÕES ---
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -91,16 +96,16 @@ export class CancelContractComponent implements OnInit {
   private readonly bankSlipService = inject(BankSlipService);
   private readonly imageUtilsService = inject(ImageUtilsService);
 
-  // --- DADOS ---
+// --- DADOS ---
   contract: any = {
-    id: 'uuid-do-contrato',
+    id: '',
     codeContractRbx: '',
     liquidPrice: 0.0,
     loyalty: false,
     dateExpired: null,
-    situationDescription: ''
+    situationDescription: '',
+    clientId: '',
   };
-
 
   minDate: Date = new Date();
   activeStep: number = 1;
@@ -110,7 +115,11 @@ export class CancelContractComponent implements OnInit {
   // Step 1
   simulationResult: CancelSimulationDTO | null = null;
   dataRescisao: Date | null = new Date();
-  selectedCancelReason: { label: string; value: string; idRbx?: number } | null = null;
+  selectedCancelReason: {
+    label: string;
+    value: string;
+    idRbx?: number;
+  } | null = null;
   selectedInstallments: number = 1;
   isSimulating: boolean = false;
 
@@ -122,7 +131,6 @@ export class CancelContractComponent implements OnInit {
   formaPagamentoSelecionada: any = null;
   boletoGeradoUrl: string | null = null;
   loadingBoleto: boolean = false;
-
 
   // Step 4 (PDF e Assinatura)
   isLoadingPreview: boolean = false;
@@ -147,19 +155,50 @@ export class CancelContractComponent implements OnInit {
   formasPagamento = [
     { label: 'Dinheiro', value: 'DINHEIRO' },
     { label: 'Débito', value: 'DEBITO' },
-    { label: 'PIX', value: 'PIX' }
+    { label: 'PIX', value: 'PIX' },
   ];
 
   cancellationReasons = [
-    { label: 'Insatisfação com o Valor', value: 'Cliente insatisfeito e não quis realizar upgrade/downgrade', idRbx: 8 },
-    { label: 'Insatisfação Técnica (Lentidão/Queda)', value: 'Cliente insatisfeito com a qualidade da internet' },
-    { label: 'Mudança de Endereço', value: 'Cliente mudou de endereço e não deseja continuar conosco', idRbx: 8 },
-    { label: 'Troca de Provedor (Oferta Melhor)', value: 'Cliente recebeu uma oferta de outra operadora', idRbx: 2 },
+    {
+      label: 'Insatisfação com o Valor',
+      value: 'Cliente insatisfeito e não quis realizar upgrade/downgrade',
+      idRbx: 8,
+    },
+    {
+      label: 'Insatisfação Técnica (Lentidão/Queda)',
+      value: 'Cliente insatisfeito com a qualidade da internet',
+    },
+    {
+      label: 'Mudança de Endereço',
+      value: 'Cliente mudou de endereço e não deseja continuar conosco',
+      idRbx: 8,
+    },
+    {
+      label: 'Troca de Provedor (Oferta Melhor)',
+      value: 'Cliente recebeu uma oferta de outra operadora',
+      idRbx: 2,
+    },
     { label: 'Falecimento do Titular', value: 'Cliente faleceu', idRbx: 23 },
-    { label: 'Não necessita mais do serviço', value: 'Cliente alegou não precisar mais do serviço', idRbx: 8 },
-    { label: 'Outros', value: 'Cliente não quis especificar o motivo', idRbx: 8 },
-    { label: 'Cancelamento - Não Instalado', value: 'Cliente Cancelou Pedido de Instalação', idRbx: 6 },
-    { label: 'Finalizou a Faculdade e Mudou-se de Estado', value: 'Cliente mudou-se de estado após o término da Faculdade', idRbx: 8 }
+    {
+      label: 'Não necessita mais do serviço',
+      value: 'Cliente alegou não precisar mais do serviço',
+      idRbx: 8,
+    },
+    {
+      label: 'Outros',
+      value: 'Cliente não quis especificar o motivo',
+      idRbx: 8,
+    },
+    {
+      label: 'Cancelamento - Não Instalado',
+      value: 'Cliente Cancelou Pedido de Instalação',
+      idRbx: 6,
+    },
+    {
+      label: 'Finalizou a Faculdade e Mudou-se de Estado',
+      value: 'Cliente mudou-se de estado após o término da Faculdade',
+      idRbx: 8,
+    },
   ];
 
   installmentOptions: any[] = [];
@@ -168,8 +207,8 @@ export class CancelContractComponent implements OnInit {
     this.generateInstallmentOptions();
 
     this.installmentOptions = Array.from({ length: 3 }, (_, i) => ({
-      label: `${i + 1}x ${i === 0 ? '' : ''}`,
-      value: i + 1
+        label: `${i + 1}x ${i === 0 ? '' : ''}`,
+        value: i + 1
     }));
 
     const contractId = this.route.snapshot.paramMap.get('contractId');
@@ -181,40 +220,38 @@ export class CancelContractComponent implements OnInit {
         next: (dadosContrato) => {
           this.contract = dadosContrato;
 
-          if (this.contract.situationDescription === 'AGUARDANDO_INSTALACAO') {
+          //     if (this.contract.situationDescription === 'AGUARDANDO_INSTALACAO') {
 
-            const motivoAutomatico = {
-              label: 'Cancelamento - Não Instalado',
-              value: 'Cliente Cancelou Pedido de Instalação',
-              idRbx: 6
-            };
+          //     // const motivoAutomatico = {
+          //     //     label: 'Cancelamento - Não Instalado',
+          //     //     value: 'Cliente Cancelou Pedido de Instalação',
+          //     //     idRbx: 6
+          //     // };
+          // { VALIDAR }
 
+          //     // this.cancellationReasons.push(motivoAutomatico);
 
-            this.cancellationReasons.push(motivoAutomatico);
+          //     // this.selectedCancelReason = motivoAutomatico;
 
-            this.selectedCancelReason = motivoAutomatico;
+          //     this.isLoading = false;
+          //     this.isRedirecting = true;
+          //     this.tipoCancelamento = 'NO_DEBT';
 
-            this.isLoading = false;
-            this.isRedirecting = true;
-            this.tipoCancelamento = 'NO_DEBT';
+          //     setTimeout(() => {
+          //         this.activeStep = 4;
 
-            setTimeout(() => {
-              this.activeStep = 4;
+          //         this.carregarPreviewPdf();
 
-              this.carregarPreviewPdf();
+          //         this.isRedirecting = false;
+          //     }, 6000);
 
-              this.isRedirecting = false;
-            }, 6000);
-
-            return;
-          }
-
+          //     return;
+          // }
 
           console.log('🔍 Dados do Contrato Carregados:');
           console.log('Loyalty (Fidelidade):', this.contract.loyalty);
           console.log('Data Expiração:', this.contract.dateExpired);
           console.log('Cálculo Vigência:', this.statusFidelidade);
-
 
           this.dataRescisao = null;
           this.selectedCancelReason = null;
@@ -227,21 +264,19 @@ export class CancelContractComponent implements OnInit {
           this.messageService.add({
             severity: 'error',
             summary: 'Erro',
-            detail: 'Falha ao carregar dados do contrato.'
+            detail: 'Falha ao carregar dados do contrato.',
           });
           this.isLoading = false;
-        }
+        },
       });
-
     } else {
       this.messageService.add({
         severity: 'error',
         summary: 'Erro',
-        detail: 'ID do contrato não fornecido na URL.'
+        detail: 'ID do contrato não fornecido na URL.',
       });
     }
   }
-
 
   // --- AÇÕES DO STEP 1 ---
   simularValores() {
@@ -262,40 +297,43 @@ export class CancelContractComponent implements OnInit {
 
     this.isSimulating = true;
 
-    this.contractService.simulateCancellation(
-      this.contract.id,
-      this.dataRescisao,
-      valorProporcionalFront,
-      this.selectedInstallments
-    ).subscribe({
-      next: (res) => {
-        this.simulationResult = res;
+    this.contractService
+      .simulateCancellation(
+        this.contract.id,
+        this.dataRescisao,
+        valorProporcionalFront,
+        this.selectedInstallments
+      )
+      .subscribe({
+        next: (res) => {
+          this.simulationResult = res;
 
-        const duration = Date.now() - startTime;
-        const delay = Math.max(0, MINIMUM_SPINNER_TIME - duration);
+          const duration = Date.now() - startTime;
+          const delay = Math.max(0, MINIMUM_SPINNER_TIME - duration);
 
-        setTimeout(() => {
-          this.isLoading = false;
-        }, delay);
-      },
-      error: (err) => {
-        console.error(err);
-        this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Falha na simulação.' });
-        const duration = Date.now() - startTime;
-        const delay = Math.max(0, MINIMUM_SPINNER_TIME - duration);
+          setTimeout(() => {
+            this.isLoading = false;
+          }, delay);
+        },
+        error: (err) => {
+          console.error(err);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erro',
+            detail: 'Falha na simulação.',
+          });
+          const duration = Date.now() - startTime;
+          const delay = Math.max(0, MINIMUM_SPINNER_TIME - duration);
 
-        setTimeout(() => {
-          this.isLoading = false;
-        }, delay);
-      }
-    });
+          setTimeout(() => {
+            this.isLoading = false;
+          }, delay);
+        },
+      });
   }
 
   get statusFidelidade(): StatusFidelidade {
-    if (!this.contract)
-      return {
-        situacao: 'ISENTO', mesesRestantes: 0
-      };
+    if (!this.contract) return { situacao: 'ISENTO', mesesRestantes: 0 };
     if (this.contract.situationDescription === 'AGUARDANDO_INSTALACAO') {
       return { situacao: 'ISENTO', mesesRestantes: 0 };
     }
@@ -332,8 +370,6 @@ export class CancelContractComponent implements OnInit {
     return { situacao: 'VIGENTE', mesesRestantes };
   }
 
-
-
   get vigenciaRestante(): number {
     if (this.contract?.loyalty !== true) {
       return 0;
@@ -359,12 +395,14 @@ export class CancelContractComponent implements OnInit {
   generateInstallmentOptions() {
     const maxInstallments = 12;
 
-    this.installmentOptions = Array.from({ length: maxInstallments }, (_, i) => {
-      const value = i + 1;
-      return { label: `${value}x`, value: value };
-    });
+    this.installmentOptions = Array.from(
+      { length: maxInstallments },
+      (_, i) => {
+        const value = i + 1;
+        return { label: `${value}x`, value: value };
+      }
+    );
   }
-
 
   // --- AÇÕES DO STEP 2: ESCOLHA DO FLUXO ---
 
@@ -378,7 +416,8 @@ export class CancelContractComponent implements OnInit {
   selecionarFluxoLoja() {
     if (!this.simulationResult || !this.selectedCancelReason) {
       this.messageService.add({
-        severity: 'warn', detail: 'Simulação e Motivo são obrigatórios.'
+        severity: 'warn',
+        detail: 'Simulação e Motivo são obrigatórios.',
       });
       return;
     }
@@ -386,11 +425,9 @@ export class CancelContractComponent implements OnInit {
     const textoMotivo = this.selectedCancelReason.value;
     const idMotivo = this.selectedCancelReason.idRbx || 8;
 
-
     const MINIMUM_SPINNER_TIME = 700;
     this.isLoading = true;
     const startTime = Date.now();
-
 
     this.tipoCancelamento = 'NO_DEBT';
 
@@ -402,10 +439,11 @@ export class CancelContractComponent implements OnInit {
       numberParcels: 1,
       parcels: [],
       proportionalValue: this.simulationResult.valorProporcional,
-      pdfBytes: null
+      pdfBytes: null,
     };
 
-    this.bankSlipService.generateSlip(this.contract.id, requestPayload)
+    this.bankSlipService
+      .generateSlip(this.contract.id, requestPayload)
       .subscribe({
         next: (res) => {
           if (res && res.length > 0) {
@@ -418,19 +456,19 @@ export class CancelContractComponent implements OnInit {
           this.messageService.add({
             severity: 'error',
             summary: 'Erro',
-            detail: 'Erro ao gerar boleto.'
+            detail: 'Erro ao gerar boleto.',
           });
           this.isLoading = false;
-        }
+        },
       });
   }
-
 
   selecionarFluxoComDebito() {
     if (!this.simulationResult) {
       this.messageService.add({
-        severity: 'warn', detail: 'Simulação necessária.'
-      })
+        severity: 'warn',
+        detail: 'Simulação necessária.',
+      });
       return;
     }
     this.tipoCancelamento = 'WITH_DEBT';
@@ -439,7 +477,6 @@ export class CancelContractComponent implements OnInit {
 
     this.activeStep = 4;
   }
-
 
   // --- AÇÕES DO STEP 3 ---
 
@@ -460,7 +497,6 @@ export class CancelContractComponent implements OnInit {
   gerarBoletoLoja() {
     if (!this.simulationResult) return;
 
-
     const MINIMUM_SPINNER_TIME = 700;
     this.isLoading = true;
     const startTime = Date.now();
@@ -471,10 +507,11 @@ export class CancelContractComponent implements OnInit {
       cancelReason: this.selectedCancelReason,
       numberParcels: this.selectedInstallments || 1,
       proportionalValue: this.simulationResult.valorProporcional,
-      pdfBytes: null
+      pdfBytes: null,
     };
 
-    this.bankSlipService.generateSlip(this.contract.id, requestPayload)
+    this.bankSlipService
+      .generateSlip(this.contract.id, requestPayload)
       .subscribe({
         next: (res) => {
           if (res && res.length > 0) {
@@ -488,7 +525,11 @@ export class CancelContractComponent implements OnInit {
           }, delay);
         },
         error: (err) => {
-          this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao gerar boleto' });
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erro',
+            detail: 'Erro ao gerar boleto',
+          });
 
           const duration = Date.now() - startTime;
           const delay = Math.max(0, MINIMUM_SPINNER_TIME - duration);
@@ -496,7 +537,7 @@ export class CancelContractComponent implements OnInit {
           setTimeout(() => {
             this.isLoading = false;
           }, delay);
-        }
+        },
       });
   }
 
@@ -508,18 +549,15 @@ export class CancelContractComponent implements OnInit {
         this.messageService.add({
           severity: 'success',
           summary: 'Sucesso',
-          detail: 'Boleto cancelado. Gerando confissão de dívida...'
+          detail: 'Boleto cancelado. Gerando confissão de dívida...',
         });
 
         this.tipoCancelamento = 'WITH_DEBT';
         this.boletoGeradoUrl = null;
         this.pdfSrc = null;
-
-        this.carregarPreviewPdf();
-
         this.activeStep = 4;
-
         this.isLoading = false;
+        this.carregarPreviewPdf();
       },
       error: (err) => {
         console.error(err);
@@ -527,9 +565,9 @@ export class CancelContractComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Erro',
-          detail: 'Não foi possível cancelar o boleto automaticamente.'
+          detail: 'Não foi possível cancelar o boleto automaticamente.',
         });
-      }
+      },
     });
   }
 
@@ -550,7 +588,7 @@ export class CancelContractComponent implements OnInit {
         this.messageService.add({
           severity: 'success',
           summary: 'Cancelado',
-          detail: 'Boleto cancelado com sucesso.'
+          detail: 'Boleto cancelado com sucesso.',
         });
 
         this.boletoGeradoUrl = null;
@@ -565,24 +603,20 @@ export class CancelContractComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Erro',
-          detail: 'Não foi possível cancelar o boleto.'
+          detail: 'Não foi possível cancelar o boleto.',
         });
-      }
+      },
     });
   }
-
 
   // --- AÇÕES DO STEP 4 ---
 
   carregarPreviewPdf() {
     if (this.isLoading) return;
 
-
     const MINIMUM_SPINNER_TIME = 700;
     this.isLoading = true;
     const startTime = Date.now();
-
-
 
     if (this.pdfSrc && typeof this.pdfSrc === 'string') {
       URL.revokeObjectURL(this.pdfSrc);
@@ -597,14 +631,17 @@ export class CancelContractComponent implements OnInit {
       cancelReason: this.selectedCancelReason,
       numberParcels: 1,
       parcels: [],
-      proportionalValue: this.simulationResult ? this.simulationResult.valorProporcional : 0.0,
+      proportionalValue: this.simulationResult
+        ? this.simulationResult.valorProporcional
+        : 0.0,
       pdfBytes: null,
-      signatureBase64: this.capturedSignature
+      signatureBase64: this.capturedSignature,
     };
 
-    const request$ = this.tipoCancelamento === 'NO_DEBT'
-      ? this.reportsService.getPdfCancelNoDebt(this.contract.id, payload)
-      : this.reportsService.getPdfCancelWithDebt(this.contract.id, payload);
+    const request$ =
+      this.tipoCancelamento === 'NO_DEBT'
+        ? this.reportsService.getPdfCancelNoDebt(this.contract.id, payload)
+        : this.reportsService.getPdfCancelWithDebt(this.contract.id, payload);
 
     request$.subscribe({
       next: (blob: Blob) => {
@@ -612,13 +649,12 @@ export class CancelContractComponent implements OnInit {
         const objectUrl = URL.createObjectURL(blob);
         this.pdfSrc = this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl);
 
-
         if (this.signDialogVisible) {
           this.signDialogVisible = false;
           this.messageService.add({
             severity: 'success',
             summary: 'Sucesso',
-            detail: 'Assinatura capturada com sucesso.'
+            detail: 'Assinatura capturada com sucesso.',
           });
         }
         const duration = Date.now() - startTime;
@@ -633,7 +669,7 @@ export class CancelContractComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Erro',
-          detail: 'Erro ao carregar preview do PDF.'
+          detail: 'Erro ao carregar preview do PDF.',
         });
 
         const duration = Date.now() - startTime;
@@ -642,18 +678,26 @@ export class CancelContractComponent implements OnInit {
         setTimeout(() => {
           this.isLoading = false;
         }, delay);
-      }
+      },
     });
   }
 
   avancarParaConclusao() {
     if (!this.pdfBlob) {
-      this.messageService.add({ severity: 'warn', summary: 'Atenção', detail: 'O documento não foi gerado.' });
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Atenção',
+        detail: 'O documento não foi gerado.',
+      });
       return;
     }
 
     if (!this.selectedCancelReason || !this.selectedCancelReason.value) {
-      this.messageService.add({ severity: 'warn', summary: 'Atenção', detail: 'Selecione um motivo de cancelamento.' });
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Atenção',
+        detail: 'Selecione um motivo de cancelamento.',
+      });
       return;
     }
 
@@ -661,11 +705,13 @@ export class CancelContractComponent implements OnInit {
     this.isLoading = true;
     const startTime = Date.now();
 
-    const fileToSend = new File([this.pdfBlob], 'termo_cancelamento.pdf', { type: 'application/pdf' });
+    const fileToSend = new File([this.pdfBlob], 'termo_cancelamento.pdf', {
+      type: 'application/pdf',
+    });
     const photoFiles: File[] = [];
 
     if (this.step4CapturedPhotos && this.step4CapturedPhotos.length > 0) {
-      this.step4CapturedPhotos.forEach(photo => {
+      this.step4CapturedPhotos.forEach((photo) => {
         if (photo.file) photoFiles.push(photo.file);
       });
     }
@@ -681,18 +727,29 @@ export class CancelContractComponent implements OnInit {
       contractRbxCode: 0,
       cancelReason: textoParaEnvio,
       cancelReasonId: idParaEnvio,
-      proportionalValue: this.simulationResult ? this.simulationResult.valorProporcional : 0.0,
+      proportionalValue: this.simulationResult
+        ? this.simulationResult.valorProporcional
+        : 0.0,
       numberParcels: this.selectedInstallments || 1,
       parcels: [],
-      pdfBytes: null
+      pdfBytes: null,
     };
-
 
     let request$;
     if (this.tipoCancelamento === 'NO_DEBT') {
-      request$ = this.contractService.cancelNoDebt(this.contract.id, payload, fileToSend, photoFiles);
+      request$ = this.contractService.cancelNoDebt(
+        this.contract.id,
+        payload,
+        fileToSend,
+        photoFiles
+      );
     } else {
-      request$ = this.contractService.cancelWithDebt(this.contract.id, payload, fileToSend, photoFiles);
+      request$ = this.contractService.cancelWithDebt(
+        this.contract.id,
+        payload,
+        fileToSend,
+        photoFiles
+      );
     }
 
     request$.subscribe({
@@ -706,13 +763,18 @@ export class CancelContractComponent implements OnInit {
         setTimeout(() => {
           this.isLoading = false;
           this.messageService.add({
-            severity: 'success', summary: 'Sucesso', detail: 'Cancelamento concluído com sucesso!', life: 3000
+            severity: 'success',
+            summary: 'Sucesso',
+            detail: 'Cancelamento concluído com sucesso!',
+            life: 3000,
           });
           setTimeout(() => {
             if (this.contract?.clientId) {
               this.router.navigate([`/attendances/${this.contract.clientId}`]);
             } else {
-              console.error('ERRO: clientId não encontrado no contrato para redirecionar');
+              console.error(
+                'ERRO: clientId não encontrado no contrato para redirecionar'
+              );
               this.router.navigate(['search']);
             }
           }, 1500);
@@ -721,8 +783,11 @@ export class CancelContractComponent implements OnInit {
       error: (err) => {
         console.error(err);
         this.isLoading = false;
-        this.messageService.add({ severity: 'error', detail: 'Erro ao concluir o cancelamento.' });
-      }
+        this.messageService.add({
+          severity: 'error',
+          detail: 'Erro ao concluir o cancelamento.',
+        });
+      },
     });
   }
   savePdf() {
@@ -730,7 +795,7 @@ export class CancelContractComponent implements OnInit {
       this.messageService.add({
         severity: 'warn',
         summary: 'Atenção',
-        detail: 'Nenhum PDF disponível para download.'
+        detail: 'Nenhum PDF disponível para download.',
       });
       return;
     }
@@ -745,9 +810,10 @@ export class CancelContractComponent implements OnInit {
       const link = document.createElement('a');
       link.href = downloadUrl;
 
-      link.download = this.tipoCancelamento === 'NO_DEBT'
-        ? 'termo_cancelamento_sem_debito.pdf'
-        : 'termo_cancelamento_com_debito.pdf';
+      link.download =
+        this.tipoCancelamento === 'NO_DEBT'
+          ? 'termo_cancelamento_sem_debito.pdf'
+          : 'termo_cancelamento_com_debito.pdf';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -760,7 +826,6 @@ export class CancelContractComponent implements OnInit {
     this.signDialogVisible = true;
     this.forceSignatureRedraw();
   }
-
 
   forceSignatureRedraw() {
     this.signatureVisibleFlag = false;
@@ -775,14 +840,16 @@ export class CancelContractComponent implements OnInit {
     }
   }
 
-
   captureAndGenerate() {
     if (!this.signaturePadInDialog) return;
 
     const signature = this.signaturePadInDialog.getSignatureAsBase64();
 
     if (!signature) {
-      this.messageService.add({ severity: 'warn', detail: 'Por favor, assine antes de confirmar.' });
+      this.messageService.add({
+        severity: 'warn',
+        detail: 'Por favor, assine antes de confirmar.',
+      });
       return;
     }
 
@@ -809,7 +876,7 @@ export class CancelContractComponent implements OnInit {
     this.router.navigate(['search']);
   }
 
-
+  
   async onFotoCapturada(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
 
@@ -903,14 +970,19 @@ export class CancelContractComponent implements OnInit {
 
   // --- LÓGICA DE CÁLCULO PROPORCIONAL (NO FRONTEND) ---
   private calcularProporcional(dataRescisao: Date): number {
-
     console.log('--- DEBUG PROPORCIONAL FRONT ---');
     console.log('Contrato:', this.contract);
     console.log('Preço Líquido:', this.contract?.liquidPrice);
     console.log('Dia Base:', this.contract?.cicleBillingDayBase);
 
-    if (!this.contract || !this.contract.liquidPrice || !this.contract.cicleBillingDayBase) {
-      console.warn('Dados do contrato incompletos para cálculo (Preço ou Dia Base faltando).');
+    if (
+      !this.contract ||
+      !this.contract.liquidPrice ||
+      !this.contract.cicleBillingDayBase
+    ) {
+      console.warn(
+        'Dados do contrato incompletos para cálculo (Preço ou Dia Base faltando).'
+      );
       return 0.0;
     }
 
@@ -924,9 +996,9 @@ export class CancelContractComponent implements OnInit {
     let diasUtilizados = 0;
 
     if (diaCancelamento >= diaBaseCiclo) {
-      diasUtilizados = (diaCancelamento - diaBaseCiclo) + 1;
+      diasUtilizados = (diaCancelamento - diaBaseCiclo) + 1; 
     } else {
-      diasUtilizados = (diasNoMes - diaBaseCiclo) + diaCancelamento + 1;
+      diasUtilizados = diasNoMes - diaBaseCiclo + diaCancelamento + 1;
     }
 
     if (diasUtilizados > 30) diasUtilizados = 30;
