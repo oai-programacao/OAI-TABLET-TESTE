@@ -68,6 +68,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { TagModule } from 'primeng/tag';
 
 import { DateUtilsService } from '../../shared/utils/date.utils';
+import { CheckComponent } from "../../shared/components/check-component/check-component.component";
 
 export interface AddressForm {
   zipCode: string | null;
@@ -115,7 +116,8 @@ export interface AddressForm {
     DatePickerModule,
     TagModule,
     NgxCurrencyDirective,
-  ],
+    CheckComponent
+],
   providers: [MessageService, AttendancesService, OffersService],
   templateUrl: './address-transfer.component.html',
   styleUrls: ['./address-transfer.component.scss'],
@@ -202,6 +204,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   selectedDate: Date | null = null;
   selectedCity: string = '';
   selectedNewOsCity: string = '';
+  tocarCheck = false;
 
   cities = [
     { label: 'Assis', value: 'ASSIS' },
@@ -918,7 +921,8 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
               summary: 'Sucesso!',
               detail: 'Endereço atualizado!',
             });
-
+            this.tocarCheck = true;
+            setTimeout(() => (this.tocarCheck = false), 10);
             const enderecoCompleto = `${this.addressNewForm.street}, ${this.addressNewForm.numberFromHome} - ${this.addressNewForm.neighborhood}`;
             const cidadeUF = `${this.addressNewForm.city}/${this.addressNewForm.uf}`;
             const enderecoFinalizado = `${enderecoCompleto} | ${cidadeUF}`;

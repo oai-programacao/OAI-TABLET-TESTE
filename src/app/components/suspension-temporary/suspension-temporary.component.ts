@@ -644,7 +644,7 @@ export class SuspensionTemporaryComponent {
     console.log('mostrar o payload que está indo ', payload);
 
     this.actionsContractsService
-      .sendContractSuspensionAutentique(payload, this.clientId, this.contractId)
+      .sendCancelSuspensionAutentique(payload, this.clientId, this.contractId)
       .subscribe({
         next: (res: string) => {
           this.messageService.add({
