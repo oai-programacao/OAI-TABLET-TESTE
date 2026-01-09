@@ -139,6 +139,9 @@ export class CancelContractComponent implements OnInit {
   dialogMudancaFluxoVisible: boolean = false;
 
   loadingMessage: string = 'Processando, por favor aguarde...';
+
+  phone: String = '';
+  showPhoneDialog: boolean = false;
   
   // Listas
   formasPagamento = [
@@ -675,7 +678,8 @@ cancelarBoletoAtual() {
         proportionalValue: this.simulationResult ? this.simulationResult.valorProporcional : 0.0,
         numberParcels: this.selectedInstallments || 1,
         parcels: [],
-        pdfBytes: null
+        pdfBytes: null,
+        phone: this.phone || '',
     };
 
    
@@ -713,6 +717,16 @@ cancelarBoletoAtual() {
         }
     });
 }
+
+  openPhoneModal() {
+    this.phone = '';
+    this.showPhoneDialog = true;
+  }
+  confirmSendToClient() {
+    this.showPhoneDialog = false;
+    this.avancarParaConclusao();
+  }
+
   savePdf() {
     if (!this.pdfBlob) {
       this.messageService.add({
