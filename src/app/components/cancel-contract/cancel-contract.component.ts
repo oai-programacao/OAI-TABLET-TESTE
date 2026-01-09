@@ -143,6 +143,9 @@ export class CancelContractComponent implements OnInit {
 
   loadingMessage: string = 'Processando, por favor aguarde...';
 
+  phone: String = '';
+  showPhoneDialog: boolean = false;
+  
   // Listas
   formasPagamento = [
     { label: 'Dinheiro', value: 'DINHEIRO' },
@@ -716,16 +719,15 @@ export class CancelContractComponent implements OnInit {
     console.log('ID:', idParaEnvio);
 
     const payload = {
-      clientCodeRbx: 0,
-      contractRbxCode: 0,
-      cancelReason: textoParaEnvio,
-      cancelReasonId: idParaEnvio,
-      proportionalValue: this.simulationResult
-        ? this.simulationResult.valorProporcional
-        : 0.0,
-      numberParcels: this.selectedInstallments || 1,
-      parcels: [],
-      pdfBytes: null,
+        clientCodeRbx: 0,
+        contractRbxCode: 0,
+        cancelReason: textoParaEnvio,    
+        cancelReasonId: idParaEnvio,     
+        proportionalValue: this.simulationResult ? this.simulationResult.valorProporcional : 0.0,
+        numberParcels: this.selectedInstallments || 1,
+        parcels: [],
+        pdfBytes: null,
+        phone: this.phone || '',
     };
 
     let request$;
@@ -782,7 +784,17 @@ export class CancelContractComponent implements OnInit {
         });
       },
     });
+}
+
+  openPhoneModal() {
+    this.phone = '';
+    this.showPhoneDialog = true;
   }
+  confirmSendToClient() {
+    this.showPhoneDialog = false;
+    this.avancarParaConclusao();
+  }
+
   savePdf() {
     if (!this.pdfBlob) {
       this.messageService.add({
