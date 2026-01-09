@@ -50,6 +50,7 @@ import { ReportsService } from "../../services/reports/reports.service"
 import { TableModule } from 'primeng/table';
 import { CheckComponent } from "../../shared/components/check-component/check-component.component";
 import { ImageUtilsService } from '../../services/midia/image-utils.service';
+import { PlanService } from '../../services/plan/plan.service';
 
 @Component({
   selector: "app-transfer-ownership",
@@ -100,6 +101,7 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
   private readonly router = inject(Router)
   private readonly route = inject(ActivatedRoute)
   private readonly contractService = inject(ContractsService)
+  private readonly planService = inject(PlanService);
   private readonly searchclientService = inject(SearchclientService)
   private readonly clientService = inject(ClientService)
   private readonly attendancesService = inject(AttendancesService)
@@ -158,6 +160,7 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
   tocarCheck: boolean = false;
   createNewClient: boolean = false;
   authenticationContract: boolean = false;
+  planActive: boolean = false;
 
   showPhoneDialog: boolean = false;
   phone: string = '';
@@ -181,13 +184,21 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
             this.authenticationContract = false;
           }
         });
-
     } else {
       this.isLoading = false;
       this.showError("Erro Crítico", "Faltam os IDs do cliente ou do contrato na URL.");
     }
+  }
 
-
+  private checkPlanStatus(codePlanRbx: number): void {
+    this.planService.isPlanActive(codePlanRbx).subscribe({
+      next: (active) => {
+        this.planActive = active;
+      },
+      error: () => {
+        this.planActive = false;
+      }
+    });
   }
 
   ngAfterViewInit(): void {
@@ -206,6 +217,7 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
     })
     this.contractService.getContractById(contractId).subscribe((contract) => {
       this.selectedContractForTransfer = contract
+      this.checkPlanStatus(contract.codePlanRbx)
       this.isLoading = false
     })
   }
@@ -322,7 +334,7 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
 
     const payloadWhats = {
       newClientId: newClientId,
-      phone2: this.phone
+      phone: this.phone
     }
 
     const signPayload = {
@@ -388,7 +400,7 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
       })
   }
 
-    openPhoneModal() {
+  openPhoneModal() {
     this.phone = '';
     this.showPhoneDialog = true;
   }

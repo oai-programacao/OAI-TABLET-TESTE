@@ -36,23 +36,39 @@
                     <div class="info-plans">
                         <span>Plano atual do contrato: </span> {{ selectedContractForTransfer?.planName }}
                         <br>
-                        Código do plano RBX: {{ selectedContractForTransfer?.codePlanRbx }}
+                        Código do plano RBX: {{ selectedContractForTransfer?.codePlanRbx }} 
 
                         <p class="info-warning">
                             Informamos que a transferência de contrato está disponível exclusivamente para planos que se
-                            encontrem com status <strong>ativo</strong>.
+                            encontrem com status <strong>ATIVO</strong>.
                             <br>Planos inativos não são elegíveis para transferência.
+                            <br>
+                            Caso Plano esteja inativo solicitar para o setor responsavel ativar o contrato!
+                            <br>
                         </p>
-                        <div *ngIf="authenticationContract; else noMac" class="info-success-authentication">
+                
+
+                        @if (planActive) {
+                        <div class="info-success-authentication">
+                            <span>Esse contrato possui Plano Ativo</span>
+                        </div>
+                        } @else {
+                        <div class="info-warning-authentication">
+                            <span>Esse contrato possui Plano Inativo</span>
+                        </div>
+                        }
+                        @if (authenticationContract) {
+                        <div class="info-success-authentication">
                             <span>Esse contrato possui MAC (Autenticações).</span>
                         </div>
-
-                        <ng-template #noMac>
-                            <div class="info-warning-authentication">
-                                <span>Esse contrato não possui MAC (Autenticações), impossibilitando realizar a
-                                    ação.</span>
-                            </div>
-                        </ng-template>
+                        } @else {
+                        <div class="info-warning-authentication">
+                            <span>
+                            Esse contrato não possui MAC (Autenticações), impossibilitando realizar a
+                            ação.
+                            </span>
+                        </div>
+                        }
 
                     </div>
                     <span class="step-instruction">Digite o documento do novo titular para iniciar a
@@ -68,7 +84,7 @@
                     </div>
                 </div>
                 <div class="step-footer-step1">
-                    <p-button [rounded]="true" severity="warn" label="Buscar" icon="pi pi-search" [disabled]="!authenticationContract"
+                    <p-button [rounded]="true" severity="warn" label="Buscar" icon="pi pi-search" [disabled]="!authenticationContract || !planActive"
                         (onClick)="onSearchNewOwner()">
                     </p-button>
                     <!-- Mudança para activeStep = 2 -->

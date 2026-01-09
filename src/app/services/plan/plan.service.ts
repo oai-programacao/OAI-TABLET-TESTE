@@ -22,4 +22,9 @@ export class PlanService {
   getPlans(): Observable<Plan[]> {
     return this.http.get<Plan[]>(this.baseUrl);
   }
+
+  isPlanActive(codePlanRBX: number): Observable<boolean> {
+    return this.http.get<boolean>(`${this.baseUrl}/${codePlanRBX}/status`);
+  }
+
 }
