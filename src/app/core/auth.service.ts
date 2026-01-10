@@ -1,13 +1,28 @@
+import { WebSocketService } from './../services/webSocket/websocket.service';
 
 import { LoginSeller } from './../models/login/login-seller.dto';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, throwError, BehaviorSubject, timer, Subscription, of } from 'rxjs';
-import { tap, catchError, switchMap, filter, take, finalize, shareReplay } from 'rxjs/operators';
+import {
+  Observable,
+  throwError,
+  BehaviorSubject,
+  timer,
+  Subscription,
+  of,
+} from 'rxjs';
+import {
+  tap,
+  catchError,
+  switchMap,
+  filter,
+  take,
+  finalize,
+  shareReplay,
+} from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { environment } from '../../environments/environment';
 import { jwtDecode } from 'jwt-decode';
-
 
 export interface AuthenticatedUser {
   id: string | null;
@@ -26,6 +41,7 @@ export class AuthService {
   private refreshTokenSubject = new BehaviorSubject<string | null>(null);
   private refreshSub?: Subscription;
   private tokenExpirationTimer?: any;
+  private webSocketService = inject(WebSocketService);
 
   //Reativo
   public currentUserSubject = new BehaviorSubject<AuthenticatedUser | null>(
@@ -33,16 +49,14 @@ export class AuthService {
   );
 
   public currentUser$ = this.currentUserSubject.asObservable();
-  public isLoggedIn$ = this.currentUser$.pipe(
-    switchMap(user => of(!!user))
-  );
+  public isLoggedIn$ = this.currentUser$.pipe(switchMap((user) => of(!!user)));
 
   constructor(private http: HttpClient, private router: Router) {
     const user = this.currentUserSubject.getValue();
     if (user) this.initAutoRefresh();
   }
 
-   /** ===========================
+  /** ===========================
    * LOGIN
    ============================ */
 
@@ -63,7 +77,7 @@ export class AuthService {
         })
       );
   }
-  
+
   /** ===========================
    * LOGOUT
    ============================ */
@@ -84,7 +98,7 @@ export class AuthService {
   /** ===========================
    * TOKEN HELPERS
    ============================ */
-   getAccessToken(): string | null {
+  getAccessToken(): string | null {
     return localStorage.getItem('accessToken');
   }
 
@@ -139,7 +153,7 @@ export class AuthService {
 
     if (this.isRefreshingToken) {
       return this.refreshTokenSubject.pipe(
-        filter(token => token !== null),
+        filter((token) => token !== null),
         take(1)
       ) as Observable<string>;
     }
@@ -147,22 +161,32 @@ export class AuthService {
     this.isRefreshingToken = true;
     this.refreshTokenSubject.next(null);
 
-    return this.http.post<any>(`${this.apiUrl}/refresh`, { refreshToken }).pipe(
-      tap(response => {
-        this.storeTokens(response.accessToken, response.refreshToken);
-        this.currentUserSubject.next(this.getUserFromToken());
-        this.refreshTokenSubject.next(response.accessToken);
-      }),
-      switchMap(response => of(response.accessToken)),
-      catchError(err => {
-        this.logout();
-        return throwError(() => err);
-      }),
-      finalize(() => {
-        this.isRefreshingToken = false;
-      }),
-      shareReplay(1)
-    );
+    return this.http
+      .post<any>(
+        `${this.apiUrl}/refresh`,
+        { refreshToken },
+        {
+          headers: new HttpHeaders({
+            'X-Client-Type': 'SELLER',
+          }),
+        }
+      )
+      .pipe(
+        tap((response) => {
+          this.storeTokens(response.accessToken, response.refreshToken);
+          this.currentUserSubject.next(this.getUserFromToken());
+          this.refreshTokenSubject.next(response.accessToken);
+        }),
+        switchMap((response) => of(response.accessToken)),
+        catchError((err) => {
+          this.logout();
+          return throwError(() => err);
+        }),
+        finalize(() => {
+          this.isRefreshingToken = false;
+        }),
+        shareReplay(1)
+      );
   }
 
   /** ===========================
@@ -187,7 +211,9 @@ export class AuthService {
     const timeUntilExpiry = exp - now;
 
     if (timeUntilExpiry <= 0) {
-      this.refreshSub = timer(1000).pipe(switchMap(() => this.refreshToken())).subscribe();
+      this.refreshSub = timer(1000)
+        .pipe(switchMap(() => this.refreshToken()))
+        .subscribe();
       return;
     }
 
