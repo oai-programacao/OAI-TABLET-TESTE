@@ -13,6 +13,9 @@ import { DialogModule } from "primeng/dialog";
 import { DropdownModule } from "primeng/dropdown";
 import { ProgressSpinnerModule } from "primeng/progressspinner";
 import { TableModule } from "primeng/table";
+import { CheckComponent } from "../../shared/components/check-component/check-component.component";
+import { DividerModule } from "primeng/divider";
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-activate-contract',
@@ -26,8 +29,11 @@ import { TableModule } from "primeng/table";
     ProgressSpinnerModule,
     TableModule,
     CurrencyPipe,
-    CommonModule
-  ],
+    CommonModule,
+    CheckComponent,
+    DividerModule,
+    FormsModule
+],
   templateUrl: './activate-contract.component.html',
   styleUrl: './activate-contract.component.scss'
 })
@@ -60,6 +66,10 @@ export class ActivateContractComponent {
   loadingContract = false;
   loadingSuspense = false;
   loadTheRbx = false;
+
+  showPhoneDialog: boolean = false;
+  tocarCheck = false;
+  phone: string = '';
 
   ngOnInit(): void {
     const contractId = this.route.snapshot.paramMap.get('contractId');
@@ -234,7 +244,8 @@ export class ActivateContractComponent {
 
     const payload = {
       proportional: this.proportionalBoleto,
-      activationDate: this.activationDate
+      activationDate: this.activationDate,
+      phone: this.phone
     };
 
     console.log("Payload enviado:", payload);
@@ -245,6 +256,8 @@ export class ActivateContractComponent {
           console.log("Contrato ativado com sucesso!", response);
           this.isSubmitting = false;
           this.finalization = true;
+          this.tocarCheck = true;
+          setTimeout(() => (this.tocarCheck = false), 10);
           const boletoLink = response.boletoUrl;
 
           this.result = {
@@ -287,6 +300,16 @@ export class ActivateContractComponent {
     } else {
       this.router.navigate(["/"])
     }
+  }
+
+  openPhoneModal() {
+    this.phone = '';
+    this.showPhoneDialog = true;
+  }
+
+  confirmSendToClient() {
+    this.showPhoneDialog = false;
+    this.confirmSuspension();
   }
 
   formatCpfCnpj(value: string | null | undefined): string {
