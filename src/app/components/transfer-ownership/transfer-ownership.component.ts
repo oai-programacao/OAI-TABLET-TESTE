@@ -277,8 +277,8 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
 
     const data = {
       event: this.event as string,
-      cliente: this.toNewClientId,
-      contrato: this.toNewContractId,
+      cliente: this.clientId,
+      contrato: this.contractId,
       toNewClient: this.toNewClientId,
       toNewContract: this.toNewContractId
     };

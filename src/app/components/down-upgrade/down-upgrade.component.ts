@@ -58,7 +58,7 @@ export interface ContractUpdate {
   cicleBillingDayBase: number;
   cicleBillingExpired: number;
   proportionalValue?: number | null;
-  phone?: string | null; 
+  phone?: string | null;
 }
 
 @Component({
@@ -91,7 +91,7 @@ export interface ContractUpdate {
     TableModule,
     CheckComponent,
     TagModule
-],
+  ],
   providers: [MessageService],
   templateUrl: './down-upgrade.component.html',
   styleUrl: './down-upgrade.component.scss',
@@ -277,27 +277,26 @@ export class DownUpgradeComponent implements OnInit {
       next: (data) => {
         const clienteEhPJ = this.isClientePJ();
 
-        this.plans = data.map((plan) => ({
+        const planosAtivos = data.filter(plan => plan.status === 'A');
+
+        this.plans = planosAtivos.map(plan => ({
           label: `${plan.codePlanRBX} - ${plan.nome}`,
           value: String(plan.codePlanRBX || ''),
           code: String(plan.codePlanRBX || ''),
           name: plan.nome,
           status: plan.status,
-          disabled: plan.status === 'I',
+          disabled: false,
         }));
 
-        this.typesofplans = data.map(plan => {
+        this.typesofplans = planosAtivos.map(plan => {
           const ehEmpresarial = this.isPlanoCnpj(plan);
-          const statusInativo = plan.status === 'I';
-          const desabilitado = (ehEmpresarial && !clienteEhPJ) || statusInativo;
-
-          let sufixoAviso = '';
-          if (statusInativo) sufixoAviso = ' (Indisponível)';
-          else if (ehEmpresarial && !clienteEhPJ) sufixoAviso = ' (Apenas PJ)';
+          const desabilitado = ehEmpresarial && !clienteEhPJ;
 
           return {
             ...plan,
-            nomeExibicao: `${plan.nome}${sufixoAviso}`,
+            nomeExibicao: ehEmpresarial && !clienteEhPJ
+              ? `${plan.nome} (Apenas PJ)`
+              : plan.nome,
             disabled: desabilitado
           };
         });
@@ -533,7 +532,7 @@ export class DownUpgradeComponent implements OnInit {
       });
   }
 
-   openPhoneModal() {
+  openPhoneModal() {
     this.phone = '';
     this.showPhoneDialog = true;
   }
@@ -655,7 +654,7 @@ export class DownUpgradeComponent implements OnInit {
     const requestBody = {
       contractId: this.contract.id,
       newPlanId: this.selectedPlan.id,
-     updateData: {
+      updateData: {
         seller: sellerStr,
         codePlan: this.selectedPlan.id, // ID do plano
         descountFixe: this.newDiscount ?? 0,
@@ -810,7 +809,7 @@ export class DownUpgradeComponent implements OnInit {
       console.error('Erro ao redimensionar imagem', error);
     }
   }
-  
+
   limparPreview(): void {
     this.thumbnailPreview = null;
     this.fotoCapturadaFile = null;
@@ -871,9 +870,8 @@ export class DownUpgradeComponent implements OnInit {
     if (!this.pdfPreviewUrl) return;
     const a = document.createElement('a');
     a.href = this.pdfPreviewUrl;
-    a.download = `Termo_Upgrade_Contrato_${
-      this.contract.codeContractRbx || this.contractId
-    }.pdf`;
+    a.download = `Termo_Upgrade_Contrato_${this.contract.codeContractRbx || this.contractId
+      }.pdf`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
