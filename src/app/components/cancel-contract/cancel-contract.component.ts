@@ -886,10 +886,8 @@ export class CancelContractComponent implements OnInit {
 
   backToClientContract() {
     if (this.contract && this.contract.clientId) {
-      // O Angular monta a URL: /client-contracts/12345
       this.router.navigate(['/client-contracts', this.contract.clientId]);
     } else {
-      // Fallback caso o contrato ainda não tenha carregado ou falte o ID
       console.warn('ClientId não disponível. Redirecionando para busca.');
       this.router.navigate(['/search']);
     }
