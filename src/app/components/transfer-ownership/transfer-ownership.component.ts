@@ -608,7 +608,8 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
   public get arePhonesInvalid(): boolean {
     const cleanPhoneOld = (this.phoneOldOwner || "").replace(/\D/g, "")
     const cleanPhoneNew = (this.phoneNewOwner || "").replace(/\D/g, "")
-    return cleanPhoneOld.length < 10 || cleanPhoneNew.length < 10
+    
+    return cleanPhoneOld.length !== 11 || cleanPhoneNew.length !== 11;
   }
 
   private isTransferringToSameOwner(documentoParaBuscar: string): boolean {
