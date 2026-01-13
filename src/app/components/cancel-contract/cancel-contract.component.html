@@ -100,6 +100,21 @@
                     <strong>{{ contract.cicleBillingDayBase }}</strong>
                   </span>
                 </div>
+                <div class="info-item">
+                <div class="field-checkbox my-3">
+                  <p-checkbox
+                    [(ngModel)]="isUpgradeDowngrade"
+                    [binary]="true"
+                    inputId="upgradeFlag"
+                    (onChange)="simularValores()"
+                  >
+                  </p-checkbox>
+                  <label for="upgradeFlag" class="ml-2">
+                    Selecione caso o contrato possua Upgrade/Downgrade (mudança
+                    no valor da multa)
+                  </label>
+                </div>
+                </div>
 
                 <div class="info-item">
                   <span class="label">Data do Cancelamento</span>
@@ -127,17 +142,6 @@
                     </small>
                   </div>
                 </div>
-
-                <div class="field-checkbox my-3">
-    <p-checkbox 
-        [(ngModel)]="isUpgradeDowngrade" 
-        [binary]="true" 
-        inputId="upgradeFlag"
-        (onChange)="simularValores()"> </p-checkbox>
-    <label for="upgradeFlag" class="ml-2">
-       Selecione caso o contrato possua Upgrade/Downgrade (mudança no valor da multa)
-    </label>
-</div>
 
                 <div class="info-item">
                   <span class="label">Motivo do Cancelamento</span>
@@ -177,6 +181,8 @@
                     </p-select>
                   </div>
                 </div>
+
+              
 
                 <div
                   class="simulation-results-container"
@@ -563,7 +569,7 @@
         </p-step-panel>
       </p-step-panels>
     </p-stepper>
-    <app-check [trigger]="tocarCheck"/>
+    <app-check [trigger]="tocarCheck" />
   </app-card-base>
 
   <div *ngIf="isRedirecting" class="redirect-overlay">
@@ -606,7 +612,6 @@
     [closable]="true"
     (onHide)="limparPreview()"
   >
- 
     <div
       *ngIf="thumbnailPreview"
       class="text-center"
@@ -783,7 +788,6 @@
         />
       </div>
 
-
       <div *ngIf="boletoGeradoUrl" class="p-mt-3 text-center">
         <a
           [href]="boletoGeradoUrl"
@@ -824,47 +828,47 @@
   </p-dialog>
 
   <p-dialog
-  header="Enviar informações ao cliente"
-  [(visible)]="showPhoneDialog"
-  [modal]="true"
-  [closable]="false"
-  [style]="{ width: '25rem' }"
->
-  <div class="flex flex-column gap-3">
-    <p class="m-0">
-      Por favor, informe o número de telefone do cliente para que possamos
-      enviar as informações da <strong>Cancelamento de Contrato</strong>.
-      <br />
-      Para confirmar a ação é necessário informar um número de telefone.
-      <br />
-      No seguinte formato <strong>+55 (DD) Número</strong>
-    </p>
+    header="Enviar informações ao cliente"
+    [(visible)]="showPhoneDialog"
+    [modal]="true"
+    [closable]="false"
+    [style]="{ width: '25rem' }"
+  >
+    <div class="flex flex-column gap-3">
+      <p class="m-0">
+        Por favor, informe o número de telefone do cliente para que possamos
+        enviar as informações da <strong>Cancelamento de Contrato</strong>.
+        <br />
+        Para confirmar a ação é necessário informar um número de telefone.
+        <br />
+        No seguinte formato <strong>+55 (DD) Número</strong>
+      </p>
 
-    <input
-      type="text"
-      pInputText
-      [(ngModel)]="phone"
-      mask="00000000000"
-      prefix="+55"
-      placeholder="(00) 00000-0000"
-    />
+      <input
+        type="text"
+        pInputText
+        [(ngModel)]="phone"
+        mask="00000000000"
+        prefix="+55"
+        placeholder="(00) 00000-0000"
+      />
 
-    <p-divider></p-divider>
+      <p-divider></p-divider>
 
-    <div class="flex justify-content-end gap-2 mt-3">
-      <p-button
-        label="Cancelar"
-        severity="secondary"
-        (onClick)="showPhoneDialog = false"
-      ></p-button>
+      <div class="flex justify-content-end gap-2 mt-3">
+        <p-button
+          label="Cancelar"
+          severity="secondary"
+          (onClick)="showPhoneDialog = false"
+        ></p-button>
 
-      <p-button
-        label="Confirmar"
-        icon="pi pi-check"
-        [disabled]="phone!.length !== 11"
-        (onClick)="confirmSendToClient()"
-      ></p-button>
+        <p-button
+          label="Confirmar"
+          icon="pi pi-check"
+          [disabled]="phone!.length !== 11"
+          (onClick)="confirmSendToClient()"
+        ></p-button>
+      </div>
     </div>
-  </div>
-</p-dialog>
+  </p-dialog>
 </div>
