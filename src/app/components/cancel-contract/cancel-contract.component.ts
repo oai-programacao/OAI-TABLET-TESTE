@@ -36,6 +36,7 @@ import { SignaturePadComponent } from '../../shared/components/signature-pad/sig
 import { TooltipModule } from 'primeng/tooltip';
 import { ImageUtilsService } from '../../services/midia/image-utils.service';
 import { CheckComponent } from '../../shared/components/check-component/check-component.component';
+import { CheckboxModule } from 'primeng/checkbox';
 
 export interface StatusFidelidade {
   situacao: 'ISENTO' | 'CUMPRIDA' | 'VIGENTE';
@@ -66,6 +67,7 @@ export interface StatusFidelidade {
     ProgressSpinnerModule,
     TooltipModule,
     CheckComponent,
+    CheckboxModule
   ],
   templateUrl: './cancel-contract.component.html',
   styleUrl: './cancel-contract.component.scss',
@@ -113,6 +115,7 @@ export class CancelContractComponent implements OnInit {
   } | null = null;
   selectedInstallments: number = 1;
   isSimulating: boolean = false;
+  isUpgradeDowngrade: boolean = false;
 
   // Step 2 (Controle de Fluxo)
   tipoCancelamento: 'WITH_DEBT' | 'NO_DEBT' | null = null;
@@ -297,7 +300,8 @@ export class CancelContractComponent implements OnInit {
         this.contract.id,
         this.dataRescisao,
         valorProporcionalFront,
-        this.selectedInstallments
+        this.selectedInstallments,
+        this.isUpgradeDowngrade
       )
       .subscribe({
         next: (res) => {
@@ -356,7 +360,7 @@ export class CancelContractComponent implements OnInit {
     let mesesDiff = dataFim.getMonth() - hoje.getMonth();
     let mesesRestantes = anosDiff * 12 + mesesDiff;
 
-    if (hoje.getDate() <= dataInicio.getDate()) {
+    if (hoje.getDate() < dataInicio.getDate()) {
       mesesRestantes += 1;
     }
 
@@ -435,6 +439,7 @@ export class CancelContractComponent implements OnInit {
       parcels: [],
       proportionalValue: this.simulationResult.valorProporcional,
       pdfBytes: null,
+      isUpgradeDowngrade: this.isUpgradeDowngrade
     };
 
     this.bankSlipService
@@ -503,6 +508,7 @@ export class CancelContractComponent implements OnInit {
       numberParcels: this.selectedInstallments || 1,
       proportionalValue: this.simulationResult.valorProporcional,
       pdfBytes: null,
+      isUpgradeDowngrade: this.isUpgradeDowngrade
     };
 
     this.bankSlipService
@@ -631,6 +637,7 @@ export class CancelContractComponent implements OnInit {
         : 0.0,
       pdfBytes: null,
       signatureBase64: this.capturedSignature,
+      isUpgradeDowngrade: this.isUpgradeDowngrade
     };
 
     const request$ =
@@ -727,6 +734,7 @@ export class CancelContractComponent implements OnInit {
         parcels: [],
         pdfBytes: null,
         phone: this.phone || '',
+        isUpgradeDowngrade: this.isUpgradeDowngrade
     };
 
     let request$;
@@ -876,8 +884,15 @@ export class CancelContractComponent implements OnInit {
     }
   }
 
-  backToSearch() {
-    this.router.navigate(['search']);
+  backToClientContract() {
+    if (this.contract && this.contract.clientId) {
+      // O Angular monta a URL: /client-contracts/12345
+      this.router.navigate(['/client-contracts', this.contract.clientId]);
+    } else {
+      // Fallback caso o contrato ainda não tenha carregado ou falte o ID
+      console.warn('ClientId não disponível. Redirecionando para busca.');
+      this.router.navigate(['/search']);
+    }
   }
 
   async onFotoCapturada(event: Event): Promise<void> {

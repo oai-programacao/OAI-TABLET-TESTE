@@ -166,11 +166,13 @@ export class ContractsService {
     contractId: string,
     dataRescisao: Date,
     valorProporcionalCalculador: number,
-    numberParcels: number = 1
+    numberParcels: number = 1,
+    isUpgradeDowngrade: boolean = false
   ): Observable<CancelSimulationDTO> {
     let params = new HttpParams()
       .set('valorProporcional', valorProporcionalCalculador.toString())
-      .set('numberParcels', numberParcels.toString());
+      .set('numberParcels', numberParcels.toString())
+      .set('isUpgradeDowngrade', isUpgradeDowngrade.toString());
 
     if (dataRescisao) {
       const dataFormatada = this.dateUtils.formatToISODateString(dataRescisao);

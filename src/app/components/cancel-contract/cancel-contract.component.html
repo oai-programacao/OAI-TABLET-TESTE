@@ -8,7 +8,7 @@
         [rounded]="true"
         [raised]="true"
         icon="pi pi-arrow-left"
-        (onClick)="backToSearch()"
+        (onClick)="backToClientContract()"
       />
     </div>
 
@@ -127,6 +127,17 @@
                     </small>
                   </div>
                 </div>
+
+                <div class="field-checkbox my-3">
+    <p-checkbox 
+        [(ngModel)]="isUpgradeDowngrade" 
+        [binary]="true" 
+        inputId="upgradeFlag"
+        (onChange)="simularValores()"> </p-checkbox>
+    <label for="upgradeFlag" class="ml-2">
+        Contrato possui Upgrade/Downgrade? (Cálculo de multa sobre desconto concedido)
+    </label>
+</div>
 
                 <div class="info-item">
                   <span class="label">Motivo do Cancelamento</span>
