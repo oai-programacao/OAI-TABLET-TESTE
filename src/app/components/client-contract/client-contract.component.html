@@ -255,7 +255,7 @@
               [text]="true"
               pTooltip="Cancelar Contrato"
               tooltipPosition="top"
-              
+              [disabled]="contract.situationDescription !== 'ATIVO'"
             />
           </div>
           <div class="contract-actions">
