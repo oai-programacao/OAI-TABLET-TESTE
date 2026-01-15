@@ -333,11 +333,20 @@
         </div>
 
         <ng-template pTemplate="footer">
-            <p-button label="Cancelar" icon="pi pi-times" severity="secondary"
-                (onClick)="fecharModalAutentique()"></p-button>
+            <p-button 
+                label="Cancelar" 
+                icon="pi pi-times" 
+                severity="secondary"
+                (onClick)="fecharModalAutentique()">
+            </p-button>
 
-            <p-button label="Enviar" icon="pi pi-send" severity="success" [disabled]="arePhonesInvalid"
-                (onClick)="sendToAutentiqueSubmit()"></p-button>
+            <p-button 
+                label="Enviar" 
+                icon="pi pi-send" 
+                severity="success" 
+                [disabled]="arePhonesInvalid"
+                (onClick)="sendToAutentiqueSubmit()">
+            </p-button>
         </ng-template>
     </p-dialog>
 
