@@ -176,6 +176,8 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
 
       this.contractService
         .getAuthenticationsByContract(contractId)
+
+        
         .subscribe({
           next: (result) => {
             this.authenticationContract = result.length > 0;
