@@ -1,4 +1,4 @@
-import { environment } from './../../../environments/environment.test';
+import { environment } from './../../../environments/environment';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
