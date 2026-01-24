@@ -70,10 +70,10 @@ export class ContractsService {
     );
   }
 
-  upgradeContract(contractId: string, payload: any): Observable<any> {
+  upgradeContract(contractId: string, formData: FormData): Observable<any> {
     return this.http.patch(
       `${this.urlApi}/contract/${contractId}/upgrade`,
-      payload
+      formData
     );
   }
 
