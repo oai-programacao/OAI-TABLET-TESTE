@@ -530,7 +530,20 @@ export class DownUpgradeComponent implements OnInit {
         },
         error: (err) => {
           this.isLoadingTransfer = false;
+
+          if (err.status === 504) {
+            this.messageService.add({
+              severity: 'warn',
+              summary: 'Processamento em andamento',
+              detail:
+                'A operação está demorando mais que o esperado, mas pode estar sendo concluída. Aguarde alguns instantes antes de tentar novamente.',
+              life: 12000,
+            });
+            return;
+          }
+
           console.error('Erro ao fazer upgrade do contrato:', err);
+          
           const backendMessage =
             typeof err.error === 'string'
               ? err.error
