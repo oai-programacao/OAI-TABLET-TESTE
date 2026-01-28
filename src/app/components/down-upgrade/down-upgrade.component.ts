@@ -59,6 +59,7 @@ export interface ContractUpdate {
   cicleBillingExpired: number;
   proportionalValue?: number | null;
   phone?: string | null;
+  fluxo: string;
 }
 
 @Component({
@@ -196,7 +197,7 @@ export class DownUpgradeComponent implements OnInit {
     { descricao: '31 a 30 / 31', value: 31 },
   ];
 
-  fluxo!: boolean | 'upgrade' | 'downgrade';
+  fluxo!: 'upgrade' | 'downgrade';
 
   ngOnInit() {
     this.route.params.subscribe((params) => {
@@ -478,8 +479,22 @@ export class DownUpgradeComponent implements OnInit {
       cicleFatId: cicleFatIdParaEnviar,
       cicleBillingDayBase: cicleBillingDayBaseToSend,
       cicleBillingExpired: cicleBillingExpiredToSend,
-      phone: this.phone
+      phone: this.phone,
+      fluxo: String(this.fluxo).toLowerCase(),
     };
+
+    const formData = new FormData();
+
+    formData.append(
+      'data',
+      new Blob([JSON.stringify(upgradeDto)], { type: 'application/json' })
+    );
+
+    formData.append(
+      'files',
+      pdfParaRegistrar,
+      'termo_assinado.pdf'
+    );
 
     console.log('Enviando DTO de Upgrade:', upgradeDto);
 
@@ -487,7 +502,7 @@ export class DownUpgradeComponent implements OnInit {
     this.loadingMessage = 'Atualizando contrato e registrando atendimento...';
 
     this.contractService
-      .upgradeContract(this.contractId, upgradeDto)
+      .upgradeContract(this.contractId, formData)
       .subscribe({
         next: (newContractResponse) => {
           this.messageService.add({
@@ -507,7 +522,6 @@ export class DownUpgradeComponent implements OnInit {
             plano: this.selectedPlan!.nome,
             valor: valorFinalComDesconto,
           };
-          this.registerAttendance(pdfParaRegistrar);
 
           this.tocarCheck = true;
           this.finalization = true;
