@@ -188,20 +188,26 @@ export class WebSocketService {
   }
 
   private activateWithToken(token: string): void {
-    const parts = token.split('.').length;
-    console.log('[WS] activate tokenLen=', token.length, 'parts=', parts);
+    if (this.isTokenExpired(token)) {
+      console.log('⛔ WS: token expirado, não vou ativar');
+      this.disconnect();
+      return;
+    }
+
+    this.clearReconnectTimer();
 
     this.rxStompService.configure({
       ...wsStompConfig,
-      connectHeaders: {
-        Authorization: `Bearer ${token}`,
-      },
+      connectHeaders: { Authorization: `Bearer ${token}` },
     });
 
+    console.log('[WS] activate com token válido, exp ok');
     this.rxStompService.activate();
   }
 
   private scheduleReconnect(): void {
+    console.log('[WS] scheduleReconnect chamado');
+
     if (this.reconnectTimer) return;
 
     // ✅ sempre prefira o token mais recente do storage
