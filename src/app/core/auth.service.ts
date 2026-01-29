@@ -73,6 +73,24 @@ export class AuthService {
       .subscribe((token) => {
         this.webSocketService.connectOrUpdateToken(token);
       });
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState !== 'visible') return;
+
+      const token = this.getAccessToken();
+      const hasRefresh = !!this.getRefreshToken();
+
+      if (
+        token &&
+        this.isTokenExpired(token) &&
+        hasRefresh &&
+        !this.isRefreshingToken
+      ) {
+        this.refreshToken().subscribe({
+          next: () => this.initAutoRefresh(), // ✅ reprograma timer pós-volta do iOS
+        });
+      }
+    });
   }
 
   /** ===========================
@@ -142,9 +160,7 @@ export class AuthService {
     try {
       const decoded: any = jwtDecode(token);
 
-      // verifica expiração
       if (decoded.exp * 1000 < Date.now()) {
-        this.clearTokens();
         return null;
       }
 
@@ -265,7 +281,8 @@ export class AuthService {
    * AUXILIARES
    ============================ */
   isAuthenticated(): boolean {
-    return !!this.getUserFromToken();
+    const token = this.getAccessToken();
+    return !!token && !this.isTokenExpired(token);
   }
 
   getUserRoles(): string[] {
@@ -276,5 +293,14 @@ export class AuthService {
   getSellerId(): string | null {
     const user = this.getUserFromToken();
     return user?.id || null;
+  }
+
+  private isTokenExpired(token: string): boolean {
+    try {
+      const decoded: any = jwtDecode(token);
+      return (decoded?.exp ?? 0) * 1000 <= Date.now();
+    } catch {
+      return true;
+    }
   }
 }
