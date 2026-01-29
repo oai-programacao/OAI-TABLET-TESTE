@@ -13,24 +13,13 @@ export class WebSocketService {
   private token: string | null = null;
   private email: string | null = null;
 
-  // Watch
-  private watchSub?: Subscription;
-  private watchedEmail: string | null = null;
-
-  // Reconexão (um único mecanismo)
-  private reconnectTimer?: ReturnType<typeof setTimeout>;
-  private reconnectAttempt = 0;
-
-  // Controle para troca de token (evita scheduleReconnect na queda “intencional”)
-  private manualDisconnect = false;
-  private reconnectRequested = false;
-
-  // Circuit breaker anti-flood (auth)
-  private authBlockedUntil = 0; // timestamp ms
-
   // Subs fixas
   private stateSub?: Subscription;
   private connectedSub?: Subscription;
+
+  // Watch
+  private watchSub?: Subscription;
+  private watchedEmail: string | null = null;
 
   constructor(
     private rxStompService: RxStompService,
@@ -38,11 +27,6 @@ export class WebSocketService {
     private toastService: ToastService,
   ) {
     this.bindCoreStreams();
-
-    // Internet voltou: tenta se estiver fechado
-    window.addEventListener('online', () => {
-      this.tryReconnect('🌐 Conexão restaurada');
-    });
   }
 
   /** Chame no login */
@@ -53,61 +37,48 @@ export class WebSocketService {
 
   /**
    * Chame SEMPRE que o AuthService atualizar o accessToken.
-   * (O WS não faz refresh. Apenas reconecta com o token novo.)
+   * O WS NÃO faz refresh — só reinicia pra aplicar o header novo.
    */
   connectOrUpdateToken(token: string): void {
     const email = this.extractEmailFromToken(token);
 
-    // token inválido -> encerra tudo
+    // token inválido -> encerra
     if (!email) {
       this.disconnect();
       return;
     }
 
-    // token expirado (com skew) -> NÃO conecta (evita flood)
+    // token expirado -> não conecta (evita loop)
     if (this.isTokenExpired(token)) {
-      this.blockAuthTemporarily(
-        '⛔ WS: token expirado, aguardando AuthService renovar',
-      );
       this.disconnect();
       return;
     }
 
-    // se for o mesmo token e já está conectando/conectado, não faz nada
+    // se é o mesmo token e já está OPEN/CONNECTING, não faz nada
     if (this.token === token && this.isOpenOrConnecting()) return;
 
     const emailChanged = this.email !== email;
     this.email = email;
     this.token = token;
 
-    if (emailChanged) {
-      this.clearWatch();
-    }
+    if (emailChanged) this.clearWatch();
 
-    // Se já estava open/connecting, precisa reconectar para aplicar header novo
+    // se já está conectado/conectando, precisa reiniciar pra aplicar novo header
     if (this.isOpenOrConnecting()) {
-      this.reconnectRequested = true;
-      this.manualDisconnect = true;
       this.rxStompService.deactivate();
+      // quando fechar, nós reativamos (abaixo) com token novo
       return;
     }
 
-    // Se estava fechado, ativa direto
-    this.activate();
+    this.activateWithCurrentToken();
   }
 
   disconnect(): void {
-    this.clearReconnectTimer();
-    this.reconnectAttempt = 0;
-
     this.clearWatch();
-
-    this.manualDisconnect = true;
-    this.rxStompService.deactivate();
-
     this.email = null;
     this.token = null;
 
+    this.rxStompService.deactivate();
     console.log('🔴 WS desconectado');
   }
 
@@ -126,131 +97,64 @@ export class WebSocketService {
     if (this.connectedSub || this.stateSub) return;
 
     this.connectedSub = this.rxStompService.connected$.subscribe(() => {
-      this.reconnectAttempt = 0;
-      this.clearReconnectTimer();
-
       console.log(
         this.email ? `🟢 WS conectado para: ${this.email}` : '🟢 WS conectado',
       );
       this.ensureWatch();
     });
 
-    this.stateSub = this.rxStompService.connectionState$.subscribe((s) => {
-      this.state = s;
-      // console.log('🔁 Estado WS:', s);
+    this.stateSub = this.rxStompService.connectionState$.subscribe((state) => {
+      this.state = state;
 
-      if (s !== RxStompState.CLOSED) return;
+      // ✅ Aqui NÃO fazemos reconnect manual.
+      // Quem reconecta é o reconnectDelay do wsStompConfig.
+      // A única coisa que fazemos é: quando fechou por troca de token, reativar.
+      switch (state) {
+        case RxStompState.CLOSED: {
+          // Se estamos com token válido, garantimos que o WS fique ativo.
+          // (Se cair por rede, o RxStomp reconecta sozinho.)
+          const token = localStorage.getItem('accessToken') ?? this.token;
+          if (!token) return;
 
-      // queda “intencional” (ex: trocou token e vamos reativar)
-      if (this.manualDisconnect) {
-        this.manualDisconnect = false;
+          // token inválido/expirado -> não reativa (evita flood)
+          if (this.isTokenExpired(token)) return;
 
-        if (this.reconnectRequested) {
-          this.reconnectRequested = false;
-          // ativa com token mais novo
-          this.activate();
+          // Se o RxStomp estiver desativado (deactivate por troca de token),
+          // precisamos reativar pra aplicar o header novo.
+          // Isso não vira loop porque só roda quando state=CLOSED
+          // e o token é válido.
+          this.activateWithCurrentToken();
+          break;
         }
-        return;
-      }
 
-      // quedas reais: backoff
-      this.scheduleReconnect();
+        default:
+          break;
+      }
     });
   }
 
-  private activate(): void {
-    // anti-flood se auth acabou de falhar várias vezes
-    if (Date.now() < this.authBlockedUntil) {
-      console.log('⏸️ WS: reconexão bloqueada temporariamente (auth)');
-      return;
-    }
-
+  private activateWithCurrentToken(): void {
     const token = localStorage.getItem('accessToken') ?? this.token;
     if (!token) return;
 
     if (this.isTokenExpired(token)) {
-      this.blockAuthTemporarily(
-        '⛔ WS: token expirado, não vou ativar (aguarde refresh)',
-      );
       this.disconnect();
       return;
     }
-
-    this.clearReconnectTimer();
 
     this.rxStompService.configure({
       ...wsStompConfig,
       connectHeaders: { Authorization: `Bearer ${token}` },
     });
 
-    console.log('[WS] activate (token ok)');
+    console.log('[WS] activate()');
     this.rxStompService.activate();
-  }
-
-  private scheduleReconnect(): void {
-    // se já tem timer, não agenda outro
-    if (this.reconnectTimer) return;
-
-    // não reconecta se estamos em “bloqueio de auth”
-    if (Date.now() < this.authBlockedUntil) return;
-
-    const token = localStorage.getItem('accessToken') ?? this.token;
-    if (!token) return;
-
-    // token expirado => para e espera AuthService renovar
-    if (this.isTokenExpired(token)) {
-      this.blockAuthTemporarily(
-        '⛔ WS: token expirado, não vou reconectar (aguarde refresh)',
-      );
-      this.disconnect();
-      return;
-    }
-
-    const delay = Math.min(30000, 2000 * Math.pow(2, this.reconnectAttempt++));
-    this.reconnectTimer = setTimeout(() => {
-      this.reconnectTimer = undefined;
-
-      // se já conectou nesse meio tempo, não faz nada
-      if (this.isOpenOrConnecting()) return;
-
-      // pega token mais novo de novo
-      const latest = localStorage.getItem('accessToken') ?? this.token;
-      if (!latest) return;
-
-      if (this.isTokenExpired(latest)) {
-        this.blockAuthTemporarily(
-          '⛔ WS: token expirou durante backoff, aguardando refresh',
-        );
-        this.disconnect();
-        return;
-      }
-
-      console.log(`♻️ Reconectando WS (backoff ${delay}ms)`);
-      this.activate();
-    }, delay);
-  }
-
-  private tryReconnect(reason: string): void {
-    if (this.isOpenOrConnecting()) return;
-    if (Date.now() < this.authBlockedUntil) return;
-
-    const token = localStorage.getItem('accessToken');
-    if (!token) return;
-
-    console.log(`${reason}, tentando reconectar WS`);
-    this.connectOrUpdateToken(token);
   }
 
   private isOpenOrConnecting(): boolean {
     return (
       this.state === RxStompState.OPEN || this.state === RxStompState.CONNECTING
     );
-  }
-
-  private clearReconnectTimer(): void {
-    if (!this.reconnectTimer) return;
-    clearTimeout(this.reconnectTimer);
-    this.reconnectTimer = undefined;
   }
 
   private clearWatch(): void {
@@ -274,13 +178,6 @@ export class WebSocketService {
     this.watchedEmail = this.email;
   }
 
-  private blockAuthTemporarily(msg: string): void {
-    // Evita martelar o servidor quando auth está ruim.
-    // Espera o AuthService renovar e disparar connectOrUpdateToken(novoToken).
-    this.authBlockedUntil = Date.now() + 30_000; // 30s de pausa
-    console.log(msg);
-  }
-
   private extractEmailFromToken(token: string): string | null {
     try {
       const decoded: any = jwtDecode(token);
@@ -294,8 +191,6 @@ export class WebSocketService {
     try {
       const decoded: any = jwtDecode(token);
       const expMs = (decoded?.exp ?? 0) * 1000;
-
-      // skew evita “expirou no caminho” (rede lenta / iOS background)
       const skewMs = 30_000;
       return !expMs || expMs <= Date.now() + skewMs;
     } catch {
@@ -303,17 +198,22 @@ export class WebSocketService {
     }
   }
 
-  // Seu handler original (mantive)
+  // -------------------------
+  // Notificações (SEU SWITCH CASE COMPLETO)
+  // -------------------------
+
   private handleNotification(body: string): void {
     const payload = JSON.parse(body);
     const event = payload.eventName;
     const data = payload.data;
 
+    console.log('📨 Payload recebido:', payload);
+
     switch (event) {
       case 'DOCUMENT_SIGNED':
         this.toastService.showWithAnimation(
           `📄 O termo de consentimento foi assinado com sucesso!<br>
-✅ Um novo atendimento foi criado automaticamente para esta ação.<br>  
+✅ Um novo atendimento foi assinado automaticamente para esta ação.<br>  
 Cliente: <b>${data.clientName}</b><br>
 CPF: <b>${this.formatCPF(data.clientCpf)}</b>`,
           '/contrato.json',

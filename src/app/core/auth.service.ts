@@ -110,6 +110,8 @@ export class AuthService {
           localStorage.setItem('name', response.name);
           this.currentUserSubject.next(this.getUserFromToken());
           this.initAutoRefresh();
+          this.webSocketService.connectOrUpdateToken(response.accessToken);
+        
           this.router.navigate(['/search']);
         }),
       );
@@ -217,7 +219,10 @@ export class AuthService {
           this.storeTokens(response.accessToken, response.refreshToken);
           this.currentUserSubject.next(this.getUserFromToken());
           this.refreshTokenSubject.next(response.accessToken);
+
+          this.initAutoRefresh(); 
         }),
+
         switchMap((response) => of(response.accessToken)),
         catchError((err) => {
           this.logout();
