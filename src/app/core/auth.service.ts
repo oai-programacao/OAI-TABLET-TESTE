@@ -152,7 +152,7 @@ export class AuthService {
         id: decoded.id || null,
         name: decoded.name,
         roles: decoded.roles || [],
-        email: decoded.email,
+        email: decoded.sub ?? decoded.email,
       };
     } catch (error) {
       this.clearTokens();
@@ -164,6 +164,7 @@ export class AuthService {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     this.accessTokenSubject.next(null);
+    this.currentUserSubject.next(null);
   }
 
   /** ===========================
