@@ -53,12 +53,20 @@ export class WebSocketService {
   }
 
   /** Chame SEMPRE que o accessToken for renovado */
+  /** Chame SEMPRE que o accessToken for renovado */
   connectOrUpdateToken(token: string): void {
     const email = this.extractEmailFromToken(token);
 
-    // token inválido -> desliga tudo
+    // token inválido / não parseia -> desliga tudo
     if (!email) {
       this.disconnect();
+      return;
+    }
+
+    // ✅ token expirado -> NÃO tenta WS (evita flood no backend)
+    if (this.isTokenExpired(token)) {
+      console.log('⛔ WS: token expirado, não vou conectar');
+      this.disconnect(); // mata timer/backoff e evita spam
       return;
     }
 
@@ -180,8 +188,8 @@ export class WebSocketService {
   }
 
   private activateWithToken(token: string): void {
-    // garante que não vai disparar reconnect duplicado
-    this.clearReconnectTimer();
+    const parts = token.split('.').length;
+    console.log('[WS] activate tokenLen=', token.length, 'parts=', parts);
 
     this.rxStompService.configure({
       ...wsStompConfig,
@@ -196,8 +204,16 @@ export class WebSocketService {
   private scheduleReconnect(): void {
     if (this.reconnectTimer) return;
 
-    const token = this.lastToken ?? localStorage.getItem('accessToken');
+    // ✅ sempre prefira o token mais recente do storage
+    const token = localStorage.getItem('accessToken') ?? this.lastToken;
     if (!token) return;
+
+    // ✅ token expirado => NÃO reconecta WS (evita martelar backend)
+    if (this.isTokenExpired(token)) {
+      console.log('⛔ WS: token expirado, não vou agendar reconnect');
+      this.disconnect(); // mata timer/backoff e limpa estado
+      return;
+    }
 
     const delay = Math.min(30000, 2000 * Math.pow(2, this.reconnectAttempt++));
     this.reconnectTimer = setTimeout(() => {
@@ -206,8 +222,18 @@ export class WebSocketService {
       // Se enquanto esperava já conectou, não faz nada
       if (this.isOpenOrConnecting()) return;
 
-      const latestToken = this.lastToken ?? localStorage.getItem('accessToken');
+      // ✅ pega token mais recente de novo
+      const latestToken = localStorage.getItem('accessToken') ?? this.lastToken;
       if (!latestToken) return;
+
+      // ✅ se expirou durante o backoff, não tenta
+      if (this.isTokenExpired(latestToken)) {
+        console.log(
+          '⛔ WS: token expirou durante o backoff, parando reconexão',
+        );
+        this.disconnect();
+        return;
+      }
 
       console.log(`♻️ Reconectando WS (backoff ${delay}ms)`);
       this.activateWithToken(latestToken);
@@ -363,5 +389,15 @@ Contrato: <b>${data.numberContractRbx}</b> agendamento realizado com sucesso!<br
 
   private formatCPF(cpf: string): string {
     return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+  }
+
+  private isTokenExpired(token: string): boolean {
+    try {
+      const decoded: any = jwtDecode(token);
+      const expMs = (decoded?.exp ?? 0) * 1000;
+      return !expMs || expMs <= Date.now();
+    } catch {
+      return true;
+    }
   }
 }
