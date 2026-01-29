@@ -34,12 +34,6 @@ export class AppComponent implements OnInit {
       document.body.classList.add('default-bg');
     }
 
-    const token = localStorage.getItem('accessToken');
-
-    if (this.authService.isAuthenticated()) {
-      this.wsService.initWebSocket();
-    }
-
     this.tryRedirectAtStartup();
 
     this.router.events

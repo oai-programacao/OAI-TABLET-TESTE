@@ -79,8 +79,6 @@ export class LoginComponent implements OnInit {
       next: (response: any) => {
         console.log('login sucesso', response);
 
-        this.wsService.initWebSocket();
-        this.router.navigate(['search']);
         this.loginFailed = false;
         this.form.resetForm();
       },
