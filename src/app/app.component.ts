@@ -1,7 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
-import { filter, take } from 'rxjs/operators';
-import { WebSocketService } from './services/webSocket/websocket.service';
+import { Router, RouterOutlet } from '@angular/router';
 import { AuthService } from './core/auth.service';
 import { FullScreenLottieComponent } from './shared/components/fullscreen-lottie/fullscreen-lottie-component';
 
@@ -18,36 +16,19 @@ export class AppComponent implements OnInit {
   globalLottieDuration = 7000;
 
   constructor(
-    private wsService: WebSocketService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
   ) {}
 
   ngOnInit() {
     const month = new Date().getMonth() + 1;
 
-    if (month === 10) {
-      document.body.classList.add('halloween-bg');
-    } else if (month === 11 || month === 12) {
+    if (month === 10) document.body.classList.add('halloween-bg');
+    else if (month === 11 || month === 12)
       document.body.classList.add('christmas-bg');
-    } else {
-      document.body.classList.add('default-bg');
-    }
-
-    if (this.authService.isAuthenticated()) {
-      this.wsService.initWebSocket();
-    }
+    else document.body.classList.add('default-bg');
 
     this.tryRedirectAtStartup();
-
-    this.router.events
-      .pipe(
-        filter((event) => event instanceof NavigationEnd),
-        take(1)
-      )
-      .subscribe((ev: NavigationEnd) => {
-        this.tryRedirectAtStartup();
-      });
   }
 
   private tryRedirectAtStartup() {
@@ -72,9 +53,6 @@ export class AppComponent implements OnInit {
     this.globalLottiePath = path;
     this.globalLottieDuration = duration;
     this.globalLottieTrigger = false;
-
     setTimeout(() => (this.globalLottieTrigger = true), 50);
   }
-
-  
 }
