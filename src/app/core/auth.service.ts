@@ -42,32 +42,18 @@ export class AuthService {
   private refreshSub?: Subscription;
   private tokenExpirationTimer?: any;
   private webSocketService = inject(WebSocketService);
-  private accessTokenSubject = new BehaviorSubject<string | null>(
-    this.getAccessToken(),
-  );
-  public accessToken$ = this.accessTokenSubject.asObservable();
 
   //Reativo
   public currentUserSubject = new BehaviorSubject<AuthenticatedUser | null>(
-    this.getUserFromToken(),
+    this.getUserFromToken()
   );
 
   public currentUser$ = this.currentUserSubject.asObservable();
   public isLoggedIn$ = this.currentUser$.pipe(switchMap((user) => of(!!user)));
 
-  constructor(
-    private http: HttpClient,
-    private router: Router,
-  ) {
+  constructor(private http: HttpClient, private router: Router) {
     const user = this.currentUserSubject.getValue();
     if (user) this.initAutoRefresh();
-
-    // sempre que trocar token, reinicia WS
-    this.accessToken$
-      .pipe(filter((t): t is string => !!t))
-      .subscribe((token) => {
-        this.webSocketService.reconnectWithToken(token);
-      });
   }
 
   /** ===========================
@@ -88,7 +74,7 @@ export class AuthService {
           this.currentUserSubject.next(this.getUserFromToken());
           this.initAutoRefresh();
           this.router.navigate(['/search']);
-        }),
+        })
       );
   }
 
@@ -97,18 +83,15 @@ export class AuthService {
    ============================ */
   logout(): void {
     this.clearRefreshTimer();
-
     if (this.tokenExpirationTimer) {
       clearTimeout(this.tokenExpirationTimer);
-      this.tokenExpirationTimer = undefined;
+      this.tokenExpirationTimer = 1000;
     }
 
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('name');
-    this.accessTokenSubject.next(null);
     this.currentUserSubject.next(null);
-    this.webSocketService.disconnect();
     this.router.navigate(['/login']);
   }
 
@@ -126,8 +109,6 @@ export class AuthService {
   private storeTokens(accessToken: string, refreshToken: string): void {
     localStorage.setItem('accessToken', accessToken);
     localStorage.setItem('refreshToken', refreshToken);
-
-    this.accessTokenSubject.next(accessToken);
   }
 
   getUserFromToken(): AuthenticatedUser | null {
@@ -140,7 +121,6 @@ export class AuthService {
       // verifica expiração
       if (decoded.exp * 1000 < Date.now()) {
         this.clearTokens();
-        this.webSocketService.disconnect();
         return null;
       }
 
@@ -159,7 +139,6 @@ export class AuthService {
   private clearTokens(): void {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
-    this.accessTokenSubject.next(null);
   }
 
   /** ===========================
@@ -175,7 +154,7 @@ export class AuthService {
     if (this.isRefreshingToken) {
       return this.refreshTokenSubject.pipe(
         filter((token) => token !== null),
-        take(1),
+        take(1)
       ) as Observable<string>;
     }
 
@@ -190,7 +169,7 @@ export class AuthService {
           headers: new HttpHeaders({
             'X-Client-Type': 'SELLER',
           }),
-        },
+        }
       )
       .pipe(
         tap((response) => {
@@ -206,7 +185,7 @@ export class AuthService {
         finalize(() => {
           this.isRefreshingToken = false;
         }),
-        shareReplay(1),
+        shareReplay(1)
       );
   }
 
