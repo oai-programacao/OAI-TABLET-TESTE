@@ -160,9 +160,8 @@ export class AuthService {
     try {
       const decoded: any = jwtDecode(token);
 
-      if (decoded.exp * 1000 < Date.now()) {
-        return null;
-      }
+      const expMs = (decoded.exp ?? 0) * 1000;
+      if (!expMs || expMs <= Date.now() + 30_000) return null;
 
       return {
         id: decoded.id || null,
@@ -244,25 +243,32 @@ export class AuthService {
     try {
       const decoded: any = jwtDecode(token);
       exp = decoded.exp * 1000;
-    } catch (e) {
+    } catch {
       this.logout();
       return;
     }
 
     const now = Date.now();
-    const timeUntilExpiry = exp - now;
+    const skewMs = 30_000; // 🔥 MESMO skew do resto do sistema
+    const timeUntilExpiry = exp - now - skewMs;
 
+    // 🔁 Já expirado (ou quase): refresh imediato
     if (timeUntilExpiry <= 0) {
       this.refreshSub = timer(1000)
         .pipe(switchMap(() => this.refreshToken()))
-        .subscribe();
+        .subscribe({
+          next: () => this.initAutoRefresh(), // 🔁 reprograma
+        });
       return;
     }
 
+    // ⏰ Programa refresh antes de vencer
     const refreshTime = Math.max(timeUntilExpiry - 60_000, 5_000);
 
     this.tokenExpirationTimer = setTimeout(() => {
-      this.refreshToken().subscribe();
+      this.refreshToken().subscribe({
+        next: () => this.initAutoRefresh(), // 🔁 reprograma
+      });
     }, refreshTime);
   }
 
@@ -298,7 +304,9 @@ export class AuthService {
   private isTokenExpired(token: string): boolean {
     try {
       const decoded: any = jwtDecode(token);
-      return (decoded?.exp ?? 0) * 1000 <= Date.now();
+      const expMs = (decoded?.exp ?? 0) * 1000;
+      const skewMs = 30_000; // 30s de margem
+      return !expMs || expMs <= Date.now() + skewMs;
     } catch {
       return true;
     }
