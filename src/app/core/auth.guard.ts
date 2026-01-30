@@ -7,6 +7,8 @@ import {
 } from '@angular/router';
 import { AuthService } from './auth.service';
 import { Observable, of } from 'rxjs';
+import { switchMap, catchError } from 'rxjs/operators';
+import { jwtDecode } from 'jwt-decode';
 
 @Injectable({ providedIn: 'root' })
 export class AuthGuard implements CanActivate {
