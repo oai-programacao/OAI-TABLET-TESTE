@@ -14,7 +14,7 @@ export class WebSocketService {
   constructor(
     private rxStompService: RxStompService,
     private ngZone: NgZone,
-    private toastService: ToastService
+    private toastService: ToastService,
   ) {}
 
   initWebSocket(): void {
@@ -58,13 +58,13 @@ export class WebSocketService {
     this.subscriptions.push(
       this.rxStompService.connected$.subscribe(() => {
         console.log('🟢 WS conectado para: ' + this.email);
-      })
+      }),
     );
 
     this.subscriptions.push(
       this.rxStompService.connectionState$.subscribe((state) => {
         console.log('🔁 Estado da conexão: ', state);
-      })
+      }),
     );
 
     this.subscriptions.push(
@@ -72,7 +72,7 @@ export class WebSocketService {
         .watch(`/user/${this.email}/topic/seller-notifications`)
         .subscribe((msg) => {
           this.ngZone.run(() => this.handleNotification(msg.body));
-        })
+        }),
     );
   }
 
@@ -102,7 +102,7 @@ export class WebSocketService {
 ✅ Um novo atendimento foi criado automaticamente para esta ação.<br>  
 Cliente: <b>${data.clientName}</b><br>
 CPF: <b>${this.formatCPF(data.clientCpf)}</b>`,
-          '/contrato.json'
+          '/contrato.json',
         );
         break;
 
@@ -112,7 +112,7 @@ CPF: <b>${this.formatCPF(data.clientCpf)}</b>`,
 Referente ao contrato: <b>#${data.numberContractRbx}</b>
 <br> O vencimento foi alterado com sucesso para <b>${data.newDate}</b>
 <br>Financeiro estornado e lançado novo carnê 12 meses.</b>.`,
-          '/money.json'
+          '/money.json',
         );
         break;
 
@@ -120,7 +120,7 @@ Referente ao contrato: <b>#${data.numberContractRbx}</b>
         this.toastService.showWithAnimation(
           `✅ Sua oferta foi <b>aceita</b>!<br>
 Quem aceitou: <b>${data.actionByName}</b>`,
-          '/sucessordem.json'
+          '/sucessordem.json',
         );
         break;
 
@@ -128,7 +128,7 @@ Quem aceitou: <b>${data.actionByName}</b>`,
         this.toastService.showWithAnimation(
           `❌ Sua oferta foi <b>rejeitada</b>!<br>
 Quem rejeitou: <b>${data.actionByName}</b>`,
-          '/rejectedordem.json'
+          '/rejectedordem.json',
         );
         break;
 
@@ -139,7 +139,7 @@ Cliente: <b>${data.clientName}</b><br>
 CPF: <b>${this.formatCPF(data.clientCpf)}</b><br>
 Plano contratado: <b>${data.codePlan}</b><br>
 Nº do contrato: <b>#${data.numberContractRbx}</b>`,
-          '/saleRocket.json'
+          '/saleRocket.json',
         );
         break;
 
@@ -148,7 +148,7 @@ Nº do contrato: <b>#${data.numberContractRbx}</b>`,
           `🚀 Endereço atualizado com sucesso!<br>
 Cliente: <b>${data.clientName}</b><br>
 Contrato: <b>${data.numberContractRbx}</b><br>`,
-          '/sucessordem.json'
+          '/sucessordem.json',
         );
         break;
 
@@ -157,7 +157,7 @@ Contrato: <b>${data.numberContractRbx}</b><br>`,
           `🚀 Os dois clientes assinaram o termo de consentimento!<br>
 Cliente: <b>${data.clientName}</b> teve seu contrato transferido.<br>
 Contrato: <b>${data.numberContractRbx}</b> transferido com sucesso !<br>`,
-          '/handshake.json'
+          '/handshake.json',
         );
         break;
 
@@ -166,7 +166,7 @@ Contrato: <b>${data.numberContractRbx}</b> transferido com sucesso !<br>`,
           `🚀 O cliente assinou o termo de consentimento!<br>
 Cliente: <b>${data.clientName}</b> teve seu contrato atualizado.<br>
 Contrato: <b>${data.numberContractRbx}</b> Upgrade realizado com sucesso!<br>`,
-          '/handshake.json'
+          '/handshake.json',
         );
         break;
 
@@ -175,7 +175,7 @@ Contrato: <b>${data.numberContractRbx}</b> Upgrade realizado com sucesso!<br>`,
           `🚀 O cliente assinou o termo de consentimento!<br>
 Cliente: <b>${data.clientName}</b> teve seu contrato atualizado.<br>
 Contrato: <b>${data.numberContractRbx}</b> Downgrade realizado com sucesso!<br>`,
-          '/handshake.json'
+          '/handshake.json',
         );
         break;
 
@@ -184,7 +184,7 @@ Contrato: <b>${data.numberContractRbx}</b> Downgrade realizado com sucesso!<br>`
           `🚀 O cliente assinou o termo de consentimento!<br>
 Cliente: <b>${data.clientName}</b> teve seu contrato suspenso.<br>
 Contrato: <b>${data.numberContractRbx}</b> Suspensão realizada com sucesso!<br>`,
-          '/handshake.json'
+          '/handshake.json',
         );
         break;
 
@@ -193,7 +193,7 @@ Contrato: <b>${data.numberContractRbx}</b> Suspensão realizada com sucesso!<br>
           `🚀 O cliente assinou o termo de consentimento!<br>
 Cliente: <b>${data.clientName}</b> teve seu contrato agendado para suspensão.<br>
 Contrato: <b>${data.numberContractRbx}</b> agendamento realizado com sucesso!<br>`,
-          '/handshake.json'
+          '/handshake.json',
         );
         break;
 
@@ -211,7 +211,7 @@ Contrato: <b>${data.numberContractRbx}</b> agendamento realizado com sucesso!<br
         atob(base64)
           .split('')
           .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-          .join('')
+          .join(''),
       );
       return JSON.parse(json);
     } catch {
@@ -221,5 +221,12 @@ Contrato: <b>${data.numberContractRbx}</b> agendamento realizado com sucesso!<br
 
   private formatCPF(cpf: string): string {
     return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+  }
+
+  public sendOfferRequest(dto: any): void {
+    this.rxStompService.publish({
+      destination: '/app/offer.request',
+      body: JSON.stringify(dto),
+    });
   }
 }
