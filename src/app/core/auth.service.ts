@@ -19,9 +19,7 @@ import {
   take,
   finalize,
   shareReplay,
-  distinctUntilChanged,
 } from 'rxjs/operators';
-
 import { Router } from '@angular/router';
 import { environment } from '../../environments/environment';
 import { jwtDecode } from 'jwt-decode';
@@ -44,10 +42,6 @@ export class AuthService {
   private refreshSub?: Subscription;
   private tokenExpirationTimer?: any;
   private webSocketService = inject(WebSocketService);
-  private accessTokenSubject = new BehaviorSubject<string | null>(
-    this.getAccessToken(),
-  );
-  public accessToken$ = this.accessTokenSubject.asObservable();
 
   //Reativo
   public currentUserSubject = new BehaviorSubject<AuthenticatedUser | null>(
@@ -62,35 +56,20 @@ export class AuthService {
     private router: Router,
   ) {
     const user = this.currentUserSubject.getValue();
-    if (user) this.initAutoRefresh();
 
-    // sempre que trocar token, reinicia WS
-    this.accessToken$
-      .pipe(
-        filter((t): t is string => !!t),
-        distinctUntilChanged(),
-      )
-      .subscribe((token) => {
-        this.webSocketService.connectOrUpdateToken(token);
-      });
+    if (user) {
+   
+      this.initAutoRefresh();
 
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState !== 'visible') return;
-
+      
       const token = this.getAccessToken();
-      const hasRefresh = !!this.getRefreshToken();
-
-      if (
-        token &&
-        this.isTokenExpired(token) &&
-        hasRefresh &&
-        !this.isRefreshingToken
-      ) {
-        this.refreshToken().subscribe({
-          next: () => this.initAutoRefresh(), // ✅ reprograma timer pós-volta do iOS
-        });
+      if (token) {
+        this.webSocketService.updateTokenAndReconnect(token);
       }
-    });
+    } else {
+     
+      this.webSocketService.disconnect();
+    }
   }
 
   /** ===========================
@@ -110,8 +89,10 @@ export class AuthService {
           localStorage.setItem('name', response.name);
           this.currentUserSubject.next(this.getUserFromToken());
           this.initAutoRefresh();
-          this.webSocketService.connectOrUpdateToken(response.accessToken);
-        
+
+          // ✅ inicia WS com token recém logado
+          this.webSocketService.updateTokenAndReconnect(response.accessToken);
+
           this.router.navigate(['/search']);
         }),
       );
@@ -122,7 +103,6 @@ export class AuthService {
    ============================ */
   logout(): void {
     this.clearRefreshTimer();
-
     if (this.tokenExpirationTimer) {
       clearTimeout(this.tokenExpirationTimer);
       this.tokenExpirationTimer = undefined;
@@ -131,7 +111,6 @@ export class AuthService {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('name');
-    this.accessTokenSubject.next(null);
     this.currentUserSubject.next(null);
     this.webSocketService.disconnect();
     this.router.navigate(['/login']);
@@ -151,8 +130,6 @@ export class AuthService {
   private storeTokens(accessToken: string, refreshToken: string): void {
     localStorage.setItem('accessToken', accessToken);
     localStorage.setItem('refreshToken', refreshToken);
-
-    this.accessTokenSubject.next(accessToken);
   }
 
   getUserFromToken(): AuthenticatedUser | null {
@@ -162,8 +139,11 @@ export class AuthService {
     try {
       const decoded: any = jwtDecode(token);
 
-      const expMs = (decoded.exp ?? 0) * 1000;
-      if (!expMs || expMs <= Date.now() + 30_000) return null;
+      // verifica expiração
+      if (decoded.exp * 1000 < Date.now()) {
+        this.clearTokens();
+        return null;
+      }
 
       return {
         id: decoded.id || null,
@@ -180,8 +160,6 @@ export class AuthService {
   private clearTokens(): void {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
-    this.accessTokenSubject.next(null);
-    this.currentUserSubject.next(null);
   }
 
   /** ===========================
@@ -219,10 +197,8 @@ export class AuthService {
           this.storeTokens(response.accessToken, response.refreshToken);
           this.currentUserSubject.next(this.getUserFromToken());
           this.refreshTokenSubject.next(response.accessToken);
-
-          this.initAutoRefresh(); 
+          this.webSocketService.updateTokenAndReconnect(response.accessToken);
         }),
-
         switchMap((response) => of(response.accessToken)),
         catchError((err) => {
           this.logout();
@@ -248,32 +224,25 @@ export class AuthService {
     try {
       const decoded: any = jwtDecode(token);
       exp = decoded.exp * 1000;
-    } catch {
+    } catch (e) {
       this.logout();
       return;
     }
 
     const now = Date.now();
-    const skewMs = 30_000; // 🔥 MESMO skew do resto do sistema
-    const timeUntilExpiry = exp - now - skewMs;
+    const timeUntilExpiry = exp - now;
 
-    // 🔁 Já expirado (ou quase): refresh imediato
     if (timeUntilExpiry <= 0) {
       this.refreshSub = timer(1000)
         .pipe(switchMap(() => this.refreshToken()))
-        .subscribe({
-          next: () => this.initAutoRefresh(), // 🔁 reprograma
-        });
+        .subscribe();
       return;
     }
 
-    // ⏰ Programa refresh antes de vencer
     const refreshTime = Math.max(timeUntilExpiry - 60_000, 5_000);
 
     this.tokenExpirationTimer = setTimeout(() => {
-      this.refreshToken().subscribe({
-        next: () => this.initAutoRefresh(), // 🔁 reprograma
-      });
+      this.refreshToken().subscribe();
     }, refreshTime);
   }
 
@@ -292,8 +261,7 @@ export class AuthService {
    * AUXILIARES
    ============================ */
   isAuthenticated(): boolean {
-    const token = this.getAccessToken();
-    return !!token && !this.isTokenExpired(token);
+    return !!this.getUserFromToken();
   }
 
   getUserRoles(): string[] {
@@ -304,16 +272,5 @@ export class AuthService {
   getSellerId(): string | null {
     const user = this.getUserFromToken();
     return user?.id || null;
-  }
-
-  private isTokenExpired(token: string): boolean {
-    try {
-      const decoded: any = jwtDecode(token);
-      const expMs = (decoded?.exp ?? 0) * 1000;
-      const skewMs = 30_000; // 30s de margem
-      return !expMs || expMs <= Date.now() + skewMs;
-    } catch {
-      return true;
-    }
   }
 }

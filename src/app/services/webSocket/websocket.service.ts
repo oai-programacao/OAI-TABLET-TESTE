@@ -1,206 +1,92 @@
+// websocket.service.ts
 import { Injectable, NgZone } from '@angular/core';
 import { RxStompService } from '@stomp/ng2-stompjs';
 import { wsStompConfig } from './wsStompConfig';
 import { ToastService } from '../toastService/toast.service';
 import { Subscription } from 'rxjs';
-import { jwtDecode } from 'jwt-decode';
-import { RxStompState } from '@stomp/rx-stomp';
 
 @Injectable({ providedIn: 'root' })
 export class WebSocketService {
-  // Estado
-  private state: RxStompState = RxStompState.CLOSED;
-  private token: string | null = null;
+  private activated = false;
+  private subscriptions: Subscription[] = [];
   private email: string | null = null;
-
-  // Subs fixas
-  private stateSub?: Subscription;
-  private connectedSub?: Subscription;
-
-  // Watch
-  private watchSub?: Subscription;
-  private watchedEmail: string | null = null;
 
   constructor(
     private rxStompService: RxStompService,
     private ngZone: NgZone,
-    private toastService: ToastService,
-  ) {
-    this.bindCoreStreams();
-  }
+    private toastService: ToastService
+  ) {}
 
-  /** Chame no login */
   initWebSocket(): void {
     const token = localStorage.getItem('accessToken');
-    if (token) this.connectOrUpdateToken(token);
-  }
-
-  /**
-   * Chame SEMPRE que o AuthService atualizar o accessToken.
-   * O WS NÃO faz refresh — só reinicia pra aplicar o header novo.
-   */
-  connectOrUpdateToken(token: string): void {
-    const email = this.extractEmailFromToken(token);
-
-    // token inválido -> encerra
-    if (!email) {
-      this.disconnect();
-      return;
-    }
-
-    // token expirado -> não conecta (evita loop)
-    if (this.isTokenExpired(token)) {
-      this.disconnect();
-      return;
-    }
-
-    // se é o mesmo token e já está OPEN/CONNECTING, não faz nada
-    if (this.token === token && this.isOpenOrConnecting()) return;
-
-    const emailChanged = this.email !== email;
-    this.email = email;
-    this.token = token;
-
-    if (emailChanged) this.clearWatch();
-
-    // se já está conectado/conectando, precisa reiniciar pra aplicar novo header
-    if (this.isOpenOrConnecting()) {
-      this.rxStompService.deactivate();
-      // quando fechar, nós reativamos (abaixo) com token novo
-      return;
-    }
-
-    this.activateWithCurrentToken();
-  }
-
-  disconnect(): void {
-    this.clearWatch();
-    this.email = null;
-    this.token = null;
-
-    this.rxStompService.deactivate();
-    console.log('🔴 WS desconectado');
-  }
-
-  sendOfferRequest(dto: any): void {
-    this.rxStompService.publish({
-      destination: '/app/offer.request',
-      body: JSON.stringify(dto),
-    });
-  }
-
-  // -------------------------
-  // Internals
-  // -------------------------
-
-  private bindCoreStreams(): void {
-    if (this.connectedSub || this.stateSub) return;
-
-    this.connectedSub = this.rxStompService.connected$.subscribe(() => {
-      console.log(
-        this.email ? `🟢 WS conectado para: ${this.email}` : '🟢 WS conectado',
-      );
-      this.ensureWatch();
-    });
-
-    this.stateSub = this.rxStompService.connectionState$.subscribe((state) => {
-      this.state = state;
-
-      // ✅ Aqui NÃO fazemos reconnect manual.
-      // Quem reconecta é o reconnectDelay do wsStompConfig.
-      // A única coisa que fazemos é: quando fechou por troca de token, reativar.
-      switch (state) {
-        case RxStompState.CLOSED: {
-          // Se estamos com token válido, garantimos que o WS fique ativo.
-          // (Se cair por rede, o RxStomp reconecta sozinho.)
-          const token = localStorage.getItem('accessToken') ?? this.token;
-          if (!token) return;
-
-          // token inválido/expirado -> não reativa (evita flood)
-          if (this.isTokenExpired(token)) return;
-
-          // Se o RxStomp estiver desativado (deactivate por troca de token),
-          // precisamos reativar pra aplicar o header novo.
-          // Isso não vira loop porque só roda quando state=CLOSED
-          // e o token é válido.
-          this.activateWithCurrentToken();
-          break;
-        }
-
-        default:
-          break;
-      }
-    });
-  }
-
-  private activateWithCurrentToken(): void {
-    const token = localStorage.getItem('accessToken') ?? this.token;
     if (!token) return;
 
-    if (this.isTokenExpired(token)) {
-      this.disconnect();
+    // se já ativou, não duplica
+    if (this.activated) return;
+
+    this.connectWithToken(token);
+  }
+
+  /** ✅ CHAME QUANDO O TOKEN FOR ATUALIZADO (refresh/login) */
+  updateTokenAndReconnect(token: string): void {
+    // Se ainda não ativou, só conecta
+    if (!this.activated) {
+      this.connectWithToken(token);
       return;
     }
+
+    // Se já está ativo: precisa reconectar para aplicar header novo
+    this.disconnect();
+    this.connectWithToken(token);
+  }
+
+  private connectWithToken(token: string): void {
+    const payload = this.safeParseJwtPayload(token);
+    const email = payload?.sub;
+    if (!email) return;
+
+    this.email = email;
 
     this.rxStompService.configure({
       ...wsStompConfig,
       connectHeaders: { Authorization: `Bearer ${token}` },
     });
 
-    console.log('[WS] activate()');
     this.rxStompService.activate();
-  }
+    this.activated = true;
 
-  private isOpenOrConnecting(): boolean {
-    return (
-      this.state === RxStompState.OPEN || this.state === RxStompState.CONNECTING
+    this.subscriptions.push(
+      this.rxStompService.connected$.subscribe(() => {
+        console.log('🟢 WS conectado para: ' + this.email);
+      })
+    );
+
+    this.subscriptions.push(
+      this.rxStompService.connectionState$.subscribe((state) => {
+        console.log('🔁 Estado da conexão: ', state);
+      })
+    );
+
+    this.subscriptions.push(
+      this.rxStompService
+        .watch(`/user/${this.email}/topic/seller-notifications`)
+        .subscribe((msg) => {
+          this.ngZone.run(() => this.handleNotification(msg.body));
+        })
     );
   }
 
-  private clearWatch(): void {
-    this.watchSub?.unsubscribe();
-    this.watchSub = undefined;
-    this.watchedEmail = null;
+  disconnect(): void {
+    if (!this.activated) return;
+
+    this.subscriptions.forEach((sub) => sub.unsubscribe());
+    this.subscriptions = [];
+
+    this.rxStompService.deactivate();
+    this.activated = false;
+
+    console.log('🔴 WS desconectado para: ' + this.email);
   }
-
-  private ensureWatch(): void {
-    if (!this.email) return;
-    if (this.watchSub && this.watchedEmail === this.email) return;
-
-    this.clearWatch();
-
-    this.watchSub = this.rxStompService
-      .watch(`/user/${this.email}/topic/seller-notifications`)
-      .subscribe((msg) =>
-        this.ngZone.run(() => this.handleNotification(msg.body)),
-      );
-
-    this.watchedEmail = this.email;
-  }
-
-  private extractEmailFromToken(token: string): string | null {
-    try {
-      const decoded: any = jwtDecode(token);
-      return decoded?.sub ?? decoded?.email ?? null;
-    } catch {
-      return null;
-    }
-  }
-
-  private isTokenExpired(token: string): boolean {
-    try {
-      const decoded: any = jwtDecode(token);
-      const expMs = (decoded?.exp ?? 0) * 1000;
-      const skewMs = 30_000;
-      return !expMs || expMs <= Date.now() + skewMs;
-    } catch {
-      return true;
-    }
-  }
-
-  // -------------------------
-  // Notificações (SEU SWITCH CASE COMPLETO)
-  // -------------------------
 
   private handleNotification(body: string): void {
     const payload = JSON.parse(body);
@@ -213,10 +99,10 @@ export class WebSocketService {
       case 'DOCUMENT_SIGNED':
         this.toastService.showWithAnimation(
           `📄 O termo de consentimento foi assinado com sucesso!<br>
-✅ Um novo atendimento foi assinado automaticamente para esta ação.<br>  
+✅ Um novo atendimento foi criado automaticamente para esta ação.<br>  
 Cliente: <b>${data.clientName}</b><br>
 CPF: <b>${this.formatCPF(data.clientCpf)}</b>`,
-          '/contrato.json',
+          '/contrato.json'
         );
         break;
 
@@ -226,7 +112,7 @@ CPF: <b>${this.formatCPF(data.clientCpf)}</b>`,
 Referente ao contrato: <b>#${data.numberContractRbx}</b>
 <br> O vencimento foi alterado com sucesso para <b>${data.newDate}</b>
 <br>Financeiro estornado e lançado novo carnê 12 meses.</b>.`,
-          '/money.json',
+          '/money.json'
         );
         break;
 
@@ -234,7 +120,7 @@ Referente ao contrato: <b>#${data.numberContractRbx}</b>
         this.toastService.showWithAnimation(
           `✅ Sua oferta foi <b>aceita</b>!<br>
 Quem aceitou: <b>${data.actionByName}</b>`,
-          '/sucessordem.json',
+          '/sucessordem.json'
         );
         break;
 
@@ -242,7 +128,7 @@ Quem aceitou: <b>${data.actionByName}</b>`,
         this.toastService.showWithAnimation(
           `❌ Sua oferta foi <b>rejeitada</b>!<br>
 Quem rejeitou: <b>${data.actionByName}</b>`,
-          '/rejectedordem.json',
+          '/rejectedordem.json'
         );
         break;
 
@@ -253,7 +139,7 @@ Cliente: <b>${data.clientName}</b><br>
 CPF: <b>${this.formatCPF(data.clientCpf)}</b><br>
 Plano contratado: <b>${data.codePlan}</b><br>
 Nº do contrato: <b>#${data.numberContractRbx}</b>`,
-          '/saleRocket.json',
+          '/saleRocket.json'
         );
         break;
 
@@ -262,7 +148,7 @@ Nº do contrato: <b>#${data.numberContractRbx}</b>`,
           `🚀 Endereço atualizado com sucesso!<br>
 Cliente: <b>${data.clientName}</b><br>
 Contrato: <b>${data.numberContractRbx}</b><br>`,
-          '/sucessordem.json',
+          '/sucessordem.json'
         );
         break;
 
@@ -271,7 +157,7 @@ Contrato: <b>${data.numberContractRbx}</b><br>`,
           `🚀 Os dois clientes assinaram o termo de consentimento!<br>
 Cliente: <b>${data.clientName}</b> teve seu contrato transferido.<br>
 Contrato: <b>${data.numberContractRbx}</b> transferido com sucesso !<br>`,
-          '/handshake.json',
+          '/handshake.json'
         );
         break;
 
@@ -280,7 +166,7 @@ Contrato: <b>${data.numberContractRbx}</b> transferido com sucesso !<br>`,
           `🚀 O cliente assinou o termo de consentimento!<br>
 Cliente: <b>${data.clientName}</b> teve seu contrato atualizado.<br>
 Contrato: <b>${data.numberContractRbx}</b> Upgrade realizado com sucesso!<br>`,
-          '/handshake.json',
+          '/handshake.json'
         );
         break;
 
@@ -289,7 +175,7 @@ Contrato: <b>${data.numberContractRbx}</b> Upgrade realizado com sucesso!<br>`,
           `🚀 O cliente assinou o termo de consentimento!<br>
 Cliente: <b>${data.clientName}</b> teve seu contrato atualizado.<br>
 Contrato: <b>${data.numberContractRbx}</b> Downgrade realizado com sucesso!<br>`,
-          '/handshake.json',
+          '/handshake.json'
         );
         break;
 
@@ -298,7 +184,7 @@ Contrato: <b>${data.numberContractRbx}</b> Downgrade realizado com sucesso!<br>`
           `🚀 O cliente assinou o termo de consentimento!<br>
 Cliente: <b>${data.clientName}</b> teve seu contrato suspenso.<br>
 Contrato: <b>${data.numberContractRbx}</b> Suspensão realizada com sucesso!<br>`,
-          '/handshake.json',
+          '/handshake.json'
         );
         break;
 
@@ -307,12 +193,29 @@ Contrato: <b>${data.numberContractRbx}</b> Suspensão realizada com sucesso!<br>
           `🚀 O cliente assinou o termo de consentimento!<br>
 Cliente: <b>${data.clientName}</b> teve seu contrato agendado para suspensão.<br>
 Contrato: <b>${data.numberContractRbx}</b> agendamento realizado com sucesso!<br>`,
-          '/handshake.json',
+          '/handshake.json'
         );
         break;
 
       default:
         this.toastService.show(`🔔 Notificação recebida: <b>${event}</b>`);
+    }
+  }
+
+  private safeParseJwtPayload(token: string): any | null {
+    try {
+      const base64Url = token.split('.')[1];
+      if (!base64Url) return null;
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const json = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      return JSON.parse(json);
+    } catch {
+      return null;
     }
   }
 

@@ -17,13 +17,14 @@ export class AuthInterceptor implements HttpInterceptor {
 
   constructor(private auth: AuthService) {}
 
-  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+  intercept(
+    req: HttpRequest<any>,
+    next: HttpHandler,
+  ): Observable<HttpEvent<any>> {
     const token = this.auth.getAccessToken();
 
     const authReq =
-      token && !this.isAuthRequest(req)
-        ? this.addToken(req, token)
-        : req;
+      token && !this.isAuthRequest(req) ? this.addToken(req, token) : req;
 
     return next.handle(authReq).pipe(
       catchError((error: HttpErrorResponse) => {
@@ -55,7 +56,10 @@ export class AuthInterceptor implements HttpInterceptor {
     );
   }
 
-  private handle401(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+  private handle401(
+    req: HttpRequest<any>,
+    next: HttpHandler,
+  ): Observable<HttpEvent<any>> {
     if (!this.isRefreshing) {
       this.isRefreshing = true;
       this.refreshTokenSubject.next(null);
@@ -88,6 +92,4 @@ export class AuthInterceptor implements HttpInterceptor {
   private isAuthRequest(req: HttpRequest<any>): boolean {
     return req.url.includes('/auth/login') || req.url.includes('/auth/refresh');
   }
-
-  
 }
