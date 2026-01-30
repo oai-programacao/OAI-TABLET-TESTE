@@ -19,29 +19,49 @@ export class AuthGuard implements CanActivate {
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot,
   ): Observable<boolean> {
-    const isAuth = this.authService.isAuthenticated();
+    const access = this.authService.getAccessToken();
+    const refresh = this.authService.getRefreshToken();
 
-    // Se não autenticado, manda pro login
-    if (!isAuth) {
+    // sem refresh token: não tem o que fazer
+    if (!refresh) {
       this.router.navigate(['/login']);
       return of(false);
     }
 
-    if (isAuth && state.url === '/login') {
-      this.router.navigate(['/search']);
+    // se tem access token válido, passa
+    if (access && !this.isExpired(access)) {
+      return this.checkRoles(route);
+    }
+
+    // access expirou -> tenta refresh
+    return this.authService.refreshToken().pipe(
+      switchMap(() => this.checkRoles(route)),
+      catchError(() => {
+        this.router.navigate(['/login']);
+        return of(false);
+      }),
+    );
+  }
+
+  private checkRoles(route: ActivatedRouteSnapshot): Observable<boolean> {
+    const allowedRoles = route.data['roles'] as string[] | undefined;
+    if (!allowedRoles?.length) return of(true);
+
+    const userRoles = this.authService.getUserRoles();
+    const hasAccess = allowedRoles.some((role) => userRoles.includes(role));
+    if (!hasAccess) {
+      this.router.navigate(['/acessonegado']);
       return of(false);
     }
-
-    const allowedRoles = route.data['roles'] as string[] | undefined;
-    if (allowedRoles && allowedRoles.length > 0) {
-      const userRoles = this.authService.getUserRoles();
-      const hasAccess = allowedRoles.some((role) => userRoles.includes(role));
-      if (!hasAccess) {
-        this.router.navigate(['/acessonegado']);
-        return of(false);
-      }
-    }
-
     return of(true);
+  }
+
+  private isExpired(token: string): boolean {
+    try {
+      const decoded: any = jwtDecode(token);
+      return (decoded?.exp ?? 0) * 1000 <= Date.now();
+    } catch {
+      return true;
+    }
   }
 }

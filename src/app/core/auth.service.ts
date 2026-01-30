@@ -58,16 +58,13 @@ export class AuthService {
     const user = this.currentUserSubject.getValue();
 
     if (user) {
-   
       this.initAutoRefresh();
 
-      
       const token = this.getAccessToken();
       if (token) {
         this.webSocketService.updateTokenAndReconnect(token);
       }
     } else {
-     
       this.webSocketService.disconnect();
     }
   }
@@ -139,9 +136,9 @@ export class AuthService {
     try {
       const decoded: any = jwtDecode(token);
 
-      // verifica expiração
+      if (!decoded?.exp) return null;
+
       if (decoded.exp * 1000 < Date.now()) {
-        this.clearTokens();
         return null;
       }
 
@@ -151,15 +148,9 @@ export class AuthService {
         roles: decoded.roles || [],
         email: decoded.sub ?? decoded.email,
       };
-    } catch (error) {
-      this.clearTokens();
+    } catch {
       return null;
     }
-  }
-
-  private clearTokens(): void {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
   }
 
   /** ===========================
@@ -195,7 +186,9 @@ export class AuthService {
       .pipe(
         tap((response) => {
           this.storeTokens(response.accessToken, response.refreshToken);
-          this.currentUserSubject.next(this.getUserFromToken());
+          this.currentUserSubject.next(
+            this.buildUserFromAccessToken(response.accessToken),
+          );
           this.refreshTokenSubject.next(response.accessToken);
           this.webSocketService.updateTokenAndReconnect(response.accessToken);
         }),
@@ -261,7 +254,7 @@ export class AuthService {
    * AUXILIARES
    ============================ */
   isAuthenticated(): boolean {
-    return !!this.getUserFromToken();
+    return !!this.getAccessToken() && !!this.getRefreshToken();
   }
 
   getUserRoles(): string[] {
@@ -272,5 +265,19 @@ export class AuthService {
   getSellerId(): string | null {
     const user = this.getUserFromToken();
     return user?.id || null;
+  }
+
+  private buildUserFromAccessToken(token: string): AuthenticatedUser | null {
+    try {
+      const decoded: any = jwtDecode(token);
+      return {
+        id: decoded.id || null,
+        name: decoded.name,
+        roles: decoded.roles || [],
+        email: decoded.sub ?? decoded.email,
+      };
+    } catch {
+      return null;
+    }
   }
 }
