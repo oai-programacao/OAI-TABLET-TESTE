@@ -342,9 +342,9 @@ export class AddContractComponent implements OnInit {
             this.selectedTypeOs,
             this.selectedPeriodOs,
             page,
-            size
+            size,
           );
-        })
+        }),
       )
       .subscribe({
         next: (pageData: any) => {
@@ -416,7 +416,7 @@ export class AddContractComponent implements OnInit {
 
   constructor(
     public messageService: MessageService,
-    private dateUtils: DateUtilsService
+    private dateUtils: DateUtilsService,
   ) {
     this.clientId = this.route.snapshot.queryParamMap.get('clientId') ?? '';
   }
@@ -424,14 +424,20 @@ export class AddContractComponent implements OnInit {
   loadPlans() {
     this.planService.getPlans().subscribe({
       next: (data: Plan[]) => {
-        this.plans = data.map((plan) => ({
-          label: `${plan.codePlanRBX} - ${plan.nome}`,
-          value: String(plan.codePlanRBX || ''),
-          code: String(plan.codePlanRBX || ''),
-          name: plan.nome,
-          status: plan.status,
-          disabled: plan.status === 'I',
-        }));
+        this.plans = data
+          .filter(
+            (plan) =>
+              plan.status === 'A' &&
+              plan.codePlanRBX >= 10000 &&         // regra de novos contratos vai para esse cnpj.
+              plan.codePlanRBX <= 11000,
+          )
+          .map((plan) => ({
+            label: `${plan.codePlanRBX} - ${plan.nome}`,
+            value: String(plan.codePlanRBX),
+            code: String(plan.codePlanRBX),
+            name: plan.nome,
+            status: plan.status,
+          }));
       },
       error: (err) => {
         console.error('Erro ao carregar planos:', err);
@@ -467,7 +473,7 @@ export class AddContractComponent implements OnInit {
         file,
         1280,
         1280,
-        0.7
+        0.7,
       );
 
       this.images[targetIndex] = resizedFile;
@@ -653,7 +659,7 @@ export class AddContractComponent implements OnInit {
 
       const sellerId = this.authService.getSellerId();
       const selectedCycle = this.typesOfDateExpirationCicle.find(
-        (c) => c.value === this.selectDateOfExpirationCicle
+        (c) => c.value === this.selectDateOfExpirationCicle,
       );
 
       const payload = {
@@ -668,7 +674,7 @@ export class AddContractComponent implements OnInit {
           this.dateUtils.formatToLocalDateString(this.dateSignature) || '',
         dateExpiredAdesion:
           this.dateUtils.formatToLocalDateString(
-            this.dateOfMemberShipExpiration
+            this.dateOfMemberShipExpiration,
           ) || '',
         adesion: Number(this.contractFormData.adesion),
         numberParcels: this.selectedInstallment,
@@ -693,18 +699,18 @@ export class AddContractComponent implements OnInit {
         formData.append(
           'termConsentFiles',
           this.adesionBlob,
-          'contrato_adesao.pdf'
+          'contrato_adesao.pdf',
         );
       } else {
         formData.append(
           'termConsentFiles',
           this.adesionBlob,
-          'contrato_adesao.pdf'
+          'contrato_adesao.pdf',
         );
         formData.append(
           'termConsentFiles',
           this.permanenceBlob,
-          'contrato_permanencia.pdf'
+          'contrato_permanencia.pdf',
         );
       }
 
@@ -876,7 +882,7 @@ export class AddContractComponent implements OnInit {
         zipCode: this.contractFormData.address.zipCode,
         contractDueDay:
           this.dateUtils.formatToLocalDateString(
-            this.dateOfMemberShipExpiration
+            this.dateOfMemberShipExpiration,
           ) || '',
         adesion: this.contractFormData.adesion.toString() || '0',
         discountFixe: this.contractFormData.discountFixe?.toString() || '0',
@@ -913,10 +919,10 @@ export class AddContractComponent implements OnInit {
         codePlan: Number(this.selectedPlan),
         dateStart: this.dateUtils.formatToLocalDateString(this.dateOfStart),
         dateSignature: this.dateUtils.formatToLocalDateString(
-          this.dateSignature
+          this.dateSignature,
         ),
         dateExpiredAdesion: this.dateUtils.formatToLocalDateString(
-          this.dateOfMemberShipExpiration
+          this.dateOfMemberShipExpiration,
         ),
         adesion: Number(this.contractFormData.adesion),
         numberParcels: Number(this.selectedInstallment),
@@ -926,18 +932,18 @@ export class AddContractComponent implements OnInit {
         vigencia: Number(this.contractFormData.vigencia || 12),
         cicleFatId: Number(
           this.typesOfDateExpirationCicle.find(
-            (c) => c.value === this.selectDateOfExpirationCicle
-          )!.id
+            (c) => c.value === this.selectDateOfExpirationCicle,
+          )!.id,
         ),
         cicleBillingDayBase: Number(
           this.typesOfDateExpirationCicle.find(
-            (c) => c.value === this.selectDateOfExpirationCicle
-          )!.dia
+            (c) => c.value === this.selectDateOfExpirationCicle,
+          )!.dia,
         ),
         cicleBillingExpired: Number(
           this.typesOfDateExpirationCicle.find(
-            (c) => c.value === this.selectDateOfExpirationCicle
-          )!.vencimento
+            (c) => c.value === this.selectDateOfExpirationCicle,
+          )!.vencimento,
         ),
         residenceType: this.selectedResidence || '',
         clientType: this.selectedClientType || '',
@@ -1112,7 +1118,7 @@ export class AddContractComponent implements OnInit {
         adesion: this.contractFormData.adesion?.toString() || '0',
         contractDueDay:
           this.dateUtils.formatToLocalDateString(
-            this.dateOfMemberShipExpiration
+            this.dateOfMemberShipExpiration,
           ) || '',
         signatureBase64: this.capturedSignatureAdesion || null,
       };
@@ -1121,11 +1127,17 @@ export class AddContractComponent implements OnInit {
 
       if (!this.selectContract) {
         mergedPdfBlob = await firstValueFrom(
-          this.reportsService.getContractAdesionPdf(this.clientId, contractData)
+          this.reportsService.getContractAdesionPdf(
+            this.clientId,
+            contractData,
+          ),
         );
       } else {
         mergedPdfBlob = await firstValueFrom(
-          this.reportsService.getContractDisplayPdf(this.clientId, contractData)
+          this.reportsService.getContractDisplayPdf(
+            this.clientId,
+            contractData,
+          ),
         );
       }
 
@@ -1136,7 +1148,7 @@ export class AddContractComponent implements OnInit {
       // Cria URL para o preview
       this.pdfPreviewUrl = URL.createObjectURL(mergedPdfBlob);
       this.safePdfPreviewUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-        this.pdfPreviewUrl
+        this.pdfPreviewUrl,
       );
     } catch (error) {
       console.error('Erro ao carregar preview:', error);
@@ -1173,7 +1185,7 @@ export class AddContractComponent implements OnInit {
         discountFixe: this.contractFormData.discountFixe?.toString() || '0',
         contractDueDay:
           this.dateUtils.formatToLocalDateString(
-            this.dateOfMemberShipExpiration
+            this.dateOfMemberShipExpiration,
           ) || '',
         signatureBase64,
       };
@@ -1184,19 +1196,22 @@ export class AddContractComponent implements OnInit {
 
       if (!this.selectContract) {
         adesionBlob = await firstValueFrom(
-          this.reportsService.getContractAdesionPdf(this.clientId, contractData)
+          this.reportsService.getContractAdesionPdf(
+            this.clientId,
+            contractData,
+          ),
         );
         permanenceBlob = adesionBlob;
         mergedSignedBlob = adesionBlob;
 
         this.rawPdfAdesionUrl = URL.createObjectURL(adesionBlob);
         this.safePdfAdesionUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-          this.rawPdfAdesionUrl
+          this.rawPdfAdesionUrl,
         );
         if (this.pdfPreviewUrl) URL.revokeObjectURL(this.pdfPreviewUrl);
         this.pdfPreviewUrl = URL.createObjectURL(mergedSignedBlob);
         this.safePdfPreviewUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-          this.pdfPreviewUrl
+          this.pdfPreviewUrl,
         );
         this.capturedSignatureAdesion = signatureBase64;
         this.formData.signaturePad = signatureBase64;
@@ -1211,32 +1226,32 @@ export class AddContractComponent implements OnInit {
           forkJoin([
             this.reportsService.getContractAdesionPdf(
               this.clientId,
-              contractData
+              contractData,
             ),
             this.reportsService.getContractPermanencePdf(
               this.clientId,
-              contractData
+              contractData,
             ),
             this.reportsService.getContractDisplayPdf(
               this.clientId,
-              contractData
+              contractData,
             ),
-          ])
+          ]),
         );
 
         this.rawPdfAdesionUrl = URL.createObjectURL(adesionBlob);
         this.rawPdfPermanentUrl = URL.createObjectURL(permanenceBlob);
         this.safePdfAdesionUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-          this.rawPdfAdesionUrl
+          this.rawPdfAdesionUrl,
         );
         this.safePdfPermanentUrl =
           this.sanitizer.bypassSecurityTrustResourceUrl(
-            this.rawPdfPermanentUrl
+            this.rawPdfPermanentUrl,
           );
         if (this.pdfPreviewUrl) URL.revokeObjectURL(this.pdfPreviewUrl);
         this.pdfPreviewUrl = URL.createObjectURL(mergedSignedBlob);
         this.safePdfPreviewUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-          this.pdfPreviewUrl
+          this.pdfPreviewUrl,
         );
 
         this.capturedSignatureAdesion = signatureBase64;
@@ -1286,7 +1301,7 @@ export class AddContractComponent implements OnInit {
         this.mergedContractBlob = mergedSignedBlob;
 
         this.capturedSignatureAdesion = signatureBase64;
-      }
+      },
     );
   }
 
@@ -1313,7 +1328,7 @@ export class AddContractComponent implements OnInit {
     this.isArchiving = true;
 
     const selectedCycle = this.typesOfDateExpirationCicle.find(
-      (c) => c.value === this.selectDateOfExpirationCicle
+      (c) => c.value === this.selectDateOfExpirationCicle,
     );
 
     const payload = {
@@ -1323,7 +1338,7 @@ export class AddContractComponent implements OnInit {
       dateStart: this.dateUtils.formatToLocalDateString(this.dateOfStart),
       dateSignature: this.dateUtils.formatToLocalDateString(this.dateSignature),
       dateExpiredAdesion: this.dateUtils.formatToLocalDateString(
-        this.dateOfMemberShipExpiration
+        this.dateOfMemberShipExpiration,
       ),
       adesion: this.contractFormData.adesion
         ? Number(this.contractFormData.adesion)
@@ -1416,7 +1431,7 @@ export class AddContractComponent implements OnInit {
         file,
         1280,
         1280,
-        0.7
+        0.7,
       );
 
       const reader = new FileReader();
@@ -1459,7 +1474,7 @@ export class AddContractComponent implements OnInit {
         this.selectedTypeOs,
         this.selectedPeriodOs,
         page,
-        size
+        size,
       )
       .subscribe({
         next: (pageData) => {
@@ -1488,7 +1503,7 @@ export class AddContractComponent implements OnInit {
           if (blocks && blocks.length > 0) {
             this.activeBlock = blocks[0];
             const releaseDate = this.parsePtBrDate(
-              this.activeBlock.initialDate
+              this.activeBlock.initialDate,
             );
             const today = new Date();
             today.setHours(0, 0, 0, 0);
@@ -1514,7 +1529,7 @@ export class AddContractComponent implements OnInit {
     const parts = dateStr.split('/');
     return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(
       2,
-      '0'
+      '0',
     )}`;
   }
 
@@ -1650,7 +1665,7 @@ export class AddContractComponent implements OnInit {
     this.dateOfStart = this.dateUtils.parseDate(saleData.dateStart);
     this.dateSignature = this.dateUtils.parseDate(saleData.dateSignature);
     this.dateOfMemberShipExpiration = this.dateUtils.parseDate(
-      saleData.dateExpiredAdesion
+      saleData.dateExpiredAdesion,
     );
 
     // Seleções

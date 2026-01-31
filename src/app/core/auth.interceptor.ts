@@ -6,8 +6,10 @@ import {
   HttpEvent,
   HttpErrorResponse,
 } from '@angular/common/http';
+
 import { Observable, BehaviorSubject, throwError } from 'rxjs';
 import { catchError, switchMap, filter, take } from 'rxjs/operators';
+
 import { AuthService } from './auth.service';
 
 @Injectable()
@@ -21,33 +23,29 @@ export class AuthInterceptor implements HttpInterceptor {
     req: HttpRequest<any>,
     next: HttpHandler,
   ): Observable<HttpEvent<any>> {
-    const token = this.auth.getAccessToken();
+    // NÃO mexe em endpoints de auth
+    if (this.isAuthRequest(req)) {
+      return next.handle(req);
+    }
 
-    const authReq =
-      token && !this.isAuthRequest(req) ? this.addToken(req, token) : req;
+    // adiciona Bearer se existir access token
+    const token = this.auth.getAccessToken();
+    const authReq = token ? this.addToken(req, token) : req;
 
     return next.handle(authReq).pipe(
       catchError((error: HttpErrorResponse) => {
-        // OFFLINE / erro de rede (PWA): não desloga
+        // erro de rede / offline (PWA): não faz logout
         if (error.status === 0) {
           return throwError(() => error);
         }
 
-        // Evita mexer com refresh nos próprios endpoints de auth
-        if (this.isAuthRequest(req)) {
-          return throwError(() => error);
+        // 401: tenta refresh se tiver refreshToken
+        if (error.status === 401 && this.auth.getRefreshToken()) {
+          return this.handle401(authReq, next);
         }
 
-        // 401/403
+        // 403 ou 401 sem refresh token -> logout
         if (error.status === 401 || error.status === 403) {
-          const hasRefresh = !!this.auth.getRefreshToken();
-
-          // tenta refresh só em 401 e se existir refresh token
-          if (error.status === 401 && hasRefresh) {
-            return this.handle401(req, next);
-          }
-
-          // 403 ou sem refresh token => desloga
           this.auth.logout();
         }
 
@@ -78,18 +76,22 @@ export class AuthInterceptor implements HttpInterceptor {
       );
     }
 
+    // se já está refreshando, espera o token novo e tenta de novo
     return this.refreshTokenSubject.pipe(
-      filter((token): token is string => token != null),
+      filter((t): t is string => t !== null),
       take(1),
       switchMap((token) => next.handle(this.addToken(req, token))),
     );
   }
 
   private addToken(req: HttpRequest<any>, token: string): HttpRequest<any> {
-    return req.clone({ setHeaders: { Authorization: `Bearer ${token}` } });
+    return req.clone({
+      setHeaders: { Authorization: `Bearer ${token}` },
+    });
   }
 
   private isAuthRequest(req: HttpRequest<any>): boolean {
+    // ajuste se seu path real for /api/auth/...
     return req.url.includes('/auth/login') || req.url.includes('/auth/refresh');
   }
 }
