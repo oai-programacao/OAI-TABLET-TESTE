@@ -38,6 +38,7 @@ import { ImageUtilsService } from '../../services/midia/image-utils.service';
 import { CheckComponent } from '../../shared/components/check-component/check-component.component';
 import { CheckboxModule } from 'primeng/checkbox';
 
+
 export interface StatusFidelidade {
   situacao: 'ISENTO' | 'CUMPRIDA' | 'VIGENTE';
   mesesRestantes: number;
@@ -172,8 +173,28 @@ export class CancelContractComponent implements OnInit {
       idRbx: 8,
     },
     {
-      label: 'Troca de Provedor (Oferta Melhor)',
-      value: 'Cliente recebeu uma oferta de outra operadora',
+      label: 'Troca de Provedor (Vivo)',
+      value: 'Troca de Provedor - Cliente optou pela Vivo',
+      idRbx: 2,
+    },
+    {
+      label: 'Troca de Provedor (Tim)',
+      value: 'Troca de Provedor - Cliente optou pela Tim',
+      idRbx: 2,
+    },
+    {
+      label: 'Troca de Provedor (Claro)',
+      value: 'Troca de Provedor - Cliente optou pela Claro',
+      idRbx: 2,
+    },
+    {
+      label: 'Troca de Provedor (Alares)',
+      value: 'Troca de Provedor - Cliente optou pela Alares',
+      idRbx: 2,
+    },
+    {
+      label: 'Troca de Provedor (Outra/Não quis especificar)',
+      value: 'Troca de Provedor - Cliente não especificou a operadora',
       idRbx: 2,
     },
     { label: 'Falecimento do Titular', value: 'Cliente faleceu', idRbx: 23 },
@@ -217,7 +238,7 @@ export class CancelContractComponent implements OnInit {
       this.contractService.getContractById(contractId).subscribe({
         next: (dadosContrato) => {
           this.contract = dadosContrato;
-
+          
           //     if (this.contract.situationDescription === 'AGUARDANDO_INSTALACAO') {
 
           //     // const motivoAutomatico = {
@@ -421,14 +442,25 @@ export class CancelContractComponent implements OnInit {
       return;
     }
 
+    this.tipoCancelamento = 'NO_DEBT';
+
+    const totalPagar = this.simulationResult.valorTotal || 
+    (this.simulationResult.valorMulta + this.simulationResult.valorProporcional);
+
+    if (totalPagar <= 0) {
+    this.boletoGeradoUrl = null; 
+    this.activeStep = 4;
+    this.carregarPreviewPdf();         
+    return;                      
+  }
+
     const textoMotivo = this.selectedCancelReason.value;
     const idMotivo = this.selectedCancelReason.idRbx || 8;
+
 
     const MINIMUM_SPINNER_TIME = 700;
     this.isLoading = true;
     const startTime = Date.now();
-
-    this.tipoCancelamento = 'NO_DEBT';
 
     const requestPayload = {
       clientCodeRbx: 0,
@@ -984,7 +1016,7 @@ export class CancelContractComponent implements OnInit {
     }, 100);
   }
 
-  // --- LÓGICA DE CÁLCULO PROPORCIONAL (NO FRONTEND) ---
+   // --- LÓGICA DE CÁLCULO PROPORCIONAL (NO FRONTEND) ---
   private calcularProporcional(dataRescisao: Date): number {
     console.log('--- DEBUG PROPORCIONAL FRONT ---');
     console.log('Contrato:', this.contract);
