@@ -530,7 +530,9 @@ export class DownUpgradeComponent implements OnInit {
         },
         error: (err) => {
           this.isLoadingTransfer = false;
+          
           console.error('Erro ao fazer upgrade do contrato:', err);
+
           const backendMessage =
             typeof err.error === 'string'
               ? err.error

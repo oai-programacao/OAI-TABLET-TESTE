@@ -71,11 +71,11 @@ export class ContractsService {
   }
 
   upgradeContract(contractId: string, formData: FormData): Observable<any> {
-    return this.http.patch(
-      `${this.urlApi}/contract/${contractId}/upgrade`,
-      formData
-    );
-  }
+  return this.http.patch(
+    `${this.urlApi}/contract/${contractId}/upgrade`,
+    formData
+  );
+}
 
 
   getContractById(contractId: string): Observable<Contract> {
