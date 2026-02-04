@@ -873,46 +873,53 @@
 
 
 
-
-
-.price-box {
+.price-inline {
+  width: 100%;
   margin-top: 0.25rem;
 
-  padding: 0.5rem 0.75rem;
-
-  background-color: #ffffff;            // fundo branco sólido
-  border: 1px solid var(--surface-border, #d1d5db);
-
-  border-radius: 6px;                    // igual input (reto, não card)
-}
-
-.price-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1rem;
 
-  font-size: 0.85rem;
-  line-height: 1.2;
+  padding: 0.55rem 0.75rem;
+
+  background: #fff; 
+  border: 1px solid var(--surface-border, #d1d5db);
+  border-radius: 6px; 
 }
 
-.muted {
+.price-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.price-item.center {
+  justify-content: center;
+  flex: 1;
+}
+
+.price-item.right {
+  justify-content: flex-end;
+}
+
+.label {
   color: var(--text-color-secondary, #6b7280);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.value {
+  font-size: 0.9rem;
+  white-space: nowrap;
 }
 
 .discount {
   color: var(--red-600, #dc2626);
 }
 
-.divider {
-  height: 1px;
-  background: var(--surface-border, #d1d5db);
-  margin: 0.35rem 0;
-}
-
 .total {
-  font-size: 0.9rem;
-}
-
-.total strong {
-  font-weight: 600;
+  font-weight: 700;
 }
