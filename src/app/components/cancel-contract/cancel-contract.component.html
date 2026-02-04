@@ -205,21 +205,22 @@
                       }}</strong>
                     </div>
 
-                    <div
-                      class="sim-row"
-                      *ngIf="simulationResult.valorFaturasEmAberto > 0"
-                    >
-                      <span class="flex align-items-center gap-2 text-red-500">
-                        <i class="pi pi-exclamation-circle"></i>
-                        Faturas em Aberto (Não inclusas):
-                      </span>
-                      <strong class="text-red-600">
-                        {{
-                          simulationResult.valorFaturasEmAberto
-                            | currency : "BRL"
-                        }}
-                      </strong>
-                    </div>
+                   <div class="sim-row" *ngIf="simulationResult.valorFaturasEmAberto > 0">
+  <span class="flex align-items-center gap-2 text-red-500">
+    <i class="pi pi-exclamation-circle"></i>
+    Faturas em Aberto (Não inclusas):
+  </span>
+  <strong class="text-red-600">
+    {{ simulationResult.valorFaturasEmAberto | currency : "BRL" }}
+  </strong>
+</div>
+
+<div class="sim-row" *ngIf="simulationResult.valorFaturasEmAberto === 0">
+  <span class="flex align-items-center gap-2" style="color: #16a34a; font-weight: bold;">
+    <i class="pi pi-check-circle" style="font-size: 1.1rem;"></i>
+    Faturas em Aberto: Nada consta (Em dia)
+  </span>
+</div>
 
                     <div class="divider-dashed"></div>
 
