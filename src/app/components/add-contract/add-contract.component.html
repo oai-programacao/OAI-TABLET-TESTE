@@ -133,32 +133,34 @@
                       </p-iftalabel>
                     </p-inputgroup>
                   </div>
-                </div>
 
-                <div class="price-inline" *ngIf="selectedPlan">
-                  <div class="price-item">
-                    <span class="label">Preço do Plano:</span>
-                    <strong class="value">{{
-                      planPrice | currency: "BRL" : "symbol" : "1.2-2"
-                    }}</strong>
-                  </div>
+                  <div class="price-inline" *ngIf="selectedPlan">
+                    <div class="price-item">
+                      <span class="label">Preço do Plano:</span>
+                      <strong class="value">{{
+                        planPrice | currency: "BRL" : "symbol" : "1.2-2"
+                      }}</strong>
+                    </div>
 
-                  <div class="price-item center">
-                    <span class="label">Desconto Fixo:</span>
-                    <strong class="value discount"
-                      >-
-                      {{
-                        discountFixeValue | currency: "BRL" : "symbol" : "1.2-2"
-                      }}</strong
-                    >
-                  </div>
+                    <div class="price-item center">
+                      <span class="label">Desconto Fixo:</span>
+                      <strong class="value discount"
+                        >-
+                        {{
+                          discountFixeValue
+                            | currency: "BRL" : "symbol" : "1.2-2"
+                        }}</strong
+                      >
+                    </div>
 
-                  <div class="price-item right">
-                    <span class="label">Total:</span>
-                    <strong class="value total">{{
-                      finalPrice | currency: "BRL" : "symbol" : "1.2-2"
-                    }}</strong>
+                    <div class="price-item right">
+                      <span class="label">Total:</span>
+                      <strong class="value total">{{
+                        finalPrice | currency: "BRL" : "symbol" : "1.2-2"
+                      }}</strong>
+                    </div>
                   </div>
+                  
                 </div>
 
                 <div class="space-stepper1">

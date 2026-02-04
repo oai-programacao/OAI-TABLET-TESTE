@@ -873,8 +873,7 @@
 
 
 .price-inline {
-  width: 100%;
-  margin-top: -1px;               // 🔹 DICA EXTRA AQUI
+  margin-top: -1px;               
   padding: 0.55rem 0.75rem;
 
   display: flex;
@@ -885,8 +884,8 @@
   background: #ffffff;
   border: 1px solid var(--surface-border, #d1d5db);
 
-  border-top-left-radius: 0;       // 🔹 DICA EXTRA AQUI
-  border-top-right-radius: 0;      // 🔹 DICA EXTRA AQUI
+  border-top-left-radius: 0;      
+  border-top-right-radius: 0;      
   border-bottom-left-radius: 6px;
   border-bottom-right-radius: 6px;
 }
