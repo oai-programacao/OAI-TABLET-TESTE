@@ -2,14 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
 import { environment } from '../../../environments/environment';
-
-export interface Plan {
-  id: number;
-  nome: string;
-  codePlanRBX: number;
-  valor: number;
-  status: 'A' | 'I';
-}
+import { Plan } from '../../models/plan/plan.dto';
 
 @Injectable({
   providedIn: 'root'

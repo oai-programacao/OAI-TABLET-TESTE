@@ -31,7 +31,7 @@ import { GoogleMapsComponent } from '../../shared/components/google-maps/google-
 import { SignaturePadComponent } from '../../shared/components/signature-pad/signature-pad.component';
 import { MessageService } from 'primeng/api';
 import { Router, ActivatedRoute } from '@angular/router';
-import { PlanService, Plan } from '../../services/plan/plan.service';
+import { PlanService } from '../../services/plan/plan.service';
 import { CepService, CepResponse } from '../../services/cep/cep.service';
 import { SalesService } from '../../services/sales/sales.service';
 import { MidiaService } from '../../services/midia/midia.service';
@@ -62,6 +62,7 @@ import {
 import { AppComponent } from '../../app.component';
 import { MessagesValidFormsComponent } from '../../shared/components/message-valid-forms/message-valid-forms.component';
 import { CheckComponent } from '../../shared/components/check-component/check-component.component';
+import { Plan } from '../../models/plan/plan.dto';
 
 @Component({
   selector: 'app-add-contract',
