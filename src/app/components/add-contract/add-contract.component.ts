@@ -429,7 +429,7 @@ export class AddContractComponent implements OnInit {
           .filter(
             (plan) =>
               plan.status === 'A' &&
-              plan.codePlanRBX >= 10000 &&         // regra de novos contratos vai para esse cnpj.
+              plan.codePlanRBX >= 10000 && // regra de novos contratos vai para esse cnpj.
               plan.codePlanRBX <= 11000,
           )
           .map((plan) => ({
@@ -438,6 +438,7 @@ export class AddContractComponent implements OnInit {
             code: String(plan.codePlanRBX),
             name: plan.nome,
             status: plan.status,
+            valor: plan.valor,
           }));
       },
       error: (err) => {
@@ -1718,5 +1719,36 @@ export class AddContractComponent implements OnInit {
     };
 
     this.showMapDialog = true;
+  }
+
+  toNumber(v: any): number {
+    if (v == null) return 0;
+    if (typeof v === 'number') return v;
+
+    const s = String(v)
+      .replace(/\s/g, '')
+      .replace('R$', '')
+      .replace(/\./g, '')
+      .replace(',', '.');
+
+    const n = Number(s);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  get selectedPlanObj(): any | null {
+    if (!this.selectedPlan) return null;
+    return this.plans.find((p) => p.value === this.selectedPlan) ?? null;
+  }
+
+  get planPrice(): number {
+    return this.selectedPlanObj ? this.toNumber(this.selectedPlanObj.valor) : 0;
+  }
+
+  get discountFixeValue(): number {
+    return this.toNumber(this.contractFormData.discountFixe);
+  }
+
+  get finalPrice(): number {
+    return Math.max(0, this.planPrice - this.discountFixeValue);
   }
 }

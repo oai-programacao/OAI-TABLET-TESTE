@@ -73,6 +73,35 @@
                     </p-iftalabel>
                   </p-inputgroup>
 
+                  <div class="price-box" *ngIf="selectedPlan">
+                    <div class="price-row">
+                      <span class="muted">Preço do plano</span>
+                      <strong>{{
+                        planPrice | currency: "BRL" : "symbol" : "1.2-2"
+                      }}</strong>
+                    </div>
+
+                    <div class="price-row">
+                      <span class="muted">Desconto fixo</span>
+                      <strong class="discount">
+                        -
+                        {{
+                          discountFixeValue
+                            | currency: "BRL" : "symbol" : "1.2-2"
+                        }}
+                      </strong>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="price-row total">
+                      <span>Total</span>
+                      <strong>{{
+                        finalPrice | currency: "BRL" : "symbol" : "1.2-2"
+                      }}</strong>
+                    </div>
+                  </div>
+
                   <div>
                     <p-inputgroup>
                       <p-inputgroup-addon>
@@ -91,7 +120,7 @@
                             prefix: 'R$ ',
                             thousands: '.',
                             decimal: ',',
-                            align: 'left'
+                            align: 'left',
                           }"
                           inputmode="numeric"
                           pattern="[0-9]*"
@@ -121,7 +150,7 @@
                             prefix: 'R$ ',
                             thousands: '.',
                             decimal: ',',
-                            align: 'left'
+                            align: 'left',
                           }"
                           inputmode="numeric"
                           pattern="[0-9]*"
@@ -1084,7 +1113,7 @@
     minWidth: '800px',
     maxWidth: '800px',
     minHeight: '800px',
-    maxHeight: '800px'
+    maxHeight: '800px',
   }"
   class="dialogOs"
 >
@@ -1211,12 +1240,12 @@
                   <div *ngIf="offer.reservedAt">
                     <i class="pi pi-calendar-plus mr-1"></i>
                     <strong> Reservado em:</strong>
-                    {{ offer.reservedAt | date : "dd/MM/yyyy HH:mm" }}
+                    {{ offer.reservedAt | date: "dd/MM/yyyy HH:mm" }}
                   </div>
                   <div>
                     <i class="pi pi-clock mr-1"></i>
                     <strong> Até: </strong>
-                    {{ offer.reservedUntil | date : "dd/MM/yyyy HH:mm" }}
+                    {{ offer.reservedUntil | date: "dd/MM/yyyy HH:mm" }}
                   </div>
 
                   <div>
@@ -1244,7 +1273,7 @@
               size="small"
               (click)="reserveOffer(offer)"
             ></button>
-            
+
             <!-- SE ESTÁ RESERVADA -->
             <button
               *ngIf="offer.reserved"
@@ -1283,7 +1312,7 @@
     minWidth: '400px',
     maxWidth: '400px',
     minHeight: '400px',
-    maxHeight: '350px'
+    maxHeight: '350px',
   }"
   class="dialogOs"
 >
