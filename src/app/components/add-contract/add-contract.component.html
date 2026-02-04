@@ -72,36 +72,7 @@
                       <label for="plan">Plano de Internet*</label>
                     </p-iftalabel>
                   </p-inputgroup>
-
-                  <div class="price-box" *ngIf="selectedPlan">
-                    <div class="price-row">
-                      <span class="muted">Preço do plano</span>
-                      <strong>{{
-                        planPrice | currency: "BRL" : "symbol" : "1.2-2"
-                      }}</strong>
-                    </div>
-
-                    <div class="price-row">
-                      <span class="muted">Desconto fixo</span>
-                      <strong class="discount">
-                        -
-                        {{
-                          discountFixeValue
-                            | currency: "BRL" : "symbol" : "1.2-2"
-                        }}
-                      </strong>
-                    </div>
-
-                    <div class="divider"></div>
-
-                    <div class="price-row total">
-                      <span>Total</span>
-                      <strong>{{
-                        finalPrice | currency: "BRL" : "symbol" : "1.2-2"
-                      }}</strong>
-                    </div>
-                  </div>
-
+                  
                   <div>
                     <p-inputgroup>
                       <p-inputgroup-addon>
@@ -131,6 +102,35 @@
                         <label for="adesion">Preço de Adesão*</label>
                       </p-iftalabel>
                     </p-inputgroup>
+                  </div>
+
+                   <div class="price-box" *ngIf="selectedPlan">
+                    <div class="price-row">
+                      <span class="muted">Preço do plano</span>
+                      <strong>{{
+                        planPrice | currency: "BRL" : "symbol" : "1.2-2"
+                      }}</strong>
+                    </div>
+
+                    <div class="price-row">
+                      <span class="muted">Desconto fixo</span>
+                      <strong class="discount">
+                        -
+                        {{
+                          discountFixeValue
+                            | currency: "BRL" : "symbol" : "1.2-2"
+                        }}
+                      </strong>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="price-row total">
+                      <span>Total</span>
+                      <strong>{{
+                        finalPrice | currency: "BRL" : "symbol" : "1.2-2"
+                      }}</strong>
+                    </div>
                   </div>
 
                   <div>
