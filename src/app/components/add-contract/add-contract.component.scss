@@ -869,11 +869,10 @@
   font-weight: 700;
 }
 
-
-
-
 .price-inline {
-  margin-top: -1px;               
+  margin-top: -1px;
+  margin-left: 2rem;
+  margin-right: 2rem;               
   padding: 0.55rem 0.75rem;
 
   display: flex;
@@ -919,7 +918,7 @@
 }
 
 .total {
-  font-weight: 700;
-  color: #0c5460;
+  font-weight: 900;
+  color: #1c360a;
 }
 
