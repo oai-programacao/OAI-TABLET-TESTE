@@ -872,33 +872,34 @@
 
 
 
-
 .price-inline {
   width: 100%;
-  margin-top: 0.25rem;
+  margin-top: -1px;               // 🔹 DICA EXTRA AQUI
+  padding: 0.55rem 0.75rem;
 
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
 
-  padding: 0.55rem 0.75rem;
-
-  background: #fff; 
+  background: #ffffff;
   border: 1px solid var(--surface-border, #d1d5db);
-  border-radius: 6px; 
+
+  border-top-left-radius: 0;       // 🔹 DICA EXTRA AQUI
+  border-top-right-radius: 0;      // 🔹 DICA EXTRA AQUI
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
 }
 
 .price-item {
   display: flex;
   align-items: baseline;
   gap: 0.35rem;
-  min-width: 0;
 }
 
 .price-item.center {
-  justify-content: center;
   flex: 1;
+  justify-content: center;
 }
 
 .price-item.right {
@@ -908,12 +909,10 @@
 .label {
   color: var(--text-color-secondary, #6b7280);
   font-size: 0.85rem;
-  white-space: nowrap;
 }
 
 .value {
   font-size: 0.9rem;
-  white-space: nowrap;
 }
 
 .discount {
@@ -922,4 +921,6 @@
 
 .total {
   font-weight: 700;
+  color: #0c5460;
 }
+
