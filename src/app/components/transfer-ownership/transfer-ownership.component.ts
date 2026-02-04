@@ -492,6 +492,7 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
       .subscribe({
         next: (res: string) => {
           this.showSuccess("Sucesso!", res, 10000)
+          this.autentiqueModalVisible = false
         },
         error: (err) => {
           this.isLoadingTransfer = false
