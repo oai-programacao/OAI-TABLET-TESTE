@@ -192,6 +192,11 @@ export class CancelContractComponent implements OnInit {
       value: 'Troca de Provedor - Cliente optou pela Alares',
       idRbx: 2,
     },
+     {
+      label: 'Troca de Provedor (Cabonet)',
+      value: 'Troca de Provedor - Cliente optou pela Cabonet',
+      idRbx: 2,
+    },
     {
       label: 'Troca de Provedor (Outra/Não quis especificar)',
       value: 'Troca de Provedor - Cliente não especificou a operadora',
