@@ -164,7 +164,7 @@ export class AddContractComponent implements OnInit {
   selectedClientType: string = '';
   clientTypes = [
     { label: 'B2B', value: 'B2B' },
-    { label: 'B2B ESPECIAL', value: 'B2B ESPECIAL' },
+    { label: 'B2B ESPECIAL', value: 'B2B_SPECIAL' },
     { label: 'B2C', value: 'B2C' },
     { label: 'B2G', value: 'B2G' },
     { label: 'Interno', value: 'INTERN' },
