@@ -111,6 +111,7 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
   private readonly reportsService = inject(ReportsService)
   private readonly imageUtilsService = inject(ImageUtilsService);
 
+  finalSignedPdf: Blob | File | null = null;
   clientId!: string
   contractId!: string
   toNewContractId!: string;
@@ -177,7 +178,7 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
       this.contractService
         .getAuthenticationsByContract(contractId)
 
-        
+
         .subscribe({
           next: (result) => {
             this.authenticationContract = result.length > 0;
@@ -310,97 +311,121 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
   }
 
   onConfirmTransfer(): void {
-    const signatureOldData = this.signatureOldBase64
-    const signatureNewData = this.signatureNewBase64
+    const signatureOld = this.signatureOldBase64;
+    const signatureNew = this.signatureNewBase64;
 
-    if (!signatureOldData || signatureOldData.length <= 22) {
-      this.showWarning("Ação Bloqueada", "A assinatura do titular antigo está vazia ou inválida.")
-      return
+    if (!signatureOld || signatureOld.length <= 22) {
+      this.showWarning(
+        "Ação Bloqueada",
+        "A assinatura do titular antigo é inválida."
+      );
+      return;
     }
 
-    if (!signatureNewData || signatureNewData.length <= 22) {
-      this.showWarning("Ação Bloqueada", "A assinatura do novo titular está vazia ou inválida.")
-      return
+    if (!signatureNew || signatureNew.length <= 22) {
+      this.showWarning(
+        "Ação Bloqueada",
+        "A assinatura do novo titular é inválida."
+      );
+      return;
+    }
+
+    if (!this.finalSignedPdf || this.finalSignedPdf.size === 0) {
+      this.showError(
+        "Documento obrigatório",
+        "O PDF assinado é obrigatório para concluir a transferência."
+      );
+      return;
     }
 
     if (!this.selectedContractForTransfer || !this.foundClient) {
-      this.showError("Erro de Dados", "Dados do contrato ou do novo titular ausentes.")
-      return
+      this.showError(
+        "Erro de Dados",
+        "Contrato ou novo titular ausente."
+      );
+      return;
     }
 
-    this.isLoadingTransfer = true
-    this.loadingMessage = "A processar a transferência de negócio..."
+    this.isLoadingTransfer = true;
+    this.loadingMessage = "Processando transferência de titularidade...";
 
-    const oldContractId = this.selectedContractForTransfer.id
-    const newClientId = this.foundClient.id
+    const formData = new FormData();
 
-    const payloadWhats = {
-      newClientId: newClientId,
-      phone: this.phone
-    }
+    const data = {
+      newClientId: this.foundClient.id,
+      phone: this.phone,
+      signatureOld: signatureOld,
+      signatureNew: signatureNew
+    };
 
-    const signPayload = {
-      oldContractId: oldContractId,
-      newClientId: newClientId,
-      signatureOld: signatureOldData,
-      signatureNew: signatureNewData,
+    formData.append(
+      "data",
+      new Blob([JSON.stringify(data)], { type: "application/json" })
+    );
+
+    if (this.finalSignedPdf) {
+      formData.append(
+        "files",
+        this.finalSignedPdf,
+        "transferencia_titularidade_assinada.pdf"
+      );
     }
 
     this.contractService
-      .transferOwnership(oldContractId, payloadWhats)
-      .pipe(
-        concatMap((responseTransfer) => {
-          this.toNewContractId = responseTransfer.id;
-          this.toNewClientId = newClientId;
-          this.loadingMessage = "A carimbar assinaturas no PDF final..."
-          return this.contractService.finalizeAndSignTransfer(signPayload)
-        }),
-
+      .transferOwnership(
+        this.selectedContractForTransfer.id,
+        formData
       )
       .subscribe({
-        next: (signedPdfBlob: Blob) => {
-          if (this.pdfSrc) {
-            const oldUrl = this.pdfSrc.changingThisBreaksApplicationSecurity || this.pdfSrc
-            if (typeof oldUrl === "string" && oldUrl.startsWith("blob:")) {
-              URL.revokeObjectURL(oldUrl)
-            }
-          }
+        next: (response) => {
+          this.toNewContractId = response.id;
+          this.toNewClientId = data.newClientId;
 
-          const objectUrl = URL.createObjectURL(signedPdfBlob)
-          this.pdfSrc = this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl)
+          this.showSuccess(
+            "Sucesso!",
+            "Transferência realizada, atendimentos criados e documento anexado com sucesso.",
+            10000
+          );
 
-          this.activeStep = 4
-
-          this.showSuccess("Sucesso!", "A transferência foi concluída e o PDF assinado.", 10000)
-          this.isLoadingTransfer = false;
+          // Resultado final (resumo)
           this.result = {
             clientOldName: this.currentClient?.name,
-            clientOldCpfCnpj: this.currentClient?.cpf || this.currentClient?.cnpj,
-            oldContractCode: this.selectedContractForTransfer?.codeContractRbx,
+            clientOldCpfCnpj:
+              this.currentClient?.cpf || this.currentClient?.cnpj,
+            oldContractCode:
+              this.selectedContractForTransfer?.codeContractRbx,
             clientNewName: this.foundClient?.name
           };
+
+          // Estados finais
           this.tocarCheck = true;
+          this.activeStep = 4;
+          this.finalization = true;
+          this.isLoadingTransfer = false;
+
+          // Limpeza de estado sensível
           this.signatureOldBase64 = null;
           this.signatureNewBase64 = null;
-          this.finalization = true;
-
-          this.registerAttendance(signedPdfBlob);
+          this.finalSignedPdf = null;
         },
         error: (err) => {
-          const backendMessage =
-            typeof err.error === "string" ? err.error : err.error?.message || "Não foi possível concluir a operação."
+          const msg =
+            typeof err.error === "string"
+              ? err.error
+              : err.error?.message ||
+              "Erro ao concluir a transferência.";
 
           this.showError(
             "Erro na Operação",
-            `${backendMessage} (Verifique o contrato, a transferência pode ter sido concluída mesmo sem o PDF.)`,
-            10000,
-          )
-          this.isLoadingTransfer = false
+            msg,
+            10000
+          );
 
-          this.activeStep = 1
-        },
-      })
+          this.isLoadingTransfer = false;
+        }
+      });
   }
+
 
   openPhoneModal() {
     this.phone = '';
@@ -610,7 +635,7 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
   public get arePhonesInvalid(): boolean {
     const cleanPhoneOld = (this.phoneOldOwner || "").replace(/\D/g, "")
     const cleanPhoneNew = (this.phoneNewOwner || "").replace(/\D/g, "")
-    
+
     return cleanPhoneOld.length !== 11 || cleanPhoneNew.length !== 11;
   }
 
@@ -743,6 +768,7 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
     this.reportsService.finalizeTransferAndSign(requestBody)
       .subscribe({
         next: (blob) => {
+          this.finalSignedPdf = blob;
           this.pdfPreviewUrl = window.URL.createObjectURL(blob);
           this.safePdfPreviewUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfPreviewUrl);
           this.isLoadingPreview = false;
