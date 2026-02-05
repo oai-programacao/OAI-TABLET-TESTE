@@ -221,6 +221,7 @@ export class AddressTransferComponent implements OnInit, OnDestroy {
   typeOs = [{ label: 'Mudança de Endereço', value: 'CHANGE_OF_ADDRESS' }];
 
   selectedClientType: string = '';
+  
   clientTypes = [
     { label: 'B2B', value: 'B2B' },
     { label: 'B2B ESPECIAL', value: 'B2B_SPECIAL' },

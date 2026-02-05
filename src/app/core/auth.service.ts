@@ -1,16 +1,16 @@
-import { WebSocketService } from './../services/webSocket/websocket.service';
-
-import { LoginSeller } from './../models/login/login-seller.dto';
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Router } from '@angular/router';
+
 import {
   Observable,
-  throwError,
   BehaviorSubject,
+  throwError,
   timer,
   Subscription,
   of,
 } from 'rxjs';
+
 import {
   tap,
   catchError,
@@ -20,9 +20,12 @@ import {
   finalize,
   shareReplay,
 } from 'rxjs/operators';
-import { Router } from '@angular/router';
-import { environment } from '../../environments/environment';
+
 import { jwtDecode } from 'jwt-decode';
+import { environment } from '../../environments/environment';
+
+import { WebSocketService } from './../services/webSocket/websocket.service';
+import { LoginSeller } from './../models/login/login-seller.dto';
 
 export interface AuthenticatedUser {
   id: string | null;
@@ -31,73 +34,80 @@ export interface AuthenticatedUser {
   email?: string;
 }
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class AuthService {
   private apiUrl = `${environment.apiUrl}/auth`;
 
-  private isRefreshingToken = false;
-  private refreshTokenSubject = new BehaviorSubject<string | null>(null);
-  private refreshSub?: Subscription;
-  private tokenExpirationTimer?: any;
   private webSocketService = inject(WebSocketService);
 
-  //Reativo
+  private isRefreshingToken = false;
+  private refreshTokenSubject = new BehaviorSubject<string | null>(null);
+
+  private refreshSub?: Subscription;
+  private tokenExpirationTimer?: ReturnType<typeof setTimeout>;
+
+  private readonly skewMs = 30_000; // 30s de margem em tudo
+
   public currentUserSubject = new BehaviorSubject<AuthenticatedUser | null>(
-    this.getUserFromToken()
+    this.getUserFromToken(),
   );
 
   public currentUser$ = this.currentUserSubject.asObservable();
-  public isLoggedIn$ = this.currentUser$.pipe(switchMap((user) => of(!!user)));
 
-  constructor(private http: HttpClient, private router: Router) {
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+  ) {
+    // Se já tinha sessão (F5), reativa refresh e WS
     const user = this.currentUserSubject.getValue();
-    if (user) this.initAutoRefresh();
+    const token = this.getAccessToken();
+
+    if (user && token && !this.isTokenExpired(token)) {
+      this.initAutoRefresh(token);
+      this.webSocketService.updateTokenAndReconnect(token);
+    }
   }
 
-  /** ===========================
-   * LOGIN
-   ============================ */
-
+  // ---------------------------
+  // LOGIN / LOGOUT
+  // ---------------------------
   login(loginSeller: LoginSeller): Observable<any> {
-    const headers = new HttpHeaders({
-      'X-Client-Type': 'SELLER',
-    });
+    const headers = new HttpHeaders({ 'X-Client-Type': 'SELLER' });
 
     return this.http
       .post<any>(`${this.apiUrl}/login`, loginSeller, { headers })
       .pipe(
         tap((response) => {
           this.storeTokens(response.accessToken, response.refreshToken);
-          localStorage.setItem('name', response.name);
-          this.currentUserSubject.next(this.getUserFromToken());
-          this.initAutoRefresh();
+          localStorage.setItem('name', response.name ?? '');
+
+          const user = this.buildUserFromAccessToken(response.accessToken);
+          this.currentUserSubject.next(user);
+
+          this.initAutoRefresh(response.accessToken);
+
+          // ✅ WS com token novo (canal pelo sub)
+          this.webSocketService.updateTokenAndReconnect(response.accessToken);
+
           this.router.navigate(['/search']);
-        })
+        }),
       );
   }
 
-  /** ===========================
-   * LOGOUT
-   ============================ */
   logout(): void {
     this.clearRefreshTimer();
-    if (this.tokenExpirationTimer) {
-      clearTimeout(this.tokenExpirationTimer);
-      this.tokenExpirationTimer = 1000;
-    }
-
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('name');
+
     this.currentUserSubject.next(null);
+    this.webSocketService.disconnect();
+    console.trace('🚨 logout chamado');
     this.router.navigate(['/login']);
   }
-
-  /** ===========================
-   * TOKEN HELPERS
-   ============================ */
+  // ---------------------------
+  // TOKENS
+  // ---------------------------
   getAccessToken(): string | null {
     return localStorage.getItem('accessToken');
   }
@@ -115,47 +125,43 @@ export class AuthService {
     const token = this.getAccessToken();
     if (!token) return null;
 
+    if (this.isTokenExpired(token)) return null;
+
+    return this.buildUserFromAccessToken(token);
+  }
+
+  private buildUserFromAccessToken(token: string): AuthenticatedUser | null {
     try {
       const decoded: any = jwtDecode(token);
-
-      // verifica expiração
-      if (decoded.exp * 1000 < Date.now()) {
-        this.clearTokens();
-        return null;
-      }
-
       return {
-        id: decoded.id || null,
-        name: decoded.name,
-        roles: decoded.roles || [],
-        email: decoded.email,
+        id: decoded?.id ?? null,
+        name: decoded?.name,
+        roles: decoded?.roles ?? [],
+        email: decoded?.sub ?? decoded?.email,
       };
-    } catch (error) {
-      this.clearTokens();
+    } catch {
       return null;
     }
   }
 
-  private clearTokens(): void {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-  }
-
-  /** ===========================
-   * REFRESH TOKEN (race condition protegido)
-   ============================ */
+  // ---------------------------
+  // REFRESH (com proteção de corrida)
+  // ---------------------------
   refreshToken(): Observable<string> {
     const refreshToken = this.getRefreshToken();
+
     if (!refreshToken) {
+      // sem refresh: sessão acabou
       this.logout();
       return throwError(() => new Error('Nenhum refresh token disponível'));
     }
 
+    // Se já tem refresh em andamento, aguarda o novo token
     if (this.isRefreshingToken) {
       return this.refreshTokenSubject.pipe(
-        filter((token) => token !== null),
-        take(1)
-      ) as Observable<string>;
+        filter((t): t is string => t !== null),
+        take(1),
+      );
     }
 
     this.isRefreshingToken = true;
@@ -165,63 +171,78 @@ export class AuthService {
       .post<any>(
         `${this.apiUrl}/refresh`,
         { refreshToken },
-        {
-          headers: new HttpHeaders({
-            'X-Client-Type': 'SELLER',
-          }),
-        }
+        { headers: new HttpHeaders({ 'X-Client-Type': 'SELLER' }) },
       )
       .pipe(
         tap((response) => {
+          // ✅ MUITO IMPORTANTE: salvar os DOIS, pq refresh é rotacionado
           this.storeTokens(response.accessToken, response.refreshToken);
-          this.currentUserSubject.next(this.getUserFromToken());
+
+          const user = this.buildUserFromAccessToken(response.accessToken);
+          this.currentUserSubject.next(user);
+
           this.refreshTokenSubject.next(response.accessToken);
+
+          // ✅ WS com token novo (canal pelo sub)
+          this.webSocketService.updateTokenAndReconnect(response.accessToken);
+
+          // ✅ reprograma auto refresh com o token novo
+          this.initAutoRefresh(response.accessToken);
         }),
         switchMap((response) => of(response.accessToken)),
         catchError((err) => {
+          // aqui você pode escolher não deslogar em erro de rede
+          // mas se for 401/403 normalmente é sessão inválida mesmo
           this.logout();
           return throwError(() => err);
         }),
         finalize(() => {
           this.isRefreshingToken = false;
         }),
-        shareReplay(1)
+        shareReplay(1),
       );
   }
 
-  /** ===========================
-   * AUTO REFRESH PROATIVO
-   ============================ */
-  initAutoRefresh(): void {
+  // ---------------------------
+  // AUTO REFRESH
+  // ---------------------------
+  initAutoRefresh(token?: string): void {
     this.clearRefreshTimer();
 
-    const token = this.getAccessToken();
-    if (!token) return;
+    const access = token ?? this.getAccessToken();
+    if (!access) return;
 
-    let exp: number;
+    let expMs: number;
     try {
-      const decoded: any = jwtDecode(token);
-      exp = decoded.exp * 1000;
-    } catch (e) {
+      const decoded: any = jwtDecode(access);
+      expMs = (decoded?.exp ?? 0) * 1000;
+    } catch {
+      this.logout();
+      return;
+    }
+
+    if (!expMs) {
       this.logout();
       return;
     }
 
     const now = Date.now();
-    const timeUntilExpiry = exp - now;
+    const timeUntilExpiry = expMs - now - this.skewMs;
 
+    // já está “quase expirado”: tenta refresh rápido
     if (timeUntilExpiry <= 0) {
       this.refreshSub = timer(1000)
         .pipe(switchMap(() => this.refreshToken()))
-        .subscribe();
+        .subscribe({ error: () => {} });
       return;
     }
 
-    const refreshTime = Math.max(timeUntilExpiry - 60_000, 5_000);
+    // dispara 1 min antes, no mínimo 5s
+    const refreshIn = Math.max(timeUntilExpiry - 60_000, 5_000);
 
     this.tokenExpirationTimer = setTimeout(() => {
-      this.refreshToken().subscribe();
-    }, refreshTime);
+      this.refreshToken().subscribe({ error: () => {} });
+    }, refreshIn);
   }
 
   clearRefreshTimer(): void {
@@ -235,20 +256,32 @@ export class AuthService {
     }
   }
 
-  /** ===========================
-   * AUXILIARES
-   ============================ */
+  // ---------------------------
+  // HELPERS
+  // ---------------------------
   isAuthenticated(): boolean {
-    return !!this.getUserFromToken();
+    const access = this.getAccessToken();
+    const refresh = this.getRefreshToken();
+    if (!access || !refresh) return false;
+    // mesmo se access expirou, ainda consideramos “sessão recuperável”
+    return true;
   }
 
   getUserRoles(): string[] {
-    const user = this.getUserFromToken();
-    return user?.roles || [];
+    return this.getUserFromToken()?.roles ?? [];
   }
 
   getSellerId(): string | null {
-    const user = this.getUserFromToken();
-    return user?.id || null;
+    return this.getUserFromToken()?.id ?? null;
+  }
+
+  private isTokenExpired(token: string): boolean {
+    try {
+      const decoded: any = jwtDecode(token);
+      const expMs = (decoded?.exp ?? 0) * 1000;
+      return !expMs || expMs <= Date.now() + this.skewMs;
+    } catch {
+      return true;
+    }
   }
 }

@@ -456,6 +456,7 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
     this.autentiqueModalVisible = false
   }
 
+
   sendToAutentiqueSubmit(): void {
     if (!this.currentClient || !this.foundClient || !this.selectedContractForTransfer) {
       this.showError("Erro de Dados", "Não foi possível obter os dados completos dos titulares ou do contrato.")
@@ -491,6 +492,7 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
       .subscribe({
         next: (res: string) => {
           this.showSuccess("Sucesso!", res, 10000)
+          this.autentiqueModalVisible = false
         },
         error: (err) => {
           this.isLoadingTransfer = false
@@ -636,7 +638,15 @@ export class TransferOwnershipComponent implements OnInit, AfterViewInit {
     const cleanPhoneOld = (this.phoneOldOwner || "").replace(/\D/g, "")
     const cleanPhoneNew = (this.phoneNewOwner || "").replace(/\D/g, "")
 
-    return cleanPhoneOld.length !== 11 || cleanPhoneNew.length !== 11;
+    if (cleanPhoneOld.length !== 11 || cleanPhoneNew.length !== 11) {
+      return true;
+    }
+
+    if (cleanPhoneOld === cleanPhoneNew) {
+      return true;
+    }
+
+    return false;
   }
 
   private isTransferringToSameOwner(documentoParaBuscar: string): boolean {
